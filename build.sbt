@@ -56,6 +56,20 @@ lazy val importer = (project in file("importer"))
   .dependsOn(common % "test->test;compile->compile")
   .aggregate(common)
 
+lazy val jira = (project in file("jira"))
+  .settings(commonSettings: _*)
+  .settings(
+    name := "jira",
+    scapegoatVersion := "1.1.0",
+    scapegoatDisabledInspections := Seq(
+      "NullParameter",
+      "CatchThrowable",
+      "NoOpOverride"
+    )
+  )
+  .dependsOn(common % "test->test;compile->compile")
+  .aggregate(common)
+
 lazy val root = (project in file("."))
   .settings(commonSettings: _*)
   .settings(
