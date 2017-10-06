@@ -1,0 +1,84 @@
+package com.nulabinc.backlog.j2b.core
+
+import java.util.Locale
+
+import com.nulabinc.backlog.j2b.cli.J2BCli
+import com.nulabinc.backlog.j2b.utils.ClassVersion
+import com.nulabinc.backlog.migration.common.conf.BacklogConfiguration
+import com.nulabinc.backlog.migration.common.utils.{ConsoleOut, Logging}
+import com.osinka.i18n.Messages
+import org.fusesource.jansi.AnsiConsole
+import org.rogach.scallop.{ScallopConf, Subcommand}
+
+class CommandLineInterface(arguments: Seq[String]) extends ScallopConf(arguments) with BacklogConfiguration with Logging {
+
+  banner(
+    """Usage: Backlog Migration for Jira [OPTION]....
+
+    """.stripMargin)
+
+  footer("\n " + Messages("cli.help"))
+
+  val init = new Subcommand("init") {
+    val backlogKey   = opt[String]("backlog.key", descr = Messages("cli.help.backlog.key"), required = true, noshort = true)
+    val backlogUrl   = opt[String]("backlog.url", descr = Messages("cli.help.backlog.url"), required = true, noshort = true)
+    val jiraUsername = opt[String]("jira.username", descr = Messages("cli.help.jira.username"), required = true, noshort = true)
+    val jiraPassword = opt[String]("jira.password", descr = Messages("cli.help.jira.password"), required = true, noshort = true)
+
+    val projectKey = opt[String]("projectKey", descr = Messages("cli.help.projectKey"), required = true)
+    val help       = opt[String]("help", descr = Messages("cli.help.show_help"))
+  }
+
+  addSubcommand(init)
+
+  verify()
+}
+
+object J2B extends BacklogConfiguration with Logging {
+
+  def main(args: Array[String]): Unit = {
+
+    ConsoleOut.println(
+      s"""|$applicationName
+          |--------------------------------------------------
+       """.stripMargin)
+
+    // Console initialization
+    AnsiConsole.systemInstall()
+
+    // Set language
+    language match {
+      case "ja" => Locale.setDefault(Locale.JAPAN)
+      case "en" => Locale.setDefault(Locale.US)
+      case _    => Locale.setDefault(Locale.getDefault)
+    }
+
+    // DisableSSLCertificateCheckUtil.disableChecks() // TODO: ???
+    // checkRelease()                                 // TODO: Github repo does not exist
+
+
+    if ( ! ClassVersion.isValid()) {
+      ConsoleOut.error(Messages("cli.require_java8", System.getProperty("java.specification.version")))
+      exit(1)
+    }
+
+    // Run
+    try {
+      val cli = new CommandLineInterface(args)
+      cli.subcommand match {
+        case Some(cli.init) => J2BCli.init()
+        case _              => J2BCli.help()
+      }
+      exit(0)
+    } catch {
+      case e: Throwable =>
+        logger.error(e.getMessage, e)
+        exit(1)
+    }
+  }
+
+  private[this] def exit(exitCode: Int): Unit = {
+    AnsiConsole.systemUninstall()
+    System.exit(exitCode)
+  }
+}
