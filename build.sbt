@@ -70,6 +70,20 @@ lazy val jira = (project in file("jira"))
   .dependsOn(common % "test->test;compile->compile")
   .aggregate(common)
 
+lazy val exporter = (project in file("exporter"))
+  .settings(commonSettings: _*)
+  .settings(
+    name := "redmine-exporter",
+    scapegoatVersion := "1.1.0",
+    scapegoatDisabledInspections := Seq(
+      "NullParameter",
+      "CatchThrowable",
+      "NoOpOverride"
+    )
+  )
+  .dependsOn(common % "test->test;compile->compile", jira)
+  .aggregate(common, jira)
+
 lazy val root = (project in file("."))
   .settings(commonSettings: _*)
   .settings(
@@ -89,5 +103,5 @@ lazy val root = (project in file("."))
     scapegoatVersion := "1.1.0",
     scapegoatDisabledInspections := Seq("NullParameter", "CatchThrowable", "NoOpOverride")
   )
-  .dependsOn(common % "test->test;compile->compile", importer)
-  .aggregate(common, importer)
+  .dependsOn(common % "test->test;compile->compile", importer, exporter)
+  .aggregate(common, importer, exporter)
