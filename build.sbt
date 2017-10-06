@@ -36,6 +36,26 @@ lazy val commonSettings = Seq(
   javacOptions ++= Seq("-encoding", "UTF-8")
 )
 
+lazy val common = (project in file("common"))
+  .settings(commonSettings: _*)
+  .settings(
+    name := "backlog-migration-common",
+    libraryDependencies ++= Seq("org.scalatest" %% "scalatest" % "3.0.1" % "test"),
+    unmanagedBase := baseDirectory.value / "libs",
+    scapegoatVersion := "1.1.0",
+    scapegoatDisabledInspections := Seq("NullParameter", "CatchThrowable", "NoOpOverride")
+  )
+
+lazy val importer = (project in file("importer"))
+  .settings(commonSettings: _*)
+  .settings(
+    name := "backlog-importer",
+    scapegoatVersion := "1.1.0",
+    scapegoatDisabledInspections := Seq("NullParameter", "CatchThrowable", "NoOpOverride")
+  )
+  .dependsOn(common % "test->test;compile->compile")
+  .aggregate(common)
+
 lazy val root = (project in file("."))
   .settings(commonSettings: _*)
   .settings(
@@ -55,3 +75,5 @@ lazy val root = (project in file("."))
     scapegoatVersion := "1.1.0",
     scapegoatDisabledInspections := Seq("NullParameter", "CatchThrowable", "NoOpOverride")
   )
+  .dependsOn(common % "test->test;compile->compile", importer)
+  .aggregate(common, importer)
