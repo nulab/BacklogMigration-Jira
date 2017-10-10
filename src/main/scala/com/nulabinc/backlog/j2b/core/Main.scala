@@ -24,6 +24,7 @@ class CommandLineInterface(arguments: Seq[String]) extends ScallopConf(arguments
     val backlogUrl   = opt[String]("backlog.url", descr = Messages("cli.help.backlog.url"), required = true, noshort = true)
     val jiraUsername = opt[String]("jira.username", descr = Messages("cli.help.jira.username"), required = true, noshort = true)
     val jiraPassword = opt[String]("jira.password", descr = Messages("cli.help.jira.password"), required = true, noshort = true)
+    val jiraUrl      = opt[String]("jira.url", descr = Messages("cli.help.jira.url"), required = true, noshort = true)
 
     val projectKey = opt[String]("projectKey", descr = Messages("cli.help.projectKey"), required = true)
     val help       = opt[String]("help", descr = Messages("cli.help.show_help"))

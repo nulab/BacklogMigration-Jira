@@ -60,6 +60,7 @@ cli.help.backlog.key=Your Backlog api access key (required) Example:--backlog.ke
 cli.help.backlog.url=Your Backlog url (required) Example:--backlog.url [your backlog url]
 cli.help.jira.username=Your Jira user name (required) Example:--jira.username [your jira username]
 cli.help.jira.password=Your Jira user password (required) Example:--jira.password [your jira password]
+cli.help.jira.url=Your Jira url (required) Example:--jira.url [your jira url]
 cli.help.importOnly=If you set this option, only import will be run by the program.
 cli.help.optOut=If you set this option, tracking will not be run by the program.
 

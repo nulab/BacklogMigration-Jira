@@ -8,7 +8,7 @@ import org.scalatest.{FlatSpec, Matchers}
 class AppConfigValidatorSpec extends FlatSpec with Matchers with SimpleFixture {
 
   "validateProjectKey" should "only accept A-Z 0-9 _" in {
-    val jiraConfig = JiraApiConfiguration("user", "pass", "project")
+    val jiraConfig = JiraApiConfiguration("user", "pass", "https://aaa.com", "project")
     val backlogConfig = BacklogApiConfiguration("url", "key", "PROJECT")
     val validator = new AppConfigValidator()
 
