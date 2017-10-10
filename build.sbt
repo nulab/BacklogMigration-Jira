@@ -17,6 +17,7 @@ lazy val commonSettings = Seq(
     "-Ywarn-unused-import"
   ),
   resolvers ++= Seq("snapshots", "releases").map(Resolver.sonatypeRepo),
+  resolvers += "Atlassian Maven Repository" at "https://maven.atlassian.com/repository/public",
   libraryDependencies ++= Seq(
     "com.osinka.i18n"               % "scala-i18n_2.11"    % "1.0.0",
     "ch.qos.logback"                % "logback-classic"    % "1.1.3",
@@ -89,8 +90,10 @@ lazy val root = (project in file("."))
   .settings(
     name := "backlog-migration-jira",
     libraryDependencies ++= Seq(
-      "org.scalatest"   %% "scalatest"       % "3.0.1" % "test",
-      "org.rogach"      % "scallop_2.11"     % "2.0.5"
+      "com.atlassian.jira"   %  "jira-rest-java-client-core"  % "4.0.0",
+      "com.atlassian.jira"   %  "jira-rest-java-client-api"   % "4.0.0",
+      "org.scalatest"        %% "scalatest"                   % "3.0.1"   % "test",
+      "org.rogach"           %  "scallop_2.11"                % "2.0.5"
     ),
     assemblyJarName in assembly := {
       s"${name.value}-${version.value}.jar"
