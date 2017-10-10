@@ -13,6 +13,18 @@ object J2BCli extends BacklogConfiguration with Logging {
     }
   }
 
+  def migrate(config: AppConfiguration): Unit = {
+    if (validateConfig(config)) {
+
+    }
+  }
+
+  def doImport(config: AppConfiguration): Unit = {
+    if (validateConfig(config)) {
+
+    }
+  }
+
   def help(): Unit = {
     val message =
       s"""

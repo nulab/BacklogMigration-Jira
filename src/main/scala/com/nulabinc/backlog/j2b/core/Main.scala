@@ -82,9 +82,12 @@ object J2B extends BacklogConfiguration with Logging {
     // Run
     try {
       val cli = new CommandLineInterface(args)
+      val config = getConfiguration(cli)
       cli.subcommand match {
-        case Some(cli.init) => J2BCli.init(getConfiguration(cli))
-        case _              => J2BCli.help()
+        case Some(cli.execute) if cli.execute.importOnly() => J2BCli.doImport(config)
+        case Some(cli.execute) => J2BCli.migrate(config)
+        case Some(cli.init)    => J2BCli.init(config)
+        case _                 => J2BCli.help()
       }
       exit(0)
     } catch {
