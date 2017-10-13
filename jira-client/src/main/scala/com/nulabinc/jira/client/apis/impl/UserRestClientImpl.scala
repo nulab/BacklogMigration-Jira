@@ -14,18 +14,18 @@ class UserRestClientImpl(httpClient: HttpClient) extends UserRestClient {
 
   def user(name: String): Either[JiraRestClientError, User] = {
     httpClient.get(s"/user?key=$name") match {
-      case Right(user)               => Right(JsonParser(user).convertTo[User])
+      case Right(json)               => Right(JsonParser(json).convertTo[User])
       case Left(_: ApiNotFoundError) => Left(ResourceNotFoundError("user", name))
       case Left(error)               => Left(HttpError(error.toString))
     }
   }
 
-  private [this] def chunkUsers(array: Seq[User], startAt: Int = 0): Either[JiraRestClientError, Seq[User]] = {
+  private [this] def chunkUsers(beforeUsers: Seq[User], startAt: Int = 0): Either[JiraRestClientError, Seq[User]] = {
     val maxResults = 100
     val uri = "/user/search" ?
-      ("startAt" -> startAt) &
+      ("startAt"    -> startAt) &
       ("maxResults" -> maxResults) &
-      ("username" -> "%")
+      ("username"   -> "%")
     val body = httpClient.get(uri.toString)
     val result = body match {
       case Right(json) => Right(JsonParser(json).convertTo[Seq[User]])
@@ -33,7 +33,7 @@ class UserRestClientImpl(httpClient: HttpClient) extends UserRestClient {
     }
 
     if (result.isLeft) result
-    else if (result.right.get.isEmpty) Right(array)
-    else chunkUsers(array ++ result.right.get, startAt + maxResults)
+    else if (result.right.get.isEmpty) Right(beforeUsers)
+    else chunkUsers(beforeUsers ++ result.right.get, startAt + maxResults)
   }
 }
