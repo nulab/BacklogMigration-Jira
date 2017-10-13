@@ -1,12 +1,14 @@
 package com.nulabinc.jira.client
 
-import com.nulabinc.jira.client.apis.impl.UserRestClientImpl
+import com.nulabinc.jira.client.apis.impl._
 
 class JiraRestClient(url: String, username: String, password: String) {
 
   val httpClient = new HttpClient(url, username, password)
 
   def userRestClient = new UserRestClientImpl(httpClient)
+
+  def statusRestClient = new StatusRestClientImpl()
 }
 
 object JiraRestClient {

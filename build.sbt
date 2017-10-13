@@ -58,7 +58,6 @@ lazy val jira = (project in file("jira"))
   .settings(commonSettings: _*)
   .settings(
     name := "jira",
-    unmanagedBase := baseDirectory.value / "libs",
     scapegoatVersion := "1.1.0",
     scapegoatDisabledInspections := Seq(
       "NullParameter",
@@ -66,8 +65,8 @@ lazy val jira = (project in file("jira"))
       "NoOpOverride"
     )
   )
-  .dependsOn(common % "test->test;compile->compile")
-  .aggregate(common)
+  .dependsOn(common % "test->test;compile->compile", client)
+  .aggregate(common, client)
 
 lazy val exporter = (project in file("exporter"))
   .settings(commonSettings: _*)

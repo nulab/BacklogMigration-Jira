@@ -1,6 +1,6 @@
 package com.nulabinc.backlog.j2b.jira.service
 
-import com.atlassian.jira.rest.client.api.domain.Status
+import com.nulabinc.jira.client.domain.Status
 
 trait StatusService {
 

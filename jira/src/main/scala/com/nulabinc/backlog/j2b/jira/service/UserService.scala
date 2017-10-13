@@ -1,6 +1,6 @@
 package com.nulabinc.backlog.j2b.jira.service
 
-import com.atlassian.jira.rest.client.api.domain.User
+import com.nulabinc.jira.client.domain.User
 
 trait UserService {
 
