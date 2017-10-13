@@ -20,8 +20,6 @@ lazy val commonSettings = Seq(
   libraryDependencies ++= Seq(
     "com.osinka.i18n"               % "scala-i18n_2.11"    % "1.0.0",
     "ch.qos.logback"                % "logback-classic"    % "1.1.3",
-    "com.typesafe.akka"             % "akka-actor_2.11"    % "2.3.11",
-    "com.typesafe.akka"             % "akka-slf4j_2.11"    % "2.3.11",
     "io.spray"                      % "spray-json_2.11"    % "1.3.2",
     "com.github.scala-incubator.io" % "scala-io-core_2.11" % "0.4.3",
     "com.github.scala-incubator.io" % "scala-io-file_2.11" % "0.4.3",
@@ -109,7 +107,23 @@ lazy val mappingFile = (project in file("mapping-file"))
       "NoOpOverride"
     )
   )
-  .dependsOn(mappingBase)
+  .dependsOn(mappingBase, client)
+
+lazy val client = (project in file("jira-client"))
+  .settings(commonSettings: _*)
+  .settings(
+    name := "backlog-jira-client",
+    libraryDependencies ++= Seq(
+      "org.apache.httpcomponents" %  "httpclient"   % "4.5.3",
+      "org.scalatest"             %% "scalatest"    % "3.0.1"     % "test"
+    ),
+    scapegoatVersion := "1.1.0",
+    scapegoatDisabledInspections := Seq(
+      "NullParameter",
+      "CatchThrowable",
+      "NoOpOverride"
+    )
+  )
 
 lazy val root = (project in file("."))
   .settings(commonSettings: _*)
