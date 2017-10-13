@@ -1,11 +1,10 @@
 package com.nulabinc.jira.client.apis.impl
 
-import java.net.URLEncoder
-
 import com.nulabinc.jira.client._
 import com.nulabinc.jira.client.apis.{UserMappingJsonProtocol, UserRestClient}
 import com.nulabinc.jira.client.domain.User
 import spray.json.JsonParser
+import com.netaporter.uri.dsl._
 
 class UserRestClientImpl(httpClient: HttpClient) extends UserRestClient {
 
@@ -23,12 +22,14 @@ class UserRestClientImpl(httpClient: HttpClient) extends UserRestClient {
 
   private [this] def chunkUsers(array: Seq[User], startAt: Int = 0): Either[JiraRestClientError, Seq[User]] = {
     val maxResults = 100
-    val encodedUrl = URLEncoder.encode("%", "UTF-8")
-    val url = s"/user/search?startAt=$startAt&maxResults=$maxResults&username=" + encodedUrl
-    val body = httpClient.get(url)
+    val uri = "/user/search" ?
+      ("startAt" -> startAt) &
+      ("maxResults" -> maxResults) &
+      ("username" -> "%")
+    val body = httpClient.get(uri.toString)
     val result = body match {
       case Right(json) => Right(JsonParser(json).convertTo[Seq[User]])
-      case Left(error)  => Left(HttpError(error.toString))
+      case Left(error) => Left(HttpError(error.toString))
     }
 
     if (result.isLeft) result
