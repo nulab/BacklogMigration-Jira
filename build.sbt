@@ -108,6 +108,19 @@ lazy val mappingConverter = (project in file("mapping-converter"))
   )
   .dependsOn(mappingBase)
 
+lazy val mappingCollector = (project in file("mapping-collector"))
+  .settings(commonSettings: _*)
+  .settings(
+    name := "backlog-jira-mapping-collector",
+    scapegoatVersion := "1.1.0",
+    scapegoatDisabledInspections := Seq(
+      "NullParameter",
+      "CatchThrowable",
+      "NoOpOverride"
+    )
+  )
+  .dependsOn(mappingBase)
+
 lazy val mappingFile = (project in file("mapping-file"))
   .settings(commonSettings: _*)
   .settings(
