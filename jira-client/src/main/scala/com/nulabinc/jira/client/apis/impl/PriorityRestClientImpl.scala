@@ -1,0 +1,20 @@
+package com.nulabinc.jira.client.apis.impl
+
+import com.nulabinc.jira.client._
+import com.nulabinc.jira.client.apis._
+import com.nulabinc.jira.client.domain.Priority
+import spray.json.JsonParser
+
+class PriorityRestClientImpl(httpClient: HttpClient) extends PriorityRestClient {
+
+  import PriorityMappingJsonProtocol._
+
+  override def priorities: Either[JiraRestClientError, Seq[Priority]] = {
+    httpClient.get(s"/priority") match {
+      case Right(json)               => Right(JsonParser(json).convertTo[Seq[Priority]])
+      case Left(_: ApiNotFoundError) => Left(ResourceNotFoundError("priority", ""))
+      case Left(error)               => Left(HttpError(error.toString))
+    }
+  }
+
+}
