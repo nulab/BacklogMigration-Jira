@@ -8,6 +8,8 @@ class JiraRestClient(url: String, username: String, password: String) {
 
   def userRestClient = new UserRestClientImpl(httpClient)
 
+  def searchRestClient = new SearchRestClientImpl(httpClient)
+
   def statusRestClient = new StatusRestClientImpl(httpClient)
 }
 
