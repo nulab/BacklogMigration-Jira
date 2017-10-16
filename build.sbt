@@ -95,6 +95,19 @@ lazy val mappingBase = (project in file("mapping-base"))
   )
   .dependsOn(common % "test->test;compile->compile", jira)
 
+lazy val mappingConverter = (project in file("mapping-converter"))
+  .settings(commonSettings: _*)
+  .settings(
+    name := "backlog-jira-mapping-converter",
+    scapegoatVersion := "1.1.0",
+    scapegoatDisabledInspections := Seq(
+      "NullParameter",
+      "CatchThrowable",
+      "NoOpOverride"
+    )
+  )
+  .dependsOn(mappingBase)
+
 lazy val mappingFile = (project in file("mapping-file"))
   .settings(commonSettings: _*)
   .settings(
