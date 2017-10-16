@@ -2,9 +2,9 @@
 common.backlog=Backlog
 common.jira=Jira
 #common.projects=projects
-#common.users=users
-#common.statuses=statuses
-#common.priorities=priorities
+common.users=users
+common.statuses=statuses
+common.priorities=priorities
 #common.yes=Yes
 #common.no=No
 #common.user=User
@@ -78,3 +78,37 @@ cli.param.error=The parameter has the following error.
 #cli.param.error.disable.access=The accessing {0} failed. Please check the url or api access key.
 #cli.param.error.disable.host=The accessing {0} failed. [{1}] is unknown host.
 cli.param.error.project_key=The project key [{0}] is incorrect.(Uppercase letters (A-Z), numbers (0-9) and underscore (_) can be used.)
+
+# CLI Mapping
+#cli.mapping.delete_status=Deleted status[{0}]
+#cli.mapping.error.broken_file=The mapping file {0} is broken.
+#cli.mapping.fix_file="{0}" needs to be fixed.\nTo recreate, run the sub-command "init".
+#cli.mapping.show=The mapping {0} is as follows.
+#cli.mapping.error=The mapping of {0} has the following error.
+cli.mapping.configurable=The values accepted for {0} in Backlog are "{1}".
+cli.mapping.error.not_exist.item=The {0}[{1}] is not registered in destination {2}.
+#cli.mapping.error.not_defined.item={0} [{1}] required for migration is not defined in mapping file [{2}].
+cli.mapping.error.empty.item=Corresponding item for {0} "{1}" in {2} is not specified.
+#cli.mapping.output_file=The mapping file about {0} is created. Check the mapping file and fix it if necessary.
+##cli.mapping.merge_file=The following {0} was added to the mapping file of {0}. Check the mapping file and fix it if necessary.
+cli.mapping.no_change=There was no change in the mapping file of {0}.
+
+# Mapping
+mapping.status.backlog.open=Open
+mapping.status.backlog.in_progress=In Progress
+mapping.status.backlog.resolved=Resolved
+mapping.status.backlog.closed=Closed
+mapping.status.jira.new=New
+mapping.status.jira.in_progress=InProgress
+mapping.status.jira.resolved=Resolved
+mapping.status.jira.feedback=Feedback
+mapping.status.jira.closed=Closed
+mapping.status.jira.rejected=Rejected
+mapping.priority.backlog.low=Low
+mapping.priority.backlog.normal=Normal
+mapping.priority.backlog.high=High
+mapping.priority.jira.low=Low
+mapping.priority.jira.normal=Normal
+mapping.priority.jira.high=High
+mapping.priority.jira.urgent=Urgent
+mapping.priority.jira.immediate=Immediate
