@@ -18,7 +18,7 @@ class SearchRestClientImpl(httpClient: HttpClient) extends SearchRestClient {
   override def searchJql(jql: String): Either[JiraRestClientError, SearchResult] = searchJql(jql, 50, 0)
 
   override def searchJql(jql: String, maxResults: Int, startAt: Int): Either[JiraRestClientError, SearchResult] = {
-    val uri = Uri.parse("/search?" + jql) &
+    val uri = Uri.parse("/search?jql=" + jql) &
       ("startAt"    -> startAt) &
       ("maxResults" -> maxResults)
 
