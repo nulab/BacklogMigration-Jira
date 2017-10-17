@@ -139,8 +139,12 @@ lazy val client = (project in file("jira-client"))
   .settings(
     name := "backlog-jira-client",
     libraryDependencies ++= Seq(
-      "org.apache.httpcomponents" %  "httpclient"   % "4.5.3",
-      "org.scalatest"             %% "scalatest"    % "3.0.1"     % "test"
+      "org.apache.httpcomponents" %  "httpclient"            % "4.5.3",
+      "org.scalatest"             %% "scalatest"             % "3.0.1"   % "test",
+      "org.specs2"                %% "specs2-core"           % "3.8.9"   % Test,
+      "org.specs2"                %% "specs2-matcher"        % "3.8.9"   % Test,
+      "org.specs2"                %% "specs2-matcher-extra"  % "3.8.9"   % Test,
+      "org.specs2"                %% "specs2-mock"           % "3.8.9"   % Test
     ),
     scapegoatVersion := "1.1.0",
     scapegoatDisabledInspections := Seq(
