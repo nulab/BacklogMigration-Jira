@@ -33,5 +33,5 @@ trait IssueRestClient {
 
   def issue(key: String): Either[JiraRestClientError, Issue]
 
-  def projectIssues(key: String): Either[JiraRestClientError, Seq[Issue]]
+  def projectIssues(key: String, startAt: Long, maxResults: Long): Either[JiraRestClientError, Seq[Issue]]
 }

@@ -22,7 +22,17 @@ class IssueRestClientImpl(httpClient: HttpClient) extends IssueRestClient {
 
   override def issue(key: String) = fetchIssue(key)
 
-  override def projectIssues(key: String) = chunkIssues(s"project=$key", Seq.empty[Issue], 0)
+  override def projectIssues(key: String, startAt: Long = 0, maxResults: Long = 50) = {
+    val uri = "/search" ?
+      ("startAt"    -> startAt) &
+      ("maxResults" -> maxResults) &
+      ("jql"        -> s"project=$key")
+
+    httpClient.get(uri.toString) match {
+      case Right(json) => Right(JsonParser(json).convertTo[IssueResult].issues)
+      case Left(error) => Left(HttpError(error.toString))
+    }
+  }
 
   private [this] def fetchIssue(issueIdOrKey: String) =
     httpClient.get(s"/issue/$issueIdOrKey") match {
@@ -30,21 +40,4 @@ class IssueRestClientImpl(httpClient: HttpClient) extends IssueRestClient {
       case Left(_: ApiNotFoundError) => Left(ResourceNotFoundError("Issue", issueIdOrKey))
       case Left(error)               => Left(HttpError(error.toString))
     }
-
-  private [this] def chunkIssues(jql: String, beforeIssues: Seq[Issue], startAt: Int = 0): Either[JiraRestClientError, Seq[Issue]] = {
-    val maxResults = 100
-    val uri = "/search" ?
-      ("startAt"    -> startAt) &
-      ("maxResults" -> maxResults) &
-      ("jql"        -> jql)
-    val body = httpClient.get(uri.toString)
-    val result = body match {
-      case Right(json) => Right(JsonParser(json).convertTo[IssueResult].issues)
-      case Left(error) => Left(HttpError(error.toString))
-    }
-
-    if (result.isLeft) result
-    else if (result.right.get.isEmpty) Right(beforeIssues)
-    else chunkIssues(jql, beforeIssues ++ result.right.get, startAt + maxResults)
-  }
 }

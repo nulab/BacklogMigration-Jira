@@ -18,18 +18,23 @@ lazy val commonSettings = Seq(
   ),
   resolvers ++= Seq("snapshots", "releases").map(Resolver.sonatypeRepo),
   libraryDependencies ++= Seq(
-    "com.osinka.i18n"               % "scala-i18n_2.11"    % "1.0.0",
-    "ch.qos.logback"                % "logback-classic"    % "1.1.3",
-    "io.spray"                      % "spray-json_2.11"    % "1.3.2",
-    "com.github.scala-incubator.io" % "scala-io-core_2.11" % "0.4.3",
-    "com.github.scala-incubator.io" % "scala-io-file_2.11" % "0.4.3",
-    "com.typesafe"                  % "config"             % "1.3.0",
-    "joda-time"                     % "joda-time"          % "2.3",
-    "org.joda"                      % "joda-convert"       % "1.6",
-    "com.google.inject"             % "guice"              % "4.1.0",
-    "com.netaporter"                %% "scala-uri"         % "0.4.16",
-    "org.fusesource.jansi"          % "jansi"              % "1.11",
-    "com.mixpanel"                  % "mixpanel-java"      % "1.4.4"
+    "com.osinka.i18n"               %  "scala-i18n_2.11"        % "1.0.0",
+    "ch.qos.logback"                %  "logback-classic"        % "1.1.3",
+    "io.spray"                      %  "spray-json_2.11"        % "1.3.2",
+    "com.github.scala-incubator.io" %  "scala-io-core_2.11"     % "0.4.3",
+    "com.github.scala-incubator.io" %  "scala-io-file_2.11"     % "0.4.3",
+    "com.typesafe"                  %  "config"                 % "1.3.0",
+    "joda-time"                     %  "joda-time"              % "2.3",
+    "org.joda"                      %  "joda-convert"           % "1.6",
+    "com.google.inject"             %  "guice"                  % "4.1.0",
+    "com.netaporter"                %% "scala-uri"              % "0.4.16",
+    "org.fusesource.jansi"          %  "jansi"                  % "1.11",
+    "com.mixpanel"                  %  "mixpanel-java"          % "1.4.4",
+    "org.scalatest"                 %% "scalatest"              % "3.0.1"   % "test",
+    "org.specs2"                    %% "specs2-core"            % "3.8.9"   % Test,
+    "org.specs2"                    %% "specs2-matcher"         % "3.8.9"   % Test,
+    "org.specs2"                    %% "specs2-matcher-extra"   % "3.8.9"   % Test,
+    "org.specs2"                    %% "specs2-mock"            % "3.8.9"   % Test
   ),
   javacOptions ++= Seq("-encoding", "UTF-8")
 )
@@ -38,7 +43,6 @@ lazy val common = (project in file("common"))
   .settings(commonSettings: _*)
   .settings(
     name := "backlog-migration-common",
-    libraryDependencies ++= Seq("org.scalatest" %% "scalatest" % "3.0.1" % "test"),
     unmanagedBase := baseDirectory.value / "libs",
     scapegoatVersion := "1.1.0",
     scapegoatDisabledInspections := Seq("NullParameter", "CatchThrowable", "NoOpOverride")
@@ -134,17 +138,25 @@ lazy val mappingFile = (project in file("mapping-file"))
   )
   .dependsOn(mappingBase, client)
 
+lazy val issueWriter = (project in file("issue-writer"))
+  .settings(commonSettings: _*)
+  .settings(
+    name := "backlog-jira-issue-writer",
+    scapegoatVersion := "1.1.0",
+    scapegoatDisabledInspections := Seq(
+      "NullParameter",
+      "CatchThrowable",
+      "NoOpOverride"
+    )
+  )
+  .dependsOn(root, client)
+
 lazy val client = (project in file("jira-client"))
   .settings(commonSettings: _*)
   .settings(
     name := "backlog-jira-client",
     libraryDependencies ++= Seq(
-      "org.apache.httpcomponents" %  "httpclient"            % "4.5.3",
-      "org.scalatest"             %% "scalatest"             % "3.0.1"   % "test",
-      "org.specs2"                %% "specs2-core"           % "3.8.9"   % Test,
-      "org.specs2"                %% "specs2-matcher"        % "3.8.9"   % Test,
-      "org.specs2"                %% "specs2-matcher-extra"  % "3.8.9"   % Test,
-      "org.specs2"                %% "specs2-mock"           % "3.8.9"   % Test
+      "org.apache.httpcomponents" %  "httpclient" % "4.5.3"
     ),
     scapegoatVersion := "1.1.0",
     scapegoatDisabledInspections := Seq(
