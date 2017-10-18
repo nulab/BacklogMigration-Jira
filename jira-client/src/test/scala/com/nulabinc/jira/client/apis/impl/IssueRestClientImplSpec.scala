@@ -229,7 +229,7 @@ class IssueRestClientImplSpec extends Specification with Mockito {
     actual must equalTo(expect)
   }
 
-  "should get issue belonging to the project" >> {
+  "should get issues belonging to the project" >> {
 
     val response =
       """
