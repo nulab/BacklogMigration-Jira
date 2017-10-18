@@ -151,6 +151,19 @@ lazy val issueWriter = (project in file("issue-writer"))
   )
   .dependsOn(root, client)
 
+lazy val issueReader = (project in file("issue-reader"))
+  .settings(commonSettings: _*)
+  .settings(
+    name := "backlog-jira-issue-reader",
+    scapegoatVersion := "1.1.0",
+    scapegoatDisabledInspections := Seq(
+      "NullParameter",
+      "CatchThrowable",
+      "NoOpOverride"
+    )
+  )
+  .dependsOn(root)
+
 lazy val client = (project in file("jira-client"))
   .settings(commonSettings: _*)
   .settings(
@@ -185,5 +198,5 @@ lazy val root = (project in file("."))
     scapegoatVersion := "1.1.0",
     scapegoatDisabledInspections := Seq("NullParameter", "CatchThrowable", "NoOpOverride")
   )
-  .dependsOn(common % "test->test;compile->compile", importer, exporter)
-  .aggregate(common, importer, exporter)
+  .dependsOn(common % "test->test;compile->compile", importer, exporter, client)
+  .aggregate(common, importer, exporter, client)
