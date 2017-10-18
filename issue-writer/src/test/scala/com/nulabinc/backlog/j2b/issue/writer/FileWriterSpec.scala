@@ -1,7 +1,6 @@
 package com.nulabinc.backlog.j2b.issue.writer
 
 import com.nulabinc.backlog.j2b.jira.domain.JiraProjectKey
-import com.nulabinc.backlog.j2b.jira.service.IssueIODone
 import com.nulabinc.jira.client.domain.{Issue, IssueField}
 import com.nulabinc.jira.client.JiraRestClient
 import org.mockito.Answers._
@@ -27,7 +26,7 @@ class FileWriterSpec extends Specification with Mockito {
     val actual = writer.write(JiraProjectKey("TEST"), filePath)
 
     // Check write result
-    actual must beEqualTo(IssueIODone)
+    actual.right.get.length must beEqualTo(1)
 
     // Check the file exists
     Path.fromString(filePath).isFile must beTrue

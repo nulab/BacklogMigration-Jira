@@ -4,7 +4,7 @@ import java.io.PrintWriter
 import javax.inject.Inject
 
 import com.nulabinc.backlog.j2b.jira.domain.JiraProjectKey
-import com.nulabinc.backlog.j2b.jira.service.{IssueIODone, IssueIOFails, IssueIOResult, IssueWriteService}
+import com.nulabinc.backlog.j2b.jira.service._
 import com.nulabinc.backlog.migration.common.utils.Logging
 import com.nulabinc.jira.client.domain.Issue
 import com.nulabinc.jira.client.{JiraRestClient, JiraRestClientError}
@@ -15,7 +15,7 @@ class FileWriter @Inject()(jiraClient: JiraRestClient) extends IssueWriteService
 
   import com.nulabinc.jira.client.apis.IssueMappingJsonProtocol._
 
-  override def write(projectKey: JiraProjectKey, filePath: String): IssueIOResult = {
+  override def write(projectKey: JiraProjectKey, filePath: String): Either[IssueIOError, Seq[Issue]] = {
     fetch(projectKey.value, Seq.empty[Issue], 0, 100) match {
       case Right(issues) => {
         val pw = new PrintWriter(filePath)
@@ -23,18 +23,18 @@ class FileWriter @Inject()(jiraClient: JiraRestClient) extends IssueWriteService
           issues.foreach { issue =>
             pw.write(issue.toJson + "\n")
           }
-          IssueIODone
+          Right(issues)
         } catch {
           case e: Throwable =>
             logger.error(e.getMessage, e)
-            IssueIOFails
+            Left(IssueWritingError)
         } finally {
           pw.close
         }
       }
       case Left(error) => {
         logger.error(error.message)
-        IssueIOFails
+        Left(IssueFetchingError(error.message))
       }
     }
   }
