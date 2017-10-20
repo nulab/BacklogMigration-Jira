@@ -1,14 +1,14 @@
 package com.nulabinc.jira.client.apis.impl
 
 import com.nulabinc.jira.client._
-import com.nulabinc.jira.client.apis.{UserMappingJsonProtocol, UserRestClient}
+import com.nulabinc.jira.client.apis.UserRestClient
 import com.nulabinc.jira.client.domain.User
 import spray.json.JsonParser
 import com.netaporter.uri.dsl._
 
 class UserRestClientImpl(httpClient: HttpClient) extends UserRestClient {
 
-  import UserMappingJsonProtocol._
+  import com.nulabinc.jira.client.json.UserMappingJsonProtocol._
 
   def users: Either[JiraRestClientError, Seq[User]] = chunkUsers(Seq.empty[User])
 

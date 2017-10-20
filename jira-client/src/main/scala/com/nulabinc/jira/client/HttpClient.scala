@@ -6,6 +6,7 @@ import org.apache.commons.codec.binary.Base64
 import org.apache.http.{HttpHeaders, HttpStatus}
 import org.apache.http.client.methods.HttpGet
 import org.apache.http.impl.client.HttpClientBuilder
+import spray.json.{JsArray, JsonParser}
 
 
 sealed abstract class HttpClientError(val message: String) {
@@ -13,6 +14,7 @@ sealed abstract class HttpClientError(val message: String) {
 }
 case class ApiNotFoundError(url: String) extends HttpClientError(url)
 case class AuthenticateFailedError() extends HttpClientError("Bad credential")
+case class BadRequestError(error: String) extends HttpClientError(error)
 case class UndefinedError(statusCode: Int) extends HttpClientError(s"Unknown status code: $statusCode")
 
 class HttpClient(url: String, username: String, password: String) {
@@ -32,6 +34,16 @@ class HttpClient(url: String, username: String, password: String) {
             val body = io.Source.fromInputStream(inputStream).getLines.mkString
             Right(body)
           }
+        case HttpStatus.SC_BAD_REQUEST => {
+          using(httpResponse.getEntity.getContent) { inputStream =>
+            val body = io.Source.fromInputStream(inputStream).getLines.mkString
+            val errors = JsonParser(body).asJsObject.getFields("errorMessages") match {
+              case Seq(JsArray(e)) => e.mkString(" ")
+              case _               => "Bad Request"
+            }
+            Left(BadRequestError(errors))
+          }
+        }
         case HttpStatus.SC_NOT_FOUND    => Left(ApiNotFoundError(request.getURI.toString))
         case HttpStatus.SC_UNAUTHORIZED => Left(AuthenticateFailedError())
         case _                          => Left(UndefinedError(httpResponse.getStatusLine.getStatusCode))

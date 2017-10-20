@@ -91,9 +91,8 @@ class UserMappingFile(jiraApiConfig: JiraApiConfiguration,
 
   override def itemName: String = Messages("common.users")
 
-  override def description: String = {
+  override def description: String =
     Messages("cli.mapping.configurable", itemName, backlogs.map(_.name).mkString(","))
-  }
 
   override def isDisplayDetail: Boolean = true
 
