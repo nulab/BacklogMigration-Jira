@@ -5,12 +5,13 @@ import javax.inject.Inject
 
 import com.nulabinc.backlog.j2b.jira.domain.JiraProjectKey
 import com.nulabinc.backlog.j2b.jira.service._
+import com.nulabinc.backlog.j2b.jira.writer.IssueWriter
 import com.nulabinc.backlog.migration.common.utils.Logging
 import com.nulabinc.jira.client.domain.Issue
 import com.nulabinc.jira.client.{JiraRestClient, JiraRestClientError}
 import spray.json._
 
-class FileWriter @Inject()(jiraClient: JiraRestClient) extends IssueWriteService
+class FileWriter @Inject()(jiraClient: JiraRestClient) extends IssueWriter
     with Logging {
 
   import com.nulabinc.jira.client.json.IssueMappingJsonProtocol._
