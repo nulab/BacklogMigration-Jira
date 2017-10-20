@@ -72,20 +72,6 @@ lazy val jira = (project in file("jira"))
   .dependsOn(common % "test->test;compile->compile", client)
   .aggregate(common, client)
 
-lazy val exporter = (project in file("exporter"))
-  .settings(commonSettings: _*)
-  .settings(
-    name := "redmine-exporter",
-    scapegoatVersion := "1.1.0",
-    scapegoatDisabledInspections := Seq(
-      "NullParameter",
-      "CatchThrowable",
-      "NoOpOverride"
-    )
-  )
-  .dependsOn(common % "test->test;compile->compile", jira)
-  .aggregate(common, jira)
-
 lazy val mappingBase = (project in file("mapping-base"))
   .settings(commonSettings: _*)
   .settings(
