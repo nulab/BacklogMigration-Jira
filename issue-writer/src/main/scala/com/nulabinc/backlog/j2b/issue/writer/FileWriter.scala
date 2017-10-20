@@ -13,7 +13,7 @@ import spray.json._
 class FileWriter @Inject()(jiraClient: JiraRestClient) extends IssueWriteService
     with Logging {
 
-  import com.nulabinc.jira.client.apis.IssueMappingJsonProtocol._
+  import com.nulabinc.jira.client.json.IssueMappingJsonProtocol._
 
   override def write(projectKey: JiraProjectKey, filePath: String): Either[IssueIOError, Seq[Issue]] = {
     fetch(projectKey.value, Seq.empty[Issue], 0, 100) match {

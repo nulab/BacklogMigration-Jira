@@ -8,7 +8,7 @@ import scalax.file.Path
 
 class FileReader extends IssueReadService with Logging {
 
-  import com.nulabinc.jira.client.apis.IssueMappingJsonProtocol._
+  import com.nulabinc.jira.client.json.IssueMappingJsonProtocol._
 
   override def read(filePath: String): Either[IssueIOError, Seq[Issue]] = {
     try {
