@@ -8,15 +8,10 @@ import com.netaporter.uri.dsl._
 
 case class IssueResult(total: Int, issues: Seq[Issue])
 
-object IssueResultMappingJsonProtocol extends DefaultJsonProtocol {
-  import IssueMappingJsonProtocol._
-  implicit val IssueResultFieldMappingFormat = jsonFormat2(IssueResult)
-}
-
 class IssueRestClientImpl(httpClient: HttpClient) extends IssueRestClient {
 
-  import IssueMappingJsonProtocol._
-  import IssueResultMappingJsonProtocol._
+  import com.nulabinc.jira.client.json.IssueMappingJsonProtocol._
+  import com.nulabinc.jira.client.json.IssueResultMappingJsonProtocol._
 
   override def issue(id: Long) = fetchIssue(id.toString)
 

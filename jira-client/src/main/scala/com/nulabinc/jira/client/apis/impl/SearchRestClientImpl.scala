@@ -1,14 +1,14 @@
 package com.nulabinc.jira.client.apis.impl
 
 import com.nulabinc.jira.client._
-import com.nulabinc.jira.client.apis.{SearchRestClient, SearchResultMappingJsonProtocol}
+import com.nulabinc.jira.client.apis.SearchRestClient
 import com.nulabinc.jira.client.domain.SearchResult
 import spray.json.JsonParser
 import com.netaporter.uri.dsl._
 
 class SearchRestClientImpl(httpClient: HttpClient) extends SearchRestClient {
 
-  import SearchResultMappingJsonProtocol._
+  import com.nulabinc.jira.client.json.SearchResultMappingJsonProtocol._
 
   override def searchJql(jql: String): Either[JiraRestClientError, SearchResult] = searchJql(jql, 50, 0)
 
