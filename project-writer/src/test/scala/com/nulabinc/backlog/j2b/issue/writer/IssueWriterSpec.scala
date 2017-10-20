@@ -10,7 +10,7 @@ import org.specs2.mutable.Specification
 
 import scalax.file.Path
 
-class FileWriterSpec extends Specification with Mockito {
+class IssueWriterSpec extends Specification with Mockito {
 
   "should write issues to file" >> {
 
@@ -22,7 +22,7 @@ class FileWriterSpec extends Specification with Mockito {
     jira.issueRestClient.projectIssues("TEST", 0, 100) returns Right(issues)
     jira.issueRestClient.projectIssues("TEST", 100, 100) returns Right(Seq.empty[Issue])
 
-    val writer = new FileWriter(jira)
+    val writer = new IssueWriter(jira)
     val actual = writer.write(JiraProjectKey("TEST"), filePath)
 
     // Check write result

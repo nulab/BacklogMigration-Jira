@@ -11,7 +11,7 @@ import com.nulabinc.jira.client.domain.Issue
 import com.nulabinc.jira.client.{JiraRestClient, JiraRestClientError}
 import spray.json._
 
-class FileWriter @Inject()(jiraClient: JiraRestClient) extends IssueWriter
+class IssueWriter @Inject()(jiraClient: JiraRestClient) extends IssueWriter
     with Logging {
 
   import com.nulabinc.jira.client.json.IssueMappingJsonProtocol._
