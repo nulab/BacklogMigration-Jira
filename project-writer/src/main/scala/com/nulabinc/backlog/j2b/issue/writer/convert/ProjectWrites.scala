@@ -12,8 +12,8 @@ private [writer] class ProjectWrites @Inject()(projectKey: JiraProjectKey)
     extends Writes[Project, BacklogProject] {
 
   override def writes(project: Project) =
-    BacklogProject(optId = Some(project.id.intValue()),
-      name = project.key,
+    BacklogProject(optId = Some(project.id),
+      name = project.name,
       key = projectKey.value,
       isChartEnabled = true,
       isSubtaskingEnabled = true,
