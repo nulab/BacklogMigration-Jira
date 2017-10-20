@@ -72,20 +72,6 @@ lazy val jira = (project in file("jira"))
   .dependsOn(common % "test->test;compile->compile", client)
   .aggregate(common, client)
 
-lazy val exporter = (project in file("exporter"))
-  .settings(commonSettings: _*)
-  .settings(
-    name := "redmine-exporter",
-    scapegoatVersion := "1.1.0",
-    scapegoatDisabledInspections := Seq(
-      "NullParameter",
-      "CatchThrowable",
-      "NoOpOverride"
-    )
-  )
-  .dependsOn(common % "test->test;compile->compile", jira)
-  .aggregate(common, jira)
-
 lazy val mappingBase = (project in file("mapping-base"))
   .settings(commonSettings: _*)
   .settings(
@@ -138,10 +124,10 @@ lazy val mappingFile = (project in file("mapping-file"))
   )
   .dependsOn(mappingBase, client)
 
-lazy val issueWriter = (project in file("issue-writer"))
+lazy val projectWriter = (project in file("project-writer"))
   .settings(commonSettings: _*)
   .settings(
-    name := "backlog-jira-issue-writer",
+    name := "backlog-jira-project-writer",
     scapegoatVersion := "1.1.0",
     scapegoatDisabledInspections := Seq(
       "NullParameter",
@@ -151,10 +137,10 @@ lazy val issueWriter = (project in file("issue-writer"))
   )
   .dependsOn(root, client)
 
-lazy val issueReader = (project in file("issue-reader"))
+lazy val projectReader = (project in file("project-reader"))
   .settings(commonSettings: _*)
   .settings(
-    name := "backlog-jira-issue-reader",
+    name := "backlog-jira-project-reader",
     scapegoatVersion := "1.1.0",
     scapegoatDisabledInspections := Seq(
       "NullParameter",
@@ -198,5 +184,5 @@ lazy val root = (project in file("."))
     scapegoatVersion := "1.1.0",
     scapegoatDisabledInspections := Seq("NullParameter", "CatchThrowable", "NoOpOverride")
   )
-  .dependsOn(common % "test->test;compile->compile", importer, exporter, client)
-  .aggregate(common, importer, exporter, client)
+  .dependsOn(common % "test->test;compile->compile", importer, client, jira)
+  .aggregate(common, importer, client, jira)
