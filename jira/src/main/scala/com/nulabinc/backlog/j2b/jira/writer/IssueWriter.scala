@@ -7,4 +7,5 @@ import com.nulabinc.jira.client.domain.Issue
 trait IssueWriter {
 
   def write(projectKey: JiraProjectKey, filePath: String): Either[IssueIOError, Seq[Issue]]
+
 }

@@ -10,19 +10,19 @@ import org.specs2.mutable.Specification
 
 import scalax.file.Path
 
-class IssueWriterSpec extends Specification with Mockito {
+class IssueFileWriterSpec extends Specification with Mockito {
 
   "should write issues to file" >> {
 
-    val filePath = "issue-writer/target/aaa.txt"
+    val filePath = "project-writer/target/aaa.txt"
     val jira: JiraRestClient = mock[JiraRestClient](withSettings.defaultAnswer(RETURNS_DEEP_STUBS.get))
     val issues = Seq(
-      Issue(1, "TEST-1", IssueField(None))
+      Issue(1, "TEST-1", None, None)
     )
     jira.issueRestClient.projectIssues("TEST", 0, 100) returns Right(issues)
     jira.issueRestClient.projectIssues("TEST", 100, 100) returns Right(Seq.empty[Issue])
 
-    val writer = new IssueWriter(jira)
+    val writer = new IssueFileWriter(jira)
     val actual = writer.write(JiraProjectKey("TEST"), filePath)
 
     // Check write result

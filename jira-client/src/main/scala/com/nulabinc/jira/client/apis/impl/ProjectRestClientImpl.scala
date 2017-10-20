@@ -7,7 +7,7 @@ import spray.json.JsonParser
 
 class ProjectRestClientImpl(httpClient: HttpClient) extends ProjectRestClient {
 
-  import ProjectMappingJsonProtocol._
+  import com.nulabinc.jira.client.json.ProjectMappingJsonProtocol._
 
   override def project(id: Long) = fetchProject(id.toString)
 
