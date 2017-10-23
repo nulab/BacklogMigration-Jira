@@ -14,7 +14,7 @@ import spray.json._
 class ProjectFileWriter @Inject()(implicit val projectWrites: ProjectWrites,
                                   backlogPaths: BacklogPaths) extends ProjectWriter {
 
-  import com.nulabinc.backlog.migration.common.domain.BacklogJsonProtocol._
+  import com.nulabinc.backlog.migration.common.domain.BacklogJsonProtocol.BacklogProjectWrapperFormat
 
   override def write(project: Project) = {
     val backlogProject = Convert.toBacklog(project)
