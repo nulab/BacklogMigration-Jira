@@ -12,14 +12,17 @@ trait FileWriterTestHelper {
 
   implicit val projectWrites          = new ProjectWrites(projectKey)
   implicit val issueCategoriesWrites  = new IssueCategoriesWrites
+  implicit val issueTypesWrites       = new IssueTypesWrites
 
   implicit val paths                  = new BacklogPaths(projectKey.value) {
     override def projectJson          = Path.fromString("project-writer/target/project.json")
     override def issueCategoriesJson  = Path.fromString("project-writer/target/categories.json")
+    override def issueTypesJson       = Path.fromString("project-writer/target/issueTypes.json")
   }
 
   // Delete all previous test results
   paths.projectJson.jfile.delete()
   paths.issueCategoriesJson.jfile.delete()
+  paths.issueTypesJson.jfile.delete()
 
 }

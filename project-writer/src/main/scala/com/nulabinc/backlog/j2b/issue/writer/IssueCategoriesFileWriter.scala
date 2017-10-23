@@ -18,7 +18,7 @@ class IssueCategoriesFileWriter @Inject()(implicit val issueCategoriesWrites: Is
 
   override def write(categories: Seq[Component]) = {
     val backlogCategories = Convert.toBacklog(categories)
-    IOUtil.output(backlogPaths.issueCategoriesJson, BacklogIssueCategoriesWrapper(Convert.toBacklog(categories)).toJson.prettyPrint)
+    IOUtil.output(backlogPaths.issueCategoriesJson, BacklogIssueCategoriesWrapper(backlogCategories).toJson.prettyPrint)
     Right(backlogCategories)
   }
 }
