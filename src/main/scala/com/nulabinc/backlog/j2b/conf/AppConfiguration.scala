@@ -8,8 +8,10 @@ class AppConfiguration(jiraConfig: JiraApiConfiguration,
                        val importOnly: Boolean,
                        optOut: Boolean) {
 
+  val jiraKey = jiraConfig.projectKey
   val jiraUsername = jiraConfig.username
   val jiraPassword = jiraConfig.password
+  val jiraUrl      = jiraConfig.url
 
   val backlogKey = backlogConfig.key
   val backlogProjectKey = backlogConfig.projectKey

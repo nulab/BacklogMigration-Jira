@@ -135,7 +135,7 @@ lazy val projectWriter = (project in file("project-writer"))
       "NoOpOverride"
     )
   )
-  .dependsOn(root, client)
+  .dependsOn(jira, client)
 
 lazy val projectReader = (project in file("project-reader"))
   .settings(commonSettings: _*)
@@ -148,7 +148,7 @@ lazy val projectReader = (project in file("project-reader"))
       "NoOpOverride"
     )
   )
-  .dependsOn(root)
+  .dependsOn(jira)
 
 lazy val client = (project in file("jira-client"))
   .settings(commonSettings: _*)
