@@ -15,6 +15,8 @@ class JiraRestClient(url: String, username: String, password: String) {
   def searchRestClient = new SearchRestClientImpl(httpClient)
 
   def statusRestClient = new StatusRestClientImpl(httpClient)
+
+  def fieldRestClient = new FieldRestClientImpl(httpClient)
 }
 
 object JiraRestClient {

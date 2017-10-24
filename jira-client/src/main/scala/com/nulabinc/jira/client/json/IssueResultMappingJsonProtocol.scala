@@ -5,5 +5,6 @@ import spray.json.DefaultJsonProtocol
 
 object IssueResultMappingJsonProtocol extends DefaultJsonProtocol {
   import IssueMappingJsonProtocol._
+
   implicit val IssueResultFieldMappingFormat = jsonFormat2(IssueResult)
 }
