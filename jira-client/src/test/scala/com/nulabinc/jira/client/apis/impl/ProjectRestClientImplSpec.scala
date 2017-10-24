@@ -1,7 +1,7 @@
 package com.nulabinc.jira.client.apis.impl
 
-import com.nulabinc.jira.client.HttpClient
-import com.nulabinc.jira.client.domain.Project
+import com.nulabinc.jira.client.{HttpClient, JiraRestClient}
+import com.nulabinc.jira.client.domain.{Issue, Project}
 import org.specs2.mock.Mockito
 import org.specs2.mutable.Specification
 
@@ -133,7 +133,7 @@ class ProjectRestClientImplSpec extends Specification with Mockito {
     httpClient.get(any[String]) returns Right(response)
 
     val client = new ProjectRestClientImpl(httpClient)
-    val expect = Project(10000, "EX", "This project was created as an example for REST.")
+    val expect = Project(10000, "EX", "Example", "This project was created as an example for REST.")
     val actual = client.project(10000).right.get
     actual must equalTo(expect)
   }

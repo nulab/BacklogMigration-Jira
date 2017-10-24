@@ -8,7 +8,7 @@ case class OptionFieldValue(value: IssueFieldOption) extends FieldValue
 case class UserFieldValue(value: User) extends FieldValue
 case class AnyFieldValue(value: String) extends FieldValue
 
-case class IssueField(id: Long, value: FieldValue)
+case class IssueField(id: String, value: FieldValue)
 
 case class IssueFieldOption(id: Long, value: FieldValue)
 

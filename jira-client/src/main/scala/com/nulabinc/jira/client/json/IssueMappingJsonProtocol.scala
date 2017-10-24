@@ -29,7 +29,7 @@ object IssueMappingJsonProtocol extends DefaultJsonProtocol {
             .filterNot { map => map._2 == JsNull }
             .map { item =>
               IssueField(
-                id    = item._1.replace("customfield_", "").toLong,
+                id    = item._1,
                 value = item._2.convertTo[FieldValue]
               )
             }
