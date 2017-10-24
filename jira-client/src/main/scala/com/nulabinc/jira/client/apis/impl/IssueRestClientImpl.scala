@@ -17,7 +17,7 @@ class IssueRestClientImpl(httpClient: HttpClient) extends IssueRestClient {
 
   override def issue(key: String) = fetchIssue(key)
 
-  override def projectIssues(key: String, startAt: Long = 0, maxResults: Long = 50) = {
+  override def projectIssues(key: String, startAt: Long = 0, maxResults: Long = 100) = {
     val uri = "/search" ?
       ("startAt"    -> startAt) &
       ("maxResults" -> maxResults) &
