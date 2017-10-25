@@ -1,12 +1,13 @@
-package com.nulabinc.backlog.j2b.jira.service
+package com.nulabinc.backlog.j2b.exporter.service
 
 import javax.inject.Inject
 
+import com.nulabinc.backlog.j2b.jira.service.StatusService
 import com.nulabinc.backlog.migration.common.utils.Logging
 import com.nulabinc.jira.client.JiraRestClient
 import com.nulabinc.jira.client.domain.Status
 
-class StatusServiceImpl @Inject()(jira: JiraRestClient) extends StatusService with Logging {
+class JiraClientStatusService @Inject()(jira: JiraRestClient) extends StatusService with Logging {
 
   override def allStatuses(): Seq[Status] =
     jira.statusRestClient.statuses match {

@@ -1,4 +1,4 @@
-package com.nulabinc.backlog.j2b.jira.service.impl
+package com.nulabinc.backlog.j2b.exporter.service
 
 import javax.inject.Inject
 
@@ -9,7 +9,7 @@ import com.nulabinc.backlog.migration.common.utils.Logging
 import com.nulabinc.jira.client.JiraRestClient
 import com.nulabinc.jira.client.domain.Issue
 
-class IssueServiceImpl @Inject()(apiConfig: JiraApiConfiguration, projectKey: JiraProjectKey, jira: JiraRestClient)
+class JiraClientIssueService @Inject()(apiConfig: JiraApiConfiguration, projectKey: JiraProjectKey, jira: JiraRestClient)
     extends IssueService with Logging {
 
   override def countIssues() = {

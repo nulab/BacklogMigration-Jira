@@ -58,6 +58,19 @@ lazy val importer = (project in file("importer"))
   .dependsOn(common % "test->test;compile->compile")
   .aggregate(common)
 
+lazy val exporter = (project in file("exporter"))
+  .settings(commonSettings: _*)
+  .settings(
+    name := "backlog-jira-exporter",
+    scapegoatVersion := "1.1.0",
+    scapegoatDisabledInspections := Seq(
+      "NullParameter",
+      "CatchThrowable",
+      "NoOpOverride"
+    )
+  )
+  .dependsOn(jira, client)
+
 lazy val jira = (project in file("jira"))
   .settings(commonSettings: _*)
   .settings(
@@ -184,5 +197,5 @@ lazy val root = (project in file("."))
     scapegoatVersion := "1.1.0",
     scapegoatDisabledInspections := Seq("NullParameter", "CatchThrowable", "NoOpOverride")
   )
-  .dependsOn(common % "test->test;compile->compile", importer, client, jira)
-  .aggregate(common, importer, client, jira)
+  .dependsOn(common % "test->test;compile->compile", importer, exporter, client, jira)
+  .aggregate(common, importer, exporter, client, jira)
