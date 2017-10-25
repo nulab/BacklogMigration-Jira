@@ -17,7 +17,7 @@ class IssueFileWriterSpec extends Specification with Mockito {
     val filePath = "project-writer/target/aaa.txt"
     val jira: JiraRestClient = mock[JiraRestClient](withSettings.defaultAnswer(RETURNS_DEEP_STUBS.get))
     val issues = Seq(
-      Issue(1, "TEST-1", None, None)
+      Issue(1, "TEST-1", None, None, Seq.empty[IssueField])
     )
     jira.issueRestClient.projectIssues("TEST", 0, 100) returns Right(issues)
     jira.issueRestClient.projectIssues("TEST", 100, 100) returns Right(Seq.empty[Issue])

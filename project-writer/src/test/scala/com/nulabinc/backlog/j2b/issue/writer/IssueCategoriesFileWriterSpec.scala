@@ -9,8 +9,8 @@ class IssueCategoriesFileWriterSpec extends Specification with FileWriterTestHel
   "should write issue categories to file" >> {
 
     val components = Seq[Component](
-      Component(id = 10000, name = "cat1", description = "some category1"),
-      Component(id = 10001, name = "cat2", description = "some category2")
+      Component(id = 10000, name = "cat1"),
+      Component(id = 10001, name = "cat2")
     )
 
     // Output to file

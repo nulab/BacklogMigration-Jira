@@ -18,8 +18,8 @@ class Exporter @Inject()(projectKey: JiraProjectKey,
     val categories = categoryService.all()
 
     for {
-      _ <- projectWriter.write(project)
-      _ <- categoryWriter.write(categories)
+      _ <- projectWriter.write(project).right
+      _ <- categoryWriter.write(categories).right
     } yield ()
 
 
