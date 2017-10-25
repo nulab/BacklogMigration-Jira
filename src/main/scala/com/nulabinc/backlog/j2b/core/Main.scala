@@ -21,7 +21,7 @@ class CommandLineInterface(arguments: Seq[String]) extends ScallopConf(arguments
 
   footer("\n " + Messages("cli.help"))
 
-  val execute = new Subcommand("execute") {
+  val importCommand = new Subcommand("import") {
     val backlogKey   = opt[String]("backlog.key", descr = Messages("cli.help.backlog.key"), required = true, noshort = true)
     val backlogUrl   = opt[String]("backlog.url", descr = Messages("cli.help.backlog.url"), required = true, noshort = true)
     val jiraUsername = opt[String]("jira.username", descr = Messages("cli.help.jira.username"), required = true, noshort = true)
@@ -34,7 +34,7 @@ class CommandLineInterface(arguments: Seq[String]) extends ScallopConf(arguments
     val help       = opt[String]("help", descr = Messages("cli.help.show_help"))
   }
 
-  val init = new Subcommand("init") {
+  val exportCommand = new Subcommand("export") {
     val backlogKey   = opt[String]("backlog.key", descr = Messages("cli.help.backlog.key"), required = true, noshort = true)
     val backlogUrl   = opt[String]("backlog.url", descr = Messages("cli.help.backlog.url"), required = true, noshort = true)
     val jiraUsername = opt[String]("jira.username", descr = Messages("cli.help.jira.username"), required = true, noshort = true)
@@ -45,8 +45,8 @@ class CommandLineInterface(arguments: Seq[String]) extends ScallopConf(arguments
     val help       = opt[String]("help", descr = Messages("cli.help.show_help"))
   }
 
-  addSubcommand(execute)
-  addSubcommand(init)
+  addSubcommand(importCommand)
+  addSubcommand(exportCommand)
 
   verify()
 }
@@ -84,10 +84,10 @@ object J2B extends BacklogConfiguration with Logging {
       val cli = new CommandLineInterface(args)
       val config = getConfiguration(cli)
       cli.subcommand match {
-        case Some(cli.execute) if cli.execute.importOnly() => J2BCli.doImport(config)
-        case Some(cli.execute) => J2BCli.migrate(config)
-        case Some(cli.init)    => J2BCli.init(config)
-        case _                 => J2BCli.help()
+        case Some(cli.importCommand) if cli.importCommand.importOnly() => J2BCli.doImport(config)
+        case Some(cli.importCommand)  => J2BCli.migrate(config)
+        case Some(cli.exportCommand)  => J2BCli.export(config)
+        case _                        => J2BCli.help()
       }
       exit(0)
     } catch {
@@ -98,29 +98,29 @@ object J2B extends BacklogConfiguration with Logging {
   }
 
   private[this] def getConfiguration(cli: CommandLineInterface) = {
-    val keys: Array[String] = cli.execute.projectKey().split(":")
+    val keys: Array[String] = cli.importCommand.projectKey().split(":")
     val jira: String        = keys(0)
     val backlog: String     = if (keys.length == 2) keys(1) else keys(0).toUpperCase.replaceAll("-", "_")
 
     ConsoleOut.println(
       s"""--------------------------------------------------
-         |${Messages("common.jira")} ${Messages("common.username")}[${cli.execute.jiraUsername()}]
-         |${Messages("common.jira")} ${Messages("common.password")}[${cli.execute.jiraPassword()}]
-         |${Messages("common.jira")} ${Messages("common.url")}[${cli.execute.jiraUrl()}]
+         |${Messages("common.jira")} ${Messages("common.username")}[${cli.importCommand.jiraUsername()}]
+         |${Messages("common.jira")} ${Messages("common.password")}[${cli.importCommand.jiraPassword()}]
+         |${Messages("common.jira")} ${Messages("common.url")}[${cli.importCommand.jiraUrl()}]
          |${Messages("common.jira")} ${Messages("common.project_key")}[${jira}]
-         |${Messages("common.backlog")} ${Messages("common.url")}[${cli.execute.backlogUrl()}]
-         |${Messages("common.backlog")} ${Messages("common.access_key")}[${cli.execute.backlogKey()}]
+         |${Messages("common.backlog")} ${Messages("common.url")}[${cli.importCommand.backlogUrl()}]
+         |${Messages("common.backlog")} ${Messages("common.access_key")}[${cli.importCommand.backlogKey()}]
          |${Messages("common.backlog")} ${Messages("common.project_key")}[${backlog}]
-         |${Messages("common.importOnly")}[${cli.execute.importOnly()}]
-         |${Messages("common.optOut")}[${cli.execute.optOut.toOption.getOrElse(false)}]
+         |${Messages("common.importOnly")}[${cli.importCommand.importOnly()}]
+         |${Messages("common.optOut")}[${cli.importCommand.optOut.toOption.getOrElse(false)}]
          |--------------------------------------------------
      |""".stripMargin)
 
     new AppConfiguration(
-      jiraConfig    = new JiraApiConfiguration(username = cli.execute.jiraUsername(), password = cli.execute.jiraPassword(), cli.execute.jiraUrl(), projectKey = jira),
-      backlogConfig = new BacklogApiConfiguration(url = cli.execute.backlogUrl(), key = cli.execute.backlogKey(), projectKey = backlog),
-      importOnly    = cli.execute.importOnly(),
-      optOut        = cli.execute.optOut())
+      jiraConfig    = new JiraApiConfiguration(username = cli.importCommand.jiraUsername(), password = cli.importCommand.jiraPassword(), cli.importCommand.jiraUrl(), projectKey = jira),
+      backlogConfig = new BacklogApiConfiguration(url = cli.importCommand.backlogUrl(), key = cli.importCommand.backlogKey(), projectKey = backlog),
+      importOnly    = cli.importCommand.importOnly(),
+      optOut        = cli.importCommand.optOut())
   }
 
   private[this] def exit(exitCode: Int): Unit = {
