@@ -1,6 +1,9 @@
 package com.nulabinc.backlog.j2b.cli
 
+import com.google.inject.Guice
 import com.nulabinc.backlog.j2b.conf.{AppConfigValidator, AppConfiguration}
+import com.nulabinc.backlog.j2b.exporter.Exporter
+import com.nulabinc.backlog.j2b.modules.JiraDefaultModule
 import com.nulabinc.backlog.migration.common.conf.BacklogConfiguration
 import com.nulabinc.backlog.migration.common.utils.{ConsoleOut, Logging}
 import com.osinka.i18n.Messages
@@ -10,8 +13,12 @@ object J2BCli extends BacklogConfiguration
     with HelpCommand {
 
   def export(config: AppConfiguration): Unit = {
-    if (validateConfig(config)) {
 
+    val injector = Guice.createInjector(new JiraDefaultModule(config))
+
+    if (validateConfig(config)) {
+      val exporter = injector.getInstance(classOf[Exporter])
+      exporter.export()
     }
   }
 

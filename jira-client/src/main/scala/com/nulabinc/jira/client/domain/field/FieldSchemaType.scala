@@ -1,12 +1,4 @@
-package com.nulabinc.jira.client.domain
-
-case class Field(
-  id: String,
-  name: String,
-  schema: Option[FieldSchema]
-)
-
-case class FieldSchema(customId: Option[Long], schemaType: FieldSchemaType)
+package com.nulabinc.jira.client.domain.field
 
 sealed trait FieldSchemaType
 
