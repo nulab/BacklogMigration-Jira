@@ -16,3 +16,6 @@ project/plugins/project/
 # IDE Specific
 .idea
 
+# Project Specific
+backlog/
+

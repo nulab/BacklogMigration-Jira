@@ -3,8 +3,8 @@ package com.nulabinc.backlog.j2b.conf
 import com.nulabinc.backlog.j2b.jira.conf.JiraApiConfiguration
 import com.nulabinc.backlog.migration.common.conf.BacklogApiConfiguration
 
-class AppConfiguration(jiraConfig: JiraApiConfiguration,
-                       backlogConfig: BacklogApiConfiguration,
+class AppConfiguration(val jiraConfig: JiraApiConfiguration,
+                       val backlogConfig: BacklogApiConfiguration,
                        val importOnly: Boolean,
                        optOut: Boolean) {
 

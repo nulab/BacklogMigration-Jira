@@ -1,4 +1,4 @@
-package com.nulabinc.backlog.j2b.jira.modules
+package com.nulabinc.backlog.j2b.modules
 
 import com.google.inject.{AbstractModule, Guice, Injector}
 import com.nulabinc.backlog.j2b.jira.conf.JiraApiConfiguration

@@ -9,7 +9,7 @@ import com.nulabinc.backlog.j2b.mapping.core.MappingDirectory
 import com.nulabinc.backlog.j2b.mapping.domain.MappingJsonProtocol._
 import com.nulabinc.backlog.j2b.mapping.domain.{Mapping, MappingsWrapper}
 import com.nulabinc.backlog.j2b.jira.conf.JiraApiConfiguration
-import com.nulabinc.backlog.j2b.jira.modules.{ServiceInjector => JiraInjector}
+import com.nulabinc.backlog.j2b.modules.{ServiceInjector => JiraInjector}
 import com.nulabinc.backlog.j2b.jira.service.{UserService => JiraUserService}
 import com.nulabinc.jira.client.domain.{User => JiraUser}
 import com.osinka.i18n.Messages

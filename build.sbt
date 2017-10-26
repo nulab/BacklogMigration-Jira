@@ -137,7 +137,7 @@ lazy val mappingFile = (project in file("mapping-file"))
   )
   .dependsOn(mappingBase, client)
 
-lazy val projectWriter = (project in file("project-writer"))
+lazy val writer = (project in file("project-writer"))
   .settings(commonSettings: _*)
   .settings(
     name := "backlog-jira-project-writer",
@@ -197,5 +197,5 @@ lazy val root = (project in file("."))
     scapegoatVersion := "1.1.0",
     scapegoatDisabledInspections := Seq("NullParameter", "CatchThrowable", "NoOpOverride")
   )
-  .dependsOn(common % "test->test;compile->compile", importer, exporter, client, jira)
-  .aggregate(common, importer, exporter, client, jira)
+  .dependsOn(common % "test->test;compile->compile", importer, exporter, writer, client, jira)
+  .aggregate(common, importer, exporter, writer, client, jira)
