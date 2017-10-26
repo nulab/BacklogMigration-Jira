@@ -17,5 +17,6 @@ project/plugins/project/
 .idea
 
 # Project Specific
-backlog/
+backlog/project.json
+backlog/project
 
