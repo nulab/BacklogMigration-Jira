@@ -12,18 +12,22 @@ class Exporter @Inject()(projectKey: JiraProjectKey,
                          categoryService: CategoryService,
                          categoryWriter: IssueCategoriesWriter,
                          versionService: VersionService,
-                         versionsWriter: VersionsWriter) {
+                         versionsWriter: VersionsWriter,
+                         issueTypeService: IssueTypeService,
+                         issueTypesWriter: IssueTypesWriter) {
 
   def export(): Unit = {
 
     val project = projectService.getProjectByKey(projectKey)
     val categories = categoryService.all()
     val versions = versionService.all()
+    val issueTypes = issueTypeService.all()
 
     for {
       _ <- projectWriter.write(project).right
       _ <- categoryWriter.write(categories).right
       _ <- versionsWriter.write(versions).right
+      _ <- issueTypesWriter.write(issueTypes).right
     } yield ()
 
 

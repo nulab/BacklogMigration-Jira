@@ -21,6 +21,8 @@ class JiraRestClient(url: String, username: String, password: String) {
   def componentRestClient = new ComponentRestClientImpl(httpClient)
 
   def versionsRestClient = new VersionRestClientImpl(httpClient)
+
+  def issueTypeRestClient = new IssueTypeRestClientImpl(httpClient)
 }
 
 object JiraRestClient {

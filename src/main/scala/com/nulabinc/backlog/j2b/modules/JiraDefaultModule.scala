@@ -33,10 +33,12 @@ class JiraDefaultModule(config: AppConfiguration) extends AbstractModule {
     bind(classOf[ProjectWriter]).to(classOf[ProjectFileWriter])
     bind(classOf[IssueCategoriesWriter]).to(classOf[IssueCategoriesFileWriter])
     bind(classOf[VersionsWriter]).to(classOf[VersionsFileWriter])
+    bind(classOf[IssueTypesWriter]).to(classOf[IssueTypesFileWriter])
 
     // Exporter
     bind(classOf[ProjectService]).to(classOf[JiraClientProjectService])
     bind(classOf[CategoryService]).to(classOf[JiraClientCategoryService])
     bind(classOf[VersionService]).to(classOf[JiraClientVersionService])
+    bind(classOf[IssueTypeService]).to(classOf[JiraClientIssueTypeService])
   }
 }
