@@ -2,8 +2,8 @@ package com.nulabinc.backlog.j2b.issue.writer
 
 import javax.inject.Inject
 
-import com.nulabinc.backlog.j2b.issue.writer.convert.IssueTypesWrites
-import com.nulabinc.backlog.j2b.jira.writer.IssueTypesWriter
+import com.nulabinc.backlog.j2b.issue.writer.convert.IssueTypeWrites
+import com.nulabinc.backlog.j2b.jira.writer.IssueTypeWriter
 import com.nulabinc.backlog.migration.common.conf.BacklogPaths
 import com.nulabinc.backlog.migration.common.convert.Convert
 import com.nulabinc.backlog.migration.common.domain.BacklogIssueTypesWrapper
@@ -11,8 +11,8 @@ import com.nulabinc.backlog.migration.common.utils.IOUtil
 import com.nulabinc.jira.client.domain.IssueType
 import spray.json._
 
-class IssueTypesFileWriter @Inject()(implicit val issueTypesWrites: IssueTypesWrites,
-                                     backlogPaths: BacklogPaths) extends IssueTypesWriter {
+class IssueTypeFileWriter @Inject()(implicit val issueTypesWrites: IssueTypeWrites,
+                                    backlogPaths: BacklogPaths) extends IssueTypeWriter {
 
   import com.nulabinc.backlog.migration.common.domain.BacklogJsonProtocol.BacklogIssueTypesWrapperFormat
 

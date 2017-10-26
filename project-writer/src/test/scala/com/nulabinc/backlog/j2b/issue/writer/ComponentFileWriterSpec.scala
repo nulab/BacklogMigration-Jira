@@ -4,7 +4,7 @@ import com.nulabinc.backlog.migration.common.convert.BacklogUnmarshaller
 import com.nulabinc.jira.client.domain.Component
 import org.specs2.mutable.Specification
 
-class IssueCategoriesFileWriterSpec extends Specification with FileWriterTestHelper {
+class ComponentFileWriterSpec extends Specification with FileWriterTestHelper {
 
   "should write issue categories to file" >> {
 
@@ -14,7 +14,7 @@ class IssueCategoriesFileWriterSpec extends Specification with FileWriterTestHel
     )
 
     // Output to file
-    new IssueCategoriesFileWriter().write(components)
+    new ComponentFileWriter().write(components)
 
     val actual = BacklogUnmarshaller.issueCategories(paths)
 

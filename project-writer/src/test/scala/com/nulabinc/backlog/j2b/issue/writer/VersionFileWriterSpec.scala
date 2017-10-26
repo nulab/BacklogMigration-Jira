@@ -6,7 +6,7 @@ import org.joda.time.DateTime
 import org.specs2.mutable.Specification
 
 
-class VersionsFileWriterSpec extends Specification with FileWriterTestHelper {
+class VersionFileWriterSpec extends Specification with FileWriterTestHelper {
 
   "should write versions to file" >> {
 
@@ -16,7 +16,7 @@ class VersionsFileWriterSpec extends Specification with FileWriterTestHelper {
     )
 
     // Output to file
-    new VersionsFileWriter().write(versions)
+    new VersionFileWriter().write(versions)
 
     val actual = BacklogUnmarshaller.versions(paths)
 

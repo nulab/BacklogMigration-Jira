@@ -14,7 +14,7 @@ class IssueTypesFileWriterSpec extends Specification with FileWriterTestHelper {
     )
 
     // Output to file
-    new IssueTypesFileWriter().write(issueTypes)
+    new IssueTypeFileWriter().write(issueTypes)
 
     val actual = BacklogUnmarshaller.issueTypes(paths)
 
