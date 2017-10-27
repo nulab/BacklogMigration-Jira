@@ -11,9 +11,9 @@ trait FileWriterTestHelper {
   val projectKey = new JiraProjectKey("PLAYCMS")
 
   implicit val projectWrites          = new ProjectWrites(projectKey)
-  implicit val issueCategoriesWrites  = new IssueCategoriesWrites
-  implicit val issueTypesWrites       = new IssueTypesWrites
-  implicit val versionsWrites         = new VersionsWrites
+  implicit val issueCategoriesWrites  = new ComponentWrites
+  implicit val issueTypesWrites       = new IssueTypeWrites
+  implicit val versionsWrites         = new VersionWrites
 
   implicit val paths                  = new BacklogPaths(projectKey.value) {
     override def projectJson          = Path.fromString("project-writer/target/project.json")

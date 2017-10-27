@@ -4,6 +4,6 @@ import com.nulabinc.jira.client.domain.Status
 
 trait StatusService {
 
-  def allStatuses(): Seq[Status]
+  def all(): Seq[Status]
 
 }

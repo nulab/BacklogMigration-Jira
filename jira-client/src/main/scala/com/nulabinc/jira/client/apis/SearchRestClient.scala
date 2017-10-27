@@ -3,7 +3,7 @@ package com.nulabinc.jira.client.apis
 import com.nulabinc.jira.client.JiraRestClientError
 import com.nulabinc.jira.client.domain.SearchResult
 
-trait SearchRestClient {
+trait SearchRestClient extends Pagenable {
 
   def searchJql(jql: String): Either[JiraRestClientError, SearchResult]
 

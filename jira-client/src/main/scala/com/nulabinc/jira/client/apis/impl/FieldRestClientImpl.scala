@@ -2,7 +2,7 @@ package com.nulabinc.jira.client.apis.impl
 
 import com.nulabinc.jira.client._
 import com.nulabinc.jira.client.apis.FieldRestClient
-import com.nulabinc.jira.client.domain.Field
+import com.nulabinc.jira.client.domain.field.Field
 import spray.json._
 
 class FieldRestClientImpl(httpClient: HttpClient) extends FieldRestClient {

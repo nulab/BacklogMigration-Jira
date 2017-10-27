@@ -1,7 +1,7 @@
 package com.nulabinc.backlog.j2b.mapping.file
 
 import com.nulabinc.backlog.j2b.jira.conf.JiraApiConfiguration
-import com.nulabinc.backlog.j2b.jira.modules.{ServiceInjector => JiraInjector}
+import com.nulabinc.backlog.j2b.modules.{ServiceInjector => JiraInjector}
 import com.nulabinc.backlog.j2b.jira.service.{StatusService => JiraStatusService}
 import com.nulabinc.backlog.j2b.mapping.core.MappingDirectory
 import com.nulabinc.backlog.migration.common.modules.{ServiceInjector => BacklogInjector}
