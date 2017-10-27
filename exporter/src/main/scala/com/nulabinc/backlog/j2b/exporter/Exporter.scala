@@ -5,6 +5,7 @@ import javax.inject.Inject
 import com.nulabinc.backlog.j2b.jira.domain.JiraProjectKey
 import com.nulabinc.backlog.j2b.jira.service._
 import com.nulabinc.backlog.j2b.jira.writer._
+import com.nulabinc.jira.client.domain.Issue
 
 class Exporter @Inject()(projectKey: JiraProjectKey,
                          projectService: ProjectService,
@@ -17,6 +18,8 @@ class Exporter @Inject()(projectKey: JiraProjectKey,
                          issueTypesWriter: IssueTypeWriter,
                          fieldService: FieldService,
                          fieldWriter: FieldWriter,
+                         issueService: IssueService,
+                         issueWriter: IssueWriter,
                          statusService: StatusService) {
 
   def export(): Unit = {
@@ -35,6 +38,15 @@ class Exporter @Inject()(projectKey: JiraProjectKey,
       _ <- issueTypesWriter.write(issueTypes).right
       _ <- fieldWriter.write(fields).right
     } yield ()
+
+
+  }
+
+  private def fetchIssue(startAt: Long, maxResults: Long) = {
+
+    val issues = issueService.issues(startAt, maxResults)
+
+    issueWriter.write(issues)
 
 
   }

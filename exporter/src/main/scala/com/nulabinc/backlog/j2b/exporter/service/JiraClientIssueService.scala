@@ -12,7 +12,7 @@ import com.nulabinc.jira.client.domain.Issue
 class JiraClientIssueService @Inject()(apiConfig: JiraApiConfiguration, projectKey: JiraProjectKey, jira: JiraRestClient)
     extends IssueService with Logging {
 
-  override def countIssues() = {
+  override def count() = {
     jira.searchRestClient.searchJql(s"project=${projectKey.value}", 0, 0) match {
       case Right(result) => result.total
       case Left(error) => {
@@ -22,7 +22,7 @@ class JiraClientIssueService @Inject()(apiConfig: JiraApiConfiguration, projectK
     }
   }
 
-  override def allIssues(startAt: Long, maxResults: Long) =
+  override def issues(startAt: Long, maxResults: Long) =
     jira.issueRestClient.projectIssues(projectKey.value, startAt, maxResults) match {
       case Right(result) => result
       case Left(error) => {
@@ -30,8 +30,4 @@ class JiraClientIssueService @Inject()(apiConfig: JiraApiConfiguration, projectK
         Seq.empty[Issue]
       }
     }
-
-  override def issueOfId(id: Integer) = ???
-
-  override def tryIssueOfId(id: Integer) = ???
 }
