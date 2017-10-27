@@ -31,7 +31,7 @@ class HttpClient(url: String, username: String, password: String) {
       httpResponse.getStatusLine.getStatusCode match {
         case HttpStatus.SC_OK =>
           using(httpResponse.getEntity.getContent) { inputStream =>
-            val body = io.Source.fromInputStream(inputStream).getLines.mkString
+            val body = io.Source.fromInputStream(inputStream)("UTF-8").getLines.mkString
             Right(body)
           }
         case HttpStatus.SC_BAD_REQUEST => {
