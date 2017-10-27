@@ -34,12 +34,14 @@ class JiraDefaultModule(config: AppConfiguration) extends AbstractModule {
     bind(classOf[ComponentWriter]).to(classOf[ComponentFileWriter])
     bind(classOf[VersionWriter]).to(classOf[VersionFileWriter])
     bind(classOf[IssueTypeWriter]).to(classOf[IssueTypeFileWriter])
+    bind(classOf[FieldWriter]).to(classOf[FieldFileWriter])
 
     // Exporter
     bind(classOf[ProjectService]).to(classOf[JiraClientProjectService])
     bind(classOf[CategoryService]).to(classOf[JiraClientCategoryService])
     bind(classOf[VersionService]).to(classOf[JiraClientVersionService])
     bind(classOf[IssueTypeService]).to(classOf[JiraClientIssueTypeService])
+    bind(classOf[FieldService]).to(classOf[JiraClientFieldService])
     bind(classOf[StatusService]).to(classOf[JiraClientStatusService])
   }
 }
