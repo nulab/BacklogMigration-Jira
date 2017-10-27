@@ -15,6 +15,8 @@ class Exporter @Inject()(projectKey: JiraProjectKey,
                          versionsWriter: VersionWriter,
                          issueTypeService: IssueTypeService,
                          issueTypesWriter: IssueTypeWriter,
+                         fieldService: FieldService,
+                         fieldWriter: FieldWriter,
                          statusService: StatusService) {
 
   def export(): Unit = {
@@ -23,6 +25,7 @@ class Exporter @Inject()(projectKey: JiraProjectKey,
     val categories = categoryService.all()
     val versions = versionService.all()
     val issueTypes = issueTypeService.all()
+    val fields = fieldService.all()
 //    val statuses = statusService.all()
 
     for {
@@ -30,6 +33,7 @@ class Exporter @Inject()(projectKey: JiraProjectKey,
       _ <- categoryWriter.write(categories).right
       _ <- versionsWriter.write(versions).right
       _ <- issueTypesWriter.write(issueTypes).right
+      _ <- fieldWriter.write(fields).right
     } yield ()
 
 
