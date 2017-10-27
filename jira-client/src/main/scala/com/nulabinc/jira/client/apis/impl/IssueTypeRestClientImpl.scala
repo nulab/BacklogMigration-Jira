@@ -2,7 +2,7 @@ package com.nulabinc.jira.client.apis.impl
 
 import com.nulabinc.jira.client._
 import com.nulabinc.jira.client.apis.IssueTypeRestClient
-import com.nulabinc.jira.client.domain.IssueType
+import com.nulabinc.jira.client.domain.issue.IssueType
 import spray.json._
 
 class IssueTypeRestClientImpl(httpClient: HttpClient) extends IssueTypeRestClient {

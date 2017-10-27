@@ -7,7 +7,7 @@ import com.nulabinc.backlog.j2b.jira.domain.JiraProjectKey
 import com.nulabinc.backlog.j2b.jira.service.IssueService
 import com.nulabinc.backlog.migration.common.utils.Logging
 import com.nulabinc.jira.client.JiraRestClient
-import com.nulabinc.jira.client.domain.Issue
+import com.nulabinc.jira.client.domain.issue.Issue
 
 class JiraClientIssueService @Inject()(apiConfig: JiraApiConfiguration, projectKey: JiraProjectKey, jira: JiraRestClient)
     extends IssueService with Logging {

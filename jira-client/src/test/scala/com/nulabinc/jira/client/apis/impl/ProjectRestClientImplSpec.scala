@@ -1,7 +1,7 @@
 package com.nulabinc.jira.client.apis.impl
 
 import com.nulabinc.jira.client.{HttpClient, JiraRestClient}
-import com.nulabinc.jira.client.domain.{Issue, Project}
+import com.nulabinc.jira.client.domain.Project
 import org.specs2.mock.Mockito
 import org.specs2.mutable.Specification
 

@@ -1,7 +1,7 @@
 package com.nulabinc.jira.client.apis
 
 import com.nulabinc.jira.client.JiraRestClientError
-import com.nulabinc.jira.client.domain.Issue
+import com.nulabinc.jira.client.domain.issue.Issue
 
 trait IssueRestClient extends Pagenable {
 

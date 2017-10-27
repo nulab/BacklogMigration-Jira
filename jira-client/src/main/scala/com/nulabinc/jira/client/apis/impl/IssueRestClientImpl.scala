@@ -2,9 +2,9 @@ package com.nulabinc.jira.client.apis.impl
 
 import com.nulabinc.jira.client._
 import com.nulabinc.jira.client.apis._
-import com.nulabinc.jira.client.domain.Issue
 import spray.json._
 import com.netaporter.uri.dsl._
+import com.nulabinc.jira.client.domain.issue.Issue
 
 case class IssueResult(total: Int, issues: Seq[Issue])
 

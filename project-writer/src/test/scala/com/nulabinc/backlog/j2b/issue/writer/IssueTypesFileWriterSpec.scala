@@ -1,7 +1,7 @@
 package com.nulabinc.backlog.j2b.issue.writer
 
 import com.nulabinc.backlog.migration.common.convert.BacklogUnmarshaller
-import com.nulabinc.jira.client.domain.IssueType
+import com.nulabinc.jira.client.domain.issue.IssueType
 import org.specs2.mutable.Specification
 
 class IssueTypesFileWriterSpec extends Specification with FileWriterTestHelper {

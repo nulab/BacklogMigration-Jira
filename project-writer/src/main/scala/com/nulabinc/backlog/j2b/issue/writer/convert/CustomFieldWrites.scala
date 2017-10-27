@@ -8,6 +8,7 @@ import com.nulabinc.backlog.migration.common.utils.Logging
 import com.nulabinc.backlog4j.CustomField.FieldType
 import com.nulabinc.jira.client.domain._
 import com.nulabinc.jira.client.domain.field.{Field, NumberSchema, StringSchema}
+import com.nulabinc.jira.client.domain.issue.{IssueField, NumberFieldValue, StringFieldValue}
 
 private [writer] class CustomFieldWrites @Inject()(customFieldDefinition: Seq[Field])
     extends Writes[IssueField, Option[BacklogCustomField]]

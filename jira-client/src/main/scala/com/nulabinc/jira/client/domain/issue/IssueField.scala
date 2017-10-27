@@ -1,4 +1,6 @@
-package com.nulabinc.jira.client.domain
+package com.nulabinc.jira.client.domain.issue
+
+import com.nulabinc.jira.client.domain.User
 
 sealed trait FieldValue
 case class StringFieldValue(value: String) extends FieldValue
