@@ -16,8 +16,8 @@ class IssueMappingJsonProtocolSpec extends Specification {
     actual.description must beSome("Test issue #1")
     actual.assignee.get.name must beEqualTo("tanaka")
     actual.issueFields.length must beEqualTo(5)
-    actual.timeTrack.originalEstimateSeconds must beSome(32400)
-    actual.timeTrack.timeSpentSeconds must beSome(3720)
+    actual.timeTrack.get.originalEstimateSeconds must beSome(32400)
+    actual.timeTrack.get.timeSpentSeconds must beSome(3720)
     actual.components.length must beEqualTo(1)
   }
 

@@ -13,7 +13,7 @@ case class Issue(
   components: Seq[Component],
   issueFields: Seq[IssueField],
   dueDate: Option[DateTime],
-  timeTrack: TimeTrack,
+  timeTrack: Option[TimeTrack],
   issueType: IssueType,
   status: Status,
   priority: Priority,

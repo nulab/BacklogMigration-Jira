@@ -18,19 +18,19 @@ class IssueFieldWrites @Inject()(customFieldDefinitions: Seq[Field])
       case Some(field) =>
         field.schema.map { schema =>
           (schema.schemaType, schema.customType) match {
-            case (StatusSchema, Some(Textarea))         => toTextAreaCustomField(field, issueField.asInstanceOf[StringFieldValue])
-            case (StringSchema, _)                      => toTextCustomField(field, issueField.asInstanceOf[StringFieldValue])
-            case (NumberSchema, _)                      => toNumberCustomField(field, issueField.asInstanceOf[NumberFieldValue])
-            case (DateSchema, _)                        => toDateCustomField(field, issueField.asInstanceOf[StringFieldValue])
-            case (DatetimeSchema, _)                    => toDateCustomField(field, issueField.asInstanceOf[StringFieldValue])
-            case (ArraySchema, _)                       => toMultipleListCustomField(field, issueField.asInstanceOf[ArrayFieldValue])
-            case (UserSchema, _)                        => toTextCustomField(field, issueField.asInstanceOf[StringFieldValue])
-            case (AnySchema, _)                         => toTextCustomField(field, issueField.asInstanceOf[StringFieldValue])
-            case (OptionSchema, Some(Select))           => toSingleListCustomField(field, issueField.asInstanceOf[StringFieldValue])
-            case (OptionSchema, Some(MultiCheckBoxes))  => toMultipleListCustomField(field, issueField.asInstanceOf[ArrayFieldValue])
-            case (OptionSchema, Some(RadioButtons))     => toSingleListCustomField(field, issueField.asInstanceOf[StringFieldValue])
-            case (OptionSchema, _)                      => toTextCustomField(field, issueField.asInstanceOf[StringFieldValue])
-            case (OptionWithChildSchema, _)             => toMultipleListCustomField(field, issueField.asInstanceOf[ArrayFieldValue])
+            case (StatusSchema, Some(Textarea))         => toTextAreaCustomField(field, issueField.value.asInstanceOf[StringFieldValue])
+            case (StringSchema, _)                      => toTextCustomField(field, issueField.value.asInstanceOf[StringFieldValue])
+            case (NumberSchema, _)                      => toNumberCustomField(field, issueField.value.asInstanceOf[NumberFieldValue])
+            case (DateSchema, _)                        => toDateCustomField(field, issueField.value.asInstanceOf[StringFieldValue])
+            case (DatetimeSchema, _)                    => toDateCustomField(field, issueField.value.asInstanceOf[StringFieldValue])
+            case (ArraySchema, _)                       => toMultipleListCustomField(field, issueField.value.asInstanceOf[ArrayFieldValue])
+            case (UserSchema, _)                        => toTextCustomField(field, issueField.value.asInstanceOf[StringFieldValue])
+            case (AnySchema, _)                         => toTextCustomField(field, issueField.value.asInstanceOf[StringFieldValue])
+            case (OptionSchema, Some(Select))           => toSingleListCustomField(field, issueField.value.asInstanceOf[StringFieldValue])
+            case (OptionSchema, Some(MultiCheckBoxes))  => toMultipleListCustomField(field, issueField.value.asInstanceOf[ArrayFieldValue])
+            case (OptionSchema, Some(RadioButtons))     => toSingleListCustomField(field, issueField.value.asInstanceOf[StringFieldValue])
+            case (OptionSchema, _)                      => toTextCustomField(field, issueField.value.asInstanceOf[StringFieldValue])
+            case (OptionWithChildSchema, _)             => toMultipleListCustomField(field, issueField.value.asInstanceOf[ArrayFieldValue])
           }
         }
       case _ => None

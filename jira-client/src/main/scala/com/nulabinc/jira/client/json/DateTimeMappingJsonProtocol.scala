@@ -7,7 +7,7 @@ import spray.json._
 object DateTimeMappingJsonProtocol {
 
   implicit object DateTimeJsonFormat extends RootJsonFormat[DateTime] {
-    private lazy val format = ISODateTimeFormat.dateTimeNoMillis()
+    private lazy val format = ISODateTimeFormat.dateTime()
     def write(datetime: DateTime): JsValue = JsString(format.print(datetime.withZone(DateTimeZone.UTC)))
     def read(json: JsValue): DateTime = json match {
       case JsString(x) => format.parseDateTime(x)

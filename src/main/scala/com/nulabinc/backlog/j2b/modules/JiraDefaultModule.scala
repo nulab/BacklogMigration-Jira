@@ -4,6 +4,7 @@ import com.google.inject.AbstractModule
 import com.nulabinc.backlog.j2b.conf.AppConfiguration
 import com.nulabinc.backlog.j2b.exporter.service._
 import com.nulabinc.backlog.j2b.issue.writer._
+import com.nulabinc.backlog.j2b.issue.writer.convert._
 import com.nulabinc.backlog.j2b.jira.conf.JiraApiConfiguration
 import com.nulabinc.backlog.j2b.jira.domain.JiraProjectKey
 import com.nulabinc.backlog.j2b.jira.service._
@@ -29,12 +30,20 @@ class JiraDefaultModule(config: AppConfiguration) extends AbstractModule {
 
     bind(classOf[BacklogPaths]).toInstance(new BacklogPaths(config.backlogProjectKey))
 
+    // Data
+    val fields = jira.fieldRestClient.all().right.get
+
+    // Writes
+    bind(classOf[UserWrites]).toInstance(new UserWrites)
+    bind(classOf[IssueFieldWrites]).toInstance(new IssueFieldWrites(fields))
+
     // Writer
     bind(classOf[ProjectWriter]).to(classOf[ProjectFileWriter])
     bind(classOf[ComponentWriter]).to(classOf[ComponentFileWriter])
     bind(classOf[VersionWriter]).to(classOf[VersionFileWriter])
     bind(classOf[IssueTypeWriter]).to(classOf[IssueTypeFileWriter])
     bind(classOf[FieldWriter]).to(classOf[FieldFileWriter])
+    bind(classOf[IssueWriter]).to(classOf[IssueFileWriter])
 
     // Exporter
     bind(classOf[ProjectService]).to(classOf[JiraClientProjectService])
@@ -43,5 +52,6 @@ class JiraDefaultModule(config: AppConfiguration) extends AbstractModule {
     bind(classOf[IssueTypeService]).to(classOf[JiraClientIssueTypeService])
     bind(classOf[FieldService]).to(classOf[JiraClientFieldService])
     bind(classOf[StatusService]).to(classOf[JiraClientStatusService])
+    bind(classOf[IssueService]).to(classOf[JiraClientIssueService])
   }
 }
