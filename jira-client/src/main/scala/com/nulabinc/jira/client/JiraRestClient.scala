@@ -1,5 +1,6 @@
 package com.nulabinc.jira.client
 
+import com.nulabinc.jira.client.apis._
 import com.nulabinc.jira.client.apis.impl._
 
 class JiraRestClient(url: String, username: String, password: String) {
@@ -23,6 +24,8 @@ class JiraRestClient(url: String, username: String, password: String) {
   def versionsRestClient = new VersionRestClientImpl(httpClient)
 
   def issueTypeRestClient = new IssueTypeRestClientImpl(httpClient)
+
+  lazy val changeLogAPI = new ChangeLogAPI(httpClient)
 }
 
 object JiraRestClient {

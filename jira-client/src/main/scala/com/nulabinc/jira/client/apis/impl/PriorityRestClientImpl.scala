@@ -7,7 +7,7 @@ import spray.json.JsonParser
 
 class PriorityRestClientImpl(httpClient: HttpClient) extends PriorityRestClient {
 
-  import PriorityMappingJsonProtocol._
+  import com.nulabinc.jira.client.json.PriorityMappingJsonProtocol._
 
   override def priorities: Either[JiraRestClientError, Seq[Priority]] = {
     httpClient.get(s"/priority") match {

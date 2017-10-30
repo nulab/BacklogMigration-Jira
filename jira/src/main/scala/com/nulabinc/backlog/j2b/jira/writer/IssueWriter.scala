@@ -6,6 +6,6 @@ import com.nulabinc.jira.client.domain.issue.Issue
 
 trait IssueWriter {
 
-  def write(issues: Seq[Issue]): Either[IssueIOError, Seq[BacklogIssue]]
+  def write(issue: Issue): Either[IssueIOError, BacklogIssue]
 
 }

@@ -1,6 +1,6 @@
 package com.nulabinc.jira.client.domain.issue
 
-import com.nulabinc.jira.client.domain.{Component, User}
+import com.nulabinc.jira.client.domain._
 import org.joda.time.DateTime
 
 case class Issue(
@@ -14,5 +14,15 @@ case class Issue(
   issueFields: Seq[IssueField],
   dueDate: Option[DateTime],
   timeTrack: TimeTrack,
-  issueType: IssueType
-)
+  issueType: IssueType,
+  status: Status,
+  priority: Priority,
+  creator: User,
+  createdAt: DateTime,
+  updatedAt: DateTime,
+  changeLogs: Seq[ChangeLog]
+) {
+
+  def injectChangeLogs(changeLogs: Seq[ChangeLog]) =
+    this.copy(changeLogs = changeLogs)
+}
