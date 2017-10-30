@@ -31,7 +31,7 @@ class JiraDefaultModule(config: AppConfiguration) extends AbstractModule {
     bind(classOf[BacklogPaths]).toInstance(new BacklogPaths(config.backlogProjectKey))
 
     // Data
-    val fields = jira.fieldRestClient.all().right.get
+    val fields = jira.fieldAPI.all().right.get
 
     // Writes
     bind(classOf[UserWrites]).toInstance(new UserWrites)

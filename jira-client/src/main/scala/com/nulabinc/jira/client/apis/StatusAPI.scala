@@ -1,15 +1,14 @@
-package com.nulabinc.jira.client.apis.impl
+package com.nulabinc.jira.client.apis
 
 import com.nulabinc.jira.client._
-import com.nulabinc.jira.client.apis.StatusRestClient
 import com.nulabinc.jira.client.domain.Status
 import spray.json.JsonParser
 
-class StatusRestClientImpl(httpClient: HttpClient) extends StatusRestClient {
+class StatusAPI(httpClient: HttpClient) {
 
   import com.nulabinc.jira.client.json.StatusMappingJsonProtocol._
 
-  override def statuses: Either[JiraRestClientError, Seq[Status]] = {
+  def statuses: Either[JiraRestClientError, Seq[Status]] = {
     httpClient.get(s"/status") match {
       case Right(json)               => Right(JsonParser(json).convertTo[Seq[Status]])
       case Left(_: ApiNotFoundError) => Left(ResourceNotFoundError("status", ""))

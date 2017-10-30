@@ -1,23 +1,22 @@
-package com.nulabinc.jira.client.apis.impl
+package com.nulabinc.jira.client.apis
 
-import com.nulabinc.jira.client._
-import com.nulabinc.jira.client.apis._
-import spray.json._
 import com.netaporter.uri.dsl._
+import com.nulabinc.jira.client._
 import com.nulabinc.jira.client.domain.issue.Issue
+import spray.json._
 
 case class IssueResult(total: Int, issues: Seq[Issue])
 
-class IssueRestClientImpl(httpClient: HttpClient) extends IssueRestClient {
+class IssueRestClientImpl(httpClient: HttpClient) {
 
   import com.nulabinc.jira.client.json.IssueMappingJsonProtocol._
   import com.nulabinc.jira.client.json.IssueResultMappingJsonProtocol._
 
-  override def issue(id: Long) = fetchIssue(id.toString)
+  def issue(id: Long) = fetchIssue(id.toString)
 
-  override def issue(key: String) = fetchIssue(key)
+  def issue(key: String) = fetchIssue(key)
 
-  override def projectIssues(key: String, startAt: Long = 0, maxResults: Long = 100) = {
+  def projectIssues(key: String, startAt: Long = 0, maxResults: Long = 100) = {
     val uri = "/search" ?
       ("startAt"    -> startAt) &
       ("maxResults" -> maxResults) &

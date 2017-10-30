@@ -1,18 +1,17 @@
-package com.nulabinc.jira.client.apis.impl
+package com.nulabinc.jira.client.apis
 
+import com.netaporter.uri.dsl._
 import com.nulabinc.jira.client._
-import com.nulabinc.jira.client.apis.SearchRestClient
 import com.nulabinc.jira.client.domain.SearchResult
 import spray.json.JsonParser
-import com.netaporter.uri.dsl._
 
-class SearchRestClientImpl(httpClient: HttpClient) extends SearchRestClient {
+class SearchAPI(httpClient: HttpClient) {
 
   import com.nulabinc.jira.client.json.SearchResultMappingJsonProtocol._
 
-  override def searchJql(jql: String): Either[JiraRestClientError, SearchResult] = searchJql(jql, 50, 0)
+  def searchJql(jql: String): Either[JiraRestClientError, SearchResult] = searchJql(jql, 50, 0)
 
-  override def searchJql(jql: String, maxResults: Int, startAt: Int): Either[JiraRestClientError, SearchResult] = {
+  def searchJql(jql: String, maxResults: Int, startAt: Int): Either[JiraRestClientError, SearchResult] = {
     val uri = "/search" ?
       ("startAt"    -> startAt) &
       ("maxResults" -> maxResults)

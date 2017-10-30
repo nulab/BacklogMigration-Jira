@@ -13,7 +13,7 @@ class JiraClientIssueService @Inject()(apiConfig: JiraApiConfiguration, projectK
     extends IssueService with Logging {
 
   override def count() = {
-    jira.searchRestClient.searchJql(s"project=${projectKey.value}", 0, 0) match {
+    jira.searchAPI.searchJql(s"project=${projectKey.value}", 0, 0) match {
       case Right(result) => result.total
       case Left(error) => {
         logger.error(error.message)
@@ -23,7 +23,7 @@ class JiraClientIssueService @Inject()(apiConfig: JiraApiConfiguration, projectK
   }
 
   override def issues(startAt: Long, maxResults: Long) =
-    jira.issueRestClient.projectIssues(projectKey.value, startAt, maxResults) match {
+    jira.issueAPI.projectIssues(projectKey.value, startAt, maxResults) match {
       case Right(result) => result
       case Left(error) => {
         logger.error(error.message)

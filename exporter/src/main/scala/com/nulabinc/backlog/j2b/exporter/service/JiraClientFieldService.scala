@@ -8,6 +8,6 @@ import com.nulabinc.jira.client.JiraRestClient
 class JiraClientFieldService @Inject()(jira: JiraRestClient) extends FieldService {
 
   override def all() =
-    jira.fieldRestClient.all.right.get
+    jira.fieldAPI.all.right.get
 
 }

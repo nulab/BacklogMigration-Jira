@@ -1,12 +1,11 @@
-package com.nulabinc.jira.client.apis.impl
+package com.nulabinc.jira.client.apis
 
+import com.netaporter.uri.dsl._
 import com.nulabinc.jira.client._
-import com.nulabinc.jira.client.apis.UserRestClient
 import com.nulabinc.jira.client.domain.User
 import spray.json.JsonParser
-import com.netaporter.uri.dsl._
 
-class UserRestClientImpl(httpClient: HttpClient) extends UserRestClient {
+class UserAPI(httpClient: HttpClient) {
 
   import com.nulabinc.jira.client.json.UserMappingJsonProtocol._
 

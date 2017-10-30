@@ -10,7 +10,7 @@ import com.nulabinc.jira.client.domain.Status
 class JiraClientStatusService @Inject()(jira: JiraRestClient) extends StatusService with Logging {
 
   override def all(): Seq[Status] =
-    jira.statusRestClient.statuses match {
+    jira.statusAPI.statuses match {
       case Right(statuses) => statuses
       case Left(error) => {
         logger.error(error.message)
