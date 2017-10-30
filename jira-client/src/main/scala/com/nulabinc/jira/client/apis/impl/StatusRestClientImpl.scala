@@ -1,13 +1,13 @@
 package com.nulabinc.jira.client.apis.impl
 
 import com.nulabinc.jira.client._
-import com.nulabinc.jira.client.apis.{StatusRestClient, StatusMappingJsonProtocol}
+import com.nulabinc.jira.client.apis.StatusRestClient
 import com.nulabinc.jira.client.domain.Status
 import spray.json.JsonParser
 
 class StatusRestClientImpl(httpClient: HttpClient) extends StatusRestClient {
 
-  import StatusMappingJsonProtocol._
+  import com.nulabinc.jira.client.json.StatusMappingJsonProtocol._
 
   override def statuses: Either[JiraRestClientError, Seq[Status]] = {
     httpClient.get(s"/status") match {
