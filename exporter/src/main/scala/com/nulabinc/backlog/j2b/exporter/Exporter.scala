@@ -5,7 +5,6 @@ import javax.inject.Inject
 import com.nulabinc.backlog.j2b.jira.domain.JiraProjectKey
 import com.nulabinc.backlog.j2b.jira.service._
 import com.nulabinc.backlog.j2b.jira.writer._
-import com.nulabinc.jira.client.domain.issue.Issue
 
 class Exporter @Inject()(projectKey: JiraProjectKey,
                          projectService: ProjectService,
@@ -40,14 +39,23 @@ class Exporter @Inject()(projectKey: JiraProjectKey,
     } yield ()
 
 
+
+    fetchIssue(0, 100)
+
   }
 
-  private def fetchIssue(startAt: Long, maxResults: Long) = {
+  private def fetchIssue(startAt: Long, maxResults: Long): Unit = {
 
     val issues = issueService.issues(startAt, maxResults)
 
-    issueWriter.write(issues)
+    if (issues.nonEmpty) {
+      issues.map { issue =>
 
+//        val issueWithChangeLogs = issueService.injectChangeLogsToIssue(issue) // API Call
 
+        issueWriter.write(issue)
+      }
+      fetchIssue(startAt + 100, maxResults)
+    }
   }
 }

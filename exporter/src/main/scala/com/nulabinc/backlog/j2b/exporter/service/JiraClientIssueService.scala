@@ -30,4 +30,10 @@ class JiraClientIssueService @Inject()(apiConfig: JiraApiConfiguration, projectK
         Seq.empty[Issue]
       }
     }
+
+  override def injectChangeLogsToIssue(issue: Issue) = {
+    val changeLogs = jira.issueAPI.changeLogs(issue.id.toString, 0, 100)
+
+    issue
+  }
 }

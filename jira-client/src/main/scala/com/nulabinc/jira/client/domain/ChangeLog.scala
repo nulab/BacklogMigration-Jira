@@ -16,3 +16,9 @@ case class ChangeLogItem(
   from: Option[String],
   to: String
 )
+
+case class ChangeLogResult(
+  total: Long,
+  isLast: Boolean,
+  values: Seq[ChangeLog]
+)

@@ -1,6 +1,6 @@
 package com.nulabinc.jira.client.json
 
-import com.nulabinc.jira.client.domain.{ChangeLog, ChangeLogItem, User}
+import com.nulabinc.jira.client.domain._
 import org.joda.time.DateTime
 import spray.json._
 
@@ -27,7 +27,7 @@ object ChangeLogMappingJsonProtocol extends DefaultJsonProtocol {
             from = from,
             to = to
           )
-        case other => deserializationError("Cannot deserialize Component: invalid input. Raw input: " + other)
+        case other => deserializationError("Cannot deserialize ChangeLogItem: invalid input. Raw input: " + other)
       }
     }
   }
@@ -45,9 +45,12 @@ object ChangeLogMappingJsonProtocol extends DefaultJsonProtocol {
             createdAt = created.convertTo[DateTime],
             items     = items.convertTo[Seq[ChangeLogItem]]
           )
-        case other => deserializationError("Cannot deserialize Component: invalid input. Raw input: " + other)
+        case other => deserializationError("Cannot deserialize ChangeLog: invalid input. Raw input: " + other)
       }
     }
   }
+
+  implicit val changeLogResultMappingFormat = jsonFormat3(ChangeLogResult)
+
 
 }

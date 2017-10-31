@@ -9,4 +9,6 @@ trait IssueService {
 
   def issues(startAt: Long, maxResults: Long): Seq[Issue]
 
+  def injectChangeLogsToIssue(issue: Issue): Issue
+
 }

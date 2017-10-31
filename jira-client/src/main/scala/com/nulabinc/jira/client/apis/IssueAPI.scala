@@ -2,6 +2,7 @@ package com.nulabinc.jira.client.apis
 
 import com.netaporter.uri.dsl._
 import com.nulabinc.jira.client._
+import com.nulabinc.jira.client.domain.ChangeLogResult
 import com.nulabinc.jira.client.domain.issue.Issue
 import spray.json._
 
@@ -11,6 +12,7 @@ class IssueRestClientImpl(httpClient: HttpClient) {
 
   import com.nulabinc.jira.client.json.IssueMappingJsonProtocol._
   import com.nulabinc.jira.client.json.IssueResultMappingJsonProtocol._
+  import com.nulabinc.jira.client.json.ChangeLogMappingJsonProtocol._
 
   def issue(id: Long) = fetchIssue(id.toString)
 
@@ -27,6 +29,13 @@ class IssueRestClientImpl(httpClient: HttpClient) {
       case Left(error) => Left(HttpError(error.toString))
     }
   }
+
+  def changeLogs(issueIdOrKey: String, startAt: Long, maxResults: Long): Either[JiraRestClientError, ChangeLogResult] =
+    httpClient.get(s"/issue/$issueIdOrKey/changelog") match {
+      case Right(json)               => Right(JsonParser(json).convertTo[ChangeLogResult])
+      case Left(_: ApiNotFoundError) => Left(ResourceNotFoundError("Issue.changeLogs", issueIdOrKey))
+      case Left(error)               => Left(HttpError(error.toString))
+    }
 
   private [this] def fetchIssue(issueIdOrKey: String) =
     httpClient.get(s"/issue/$issueIdOrKey") match {
