@@ -54,6 +54,7 @@ class JiraDefaultModule(config: AppConfiguration) extends AbstractModule {
     bind(classOf[FieldService]).to(classOf[JiraClientFieldService])
     bind(classOf[StatusService]).to(classOf[JiraClientStatusService])
     bind(classOf[IssueService]).to(classOf[JiraClientIssueService])
+    bind(classOf[PriorityService]).to(classOf[JiraClientPriorityService])
 
     // Mapping-file
     bind(classOf[MappingFileService]).to(classOf[MappingFileServiceImpl])
