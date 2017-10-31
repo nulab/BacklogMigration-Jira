@@ -9,7 +9,8 @@ import com.nulabinc.backlog.j2b.jira.conf.JiraApiConfiguration
 import com.nulabinc.backlog.j2b.jira.domain.JiraProjectKey
 import com.nulabinc.backlog.j2b.jira.service._
 import com.nulabinc.backlog.j2b.jira.writer._
-import com.nulabinc.backlog.migration.common.conf.BacklogPaths
+import com.nulabinc.backlog.j2b.mapping.file.MappingFileServiceImpl
+import com.nulabinc.backlog.migration.common.conf.{BacklogApiConfiguration, BacklogPaths}
 import com.nulabinc.jira.client.JiraRestClient
 
 class JiraDefaultModule(config: AppConfiguration) extends AbstractModule {
@@ -27,7 +28,7 @@ class JiraDefaultModule(config: AppConfiguration) extends AbstractModule {
 //    bind(classOf[Project]).toInstance(project)
     bind(classOf[JiraApiConfiguration]).toInstance(config.jiraConfig)
     bind(classOf[JiraProjectKey]).toInstance(JiraProjectKey(config.jiraConfig.projectKey))
-
+    bind(classOf[BacklogApiConfiguration]).toInstance(config.backlogConfig)
     bind(classOf[BacklogPaths]).toInstance(new BacklogPaths(config.backlogProjectKey))
 
     // Data
@@ -53,5 +54,9 @@ class JiraDefaultModule(config: AppConfiguration) extends AbstractModule {
     bind(classOf[FieldService]).to(classOf[JiraClientFieldService])
     bind(classOf[StatusService]).to(classOf[JiraClientStatusService])
     bind(classOf[IssueService]).to(classOf[JiraClientIssueService])
+    bind(classOf[PriorityService]).to(classOf[JiraClientPriorityService])
+
+    // Mapping-file
+    bind(classOf[MappingFileService]).to(classOf[MappingFileServiceImpl])
   }
 }

@@ -124,18 +124,18 @@ lazy val mappingConverter = (project in file("mapping-converter"))
 //  )
 //  .dependsOn(mappingBase)
 
-//lazy val mappingFile = (project in file("mapping-file"))
-//  .settings(commonSettings: _*)
-//  .settings(
-//    name := "backlog-jira-mapping-file",
-//    scapegoatVersion := "1.1.0",
-//    scapegoatDisabledInspections := Seq(
-//      "NullParameter",
-//      "CatchThrowable",
-//      "NoOpOverride"
-//    )
-//  )
-//  .dependsOn(mappingBase, client)
+lazy val mappingFile = (project in file("mapping-file"))
+  .settings(commonSettings: _*)
+  .settings(
+    name := "backlog-jira-mapping-file",
+    scapegoatVersion := "1.1.0",
+    scapegoatDisabledInspections := Seq(
+      "NullParameter",
+      "CatchThrowable",
+      "NoOpOverride"
+    )
+  )
+  .dependsOn(jira, mappingBase, client)
 
 lazy val writer = (project in file("project-writer"))
   .settings(commonSettings: _*)
@@ -197,5 +197,5 @@ lazy val root = (project in file("."))
     scapegoatVersion := "1.1.0",
     scapegoatDisabledInspections := Seq("NullParameter", "CatchThrowable", "NoOpOverride")
   )
-  .dependsOn(common % "test->test;compile->compile", importer, exporter, writer, client, jira)
-  .aggregate(common, importer, exporter, writer, client, jira)
+  .dependsOn(common % "test->test;compile->compile", importer, exporter, writer, client, jira, mappingFile)
+  .aggregate(common, importer, exporter, writer, client, jira, mappingFile)
