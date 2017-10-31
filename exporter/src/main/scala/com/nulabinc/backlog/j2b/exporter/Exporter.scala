@@ -17,6 +17,8 @@ class Exporter @Inject()(projectKey: JiraProjectKey,
                          issueTypesWriter: IssueTypeWriter,
                          fieldService: FieldService,
                          fieldWriter: FieldWriter,
+                         issueService: IssueService,
+                         issueWriter: IssueWriter,
                          statusService: StatusService) {
 
   def export(): Unit = {
@@ -37,5 +39,23 @@ class Exporter @Inject()(projectKey: JiraProjectKey,
     } yield ()
 
 
+
+    fetchIssue(0, 100)
+
+  }
+
+  private def fetchIssue(startAt: Long, maxResults: Long): Unit = {
+
+    val issues = issueService.issues(startAt, maxResults)
+
+    if (issues.nonEmpty) {
+      issues.map { issue =>
+
+//        val issueWithChangeLogs = issueService.injectChangeLogsToIssue(issue) // API Call
+
+        issueWriter.write(issue)
+      }
+      fetchIssue(startAt + 100, maxResults)
+    }
   }
 }

@@ -1,28 +1,20 @@
 package com.nulabinc.jira.client
 
-import com.nulabinc.jira.client.apis.impl._
+import com.nulabinc.jira.client.apis._
 
 class JiraRestClient(url: String, username: String, password: String) {
 
   val httpClient = new HttpClient(url, username, password)
 
-  def projectRestClient = new ProjectRestClientImpl(httpClient)
-
-  def userRestClient = new UserRestClientImpl(httpClient)
-
-  def issueRestClient = new IssueRestClientImpl(httpClient)
-
-  def searchRestClient = new SearchRestClientImpl(httpClient)
-
-  def statusRestClient = new StatusRestClientImpl(httpClient)
-
-  def fieldRestClient = new FieldRestClientImpl(httpClient)
-
-  def componentRestClient = new ComponentRestClientImpl(httpClient)
-
-  def versionsRestClient = new VersionRestClientImpl(httpClient)
-
-  def issueTypeRestClient = new IssueTypeRestClientImpl(httpClient)
+  lazy val projectAPI    = new ProjectAPI(httpClient)
+  lazy val userAPI       = new UserAPI(httpClient)
+  lazy val issueAPI      = new IssueRestClientImpl(httpClient)
+  lazy val searchAPI     = new SearchAPI(httpClient)
+  lazy val statusAPI     = new StatusAPI(httpClient)
+  lazy val fieldAPI      = new FieldAPI(httpClient)
+  lazy val componentAPI  = new ComponentAPI(httpClient)
+  lazy val versionsAPI   = new VersionAPI(httpClient)
+  lazy val issueTypeAPI  = new IssueTypeAPI(httpClient)
 }
 
 object JiraRestClient {

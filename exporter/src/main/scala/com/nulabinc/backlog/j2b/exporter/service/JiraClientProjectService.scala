@@ -9,5 +9,5 @@ import com.nulabinc.jira.client.JiraRestClient
 class JiraClientProjectService @Inject()(jiraRestClient: JiraRestClient) extends ProjectService {
 
   override def getProjectByKey(projectKey: JiraProjectKey) =
-    jiraRestClient.projectRestClient.project(projectKey.value).right.get
+    jiraRestClient.projectAPI.project(projectKey.value).right.get
 }

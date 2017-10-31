@@ -1,16 +1,15 @@
-package com.nulabinc.jira.client.apis.impl
+package com.nulabinc.jira.client.apis
 
 import com.nulabinc.jira.client._
-import com.nulabinc.jira.client.apis.VersionRestClient
 import spray.json._
 
-class VersionRestClientImpl(httpClient: HttpClient) extends VersionRestClient {
+class VersionAPI(httpClient: HttpClient) {
 
   import com.nulabinc.jira.client.json.VersionMappingJsonProtocol._
 
-  override def projectVersions(projectId: Long) = fetch(projectId.toString)
+  def projectVersions(projectId: Long) = fetch(projectId.toString)
 
-  override def projectVersions(projectKey: String) = fetch(projectKey)
+  def projectVersions(projectKey: String) = fetch(projectKey)
 
   private def fetch(projectIdOrKey: String) =
     httpClient.get(s"/project/$projectIdOrKey/version") match {

@@ -10,5 +10,5 @@ class JiraClientVersionService @Inject()(jira: JiraRestClient,
                                          projectKey: JiraProjectKey) extends VersionService {
 
   override def all() =
-    jira.versionsRestClient.projectVersions(projectKey.value).right.get
+    jira.versionsAPI.projectVersions(projectKey.value).right.get
 }

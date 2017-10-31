@@ -1,6 +1,6 @@
 package com.nulabinc.jira.client.json
 
-import com.nulabinc.jira.client.apis.impl.IssueResult
+import com.nulabinc.jira.client.apis.IssueResult
 import spray.json.DefaultJsonProtocol
 
 object IssueResultMappingJsonProtocol extends DefaultJsonProtocol {

@@ -2,7 +2,7 @@ package com.nulabinc.backlog.j2b.jira.writer
 
 import com.nulabinc.backlog.j2b.jira.service.IssueIOError
 import com.nulabinc.backlog.migration.common.domain.BacklogIssueType
-import com.nulabinc.jira.client.domain.IssueType
+import com.nulabinc.jira.client.domain.issue.IssueType
 
 trait IssueTypeWriter {
 

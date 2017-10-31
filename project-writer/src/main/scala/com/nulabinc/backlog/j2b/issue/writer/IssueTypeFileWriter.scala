@@ -8,7 +8,7 @@ import com.nulabinc.backlog.migration.common.conf.BacklogPaths
 import com.nulabinc.backlog.migration.common.convert.Convert
 import com.nulabinc.backlog.migration.common.domain.BacklogIssueTypesWrapper
 import com.nulabinc.backlog.migration.common.utils.IOUtil
-import com.nulabinc.jira.client.domain.IssueType
+import com.nulabinc.jira.client.domain.issue.IssueType
 import spray.json._
 
 class IssueTypeFileWriter @Inject()(implicit val issueTypesWrites: IssueTypeWrites,

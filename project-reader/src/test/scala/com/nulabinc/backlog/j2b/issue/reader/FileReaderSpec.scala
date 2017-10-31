@@ -2,7 +2,7 @@ package com.nulabinc.backlog.j2b.issue.reader
 
 import java.io.PrintWriter
 
-import com.nulabinc.jira.client.domain.{Issue, IssueField}
+import com.nulabinc.jira.client.domain.issue.IssueField
 import org.specs2.mock.Mockito
 import org.specs2.mutable.Specification
 

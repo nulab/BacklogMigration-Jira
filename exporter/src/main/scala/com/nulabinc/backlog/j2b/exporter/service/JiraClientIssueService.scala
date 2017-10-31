@@ -7,13 +7,13 @@ import com.nulabinc.backlog.j2b.jira.domain.JiraProjectKey
 import com.nulabinc.backlog.j2b.jira.service.IssueService
 import com.nulabinc.backlog.migration.common.utils.Logging
 import com.nulabinc.jira.client.JiraRestClient
-import com.nulabinc.jira.client.domain.Issue
+import com.nulabinc.jira.client.domain.issue.Issue
 
 class JiraClientIssueService @Inject()(apiConfig: JiraApiConfiguration, projectKey: JiraProjectKey, jira: JiraRestClient)
     extends IssueService with Logging {
 
-  override def countIssues() = {
-    jira.searchRestClient.searchJql(s"project=${projectKey.value}", 0, 0) match {
+  override def count() = {
+    jira.searchAPI.searchJql(s"project=${projectKey.value}", 0, 0) match {
       case Right(result) => result.total
       case Left(error) => {
         logger.error(error.message)
@@ -22,8 +22,8 @@ class JiraClientIssueService @Inject()(apiConfig: JiraApiConfiguration, projectK
     }
   }
 
-  override def allIssues(startAt: Long, maxResults: Long) =
-    jira.issueRestClient.projectIssues(projectKey.value, startAt, maxResults) match {
+  override def issues(startAt: Long, maxResults: Long) =
+    jira.issueAPI.projectIssues(projectKey.value, startAt, maxResults) match {
       case Right(result) => result
       case Left(error) => {
         logger.error(error.message)
@@ -31,7 +31,9 @@ class JiraClientIssueService @Inject()(apiConfig: JiraApiConfiguration, projectK
       }
     }
 
-  override def issueOfId(id: Integer) = ???
+  override def injectChangeLogsToIssue(issue: Issue) = {
+    val changeLogs = jira.issueAPI.changeLogs(issue.id.toString, 0, 100)
 
-  override def tryIssueOfId(id: Integer) = ???
+    issue
+  }
 }

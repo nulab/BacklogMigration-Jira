@@ -10,7 +10,7 @@ import com.nulabinc.jira.client.domain.User
 class JiraClientUserService @Inject()(jira: JiraRestClient) extends UserService with Logging {
 
   override def allUsers() =
-    jira.userRestClient.users match {
+    jira.userAPI.users match {
       case Right(users) => users
       case Left(error) => {
         logger.error(error.message)
@@ -19,7 +19,7 @@ class JiraClientUserService @Inject()(jira: JiraRestClient) extends UserService 
     }
 
   override def optUserOfId(id: String) =
-    jira.userRestClient.user(id) match {
+    jira.userAPI.user(id) match {
       case Right(user) => Some(user)
       case Left(error) => {
         logger.error(error.message)

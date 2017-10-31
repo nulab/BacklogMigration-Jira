@@ -1,4 +1,4 @@
-package com.nulabinc.jira.client.domain
+package com.nulabinc.jira.client.domain.issue
 
 case class IssueType(
   id: Long,
