@@ -1,5 +1,7 @@
 package com.nulabinc.jira.client.domain.issue
 
+import java.util.Date
+
 import com.nulabinc.jira.client.domain._
 import org.joda.time.DateTime
 
@@ -8,11 +10,12 @@ case class Issue(
   key: String,
   summary: String,
   description: Option[String],
-  parent: Option[Issue],
+  parent: Option[ParentIssue],
   assignee: Option[User],
   components: Seq[Component],
+  fixVersions: Seq[Version],
   issueFields: Seq[IssueField],
-  dueDate: Option[DateTime],
+  dueDate: Option[Date],
   timeTrack: Option[TimeTrack],
   issueType: IssueType,
   status: Status,
@@ -26,3 +29,5 @@ case class Issue(
   def injectChangeLogs(changeLogs: Seq[ChangeLog]) =
     this.copy(changeLogs = changeLogs)
 }
+
+case class ParentIssue(id: Long)

@@ -24,11 +24,11 @@ class IssueFieldWrites @Inject()(customFieldDefinitions: Seq[Field])
             case (DateSchema, _)                        => toDateCustomField(field, issueField.value.asInstanceOf[StringFieldValue])
             case (DatetimeSchema, _)                    => toDateCustomField(field, issueField.value.asInstanceOf[StringFieldValue])
             case (ArraySchema, _)                       => toMultipleListCustomField(field, issueField.value.asInstanceOf[ArrayFieldValue])
-            case (UserSchema, _)                        => toTextCustomField(field, issueField.value.asInstanceOf[StringFieldValue])
+            case (UserSchema, _)                        => toUserCustomField(field, issueField.value.asInstanceOf[UserFieldValue])
             case (AnySchema, _)                         => toTextCustomField(field, issueField.value.asInstanceOf[StringFieldValue])
-            case (OptionSchema, Some(Select))           => toSingleListCustomField(field, issueField.value.asInstanceOf[StringFieldValue])
+            case (OptionSchema, Some(Select))           => toSingleListCustomField(field, issueField.value.asInstanceOf[OptionFieldValue])
             case (OptionSchema, Some(MultiCheckBoxes))  => toMultipleListCustomField(field, issueField.value.asInstanceOf[ArrayFieldValue])
-            case (OptionSchema, Some(RadioButtons))     => toSingleListCustomField(field, issueField.value.asInstanceOf[StringFieldValue])
+            case (OptionSchema, Some(RadioButtons))     => toSingleListCustomField(field, issueField.value.asInstanceOf[OptionFieldValue])
             case (OptionSchema, _)                      => toTextCustomField(field, issueField.value.asInstanceOf[StringFieldValue])
             case (OptionWithChildSchema, _)             => toMultipleListCustomField(field, issueField.value.asInstanceOf[ArrayFieldValue])
           }
@@ -77,7 +77,15 @@ class IssueFieldWrites @Inject()(customFieldDefinitions: Seq[Field])
       values = issueField.values.map(_.value)
     )
 
-  private def toSingleListCustomField(field: Field, issueField: StringFieldValue) =
+  private def toSingleListCustomField(field: Field, issueField: OptionFieldValue) =
+    BacklogCustomField(
+      name = field.name,
+      fieldTypeId = FieldType.SingleList.getIntValue,
+      optValue = Option(issueField.value),
+      values = Seq.empty[String]
+    )
+
+  private def toUserCustomField(field: Field, issueField: UserFieldValue) =
     BacklogCustomField(
       name = field.name,
       fieldTypeId = FieldType.SingleList.getIntValue,

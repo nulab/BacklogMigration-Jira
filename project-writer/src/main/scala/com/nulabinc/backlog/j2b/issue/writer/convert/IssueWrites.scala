@@ -20,14 +20,14 @@ private [writer] class IssueWrites @Inject()(implicit val userWrites: UserWrites
       optParentIssueId  = issue.parent.map(_.id),
       description       = issue.description.getOrElse(""),
       optStartDate      = None,
-      optDueDate        = issue.dueDate.map(_.toDate).map(DateUtil.dateFormat),
+      optDueDate        = issue.dueDate.map(DateUtil.dateFormat),
       optEstimatedHours = issue.timeTrack.flatMap(_.originalEstimateSeconds.map(_ / 3600f)),
       optActualHours    = issue.timeTrack.flatMap(_.timeSpentSeconds.map(_ / 3600f)),
       optIssueTypeName  = Some(issue.issueType.name),
       statusName        = issue.status.name,
       categoryNames     = issue.components.map(_.name),
-      versionNames      = Seq.empty[String], // fixversion, version
-      milestoneNames    = Seq.empty[String], // TODO: check
+      versionNames      = issue.fixVersions.map(_.name),
+      milestoneNames    = Seq.empty[String],
       priorityName      = issue.priority.name,
       optAssignee       = issue.assignee.map(Convert.toBacklog(_)),
       attachments       = Seq.empty[BacklogAttachment],   // TODO: attachments

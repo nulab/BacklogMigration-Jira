@@ -1,9 +1,14 @@
 package com.nulabinc.jira.client.json
 
+import java.text.SimpleDateFormat
+import java.util.Date
+
 import com.nulabinc.jira.client.domain._
 import com.nulabinc.jira.client.domain.issue._
 import org.joda.time._
 import spray.json._
+
+import scala.util.Try
 
 object IssueMappingJsonProtocol extends DefaultJsonProtocol {
 
@@ -15,6 +20,34 @@ object IssueMappingJsonProtocol extends DefaultJsonProtocol {
   import StatusMappingJsonProtocol._
   import PriorityMappingJsonProtocol._
   import DateTimeMappingJsonProtocol._
+  import VersionMappingJsonProtocol._
+
+  implicit object DateFormat extends JsonFormat[Date] {
+    def write(date: Date) = ???
+    def read(json: JsValue) = json match {
+      case JsString(rawDate) =>
+        parseIsoDateString(rawDate)
+          .fold(deserializationError(s"Expected ISO Date format, got $rawDate"))(identity)
+      case error => deserializationError(s"Expected JsString, got $error")
+    }
+
+    private val localIsoDateFormatter = new ThreadLocal[SimpleDateFormat] {
+      override def initialValue() = new SimpleDateFormat("yyyy-MM-dd")
+    }
+
+    private def parseIsoDateString(date: String): Option[Date] =
+      Try{ localIsoDateFormatter.get().parse(date) }.toOption
+  }
+
+  implicit object ParentIssueMappingFormat extends RootJsonFormat[ParentIssue] {
+    def write(obj: ParentIssue): JsValue = ???
+
+    def read(json: JsValue): ParentIssue =
+      json.asJsObject.getFields("id") match {
+        case Seq(JsString(id)) => ParentIssue(id.toLong)
+        case other => deserializationError("Cannot deserialize ParentIssue: invalid input. Raw input: " + other)
+      }
+  }
 
   implicit object IssueMappingFormat extends RootJsonFormat[Issue] {
     def write(item: Issue) = ???
@@ -41,11 +74,12 @@ object IssueMappingJsonProtocol extends DefaultJsonProtocol {
             key         = key,
             summary     = fieldMap.find(_._1 == "summary").map(_._2.convertTo[String]).getOrElse(""),
             description = fieldMap.find(_._1 == "description").filterNot(_._2 == JsNull).map(_._2.convertTo[String]),
-            parent      = fieldMap.find(_._1 == "parent").map(_._2.convertTo[Issue]),
-            assignee    = fieldMap.find(_._1 == "assignee").map(_._2.convertTo[User]),
-            components  = fieldMap.find(_._1 == "components").map(_._2.convertTo[Seq[Component]]).get,
+            parent      = fieldMap.find(_._1 == "parent").map(_._2.convertTo[ParentIssue]),
+            assignee    = fieldMap.find(_._1 == "assignee").filterNot(_._2 == JsNull).map(_._2.convertTo[User]),
+            components  = fieldMap.find(_._1 == "components").map(_._2.convertTo[Seq[Component]]).getOrElse(Seq.empty[Component]),
+            fixVersions = fieldMap.find(_._1 == "fixVersions").map(_._2.convertTo[Seq[Version]]).getOrElse(Seq.empty[Version]),
             issueFields = issueFields,
-            dueDate     = fieldMap.find(_._1 == "duedate").filterNot(_._2 == JsNull).map(_._2.convertTo[DateTime]),
+            dueDate     = fieldMap.find(_._1 == "duedate").filterNot(_._2 == JsNull).map(_._2.convertTo[Date]),
             timeTrack   = fieldMap.find(_._1 == "timetracking").map(_._2.convertTo[TimeTrack]),
             issueType   = fieldMap.find(_._1 == "issuetype").map(_._2.convertTo[IssueType]).get,
             status      = fieldMap.find(_._1 == "status").map(_._2.convertTo[Status]).get,
