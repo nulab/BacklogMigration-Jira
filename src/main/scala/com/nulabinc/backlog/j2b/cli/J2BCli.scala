@@ -36,6 +36,11 @@ object J2BCli extends BacklogConfiguration
 
   def `import`(config: AppConfiguration): Unit = {
     if (validateConfig(config)) {
+
+      // Convert
+
+
+      // Import
       Boot.execute(config.backlogConfig, false)
     }
   }

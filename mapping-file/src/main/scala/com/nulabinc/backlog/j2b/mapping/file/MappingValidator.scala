@@ -2,7 +2,7 @@ package com.nulabinc.backlog.j2b.mapping.file
 
 import java.util.Locale
 
-import com.nulabinc.backlog.j2b.mapping.domain.Mapping
+import com.nulabinc.backlog.j2b.jira.domain.Mapping
 import com.osinka.i18n.{Lang, Messages}
 
 private [this] class MappingValidator(jiraMappings: Seq[MappingItem],

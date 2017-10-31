@@ -1,7 +1,7 @@
 package com.nulabinc.backlog.j2b.mapping.file
 
-import com.nulabinc.backlog.j2b.mapping.domain.{Mapping, MappingsWrapper}
-import com.nulabinc.backlog.j2b.mapping.domain.MappingJsonProtocol._
+import com.nulabinc.backlog.j2b.jira.domain.{Mapping, MappingsWrapper}
+import com.nulabinc.backlog.j2b.jira.domain.MappingJsonProtocol._
 import com.nulabinc.backlog.migration.common.utils.{IOUtil, Logging}
 import spray.json.{JsonParser, _}
 

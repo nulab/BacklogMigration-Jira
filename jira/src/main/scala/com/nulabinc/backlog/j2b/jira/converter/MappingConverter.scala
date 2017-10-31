@@ -1,6 +1,6 @@
-package com.nulabinc.backlog.j2b.mapping.service
+package com.nulabinc.backlog.j2b.jira.converter
 
-import com.nulabinc.backlog.j2b.mapping.domain.Mapping
+import com.nulabinc.backlog.j2b.jira.domain.Mapping
 
 trait MappingConverter {
 
