@@ -10,6 +10,6 @@ class JiraClientCategoryService @Inject()(jira: JiraRestClient,
                                           projectKey: JiraProjectKey) extends CategoryService {
 
   override def all() =
-    jira.componentRestClient.projectComponents(projectKey.value).right.get
+    jira.componentAPI.projectComponents(projectKey.value).right.get
 
 }

@@ -1,16 +1,14 @@
 package com.nulabinc.backlog.j2b.jira.service
 
-import com.nulabinc.jira.client.domain.Issue
+import com.nulabinc.jira.client.domain.issue.Issue
 
 
 trait IssueService {
 
-  def countIssues(): Int
+  def count(): Long
 
-  def allIssues(startAt: Long, maxResults: Long): Seq[Issue]
+  def issues(startAt: Long, maxResults: Long): Seq[Issue]
 
-  def issueOfId(id: Integer): Issue
-
-  def tryIssueOfId(id: Integer): Either[Throwable, Issue]
+  def injectChangeLogsToIssue(issue: Issue): Issue
 
 }

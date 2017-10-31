@@ -1,11 +1,11 @@
 package com.nulabinc.backlog.j2b.jira.writer
 
-import com.nulabinc.backlog.j2b.jira.domain.JiraProjectKey
 import com.nulabinc.backlog.j2b.jira.service.IssueIOError
-import com.nulabinc.jira.client.domain.Issue
+import com.nulabinc.backlog.migration.common.domain.BacklogIssue
+import com.nulabinc.jira.client.domain.issue.Issue
 
 trait IssueWriter {
 
-  def write(projectKey: JiraProjectKey, filePath: String): Either[IssueIOError, Seq[Issue]]
+  def write(issue: Issue): Either[IssueIOError, BacklogIssue]
 
 }

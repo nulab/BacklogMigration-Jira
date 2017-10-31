@@ -1,15 +1,14 @@
-package com.nulabinc.jira.client.apis.impl
+package com.nulabinc.jira.client.apis
 
 import com.nulabinc.jira.client._
-import com.nulabinc.jira.client.apis.FieldRestClient
 import com.nulabinc.jira.client.domain.field.Field
 import spray.json._
 
-class FieldRestClientImpl(httpClient: HttpClient) extends FieldRestClient {
+class FieldAPI(httpClient: HttpClient) {
 
   import com.nulabinc.jira.client.json.FieldMappingJsonProtocol._
 
-  override def all() =
+  def all() =
     httpClient.get(s"/field") match {
       case Right(json)               => Right(JsonParser(json).convertTo[Seq[Field]])
       case Left(_: ApiNotFoundError) => Left(ResourceNotFoundError("Field", "all"))

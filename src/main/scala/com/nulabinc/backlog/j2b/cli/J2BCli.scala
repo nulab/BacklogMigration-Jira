@@ -6,6 +6,8 @@ import com.nulabinc.backlog.j2b.exporter.Exporter
 import com.nulabinc.backlog.j2b.modules.JiraDefaultModule
 import com.nulabinc.backlog.migration.common.conf.BacklogConfiguration
 import com.nulabinc.backlog.migration.common.utils.{ConsoleOut, Logging}
+import com.nulabinc.jira.client.JiraRestClient
+import com.nulabinc.jira.client.domain.field.Field
 import com.osinka.i18n.Messages
 
 object J2BCli extends BacklogConfiguration
@@ -18,6 +20,9 @@ object J2BCli extends BacklogConfiguration
 
     if (validateConfig(config)) {
       val exporter = injector.getInstance(classOf[Exporter])
+//      val jiraClient = injector.getInstance(classOf[JiraRestClient])
+//      val fields = jiraClient.fieldRestClient.all()
+
       exporter.export()
     }
   }

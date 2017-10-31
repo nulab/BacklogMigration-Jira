@@ -1,6 +1,7 @@
 package com.nulabinc.jira.client.json
 
 import com.nulabinc.jira.client.domain._
+import com.nulabinc.jira.client.domain.issue._
 import com.nulabinc.jira.client.json.IssueMappingJsonProtocol.jsonFormat1
 import spray.json._
 

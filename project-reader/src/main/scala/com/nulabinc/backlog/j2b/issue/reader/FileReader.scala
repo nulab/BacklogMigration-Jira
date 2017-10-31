@@ -2,8 +2,9 @@ package com.nulabinc.backlog.j2b.issue.reader
 
 import com.nulabinc.backlog.j2b.jira.service.{IssueIOError, IssueReadService, IssueReadingError}
 import com.nulabinc.backlog.migration.common.utils.Logging
-import com.nulabinc.jira.client.domain.Issue
+import com.nulabinc.jira.client.domain.issue.Issue
 import spray.json._
+
 import scalax.file.Path
 
 class FileReader extends IssueReadService with Logging {

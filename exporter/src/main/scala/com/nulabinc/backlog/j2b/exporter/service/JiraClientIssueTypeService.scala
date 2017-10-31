@@ -8,5 +8,5 @@ import com.nulabinc.jira.client.JiraRestClient
 class JiraClientIssueTypeService @Inject()(jira: JiraRestClient) extends IssueTypeService {
 
   override def all() =
-    jira.issueTypeRestClient.allIssueTypes().right.get
+    jira.issueTypeAPI.allIssueTypes().right.get
 }

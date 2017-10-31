@@ -1,6 +1,6 @@
 package com.nulabinc.jira.client.json
 
-import com.nulabinc.jira.client.domain.Issue
+import com.nulabinc.jira.client.domain.issue.Issue
 import org.specs2.mutable.Specification
 import spray.json._
 
@@ -16,6 +16,9 @@ class IssueMappingJsonProtocolSpec extends Specification {
     actual.description must beSome("Test issue #1")
     actual.assignee.get.name must beEqualTo("tanaka")
     actual.issueFields.length must beEqualTo(5)
+    actual.timeTrack.get.originalEstimateSeconds must beSome(32400)
+    actual.timeTrack.get.timeSpentSeconds must beSome(3720)
+    actual.components.length must beEqualTo(1)
   }
 
   def string =
@@ -26,6 +29,14 @@ class IssueMappingJsonProtocolSpec extends Specification {
       |  "self": "https://test-site.atlassian.net/rest/api/2/issue/10010",
       |  "key": "TEST-1",
       |  "fields": {
+      |      "issuetype": {
+      |      "self": "https://test-site.atlassian.net/rest/api/2/issuetype/10002",
+      |      "id": "10002",
+      |      "description": "The sub-task of the issue",
+      |      "name": "Sub-task",
+      |      "subtask": true,
+      |      "avatarId": 10316
+      |    },
       |    "description": "Test issue #1",
       |    "assignee": {
       |      "self": "https://test-site.atlassian.net/rest/api/2/user?username=tanaka",
@@ -65,8 +76,22 @@ class IssueMappingJsonProtocolSpec extends Specification {
       |      "displayName": "ikikko",
       |      "active": true,
       |      "timeZone": "Asia/Tokyo"
-      |    }
+      |    },
+      |    "timetracking": {
+      |      "originalEstimate": "1d 1h",
+      |      "remainingEstimate": "1h",
+      |      "originalEstimateSeconds": 32400,
+      |      "remainingEstimateSeconds": 3600,
+      |      "timeSpentSeconds": 3720
+      |    },
       |
+      |    "components": [
+      |      {
+      |        "self": "https://test-site.atlassian.net/rest/api/2/component/10002",
+      |        "id": "10002",
+      |        "name": "設計"
+      |      }
+      |    ]
       |  }
       |}
     """.stripMargin

@@ -1,7 +1,8 @@
 package com.nulabinc.backlog.j2b.mapping.collector.service
 
 import com.nulabinc.backlog.migration.common.utils.Logging
-import com.nulabinc.jira.client.domain.{Issue, User}
+import com.nulabinc.jira.client.domain.User
+import com.nulabinc.jira.client.domain.issue.Issue
 
 class UserCollectService() extends CollectService[User] with Logging {
 
