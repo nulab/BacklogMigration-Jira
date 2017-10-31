@@ -85,7 +85,7 @@ object J2B extends BacklogConfiguration with Logging {
       val config = getConfiguration(cli)
       cli.subcommand match {
         case Some(cli.importCommand) if cli.importCommand.importOnly() => J2BCli.doImport(config)
-        case Some(cli.importCommand)  => J2BCli.migrate(config)
+        case Some(cli.importCommand)  => J2BCli.`import`(config)
         case Some(cli.exportCommand)  => J2BCli.export(config)
         case _                        => J2BCli.help()
       }
