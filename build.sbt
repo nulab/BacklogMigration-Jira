@@ -109,7 +109,7 @@ lazy val mappingConverter = (project in file("mapping-converter"))
       "NoOpOverride"
     )
   )
-  .dependsOn(mappingBase)
+  .dependsOn(mappingBase, mappingFile)
 
 //lazy val mappingCollector = (project in file("mapping-collector"))
 //  .settings(commonSettings: _*)

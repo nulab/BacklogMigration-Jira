@@ -4,7 +4,7 @@ import com.nulabinc.backlog.j2b.jira.domain.Mapping
 
 trait MappingConverter {
 
-  def convert(): Unit
+  def convert(userMaps: Seq[Mapping], priorityMaps: Seq[Mapping]): Unit
 
 //  def convert(mappings: Seq[Mapping], target: String): String =
 //    if (mappings.isEmpty) target

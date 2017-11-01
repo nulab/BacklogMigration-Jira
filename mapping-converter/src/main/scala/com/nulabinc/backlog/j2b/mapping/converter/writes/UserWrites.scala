@@ -9,9 +9,9 @@ class UserWrites extends Writes[Mapping, BacklogUser] {
 
   override def writes(mapping: Mapping) =
     BacklogUser(optId = None,
-      optUserId = Some(mapping.backlog),
+      optUserId = Some(mapping.dst),
       optPassword = None,
-      name = mapping.jira,
+      name = mapping.src,
       optMailAddress = None,
       roleType = BacklogConstantValue.USER_ROLE)
 

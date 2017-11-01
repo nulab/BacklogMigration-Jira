@@ -63,9 +63,9 @@ class UserMappingFile(jiraApiConfig: JiraApiConfiguration,
   private[this] def convertForNAI(backlogUsers: Seq[BacklogUser])(mapping: Mapping) = {
     if (backlogApiConfig.url.contains(NaiSpaceDomain)) {
       val targetBacklogUser = backlogUsers
-        .find(backlogUser => backlogUser.optMailAddress.getOrElse("") == mapping.backlog)
-        .getOrElse(throw new NoSuchElementException(s"User ${mapping.backlog} not found"))
-      mapping.copy(backlog = targetBacklogUser.optUserId.getOrElse(s"UserId ${mapping.backlog} not found"))
+        .find(backlogUser => backlogUser.optMailAddress.getOrElse("") == mapping.dst)
+        .getOrElse(throw new NoSuchElementException(s"User ${mapping.dst} not found"))
+      mapping.copy(dst = targetBacklogUser.optUserId.getOrElse(s"UserId ${mapping.dst} not found"))
     } else mapping
   }
 
@@ -93,3 +93,4 @@ class UserMappingFile(jiraApiConfig: JiraApiConfiguration,
   override def isDisplayDetail: Boolean = true
 
 }
+

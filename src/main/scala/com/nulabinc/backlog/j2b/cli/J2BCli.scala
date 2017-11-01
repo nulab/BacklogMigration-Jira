@@ -4,14 +4,13 @@ import com.google.inject.Guice
 import com.nulabinc.backlog.j2b.conf.{AppConfigValidator, AppConfiguration}
 import com.nulabinc.backlog.j2b.exporter.Exporter
 import com.nulabinc.backlog.j2b.jira.converter.MappingConverter
-import com.nulabinc.backlog.j2b.jira.domain.Mapping
 import com.nulabinc.backlog.j2b.jira.service.{MappingFileService, PriorityService}
-import com.nulabinc.backlog.j2b.modules.{DefaultModule, ExportModule}
+import com.nulabinc.backlog.j2b.mapping.file.{MappingFileContainer, PriorityMappingFile, UserMappingFile}
+import com.nulabinc.backlog.j2b.modules._
 import com.nulabinc.backlog.migration.common.conf.BacklogConfiguration
 import com.nulabinc.backlog.migration.common.utils.{ConsoleOut, Logging}
 import com.nulabinc.backlog.migration.importer.core.Boot
-import com.nulabinc.jira.client.JiraRestClient
-import com.nulabinc.jira.client.domain.field.Field
+import com.nulabinc.jira.client.domain.{Priority, User}
 import com.osinka.i18n.Messages
 
 object J2BCli extends BacklogConfiguration
@@ -37,11 +36,17 @@ object J2BCli extends BacklogConfiguration
   def `import`(config: AppConfiguration): Unit = {
     if (validateConfig(config)) {
 
-      val injector = Guice.createInjector(new DefaultModule(config))
+      val injector = Guice.createInjector(new ImportModule(config))
 
       // Convert
+      val userMappingFile     = new UserMappingFile(config.jiraConfig, config.backlogConfig, Seq.empty[User])
+      val priorityMappingFile = new PriorityMappingFile(config.jiraConfig, config.backlogConfig, Seq.empty[Priority])
+
       val converter = injector.getInstance(classOf[MappingConverter])
-      converter.convert()
+      converter.convert(
+        userMaps = userMappingFile.tryUnmarshal(),
+        priorityMaps = priorityMappingFile.tryUnmarshal()
+      )
 
       // Import
       Boot.execute(config.backlogConfig, false)

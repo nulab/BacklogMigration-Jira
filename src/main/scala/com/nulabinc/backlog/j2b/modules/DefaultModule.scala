@@ -36,8 +36,5 @@ class DefaultModule(config: AppConfiguration) extends AbstractModule {
 
     // Mapping-file
     bind(classOf[MappingFileService]).to(classOf[MappingFileServiceImpl])
-
-    // Mapping-converter
-    bind(classOf[MappingConverter]).to(classOf[MappingConvertService])
   }
 }
