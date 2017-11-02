@@ -1,10 +1,12 @@
 package com.nulabinc.backlog.j2b.issue.writer.convert
 
+import java.text.SimpleDateFormat
+import java.util.Locale
 import javax.inject.Inject
 
 import com.nulabinc.backlog.migration.common.convert.Writes
 import com.nulabinc.backlog.migration.common.domain.BacklogCustomField
-import com.nulabinc.backlog.migration.common.utils.Logging
+import com.nulabinc.backlog.migration.common.utils.{DateUtil, Logging}
 import com.nulabinc.backlog4j.CustomField.FieldType
 import com.nulabinc.jira.client.domain.field._
 import com.nulabinc.jira.client.domain.issue._
@@ -22,7 +24,7 @@ class IssueFieldWrites @Inject()(customFieldDefinitions: Seq[Field])
             case (StringSchema, _)                      => toTextCustomField(field, issueField.value.asInstanceOf[StringFieldValue])
             case (NumberSchema, _)                      => toNumberCustomField(field, issueField.value.asInstanceOf[NumberFieldValue])
             case (DateSchema, _)                        => toDateCustomField(field, issueField.value.asInstanceOf[StringFieldValue])
-            case (DatetimeSchema, _)                    => toDateCustomField(field, issueField.value.asInstanceOf[StringFieldValue])
+            case (DatetimeSchema, _)                    => toDateTimeCustomField(field, issueField.value.asInstanceOf[StringFieldValue])
             case (ArraySchema, _)                       => toMultipleListCustomField(field, issueField.value.asInstanceOf[ArrayFieldValue])
             case (UserSchema, _)                        => toUserCustomField(field, issueField.value.asInstanceOf[UserFieldValue])
             case (AnySchema, _)                         => toTextCustomField(field, issueField.value.asInstanceOf[StringFieldValue])
@@ -68,6 +70,20 @@ class IssueFieldWrites @Inject()(customFieldDefinitions: Seq[Field])
       optValue = Option(issueField.value),
       values = Seq.empty[String]
     )
+
+  private def toDateTimeCustomField(field: Field, issueField: StringFieldValue) = {
+    val readFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ", Locale.getDefault())
+    val writeFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+
+    val dateTime = readFormat.parse(issueField.value)
+
+    BacklogCustomField(
+      name = field.name,
+      fieldTypeId = FieldType.Date.getIntValue,
+      optValue = Option(writeFormat.format(dateTime)),
+      values = Seq.empty[String]
+    )
+  }
 
   private def toMultipleListCustomField(field: Field, issueField: ArrayFieldValue) =
     BacklogCustomField(

@@ -45,9 +45,9 @@ object IssueFieldMappingJsonProtocol extends DefaultJsonProtocol {
           List(
             Try { OptionFieldValue(v.convertTo[IssueFieldOption]).asInstanceOf[FieldValue] },
             Try { UserFieldValue(v.convertTo[User]).asInstanceOf[FieldValue] }
-          ).filter(_.isSuccess).head.getOrElse(AnyFieldValue(v.toString))
+          ).filter(_.isSuccess).head.getOrElse(AnyFieldValue(v.convertTo[String]))
         }
-        case v => StringFieldValue(v.toString)
+        case v: JsString => StringFieldValue(v.value.replace("\"", ""))
       }
   }
 
