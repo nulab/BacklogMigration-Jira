@@ -15,6 +15,7 @@ class JiraRestClient(url: String, username: String, password: String) {
   lazy val componentAPI  = new ComponentAPI(httpClient)
   lazy val versionsAPI   = new VersionAPI(httpClient)
   lazy val issueTypeAPI  = new IssueTypeAPI(httpClient)
+  lazy val priorityAPI   = new PriorityAPI(httpClient)
 }
 
 object JiraRestClient {

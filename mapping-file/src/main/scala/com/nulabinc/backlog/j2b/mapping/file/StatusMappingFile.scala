@@ -1,7 +1,6 @@
 package com.nulabinc.backlog.j2b.mapping.file
 
 import com.nulabinc.backlog.j2b.jira.conf.JiraApiConfiguration
-import com.nulabinc.backlog.j2b.modules.{ServiceInjector => JiraInjector}
 import com.nulabinc.backlog.j2b.jira.service.{StatusService => JiraStatusService}
 import com.nulabinc.backlog.j2b.mapping.core.MappingDirectory
 import com.nulabinc.backlog.migration.common.modules.{ServiceInjector => BacklogInjector}
@@ -14,33 +13,31 @@ import com.osinka.i18n.{Lang, Messages}
 
 class StatusMappingFile(jiraApiConfig: JiraApiConfiguration,
                         backlogApiConfig: BacklogApiConfiguration,
-                        statuses: Seq[String]) extends MappingFile {
+                        statuses: Seq[JiraStatus]) extends MappingFile {
 
   private[this] val jiraItems = getJiraItems()
   private[this] val backlogItems = getBacklogItems()
 
   private[this] def getJiraItems(): Seq[MappingItem] = {
 
-    val injector      = JiraInjector.createInjector(jiraApiConfig)
-    val statusService = injector.getInstance(classOf[JiraStatusService])
-    val jiraStatuses  = statusService.allStatuses()
-
     def createItem(status: JiraStatus): MappingItem = {
       MappingItem(status.name, status.name)
     }
 
     def condition(target: String)(status: JiraStatus): Boolean = {
-      status.id == target
+      status.name == target
     }
 
-    def collectItems(acc: Seq[MappingItem], status: String): Seq[MappingItem] = {
-      if (jiraStatuses.exists(condition(status))) acc
-      else acc :+ MappingItem(Messages("cli.mapping.delete_status", status), Messages("cli.mapping.delete_status", status))
-    }
+//    def collectItems(acc: Seq[MappingItem], status: String): Seq[MappingItem] = {
+//      if (statuses.exists(condition(status))) acc
+//      else acc :+ MappingItem(Messages("cli.mapping.delete_status", status), Messages("cli.mapping.delete_status", status))
+//    }
 
-    val jiras       = jiraStatuses.map(createItem)
-    val deleteItems = statuses.foldLeft(Seq.empty[MappingItem])(collectItems)
-    jiras union deleteItems
+    val jiras       = statuses.map(createItem)
+//    val deleteItems = statuses.foldLeft(Seq.empty[MappingItem])(collectItems)
+//    jiras union deleteItems
+    // TODO: Check this impl
+    jiras
   }
 
   private[this] def getBacklogItems(): Seq[MappingItem] = {

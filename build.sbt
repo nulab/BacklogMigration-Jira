@@ -109,7 +109,7 @@ lazy val mappingConverter = (project in file("mapping-converter"))
       "NoOpOverride"
     )
   )
-  .dependsOn(mappingBase)
+  .dependsOn(mappingBase, mappingFile)
 
 //lazy val mappingCollector = (project in file("mapping-collector"))
 //  .settings(commonSettings: _*)
@@ -124,18 +124,18 @@ lazy val mappingConverter = (project in file("mapping-converter"))
 //  )
 //  .dependsOn(mappingBase)
 
-//lazy val mappingFile = (project in file("mapping-file"))
-//  .settings(commonSettings: _*)
-//  .settings(
-//    name := "backlog-jira-mapping-file",
-//    scapegoatVersion := "1.1.0",
-//    scapegoatDisabledInspections := Seq(
-//      "NullParameter",
-//      "CatchThrowable",
-//      "NoOpOverride"
-//    )
-//  )
-//  .dependsOn(mappingBase, client)
+lazy val mappingFile = (project in file("mapping-file"))
+  .settings(commonSettings: _*)
+  .settings(
+    name := "backlog-jira-mapping-file",
+    scapegoatVersion := "1.1.0",
+    scapegoatDisabledInspections := Seq(
+      "NullParameter",
+      "CatchThrowable",
+      "NoOpOverride"
+    )
+  )
+  .dependsOn(jira, mappingBase, client)
 
 lazy val writer = (project in file("project-writer"))
   .settings(commonSettings: _*)
@@ -150,7 +150,7 @@ lazy val writer = (project in file("project-writer"))
   )
   .dependsOn(jira, client)
 
-lazy val projectReader = (project in file("project-reader"))
+lazy val reader = (project in file("project-reader"))
   .settings(commonSettings: _*)
   .settings(
     name := "backlog-jira-project-reader",
@@ -197,5 +197,5 @@ lazy val root = (project in file("."))
     scapegoatVersion := "1.1.0",
     scapegoatDisabledInspections := Seq("NullParameter", "CatchThrowable", "NoOpOverride")
   )
-  .dependsOn(common % "test->test;compile->compile", importer, exporter, writer, client, jira)
-  .aggregate(common, importer, exporter, writer, client, jira)
+  .dependsOn(common % "test->test;compile->compile", importer, exporter, writer, reader, client, jira, mappingFile, mappingConverter)
+  .aggregate(common, importer, exporter, writer, reader, client, jira, mappingFile, mappingConverter)

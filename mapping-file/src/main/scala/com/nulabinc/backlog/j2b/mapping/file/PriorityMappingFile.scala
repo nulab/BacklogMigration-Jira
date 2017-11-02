@@ -4,15 +4,14 @@ import com.nulabinc.backlog.migration.common.conf.BacklogApiConfiguration
 import com.nulabinc.backlog.migration.common.modules.{ServiceInjector => BacklogInjector}
 import com.nulabinc.backlog.migration.common.service.{PriorityService => BacklogPriorityService}
 import com.nulabinc.backlog.j2b.jira.conf.JiraApiConfiguration
-import com.nulabinc.backlog.j2b.modules.{ServiceInjector => JiraInjector}
-import com.nulabinc.backlog.j2b.jira.service.{PriorityService => JiraPriorityService}
 import com.nulabinc.backlog.j2b.mapping.core.MappingDirectory
 import com.nulabinc.jira.client.domain.{Priority => JiraPriority}
 import com.nulabinc.backlog4j.{Priority => BacklogPriority}
 import com.osinka.i18n.{Lang, Messages}
 
 class PriorityMappingFile(jiraApiConfig: JiraApiConfiguration,
-                          backlogApiConfig: BacklogApiConfiguration) extends MappingFile {
+                          backlogApiConfig: BacklogApiConfiguration,
+                          priorities: Seq[JiraPriority]) extends MappingFile {
 
   private[this] val jiraItems = getJiraItems()
   private[this] val backlogItems = getBacklogItems()
@@ -21,10 +20,7 @@ class PriorityMappingFile(jiraApiConfig: JiraApiConfiguration,
     def createItem(priority: JiraPriority): MappingItem = {
       MappingItem(priority.name, priority.name)
     }
-    val injector          = JiraInjector.createInjector(jiraApiConfig)
-    val priorityService   = injector.getInstance(classOf[JiraPriorityService])
-    val jiraPriorities    = priorityService.allPriorities()
-    jiraPriorities.map(createItem)
+    priorities.map(createItem)
   }
 
   private[this] def getBacklogItems(): Seq[MappingItem] = {
@@ -53,16 +49,16 @@ class PriorityMappingFile(jiraApiConfig: JiraApiConfiguration,
   }
 
   private object Jira {
+    val LOWEST_JA: String    = Messages("mapping.priority.jira.lowest")(Lang("ja"))
     val LOW_JA: String       = Messages("mapping.priority.jira.low")(Lang("ja"))
-    val NORMAL_JA: String    = Messages("mapping.priority.jira.normal")(Lang("ja"))
+    val MEDIUM_JA: String    = Messages("mapping.priority.jira.medium")(Lang("ja"))
     val HIGH_JA: String      = Messages("mapping.priority.jira.high")(Lang("ja"))
-    val URGENT_JA: String    = Messages("mapping.priority.jira.urgent")(Lang("ja"))
-    val IMMEDIATE_JA: String = Messages("mapping.priority.jira.immediate")(Lang("ja"))
+    val HIGHEST_JA: String   = Messages("mapping.priority.jira.highest")(Lang("ja"))
+    val LOWEST_EN: String    = Messages("mapping.priority.jira.lowest")(Lang("en"))
     val LOW_EN: String       = Messages("mapping.priority.jira.low")(Lang("en"))
-    val NORMAL_EN: String    = Messages("mapping.priority.jira.normal")(Lang("en"))
+    val MEDIUM_EN: String    = Messages("mapping.priority.jira.medium")(Lang("en"))
     val HIGH_EN: String      = Messages("mapping.priority.jira.high")(Lang("en"))
-    val URGENT_EN: String    = Messages("mapping.priority.jira.urgent")(Lang("en"))
-    val IMMEDIATE_EN: String = Messages("mapping.priority.jira.immediate")(Lang("en"))
+    val HIGHEST_EN: String   = Messages("mapping.priority.jira.highest")(Lang("en"))
   }
 
   override def matchItem(jira: MappingItem): String =
@@ -70,12 +66,12 @@ class PriorityMappingFile(jiraApiConfig: JiraApiConfiguration,
       case Some(backlog) => backlog
       case None =>
         jira.name match {
-          case Jira.LOW_JA        | Jira.LOW_EN       => Backlog.low()
-          case Jira.NORMAL_JA     | Jira.NORMAL_EN    => Backlog.normal()
-          case Jira.HIGH_JA       | Jira.HIGH_EN      => Backlog.high()
-          case Jira.URGENT_JA     | Jira.URGENT_EN    => ""
-          case Jira.IMMEDIATE_JA  | Jira.IMMEDIATE_EN => ""
-          case _                                      => ""
+          case Jira.LOWEST_JA  | Jira.LOWEST_EN  => Backlog.low()
+          case Jira.LOW_JA     | Jira.LOW_EN     => Backlog.low()
+          case Jira.MEDIUM_JA  | Jira.MEDIUM_EN  => Backlog.normal()
+          case Jira.HIGH_JA    | Jira.HIGH_EN    => Backlog.high()
+          case Jira.HIGHEST_JA | Jira.HIGHEST_EN => Backlog.high()
+          case _                                 => ""
         }
     }
 

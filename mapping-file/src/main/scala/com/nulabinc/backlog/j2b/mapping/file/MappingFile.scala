@@ -1,7 +1,7 @@
 package com.nulabinc.backlog.j2b.mapping.file
 
-import com.nulabinc.backlog.j2b.mapping.domain.{Mapping, MappingsWrapper}
-import com.nulabinc.backlog.j2b.mapping.domain.MappingJsonProtocol._
+import com.nulabinc.backlog.j2b.jira.domain.{Mapping, MappingsWrapper}
+import com.nulabinc.backlog.j2b.jira.domain.MappingJsonProtocol._
 import com.nulabinc.backlog.migration.common.utils.{IOUtil, Logging}
 import spray.json.{JsonParser, _}
 
@@ -43,7 +43,7 @@ trait MappingFile extends Logging {
         val mergeList: ArrayBuffer[Mapping] = ArrayBuffer()
         val addedList: ArrayBuffer[Mapping] = ArrayBuffer()
         jiras.foreach { jiraItem =>
-          val optCurrentItem = currentItems.find(_.jira == jiraItem.name)
+          val optCurrentItem = currentItems.find(_.src == jiraItem.name)
           optCurrentItem match {
             case Some(currentItem) => mergeList += currentItem
             case _ =>
@@ -97,6 +97,12 @@ trait MappingFile extends Logging {
       case _ => name
     }
 
-  private[this] def convert(jira: MappingItem): Mapping = Mapping(jira.name, matchItem(jira))
+  private[this] def convert(jira: MappingItem): Mapping =
+    Mapping(
+      info = None,
+      mappingType = "",
+      src = jira.name,
+      dst = matchItem(jira)
+    )
 
 }

@@ -1,34 +1,16 @@
 package com.nulabinc.backlog.j2b.modules
 
-import com.google.inject.AbstractModule
 import com.nulabinc.backlog.j2b.conf.AppConfiguration
 import com.nulabinc.backlog.j2b.exporter.service._
 import com.nulabinc.backlog.j2b.issue.writer._
-import com.nulabinc.backlog.j2b.issue.writer.convert._
-import com.nulabinc.backlog.j2b.jira.conf.JiraApiConfiguration
-import com.nulabinc.backlog.j2b.jira.domain.JiraProjectKey
+import com.nulabinc.backlog.j2b.issue.writer.convert.{IssueFieldWrites, UserWrites}
 import com.nulabinc.backlog.j2b.jira.service._
 import com.nulabinc.backlog.j2b.jira.writer._
-import com.nulabinc.backlog.migration.common.conf.BacklogPaths
-import com.nulabinc.jira.client.JiraRestClient
 
-class JiraDefaultModule(config: AppConfiguration) extends AbstractModule {
+class ExportModule(config: AppConfiguration) extends DefaultModule(config) {
 
-  override def configure() = {
-
-    val jira = JiraRestClient(
-      config.jiraUrl,
-      config.jiraUsername,
-      config.jiraPassword
-    )
-//    val project = jira.projectRestClient.project(config.jiraKey).right.get
-
-    bind(classOf[JiraRestClient]).toInstance(jira)
-//    bind(classOf[Project]).toInstance(project)
-    bind(classOf[JiraApiConfiguration]).toInstance(config.jiraConfig)
-    bind(classOf[JiraProjectKey]).toInstance(JiraProjectKey(config.jiraConfig.projectKey))
-
-    bind(classOf[BacklogPaths]).toInstance(new BacklogPaths(config.backlogProjectKey))
+  override def configure(): Unit = {
+    super.configure()
 
     // Data
     val fields = jira.fieldAPI.all().right.get
@@ -53,5 +35,8 @@ class JiraDefaultModule(config: AppConfiguration) extends AbstractModule {
     bind(classOf[FieldService]).to(classOf[JiraClientFieldService])
     bind(classOf[StatusService]).to(classOf[JiraClientStatusService])
     bind(classOf[IssueService]).to(classOf[JiraClientIssueService])
+    bind(classOf[PriorityService]).to(classOf[JiraClientPriorityService])
   }
+
+
 }

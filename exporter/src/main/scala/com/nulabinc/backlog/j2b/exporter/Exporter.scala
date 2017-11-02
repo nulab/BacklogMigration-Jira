@@ -2,9 +2,10 @@ package com.nulabinc.backlog.j2b.exporter
 
 import javax.inject.Inject
 
-import com.nulabinc.backlog.j2b.jira.domain.JiraProjectKey
+import com.nulabinc.backlog.j2b.jira.domain.{JiraProjectKey, CollectData}
 import com.nulabinc.backlog.j2b.jira.service._
 import com.nulabinc.backlog.j2b.jira.writer._
+import com.nulabinc.jira.client.domain.{Status, User}
 
 class Exporter @Inject()(projectKey: JiraProjectKey,
                          projectService: ProjectService,
@@ -19,16 +20,18 @@ class Exporter @Inject()(projectKey: JiraProjectKey,
                          fieldWriter: FieldWriter,
                          issueService: IssueService,
                          issueWriter: IssueWriter,
-                         statusService: StatusService) {
+                         statusService: StatusService,
+                         priorityService: PriorityService) {
 
-  def export(): Unit = {
+  def export(): CollectData = {
 
     val project = projectService.getProjectByKey(projectKey)
     val categories = categoryService.all()
     val versions = versionService.all()
     val issueTypes = issueTypeService.all()
     val fields = fieldService.all()
-//    val statuses = statusService.all()
+    val priorities = priorityService.allPriorities()
+    val statuses = statusService.all()
 
     for {
       _ <- projectWriter.write(project).right
@@ -40,22 +43,30 @@ class Exporter @Inject()(projectKey: JiraProjectKey,
 
 
 
-    fetchIssue(0, 100)
+    val users = fetchIssue(Set.empty[User], 0, 100)
 
+    CollectData(users, statuses, priorities)
   }
 
-  private def fetchIssue(startAt: Long, maxResults: Long): Unit = {
+  private def fetchIssue(users: Set[User], startAt: Long, maxResults: Long): Set[User] = {
 
     val issues = issueService.issues(startAt, maxResults)
 
-    if (issues.nonEmpty) {
-      issues.map { issue =>
+    if (issues.isEmpty) users
+    else {
+      val collected = issues.map { issue =>
 
-//        val issueWithChangeLogs = issueService.injectChangeLogsToIssue(issue) // API Call
+        //        val issueWithChangeLogs = issueService.injectChangeLogsToIssue(issue) // API Call
 
         issueWriter.write(issue)
+
+        // Collect users
+        Seq(
+          Some(issue.creator),
+          issue.assignee
+        ).filter(_.nonEmpty).flatten
       }
-      fetchIssue(startAt + 100, maxResults)
+      fetchIssue(users ++ collected.flatten, startAt + 100, maxResults)
     }
   }
 }
