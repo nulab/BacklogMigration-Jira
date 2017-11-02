@@ -4,6 +4,6 @@ import com.nulabinc.jira.client.domain.{Priority, Status, User}
 
 case class CollectData(
   users: Set[User],
-  statuses: Set[Status],
+  statuses: Seq[Status],
   priorities: Seq[Priority]
 )

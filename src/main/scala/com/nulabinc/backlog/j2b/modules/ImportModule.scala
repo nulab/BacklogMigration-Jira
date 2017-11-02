@@ -14,11 +14,11 @@ class ImportModule(config: AppConfiguration) extends DefaultModule(config) {
 
     // Writes
     bind(classOf[UserWrites]).toInstance(new UserWrites)
-//    bind(classOf[UserWrites]).toInstance(new UserWrites)
 
     // Converter
     bind(classOf[UserConverter]).to(classOf[MappingUserConverter])
     bind(classOf[PriorityConverter]).to(classOf[MappingPriorityConverter])
+    bind(classOf[StatusConverter]).to(classOf[MappingStatusConverter])
     bind(classOf[MappingConverter]).to(classOf[MappingConvertService])
 
     // Mapping-converter

@@ -19,19 +19,20 @@ class MappingConvertService @Inject()(implicit val issueWrites: IssueWrites,
                                       implicit val commentWrites: CommentWrites,
                                       userConverter: UserConverter,
                                       priorityConverter: PriorityConverter,
+                                      statusConverter: StatusConverter,
                                       backlogPaths: BacklogPaths) extends MappingConverter {
 
 
-  def convert(userMaps: Seq[Mapping], priorityMaps: Seq[Mapping]): Unit = {
+  def convert(userMaps: Seq[Mapping], priorityMaps: Seq[Mapping], statusMaps: Seq[Mapping]): Unit = {
 
     val paths: Seq[Path] = IOUtil.directoryPaths(backlogPaths.issueDirectoryPath)
       .flatMap(_.toAbsolute.children().filter(_.isDirectory).toSeq)
     paths.zipWithIndex.foreach {
       case (path, index) =>
-        convertIssue(path, index, paths.size, userMaps, priorityMaps)
+        convertIssue(path, index, paths.size, userMaps, priorityMaps, statusMaps)
     }  }
 
-  private def convertIssue(path: Path, index: Int, size: Int, userMaps: Seq[Mapping], priorityMaps: Seq[Mapping]) = {
+  private def convertIssue(path: Path, index: Int, size: Int, userMaps: Seq[Mapping], priorityMaps: Seq[Mapping], statusMaps: Seq[Mapping]) = {
     BacklogUnmarshaller.issue(backlogPaths.issueJson(path)) match {
       case Some(issue: BacklogIssue) => {
         val converted = issue.copy(
@@ -41,7 +42,8 @@ class MappingConvertService @Inject()(implicit val issueWrites: IssueWrites,
             optCreatedUser = issue.operation.optCreatedUser.map(userConverter.convert(userMaps, _)),
             optUpdatedUser = issue.operation.optUpdatedUser.map(userConverter.convert(userMaps, _))
           ),
-          priorityName = priorityConverter.convert(priorityMaps, issue.priorityName)
+          priorityName = priorityConverter.convert(priorityMaps, issue.priorityName),
+          statusName = statusConverter.convert(statusMaps, issue.statusName)
         )
         IOUtil.output(backlogPaths.issueJson(path), Convert.toBacklog(converted).toJson.prettyPrint)
       }

@@ -31,7 +31,7 @@ class Exporter @Inject()(projectKey: JiraProjectKey,
     val issueTypes = issueTypeService.all()
     val fields = fieldService.all()
     val priorities = priorityService.allPriorities()
-//    val statuses = statusService.all()
+    val statuses = statusService.all()
 
     for {
       _ <- projectWriter.write(project).right
@@ -45,7 +45,7 @@ class Exporter @Inject()(projectKey: JiraProjectKey,
 
     val users = fetchIssue(Set.empty[User], 0, 100)
 
-    CollectData(users, Set.empty[Status], priorities)
+    CollectData(users, statuses, priorities)
   }
 
   private def fetchIssue(users: Set[User], startAt: Long, maxResults: Long): Set[User] = {
