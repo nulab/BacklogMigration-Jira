@@ -75,16 +75,20 @@ class Exporter @Inject()(projectKey: JiraProjectKey,
       val collected = issues.zipWithIndex.map {
         case (issue, i) =>
 
-        //        val issueWithChangeLogs = issueService.injectChangeLogsToIssue(issue) // API Call
+          // changelogs
+          val issueWithChangeLogs = issueService.injectChangeLogsToIssue(issue) // API Call
 
-          issueWriter.write(issue)
+          // attachments
+
+
+          issueWriter.write(issueWithChangeLogs)
 
         console(i + index.toInt, total.toInt)
 
         // Collect users
         Seq(
-          Some(issue.creator),
-          issue.assignee
+          Some(issueWithChangeLogs.creator),
+          issueWithChangeLogs.assignee
         ).filter(_.nonEmpty).flatten
       }
       fetchIssue(users ++ collected.flatten, index + collected.length , total, startAt + maxResults, maxResults)

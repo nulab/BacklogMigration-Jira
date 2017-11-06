@@ -12,9 +12,9 @@ case class ChangeLog(
 case class ChangeLogItem(
   field: String,
   fieldType: String,
-  fieldId: String,
+  fieldId: Option[String],
   from: Option[String],
-  to: String
+  to: Option[String]
 )
 
 case class ChangeLogResult(
