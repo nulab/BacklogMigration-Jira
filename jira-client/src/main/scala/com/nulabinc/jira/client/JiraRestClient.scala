@@ -1,8 +1,10 @@
 package com.nulabinc.jira.client
 
 import com.nulabinc.jira.client.apis._
+import com.nulabinc.jira.client.domain.User
+import spray.json._
 
-class JiraRestClient(url: String, username: String, password: String) {
+class JiraRestClient(val url: String, username: String, password: String) {
 
   val httpClient = new HttpClient(url, username, password)
 
@@ -16,6 +18,17 @@ class JiraRestClient(url: String, username: String, password: String) {
   lazy val versionsAPI   = new VersionAPI(httpClient)
   lazy val issueTypeAPI  = new IssueTypeAPI(httpClient)
   lazy val priorityAPI   = new PriorityAPI(httpClient)
+
+  def myself(): Either[JiraRestClientError, User] = {
+
+    import json.UserMappingJsonProtocol._
+
+    httpClient.get(s"/myself") match {
+      case Right(json)               => Right(JsonParser(json).convertTo[User])
+      case Left(_: ApiNotFoundError) => Left(ResourceNotFoundError("myself", s"$username:$password"))
+      case Left(error)               => Left(HttpError(error))
+    }
+  }
 }
 
 object JiraRestClient {
