@@ -12,7 +12,7 @@ class PriorityAPI(httpClient: HttpClient) {
     httpClient.get(s"/priority") match {
       case Right(json)               => Right(JsonParser(json).convertTo[Seq[Priority]])
       case Left(_: ApiNotFoundError) => Left(ResourceNotFoundError("priority", ""))
-      case Left(error)               => Left(HttpError(error.toString))
+      case Left(error)               => Left(HttpError(error))
     }
   }
 

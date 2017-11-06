@@ -15,7 +15,7 @@ class UserAPI(httpClient: HttpClient) {
     httpClient.get(s"/user?key=$name") match {
       case Right(json)               => Right(JsonParser(json).convertTo[User])
       case Left(_: ApiNotFoundError) => Left(ResourceNotFoundError("user", name))
-      case Left(error)               => Left(HttpError(error.toString))
+      case Left(error)               => Left(HttpError(error))
     }
   }
 
@@ -28,7 +28,7 @@ class UserAPI(httpClient: HttpClient) {
     val body = httpClient.get(uri.toString)
     val result = body match {
       case Right(json) => Right(JsonParser(json).convertTo[Seq[User]])
-      case Left(error) => Left(HttpError(error.toString))
+      case Left(error) => Left(HttpError(error))
     }
 
     if (result.isLeft) result

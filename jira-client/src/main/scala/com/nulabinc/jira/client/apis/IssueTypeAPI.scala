@@ -12,6 +12,6 @@ class IssueTypeAPI(httpClient: HttpClient) {
     httpClient.get("/issuetype") match {
       case Right(json)               => Right(JsonParser(json).convertTo[Seq[IssueType]])
       case Left(_: ApiNotFoundError) => Left(ResourceNotFoundError("IssueType", ""))
-      case Left(error)               => Left(HttpError(error.toString))
+      case Left(error)               => Left(HttpError(error))
     }
 }
