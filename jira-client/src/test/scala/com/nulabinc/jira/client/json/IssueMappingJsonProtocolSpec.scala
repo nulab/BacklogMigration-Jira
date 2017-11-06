@@ -84,14 +84,45 @@ class IssueMappingJsonProtocolSpec extends Specification {
       |      "remainingEstimateSeconds": 3600,
       |      "timeSpentSeconds": 3720
       |    },
-      |
       |    "components": [
       |      {
       |        "self": "https://test-site.atlassian.net/rest/api/2/component/10002",
       |        "id": "10002",
       |        "name": "設計"
       |      }
-      |    ]
+      |    ],
+      |    "status": {
+      |      "self": "https://test-site.atlassian.net/rest/api/2/status/10001",
+      |      "description": "",
+      |      "iconUrl": "https://test-site.atlassian.net/images/icons/status_generic.gif",
+      |      "name": "Done",
+      |      "id": "10001",
+      |      "statusCategory": {
+      |        "self": "https://test-site.atlassian.net/rest/api/2/statuscategory/3",
+      |        "id": 3,
+      |        "key": "done",
+      |        "colorName": "green",
+      |        "name": "Done"
+      |      }
+      |    },
+      |    "priority": {
+      |      "self": "https://test-site.atlassian.net/rest/api/2/priority/2",
+      |      "iconUrl": "https://test-site.atlassian.net/images/icons/priorities/high.svg",
+      |      "name": "High",
+      |      "id": "2"
+      |    },
+      |    "creator": {
+      |      "self": "https://test-site.atlassian.net/rest/api/2/user?username=tanaka",
+      |      "name": "tanaka",
+      |      "key": "tanaka",
+      |      "accountId": "557058:d561292a-2aec-4a52-9bb2-ef874dd7d815",
+      |      "emailAddress": "tanaka@test-inc",
+      |      "displayName": "tanaka",
+      |      "active": true,
+      |      "timeZone": "Asia/Tokyo"
+      |    },
+      |    "created": "2017-10-04T11:22:35.770+0900",
+      |    "updated": "2017-10-05T18:11:57.035+0900"
       |  }
       |}
     """.stripMargin
