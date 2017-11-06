@@ -1,6 +1,6 @@
 package com.nulabinc.backlog.j2b.cli
 
-import com.google.inject.Guice
+import com.google.inject.{Guice, Injector}
 import com.nulabinc.backlog.j2b.conf.{AppConfigValidator, AppConfiguration}
 import com.nulabinc.backlog.j2b.exporter.Exporter
 import com.nulabinc.backlog.j2b.jira.converter.MappingConverter
@@ -21,7 +21,7 @@ object J2BCli extends BacklogConfiguration
 
     val injector = Guice.createInjector(new ExportModule(config))
 
-    if (validateConfig(config)) {
+    if (validateConfig(config, injector)) {
       val exporter = injector.getInstance(classOf[Exporter])
 
       val collectData = exporter.export()
@@ -35,9 +35,11 @@ object J2BCli extends BacklogConfiguration
   }
 
   def `import`(config: AppConfiguration): Unit = {
-    if (validateConfig(config)) {
 
-      val injector = Guice.createInjector(new ImportModule(config))
+    val injector = Guice.createInjector(new ImportModule(config))
+
+    if (validateConfig(config, injector)) {
+
 
       // Convert
       val userMappingFile     = new UserMappingFile(config.jiraConfig, config.backlogConfig, Seq.empty[User])
@@ -57,13 +59,16 @@ object J2BCli extends BacklogConfiguration
   }
 
   def doImport(config: AppConfiguration): Unit = {
-    if (validateConfig(config)) {
+
+    val injector = Guice.createInjector(new ImportModule(config))
+
+    if (validateConfig(config, injector)) {
 
     }
   }
 
-  private[this] def validateConfig(config: AppConfiguration): Boolean = {
-    val validator = new AppConfigValidator()
+  private def validateConfig(config: AppConfiguration, injector: Injector): Boolean = {
+    val validator = injector.getInstance(classOf[AppConfigValidator])
     val errors = validator.validate(config)
     if (errors.isEmpty) true
     else {

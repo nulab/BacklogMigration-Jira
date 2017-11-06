@@ -26,7 +26,7 @@ class IssueRestClientImpl(httpClient: HttpClient) {
 
     httpClient.get(uri.toString) match {
       case Right(json) => Right(JsonParser(json).convertTo[IssueResult].issues)
-      case Left(error) => Left(HttpError(error.toString))
+      case Left(error) => Left(HttpError(error))
     }
   }
 
@@ -34,13 +34,13 @@ class IssueRestClientImpl(httpClient: HttpClient) {
     httpClient.get(s"/issue/$issueIdOrKey/changelog") match {
       case Right(json)               => Right(JsonParser(json).convertTo[ChangeLogResult])
       case Left(_: ApiNotFoundError) => Left(ResourceNotFoundError("Issue.changeLogs", issueIdOrKey))
-      case Left(error)               => Left(HttpError(error.toString))
+      case Left(error)               => Left(HttpError(error))
     }
 
   private [this] def fetchIssue(issueIdOrKey: String) =
     httpClient.get(s"/issue/$issueIdOrKey") match {
       case Right(json)               => Right(JsonParser(json).convertTo[Issue])
       case Left(_: ApiNotFoundError) => Left(ResourceNotFoundError("Issue", issueIdOrKey))
-      case Left(error)               => Left(HttpError(error.toString))
+      case Left(error)               => Left(HttpError(error))
     }
 }

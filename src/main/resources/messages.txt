@@ -66,18 +66,19 @@ cli.help.optOut=If you set this option, tracking will not be run by the program.
 
 # CLI Validate Param
 cli.param.error=The parameter has the following error.
-#cli.param.check.access=Checking whether the {0} is accessible ...
-#cli.param.ok.access={0} is available.
+cli.param.check.access=Checking whether the {0} is accessible ...
+cli.param.ok.access={0} is available.
 #cli.param.check.admin=Checking for the presence of admin role ...
 #cli.param.ok.admin=That is OK!
 #cli.param.get.project=Getting the {0} project ...
 #cli.param.error.auth.not.auth=You do not have the necessary authority to migrate Redmine. System administrator authority is required.:[{0}]
-#cli.param.error.auth=Accessing {0} failed due to an authorization error.\n  Please make sure the API access key is valid and the REST API service is enabled on the server.
+cli.param.error.auth=Accessing {0} failed due to an authorization error.\n  Please make sure the API access key is valid and the REST API service is enabled on the server.
 #cli.param.error.auth.backlog=Backlog API key is not administrator authority. Please use API key of administrator authority.
 #cli.param.error.disable.project=The project [{0}] could not be loaded.
-#cli.param.error.disable.access=The accessing {0} failed. Please check the url or api access key.
+cli.param.error.disable.access=The accessing {0} failed. Please check the url or api access key.
 #cli.param.error.disable.host=The accessing {0} failed. [{1}] is unknown host.
 cli.param.error.project_key=The project key [{0}] is incorrect.(Uppercase letters (A-Z), numbers (0-9) and underscore (_) can be used.)
+cli.param.error.client.unknown=Unknown JIRA rest client error.:[{0}]
 
 # CLI Mapping
 #cli.mapping.delete_status=Deleted status[{0}]

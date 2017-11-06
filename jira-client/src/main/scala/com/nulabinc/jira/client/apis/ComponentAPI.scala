@@ -15,6 +15,6 @@ class ComponentAPI(httpClient: HttpClient) {
     httpClient.get(s"/project/$projectIdOrKey/component") match {
       case Right(json)               => Right(JsonParser(json).convertTo[ComponentResult].values)
       case Left(_: ApiNotFoundError) => Left(ResourceNotFoundError("Component", projectIdOrKey))
-      case Left(error)               => Left(HttpError(error.toString))
+      case Left(error)               => Left(HttpError(error))
     }
 }

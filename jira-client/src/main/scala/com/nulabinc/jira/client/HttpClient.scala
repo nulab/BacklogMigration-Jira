@@ -12,8 +12,8 @@ import spray.json.{JsArray, JsonParser}
 sealed abstract class HttpClientError(val message: String) {
   override def toString: String = message
 }
+case object AuthenticateFailedError extends HttpClientError("Bad credential")
 case class ApiNotFoundError(url: String) extends HttpClientError(url)
-case class AuthenticateFailedError() extends HttpClientError("Bad credential")
 case class BadRequestError(error: String) extends HttpClientError(error)
 case class UndefinedError(statusCode: Int) extends HttpClientError(s"Unknown status code: $statusCode")
 
@@ -45,7 +45,7 @@ class HttpClient(url: String, username: String, password: String) {
           }
         }
         case HttpStatus.SC_NOT_FOUND    => Left(ApiNotFoundError(request.getURI.toString))
-        case HttpStatus.SC_UNAUTHORIZED => Left(AuthenticateFailedError())
+        case HttpStatus.SC_UNAUTHORIZED => Left(AuthenticateFailedError)
         case _                          => Left(UndefinedError(httpResponse.getStatusLine.getStatusCode))
       }
     }

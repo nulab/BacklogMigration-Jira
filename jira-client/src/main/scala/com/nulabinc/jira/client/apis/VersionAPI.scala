@@ -15,6 +15,6 @@ class VersionAPI(httpClient: HttpClient) {
     httpClient.get(s"/project/$projectIdOrKey/version") match {
       case Right(json)               => Right(JsonParser(json).convertTo[VersionResult].values)
       case Left(_: ApiNotFoundError) => Left(ResourceNotFoundError("Version", projectIdOrKey))
-      case Left(error)               => Left(HttpError(error.toString))
+      case Left(error)               => Left(HttpError(error))
     }
 }
