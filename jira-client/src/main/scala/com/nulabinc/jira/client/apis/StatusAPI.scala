@@ -12,7 +12,7 @@ class StatusAPI(httpClient: HttpClient) {
     httpClient.get(s"/status") match {
       case Right(json)               => Right(JsonParser(json).convertTo[Seq[Status]])
       case Left(_: ApiNotFoundError) => Left(ResourceNotFoundError("status", ""))
-      case Left(error)               => Left(HttpError(error.toString))
+      case Left(error)               => Left(HttpError(error))
     }
   }
 }

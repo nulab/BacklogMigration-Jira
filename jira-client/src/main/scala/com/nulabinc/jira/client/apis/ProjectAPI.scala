@@ -16,7 +16,7 @@ class ProjectAPI(httpClient: HttpClient) {
     httpClient.get(s"/project/$projectIdOrKey") match {
       case Right(json)               => Right(JsonParser(json).convertTo[Project])
       case Left(_: ApiNotFoundError) => Left(ResourceNotFoundError("Project", projectIdOrKey))
-      case Left(error)               => Left(HttpError(error.toString))
+      case Left(error)               => Left(HttpError(error))
     }
   }
 }

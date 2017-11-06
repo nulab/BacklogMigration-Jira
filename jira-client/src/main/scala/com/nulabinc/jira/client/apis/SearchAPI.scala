@@ -19,7 +19,7 @@ class SearchAPI(httpClient: HttpClient) {
     httpClient.get(uri.toString + "&jql=" + jql) match {
       case Right(json)               => Right(JsonParser(json).convertTo[SearchResult])
       case Left(_: ApiNotFoundError) => Left(ResourceNotFoundError("search", jql))
-      case Left(error)               => Left(HttpError(error.toString))
+      case Left(error)               => Left(HttpError(error))
     }
   }
 

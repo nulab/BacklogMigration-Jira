@@ -12,7 +12,7 @@ class FieldAPI(httpClient: HttpClient) {
     httpClient.get(s"/field") match {
       case Right(json)               => Right(JsonParser(json).convertTo[Seq[Field]])
       case Left(_: ApiNotFoundError) => Left(ResourceNotFoundError("Field", "all"))
-      case Left(error)               => Left(HttpError(error.toString))
+      case Left(error)               => Left(HttpError(error))
     }
 
 }
