@@ -21,6 +21,7 @@ object IssueMappingJsonProtocol extends DefaultJsonProtocol {
   import PriorityMappingJsonProtocol._
   import DateTimeMappingJsonProtocol._
   import VersionMappingJsonProtocol._
+  import AttachmentMappingJsonProtocol._
 
   implicit object DateFormat extends JsonFormat[Date] {
     def write(date: Date) = ???
@@ -87,7 +88,8 @@ object IssueMappingJsonProtocol extends DefaultJsonProtocol {
             creator     = fieldMap.find(_._1 == "creator").map(_._2.convertTo[User]).get,
             createdAt   = fieldMap.find(_._1 == "created").map(_._2.convertTo[DateTime]).get,
             updatedAt   = fieldMap.find(_._1 == "updated").map(_._2.convertTo[DateTime]).get,
-            changeLogs  = Seq.empty[ChangeLog]
+            changeLogs  = Seq.empty[ChangeLog],
+            attachments = fieldMap.find(_._1 == "attachment").map(_._2.convertTo[Seq[Attachment]]).getOrElse(Seq.empty[Attachment])
           )
         }
         case other => deserializationError("Cannot deserialize Issue: invalid input. Raw input: " + other)

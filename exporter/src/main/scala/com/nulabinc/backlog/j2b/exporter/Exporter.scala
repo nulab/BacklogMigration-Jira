@@ -1,12 +1,17 @@
 package com.nulabinc.backlog.j2b.exporter
 
+import java.io.{FileOutputStream, InputStream}
+import java.net.URL
+import java.nio.channels.Channels
 import javax.inject.Inject
 
 import com.nulabinc.backlog.j2b.jira.domain.{CollectData, JiraProjectKey}
 import com.nulabinc.backlog.j2b.jira.service._
 import com.nulabinc.backlog.j2b.jira.writer._
-import com.nulabinc.backlog.migration.common.utils.{ConsoleOut, Logging, ProgressBar}
-import com.nulabinc.jira.client.domain.{Status, User}
+import com.nulabinc.backlog.migration.common.conf.BacklogPaths
+import com.nulabinc.backlog.migration.common.utils.{ConsoleOut, IOUtil, Logging, ProgressBar}
+import com.nulabinc.jira.client.domain.issue.Issue
+import com.nulabinc.jira.client.domain.{Attachment, User}
 import com.osinka.i18n.Messages
 
 class Exporter @Inject()(projectKey: JiraProjectKey,
@@ -79,7 +84,7 @@ class Exporter @Inject()(projectKey: JiraProjectKey,
           val issueWithChangeLogs = issueService.injectChangeLogsToIssue(issue) // API Call
 
           // attachments
-
+          issueService.downloadAttachments(issue)
 
           issueWriter.write(issueWithChangeLogs)
 
@@ -94,4 +99,6 @@ class Exporter @Inject()(projectKey: JiraProjectKey,
       fetchIssue(users ++ collected.flatten, index + collected.length , total, startAt + maxResults, maxResults)
     }
   }
+
+
 }

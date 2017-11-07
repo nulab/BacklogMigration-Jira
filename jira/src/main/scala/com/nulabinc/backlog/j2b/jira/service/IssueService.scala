@@ -11,4 +11,8 @@ trait IssueService {
 
   def injectChangeLogsToIssue(issue: Issue): Issue
 
+  def injectAttachmentsToIssue(issue: Issue): Issue
+
+  def downloadAttachments(issue: Issue): Unit
+
 }

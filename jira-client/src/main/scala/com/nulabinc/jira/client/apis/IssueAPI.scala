@@ -22,7 +22,8 @@ class IssueRestClientImpl(httpClient: HttpClient) {
     val uri = "/search" ?
       ("startAt"    -> startAt) &
       ("maxResults" -> maxResults) &
-      ("jql"        -> s"project=$key")
+      ("jql"        -> s"project=$key") &
+      ("fields"     -> "*all")
 
     httpClient.get(uri.toString) match {
       case Right(json) => Right(JsonParser(json).convertTo[IssueResult].issues)
