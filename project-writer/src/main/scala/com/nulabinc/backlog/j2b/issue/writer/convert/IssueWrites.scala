@@ -8,7 +8,8 @@ import com.nulabinc.backlog.migration.common.utils.DateUtil
 import com.nulabinc.jira.client.domain.issue.Issue
 
 private [writer] class IssueWrites @Inject()(implicit val userWrites: UserWrites,
-                                             implicit val issueFieldWrites: IssueFieldWrites)
+                                             implicit val issueFieldWrites: IssueFieldWrites,
+                                             implicit val attachmentWrites: AttachmentWrites)
     extends Writes[Issue, BacklogIssue] {
 
   override def writes(issue: Issue) =
@@ -30,7 +31,7 @@ private [writer] class IssueWrites @Inject()(implicit val userWrites: UserWrites
       milestoneNames    = Seq.empty[String],
       priorityName      = issue.priority.name,
       optAssignee       = issue.assignee.map(Convert.toBacklog(_)),
-      attachments       = Seq.empty[BacklogAttachment],   // TODO: attachments
+      attachments       = issue.attachments.map(Convert.toBacklog(_)),
       sharedFiles       = Seq.empty[BacklogSharedFile],   // TODO: sharedfiles
       customFields      = issue.issueFields.flatMap(Convert.toBacklog(_)),
       notifiedUsers     = Seq.empty[BacklogUser],

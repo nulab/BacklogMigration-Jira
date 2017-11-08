@@ -23,6 +23,7 @@ class ExportModule(config: AppConfiguration) extends DefaultModule(config) {
     bind(classOf[UserWrites]).toInstance(new UserWrites)
     bind(classOf[IssueFieldWrites]).toInstance(new IssueFieldWrites(fields))
     bind(classOf[ChangelogItemWrites]).toInstance(new ChangelogItemWrites(fields))
+    bind(classOf[AttachmentWrites]).toInstance(new AttachmentWrites)
 
     // Writer
     bind(classOf[ProjectWriter]).to(classOf[ProjectFileWriter])
