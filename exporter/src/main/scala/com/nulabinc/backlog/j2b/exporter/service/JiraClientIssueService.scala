@@ -5,11 +5,16 @@ import javax.inject.Inject
 import com.nulabinc.backlog.j2b.jira.conf.JiraApiConfiguration
 import com.nulabinc.backlog.j2b.jira.domain.JiraProjectKey
 import com.nulabinc.backlog.j2b.jira.service.IssueService
-import com.nulabinc.backlog.migration.common.utils.Logging
+import com.nulabinc.backlog.migration.common.conf.BacklogPaths
+import com.nulabinc.backlog.migration.common.utils.{IOUtil, Logging}
 import com.nulabinc.jira.client.JiraRestClient
+import com.nulabinc.jira.client.domain.Attachment
 import com.nulabinc.jira.client.domain.issue.Issue
 
-class JiraClientIssueService @Inject()(apiConfig: JiraApiConfiguration, projectKey: JiraProjectKey, jira: JiraRestClient)
+class JiraClientIssueService @Inject()(apiConfig: JiraApiConfiguration,
+                                       projectKey: JiraProjectKey,
+                                       jira: JiraRestClient,
+                                       backlogPaths: BacklogPaths)
     extends IssueService with Logging {
 
   override def count() = {
@@ -34,6 +39,23 @@ class JiraClientIssueService @Inject()(apiConfig: JiraApiConfiguration, projectK
   override def injectChangeLogsToIssue(issue: Issue) = {
     val changeLogs = jira.issueAPI.changeLogs(issue.id.toString, 0, 100)
 
-    issue
+    issue.copy(changeLogs = changeLogs.right.get.values)
   }
+
+  override def downloadAttachments(issue: Issue): Unit = {
+    def saveAttachment(issue: Issue, attachment: Attachment) = {
+      val issueDir       = backlogPaths.issueDirectoryPath("issue", issue.id, issue.createdAt.toDate, 0)
+      val dir            = backlogPaths.issueAttachmentDirectoryPath(issueDir)
+      val attachmentPath = backlogPaths.issueAttachmentPath(dir, attachment.fileName)
+
+      IOUtil.createDirectory(dir)
+
+      jira.httpClient.download(attachment.content, attachmentPath.path)
+    }
+    issue.attachments.foreach { a => saveAttachment(issue, a) }
+  }
+
+
+  override def injectAttachmentsToIssue(issue: Issue) = ???
+
 }

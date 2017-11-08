@@ -3,9 +3,10 @@ package com.nulabinc.backlog.j2b.modules
 import com.nulabinc.backlog.j2b.conf.AppConfiguration
 import com.nulabinc.backlog.j2b.exporter.service._
 import com.nulabinc.backlog.j2b.issue.writer._
-import com.nulabinc.backlog.j2b.issue.writer.convert.{IssueFieldWrites, UserWrites}
+import com.nulabinc.backlog.j2b.issue.writer.convert._
 import com.nulabinc.backlog.j2b.jira.service._
 import com.nulabinc.backlog.j2b.jira.writer._
+import com.nulabinc.jira.client.domain.field.Field
 
 class ExportModule(config: AppConfiguration) extends DefaultModule(config) {
 
@@ -15,9 +16,14 @@ class ExportModule(config: AppConfiguration) extends DefaultModule(config) {
     // Data
     val fields = jira.fieldAPI.all().right.get
 
+    // Pre fetched data
+    bind(classOf[Seq[Field]]).toInstance(fields)
+
     // Writes
     bind(classOf[UserWrites]).toInstance(new UserWrites)
     bind(classOf[IssueFieldWrites]).toInstance(new IssueFieldWrites(fields))
+    bind(classOf[ChangelogItemWrites]).toInstance(new ChangelogItemWrites(fields))
+    bind(classOf[AttachmentWrites]).toInstance(new AttachmentWrites)
 
     // Writer
     bind(classOf[ProjectWriter]).to(classOf[ProjectFileWriter])
@@ -26,6 +32,7 @@ class ExportModule(config: AppConfiguration) extends DefaultModule(config) {
     bind(classOf[IssueTypeWriter]).to(classOf[IssueTypeFileWriter])
     bind(classOf[FieldWriter]).to(classOf[FieldFileWriter])
     bind(classOf[IssueWriter]).to(classOf[IssueFileWriter])
+    bind(classOf[CommentWriter]).to(classOf[CommentFileWriter])
 
     // Exporter
     bind(classOf[ProjectService]).to(classOf[JiraClientProjectService])
@@ -36,6 +43,7 @@ class ExportModule(config: AppConfiguration) extends DefaultModule(config) {
     bind(classOf[StatusService]).to(classOf[JiraClientStatusService])
     bind(classOf[IssueService]).to(classOf[JiraClientIssueService])
     bind(classOf[PriorityService]).to(classOf[JiraClientPriorityService])
+    bind(classOf[CommentService]).to(classOf[JiraClientCommentService])
   }
 
 

@@ -18,6 +18,8 @@ class JiraRestClient(val url: String, username: String, password: String) {
   lazy val versionsAPI   = new VersionAPI(httpClient)
   lazy val issueTypeAPI  = new IssueTypeAPI(httpClient)
   lazy val priorityAPI   = new PriorityAPI(httpClient)
+  lazy val attachmentAPI = new AttachmentAPI(httpClient)
+  lazy val commentAPI    = new CommentAPI(httpClient)
 
   def myself(): Either[JiraRestClientError, User] = {
 

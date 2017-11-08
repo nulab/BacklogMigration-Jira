@@ -23,11 +23,15 @@ case class Issue(
   creator: User,
   createdAt: DateTime,
   updatedAt: DateTime,
-  changeLogs: Seq[ChangeLog]
+  changeLogs: Seq[ChangeLog],
+  attachments: Seq[Attachment]
 ) {
 
   def injectChangeLogs(changeLogs: Seq[ChangeLog]) =
     this.copy(changeLogs = changeLogs)
+
+  def injectAttachments(attachments: Seq[Attachment]) =
+    this.copy(attachments = attachments)
 }
 
 case class ParentIssue(id: Long)

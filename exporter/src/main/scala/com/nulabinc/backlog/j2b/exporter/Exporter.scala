@@ -6,7 +6,7 @@ import com.nulabinc.backlog.j2b.jira.domain.{CollectData, JiraProjectKey}
 import com.nulabinc.backlog.j2b.jira.service._
 import com.nulabinc.backlog.j2b.jira.writer._
 import com.nulabinc.backlog.migration.common.utils.{ConsoleOut, Logging, ProgressBar}
-import com.nulabinc.jira.client.domain.{Status, User}
+import com.nulabinc.jira.client.domain._
 import com.osinka.i18n.Messages
 
 class Exporter @Inject()(projectKey: JiraProjectKey,
@@ -23,7 +23,9 @@ class Exporter @Inject()(projectKey: JiraProjectKey,
                          issueService: IssueService,
                          issueWriter: IssueWriter,
                          statusService: StatusService,
-                         priorityService: PriorityService)
+                         priorityService: PriorityService,
+                         commentService: CommentService,
+                         commentWriter: CommentWriter)
     extends Logging {
 
   private val console            = (ProgressBar.progress _)(Messages("common.issues"), Messages("message.exporting"), Messages("message.exported"))
@@ -75,19 +77,32 @@ class Exporter @Inject()(projectKey: JiraProjectKey,
       val collected = issues.zipWithIndex.map {
         case (issue, i) =>
 
-        //        val issueWithChangeLogs = issueService.injectChangeLogsToIssue(issue) // API Call
+          // changelogs
+          val issueWithChangeLogs = issueService.injectChangeLogsToIssue(issue) // API Call
 
-          issueWriter.write(issue)
+          // comments
+          val comments = commentService.issueComments(issueWithChangeLogs)
+
+          // attachments
+          issueService.downloadAttachments(issueWithChangeLogs)
+
+          // export issue
+          val backlogIssue = issueWriter.write(issueWithChangeLogs).right.get
+
+          // export issue comments
+          commentWriter.write(backlogIssue, comments, issueWithChangeLogs.changeLogs, issueWithChangeLogs.attachments)
 
         console(i + index.toInt, total.toInt)
 
         // Collect users
         Seq(
-          Some(issue.creator),
-          issue.assignee
+          Some(issueWithChangeLogs.creator),
+          issueWithChangeLogs.assignee
         ).filter(_.nonEmpty).flatten
       }
       fetchIssue(users ++ collected.flatten, index + collected.length , total, startAt + maxResults, maxResults)
     }
   }
+
+
 }
