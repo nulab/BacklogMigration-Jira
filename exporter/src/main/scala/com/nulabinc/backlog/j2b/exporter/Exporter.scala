@@ -1,17 +1,12 @@
 package com.nulabinc.backlog.j2b.exporter
 
-import java.io.{FileOutputStream, InputStream}
-import java.net.URL
-import java.nio.channels.Channels
 import javax.inject.Inject
 
 import com.nulabinc.backlog.j2b.jira.domain.{CollectData, JiraProjectKey}
 import com.nulabinc.backlog.j2b.jira.service._
 import com.nulabinc.backlog.j2b.jira.writer._
-import com.nulabinc.backlog.migration.common.conf.BacklogPaths
-import com.nulabinc.backlog.migration.common.utils.{ConsoleOut, IOUtil, Logging, ProgressBar}
-import com.nulabinc.jira.client.domain.issue.Issue
-import com.nulabinc.jira.client.domain.{Attachment, User}
+import com.nulabinc.backlog.migration.common.utils.{ConsoleOut, Logging, ProgressBar}
+import com.nulabinc.jira.client.domain._
 import com.osinka.i18n.Messages
 
 class Exporter @Inject()(projectKey: JiraProjectKey,
@@ -28,7 +23,9 @@ class Exporter @Inject()(projectKey: JiraProjectKey,
                          issueService: IssueService,
                          issueWriter: IssueWriter,
                          statusService: StatusService,
-                         priorityService: PriorityService)
+                         priorityService: PriorityService,
+                         commentService: CommentService,
+                         commentWriter: CommentWriter)
     extends Logging {
 
   private val console            = (ProgressBar.progress _)(Messages("common.issues"), Messages("message.exporting"), Messages("message.exported"))
@@ -83,10 +80,17 @@ class Exporter @Inject()(projectKey: JiraProjectKey,
           // changelogs
           val issueWithChangeLogs = issueService.injectChangeLogsToIssue(issue) // API Call
 
-          // attachments
-          issueService.downloadAttachments(issue)
+          // comments
+          val comments = commentService.issueComments(issueWithChangeLogs)
 
-          issueWriter.write(issueWithChangeLogs)
+          // attachments
+          issueService.downloadAttachments(issueWithChangeLogs)
+
+          // export issue
+          val backlogIssue = issueWriter.write(issueWithChangeLogs).right.get
+
+          // export issue comments
+          commentWriter.write(backlogIssue, comments, issueWithChangeLogs.changeLogs, issueWithChangeLogs.attachments)
 
         console(i + index.toInt, total.toInt)
 
