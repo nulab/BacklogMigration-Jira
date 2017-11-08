@@ -33,7 +33,7 @@ object ChangeLogMappingJsonProtocol extends DefaultJsonProtocol {
           ChangeLogItem(
             field = field,
             fieldType = fieldType,
-            fieldId = fieldId,
+            fieldId = fieldId.map(FieldId.parse),
             from = from,
             to = to
           )
