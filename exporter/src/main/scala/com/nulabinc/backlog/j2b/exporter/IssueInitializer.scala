@@ -3,9 +3,8 @@ package com.nulabinc.backlog.j2b.exporter
 import javax.inject.Inject
 
 import com.nulabinc.backlog.j2b.issue.writer.convert._
-import com.nulabinc.backlog.j2b.jira.converter.PriorityConverter
+import com.nulabinc.backlog.j2b.jira.service.UserService
 import com.nulabinc.backlog.migration.common.convert.Convert
-import com.nulabinc.backlog.migration.common.convert.writes.UserWrites
 import com.nulabinc.backlog.migration.common.domain._
 import com.nulabinc.backlog.migration.common.utils._
 import com.nulabinc.jira.client.domain._
@@ -15,7 +14,8 @@ class IssueInitializer @Inject()(implicit val issueWrites: IssueWrites,
                                  implicit val attachmentWrites: AttachmentWrites,
                                  implicit val userWrites: UserWrites,
                                  implicit val customFieldWrites: FieldWrites,
-                                 implicit val customFieldValueWrites: IssueFieldWrites)
+                                 implicit val customFieldValueWrites: IssueFieldWrites,
+                                 userService: UserService)
     extends Logging {
 
   def initialize(issue: Issue): BacklogIssue = {
@@ -38,7 +38,7 @@ class IssueInitializer @Inject()(implicit val issueWrites: IssueWrites,
 //      categoryNames = categoryNames(issue),
 //      milestoneNames = milestoneNames(issue),
       priorityName = priorityName(issue),
-//      optAssignee = assignee(issue),
+      optAssignee = assignee(issue),
 //      customFields = issue.issueFields.flatMap(customField),
 //      attachments = backlogAttachments,
       notifiedUsers = Seq.empty[BacklogUser]
@@ -48,7 +48,7 @@ class IssueInitializer @Inject()(implicit val issueWrites: IssueWrites,
   private def summary(issue: Issue): BacklogIssueSummary = {
     val issueInitialValue = new IssueInitialValue(ChangeLogItem.FieldType.JIRA, SummaryFieldId)
     issueInitialValue.findJournalDetail(issue.changeLogs) match {
-      case Some(detail) => BacklogIssueSummary(value = detail.from.getOrElse(""), original = issue.summary)
+      case Some(detail) => BacklogIssueSummary(value = detail.fromDisplayString.getOrElse(""), original = issue.summary)
       case None         => BacklogIssueSummary(value = issue.summary, original = issue.summary)
     }
   }
@@ -72,7 +72,7 @@ class IssueInitializer @Inject()(implicit val issueWrites: IssueWrites,
   private def description(issue: Issue): String = {
     val issueInitialValue = new IssueInitialValue(ChangeLogItem.FieldType.JIRA, DescriptionFieldId)
     issueInitialValue.findJournalDetail(issue.changeLogs) match {
-      case Some(detail) => detail.from.getOrElse("")
+      case Some(detail) => detail.fromDisplayString.getOrElse("")
       case None         => issue.description.getOrElse("")
     }
   }
@@ -137,20 +137,19 @@ class IssueInitializer @Inject()(implicit val issueWrites: IssueWrites,
   private def priorityName(issue: Issue): String = {
     val issueInitialValue = new IssueInitialValue(ChangeLogItem.FieldType.JIRA, PriorityFieldId)
     issueInitialValue.findJournalDetail(issue.changeLogs) match {
-      case Some(detail) => detail.from.getOrElse("")
+      case Some(detail) => detail.fromDisplayString.getOrElse("")
       case None         => issue.priority.name
     }
   }
 
-//  private def assignee(issue: Issue): Option[BacklogUser] = {
-//    val issueInitialValue = new IssueInitialValue(RedmineConstantValue.ATTR, RedmineConstantValue.Attr.ASSIGNED)
-//    issueInitialValue.findJournalDetail(journals) match {
-//      case Some(detail) =>
-//        exportContext.propertyValue.userOfId(Option(detail.getOldValue)).map(Convert.toBacklog(_))
-//      case None => Option(issue.getAssignee).map(Convert.toBacklog(_))
-//    }
-//  }
-//
+  private def assignee(issue: Issue): Option[BacklogUser] = {
+    val issueInitialValue = new IssueInitialValue(ChangeLogItem.FieldType.JIRA, AssigneeFieldId)
+    issueInitialValue.findJournalDetail(issue.changeLogs) match {
+      case Some(detail) => userService.optUserOfKey(detail.from).map(Convert.toBacklog(_))
+      case None         => issue.assignee.map(Convert.toBacklog(_))
+    }
+  }
+
 //  private def customField(customField: IssueField): Option[BacklogCustomField] = {
 //    val optCustomFieldDefinition = exportContext.propertyValue.customFieldDefinitionOfName(customField.getName)
 //    optCustomFieldDefinition match {

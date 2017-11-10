@@ -14,11 +14,17 @@ class ChangelogItemWrites @Inject()(fields: Seq[Field]) extends Writes[ChangeLog
 
   override def writes(changeLogItem: ChangeLogItem) =
     BacklogChangeLog(
-      field = field(changeLogItem),
-      optOriginalValue = changeLogItem.from,
-      optNewValue = changeLogItem.to,
-      optAttachmentInfo = attachmentInfo(changeLogItem),
-      optAttributeInfo = attributeInfo(changeLogItem),
+      field               = field(changeLogItem),
+      optOriginalValue    = {
+        if (changeLogItem.fieldId.contains(AssigneeFieldId)) changeLogItem.from
+        else                                                 changeLogItem.fromDisplayString
+      },
+      optNewValue         = {
+        if (changeLogItem.fieldId.contains(AssigneeFieldId)) changeLogItem.to
+        else                                                 changeLogItem.toDisplayString
+      },
+      optAttachmentInfo   = attachmentInfo(changeLogItem),
+      optAttributeInfo    = attributeInfo(changeLogItem),
       optNotificationInfo = None
     )
 
@@ -51,7 +57,7 @@ class ChangelogItemWrites @Inject()(fields: Seq[Field]) extends Writes[ChangeLog
     case Some(AttachmentFieldId) => Some(
       BacklogAttachment(
         optId = None,
-        name = FileUtil.normalize(changeLogItem.to.getOrElse(""))
+        name = FileUtil.normalize(changeLogItem.toDisplayString.getOrElse(""))
       )
     )
     case _ => None

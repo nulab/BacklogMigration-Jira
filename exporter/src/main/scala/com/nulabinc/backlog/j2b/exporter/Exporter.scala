@@ -26,7 +26,8 @@ class Exporter @Inject()(projectKey: JiraProjectKey,
                          priorityService: PriorityService,
                          commentService: CommentService,
                          commentWriter: CommentWriter,
-                         initializer: IssueInitializer)
+                         initializer: IssueInitializer,
+                         userService: UserService)
     extends Logging {
 
   private val console            = (ProgressBar.progress _)(Messages("common.issues"), Messages("message.exporting"), Messages("message.exported"))
@@ -96,11 +97,26 @@ class Exporter @Inject()(projectKey: JiraProjectKey,
 
         console(i + index.toInt, total.toInt)
 
+        val changeLogItemUsers = issueWithChangeLogs.changeLogs
+          .flatMap { changeLog =>
+            changeLog.items
+              .filter(_.fieldId.contains(AssigneeFieldId)) // ChangeLogItem.FieldId is AssigneeFieldId
+          }.flatMap { changeLogItem =>                     // TODO: Add filter: if user already exists
+            Seq(
+              userService.optUserOfKey(changeLogItem.from),
+              userService.optUserOfKey(changeLogItem.to)
+            ).flatten
+          }
+
+        val changeLogUsers = issueWithChangeLogs.changeLogs.map(_.author)
+
+
         // Collect users
         Seq(
           Some(issueWithChangeLogs.creator),
           issueWithChangeLogs.assignee
-        ).filter(_.nonEmpty).flatten
+        ).filter(_.nonEmpty).flatten ++ changeLogItemUsers ++ changeLogUsers
+
       }
       fetchIssue(users ++ collected.flatten, index + collected.length , total, startAt + maxResults, maxResults)
     }

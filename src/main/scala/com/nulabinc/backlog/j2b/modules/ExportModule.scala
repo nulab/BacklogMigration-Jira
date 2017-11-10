@@ -33,6 +33,7 @@ class ExportModule(config: AppConfiguration) extends DefaultModule(config) {
     bind(classOf[IssueService]).to(classOf[JiraClientIssueService])
     bind(classOf[PriorityService]).to(classOf[JiraClientPriorityService])
     bind(classOf[CommentService]).to(classOf[JiraClientCommentService])
+    bind(classOf[UserService]).to(classOf[JiraClientUserService])
   }
 
 

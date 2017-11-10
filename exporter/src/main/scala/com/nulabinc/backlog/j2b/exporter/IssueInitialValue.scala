@@ -20,6 +20,6 @@ private [exporter] class IssueInitialValue(fieldType: String, fieldId: FieldId) 
     detail.fieldId.contains(fieldId) && detail.fieldType == fieldType
 
   private def targetJournalDetails(journal: ChangeLog): Seq[ChangeLogItem] =
-    journal.items.filter(isTargetJournalDetail).filter(detail => detail.from.isDefined)
+    journal.items.filter(isTargetJournalDetail).filter(detail => detail.fromDisplayString.isDefined)
 
 }
