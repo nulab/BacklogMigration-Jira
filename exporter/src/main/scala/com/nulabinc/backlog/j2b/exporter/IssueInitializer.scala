@@ -34,7 +34,7 @@ class IssueInitializer @Inject()(implicit val issueWrites: IssueWrites,
 //      optStartDate = startDate(issue),
       optDueDate = dueDate(issue),
 //      optEstimatedHours = estimatedHours(issue),
-//      optIssueTypeName = issueTypeName(issue),
+      optIssueTypeName = issueTypeName(issue),
 //      categoryNames = categoryNames(issue),
 //      milestoneNames = milestoneNames(issue),
       priorityName = priorityName(issue),
@@ -100,15 +100,14 @@ class IssueInitializer @Inject()(implicit val issueWrites: IssueWrites,
 //      case None         => Option(issue.getEstimatedHours).map(_.toFloat)
 //    }
 //  }
-//
-//  private def issueTypeName(issue: Issue): Option[String] = {
-//    val issueInitialValue = new IssueInitialValue(RedmineConstantValue.ATTR, RedmineConstantValue.Attr.TRACKER)
-//    issueInitialValue.findJournalDetail(journals) match {
-//      case Some(detail) =>
-//        exportContext.propertyValue.trackerOfId(Option(detail.getOldValue)).map(_.getName)
-//      case None => Option(issue.getTracker).map(_.getName)
-//    }
-//  }
+
+  private def issueTypeName(issue: Issue): Option[String] = {
+    val issueInitialValue = new IssueInitialValue(ChangeLogItem.FieldType.JIRA, IssueTypeFieldId)
+    issueInitialValue.findChangeLogItem(issue.changeLogs) match {
+      case Some(detail) => detail.fromDisplayString
+      case None         => Option(issue.issueType.name)
+    }
+  }
 
   private def categoryNames(issue: Issue): Seq[String] = {
     val changeLogItems = issue.changeLogs.flatMap { changeLog =>
