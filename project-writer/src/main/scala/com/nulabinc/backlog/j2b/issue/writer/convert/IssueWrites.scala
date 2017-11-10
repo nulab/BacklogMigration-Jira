@@ -7,9 +7,9 @@ import com.nulabinc.backlog.migration.common.domain._
 import com.nulabinc.backlog.migration.common.utils.DateUtil
 import com.nulabinc.jira.client.domain.issue.Issue
 
-private [writer] class IssueWrites @Inject()(implicit val userWrites: UserWrites,
-                                             implicit val issueFieldWrites: IssueFieldWrites,
-                                             implicit val attachmentWrites: AttachmentWrites)
+class IssueWrites @Inject()(implicit val userWrites: UserWrites,
+                            implicit val issueFieldWrites: IssueFieldWrites,
+                            implicit val attachmentWrites: AttachmentWrites)
     extends Writes[Issue, BacklogIssue] {
 
   override def writes(issue: Issue) =
