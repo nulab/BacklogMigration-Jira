@@ -29,6 +29,7 @@ common.result_failed=FAILED:{0,number,#}
 common.empty=empty
 common.relation=Related issue
 common.private=Private
+common.resolution=Resolution
 common.change_comment={0}: {1} -> {2}
 common.anonymous=Anonymous
 common.link=Link

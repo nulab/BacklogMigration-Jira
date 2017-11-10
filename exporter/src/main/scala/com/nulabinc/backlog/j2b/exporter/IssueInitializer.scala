@@ -30,7 +30,7 @@ class IssueInitializer @Inject()(implicit val issueWrites: IssueWrites,
     backlogIssue.copy(
       summary = summary(issue),
 //      optParentIssueId = parentIssueId(issue),
-//      description = description(issue),
+      description = description(issue),
 //      optStartDate = startDate(issue),
 //      optDueDate = dueDate(issue),
 //      optEstimatedHours = estimatedHours(issue),
@@ -68,15 +68,15 @@ class IssueInitializer @Inject()(implicit val issueWrites: IssueWrites,
 //      case None => Option(issue.getParentId).map(_.intValue())
 //    }
 //  }
-//
-//  private def description(issue: Issue): String = {
-//    val issueInitialValue = new IssueInitialValue(RedmineConstantValue.ATTR, RedmineConstantValue.Attr.DESCRIPTION)
-//    issueInitialValue.findJournalDetail(journals) match {
-//      case Some(detail) => Option(detail.getOldValue).getOrElse("")
-//      case None         => issue.getDescription
-//    }
-//  }
-//
+
+  private def description(issue: Issue): String = {
+    val issueInitialValue = new IssueInitialValue(ChangeLogItem.FieldType.JIRA, DescriptionFieldId)
+    issueInitialValue.findJournalDetail(issue.changeLogs) match {
+      case Some(detail) => detail.from.getOrElse("")
+      case None         => issue.description.getOrElse("")
+    }
+  }
+
 //  private def startDate(issue: Issue): Option[String] = {
 //    val issueInitialValue = new IssueInitialValue(RedmineConstantValue.ATTR, RedmineConstantValue.Attr.START_DATE)
 //    issueInitialValue.findJournalDetail(journals) match {
@@ -135,7 +135,7 @@ class IssueInitializer @Inject()(implicit val issueWrites: IssueWrites,
 //  }
 
   private def priorityName(issue: Issue): String = {
-    val issueInitialValue = new IssueInitialValue(ChangeLogItem.FieldType.PRIORITY, PriorityFieldId)
+    val issueInitialValue = new IssueInitialValue(ChangeLogItem.FieldType.JIRA, PriorityFieldId)
     issueInitialValue.findJournalDetail(issue.changeLogs) match {
       case Some(detail) => detail.from.getOrElse("")
       case None         => issue.priority.name
