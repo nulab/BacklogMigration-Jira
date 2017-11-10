@@ -17,6 +17,14 @@ case class ChangeLogItem(
   to: Option[String]
 )
 
+object ChangeLogItem {
+  object FieldType {
+    val JIRA = "jira"
+    val PRIORITY = "priority"
+    val CUSTOM = "custom"
+  }
+}
+
 case class ChangeLogResult(
   total: Long,
   isLast: Boolean,
