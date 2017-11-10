@@ -47,7 +47,7 @@ class IssueInitializer @Inject()(implicit val issueWrites: IssueWrites,
 
   private def summary(issue: Issue): BacklogIssueSummary = {
     val issueInitialValue = new IssueInitialValue(ChangeLogItem.FieldType.JIRA, SummaryFieldId)
-    issueInitialValue.findJournalDetail(issue.changeLogs) match {
+    issueInitialValue.findChangeLogItem(issue.changeLogs) match {
       case Some(detail) => BacklogIssueSummary(value = detail.fromDisplayString.getOrElse(""), original = issue.summary)
       case None         => BacklogIssueSummary(value = issue.summary, original = issue.summary)
     }
@@ -71,7 +71,7 @@ class IssueInitializer @Inject()(implicit val issueWrites: IssueWrites,
 
   private def description(issue: Issue): String = {
     val issueInitialValue = new IssueInitialValue(ChangeLogItem.FieldType.JIRA, DescriptionFieldId)
-    issueInitialValue.findJournalDetail(issue.changeLogs) match {
+    issueInitialValue.findChangeLogItem(issue.changeLogs) match {
       case Some(detail) => detail.fromDisplayString.getOrElse("")
       case None         => issue.description.getOrElse("")
     }
@@ -87,7 +87,7 @@ class IssueInitializer @Inject()(implicit val issueWrites: IssueWrites,
 
   private def dueDate(issue: Issue): Option[String] = {
     val issueInitialValue = new IssueInitialValue(ChangeLogItem.FieldType.JIRA, DueDateFieldId)
-    issueInitialValue.findJournalDetail(issue.changeLogs) match {
+    issueInitialValue.findChangeLogItem(issue.changeLogs) match {
       case Some(detail) => detail.fromDisplayString
       case None         => issue.dueDate.map(DateUtil.dateFormat)
     }
@@ -109,19 +109,20 @@ class IssueInitializer @Inject()(implicit val issueWrites: IssueWrites,
 //      case None => Option(issue.getTracker).map(_.getName)
 //    }
 //  }
-//
-//  private def categoryNames(issue: Issue): Seq[String] = {
-//    val issueInitialValue = new IssueInitialValue(RedmineConstantValue.ATTR, RedmineConstantValue.Attr.CATEGORY)
-//    val optDetails        = issueInitialValue.findJournalDetails(journals)
-//    optDetails match {
-//      case Some(details) =>
-//        details.flatMap { detail =>
-//          exportContext.propertyValue.categoryOfId(Option(detail.getOldValue)).map(_.getName)
-//        }
-//      case _ => Option(issue.getCategory).map(_.getName).toSeq
-//    }
-//  }
-//
+
+  private def categoryNames(issue: Issue): Seq[String] = {
+    val changeLogItems = issue.changeLogs.flatMap { changeLog =>
+      changeLog.items.filter(_.fieldId.contains(ComponentFieldId))
+    }
+    val fromChangeLogItems = changeLogItems.flatMap(_.fromDisplayString)
+    val toChangeLogItems   = changeLogItems.flatMap(_.toDisplayString)
+
+    val currentCategories = issue.components.map(_.name).toSet
+    val fullCategories    = currentCategories ++ fromChangeLogItems.toSet
+    val initialCategories = fullCategories    -- toChangeLogItems.toSet
+    initialCategories.toSeq
+  }
+
 //  private def milestoneNames(issue: Issue): Seq[String] = {
 //    val issueInitialValue = new IssueInitialValue(RedmineConstantValue.ATTR, RedmineConstantValue.Attr.VERSION)
 //    val optDetails        = issueInitialValue.findJournalDetails(journals)
@@ -136,7 +137,7 @@ class IssueInitializer @Inject()(implicit val issueWrites: IssueWrites,
 
   private def priorityName(issue: Issue): String = {
     val issueInitialValue = new IssueInitialValue(ChangeLogItem.FieldType.JIRA, PriorityFieldId)
-    issueInitialValue.findJournalDetail(issue.changeLogs) match {
+    issueInitialValue.findChangeLogItem(issue.changeLogs) match {
       case Some(detail) => detail.fromDisplayString.getOrElse("")
       case None         => issue.priority.name
     }
@@ -144,7 +145,7 @@ class IssueInitializer @Inject()(implicit val issueWrites: IssueWrites,
 
   private def assignee(issue: Issue): Option[BacklogUser] = {
     val issueInitialValue = new IssueInitialValue(ChangeLogItem.FieldType.JIRA, AssigneeFieldId)
-    issueInitialValue.findJournalDetail(issue.changeLogs) match {
+    issueInitialValue.findChangeLogItem(issue.changeLogs) match {
       case Some(detail) => userService.optUserOfKey(detail.from).map(Convert.toBacklog(_))
       case None         => issue.assignee.map(Convert.toBacklog(_))
     }

@@ -4,22 +4,22 @@ import com.nulabinc.jira.client.domain._
 
 private [exporter] class IssueInitialValue(fieldType: String, fieldId: FieldId) {
 
-  def findJournalDetail(journals: Seq[ChangeLog]): Option[ChangeLogItem] =
-    journals.find(isTargetJournal).flatMap(targetJournalDetail)
+  def findChangeLogItem(changeLogs: Seq[ChangeLog]): Option[ChangeLogItem] =
+    changeLogs.find(isTargetChangeLog).flatMap(targetChangeLogItem)
 
-  def findJournalDetails(journals: Seq[ChangeLog]): Option[Seq[ChangeLogItem]] =
-    journals.find(isTargetJournal).map(targetJournalDetails)
+  def findChangeLogItems(changeLogs: Seq[ChangeLog]): Option[Seq[ChangeLogItem]] =
+    changeLogs.find(isTargetChangeLog).map(targetChangeLogItems)
 
-  private def targetJournalDetail(journal: ChangeLog): Option[ChangeLogItem] =
-    journal.items.find(isTargetJournalDetail)
+  private def targetChangeLogItem(changeLog: ChangeLog): Option[ChangeLogItem] =
+    changeLog.items.find(isTargetChangeLogItem)
 
-  private def isTargetJournal(journal: ChangeLog): Boolean =
-    journal.items.exists(isTargetJournalDetail)
+  private def isTargetChangeLog(changeLog: ChangeLog): Boolean =
+    changeLog.items.exists(isTargetChangeLogItem)
 
-  private def isTargetJournalDetail(detail: ChangeLogItem): Boolean =
-    detail.fieldId.contains(fieldId) && detail.fieldType == fieldType
+  private def isTargetChangeLogItem(changeLogItem: ChangeLogItem): Boolean =
+    changeLogItem.fieldId.contains(fieldId) && changeLogItem.fieldType == fieldType
 
-  private def targetJournalDetails(journal: ChangeLog): Seq[ChangeLogItem] =
-    journal.items.filter(isTargetJournalDetail).filter(detail => detail.fromDisplayString.isDefined)
+  private def targetChangeLogItems(changeLog: ChangeLog): Seq[ChangeLogItem] =
+    changeLog.items.filter(isTargetChangeLogItem).filter(changeLogItem => changeLogItem.fromDisplayString.isDefined)
 
 }
