@@ -73,7 +73,7 @@ lazy val exporter = (project in file("exporter"))
       "NoOpOverride"
     )
   )
-  .dependsOn(jira, client)
+  .dependsOn(jira, client, writer)
 
 lazy val jira = (project in file("jira"))
   .settings(commonSettings: _*)
@@ -113,7 +113,7 @@ lazy val mappingConverter = (project in file("mapping-converter"))
       "NoOpOverride"
     )
   )
-  .dependsOn(mappingBase, mappingFile, writer)
+  .dependsOn(mappingBase, mappingFile)
 
 //lazy val mappingCollector = (project in file("mapping-collector"))
 //  .settings(commonSettings: _*)

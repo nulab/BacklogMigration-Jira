@@ -2,18 +2,14 @@ package com.nulabinc.backlog.j2b.modules
 
 import com.google.inject.AbstractModule
 import com.nulabinc.backlog.j2b.conf.AppConfiguration
-import com.nulabinc.backlog.j2b.exporter.service._
-import com.nulabinc.backlog.j2b.issue.writer._
 import com.nulabinc.backlog.j2b.issue.writer.convert._
 import com.nulabinc.backlog.j2b.jira.conf.JiraApiConfiguration
-import com.nulabinc.backlog.j2b.jira.converter.MappingConverter
 import com.nulabinc.backlog.j2b.jira.domain.JiraProjectKey
 import com.nulabinc.backlog.j2b.jira.service._
-import com.nulabinc.backlog.j2b.jira.writer._
 import com.nulabinc.backlog.j2b.mapping.file.MappingFileServiceImpl
-import com.nulabinc.backlog.j2b.mapping.converter.MappingConvertService
 import com.nulabinc.backlog.migration.common.conf.{BacklogApiConfiguration, BacklogPaths}
 import com.nulabinc.jira.client.JiraRestClient
+import com.nulabinc.jira.client.domain.field.Field
 
 class DefaultModule(config: AppConfiguration) extends AbstractModule {
 
@@ -36,5 +32,17 @@ class DefaultModule(config: AppConfiguration) extends AbstractModule {
 
     // Mapping-file
     bind(classOf[MappingFileService]).to(classOf[MappingFileServiceImpl])
+
+    // Data
+    val fields = jira.fieldAPI.all().right.get
+
+    // Pre fetched data
+    bind(classOf[Seq[Field]]).toInstance(fields)
+
+    // Writes
+    bind(classOf[UserWrites]).toInstance(new UserWrites)
+    bind(classOf[IssueFieldWrites]).toInstance(new IssueFieldWrites(fields))
+    bind(classOf[ChangelogItemWrites]).toInstance(new ChangelogItemWrites(fields))
+    bind(classOf[AttachmentWrites]).toInstance(new AttachmentWrites)
   }
 }

@@ -1,6 +1,7 @@
 package com.nulabinc.backlog.j2b.modules
 
 import com.nulabinc.backlog.j2b.conf.AppConfiguration
+import com.nulabinc.backlog.j2b.exporter.IssueInitializer
 import com.nulabinc.backlog.j2b.exporter.service._
 import com.nulabinc.backlog.j2b.issue.writer._
 import com.nulabinc.backlog.j2b.issue.writer.convert._
@@ -12,18 +13,6 @@ class ExportModule(config: AppConfiguration) extends DefaultModule(config) {
 
   override def configure(): Unit = {
     super.configure()
-
-    // Data
-    val fields = jira.fieldAPI.all().right.get
-
-    // Pre fetched data
-    bind(classOf[Seq[Field]]).toInstance(fields)
-
-    // Writes
-    bind(classOf[UserWrites]).toInstance(new UserWrites)
-    bind(classOf[IssueFieldWrites]).toInstance(new IssueFieldWrites(fields))
-    bind(classOf[ChangelogItemWrites]).toInstance(new ChangelogItemWrites(fields))
-    bind(classOf[AttachmentWrites]).toInstance(new AttachmentWrites)
 
     // Writer
     bind(classOf[ProjectWriter]).to(classOf[ProjectFileWriter])

@@ -25,7 +25,8 @@ class Exporter @Inject()(projectKey: JiraProjectKey,
                          statusService: StatusService,
                          priorityService: PriorityService,
                          commentService: CommentService,
-                         commentWriter: CommentWriter)
+                         commentWriter: CommentWriter,
+                         initializer: IssueInitializer)
     extends Logging {
 
   private val console            = (ProgressBar.progress _)(Messages("common.issues"), Messages("message.exporting"), Messages("message.exported"))
@@ -87,10 +88,11 @@ class Exporter @Inject()(projectKey: JiraProjectKey,
           issueService.downloadAttachments(issueWithChangeLogs)
 
           // export issue
-          val backlogIssue = issueWriter.write(issueWithChangeLogs).right.get
+          val initializedBacklogIssue = initializer.initialize(issueWithChangeLogs)
+          issueWriter.write(initializedBacklogIssue, issueWithChangeLogs.createdAt.toDate)
 
           // export issue comments
-          commentWriter.write(backlogIssue, comments, issueWithChangeLogs.changeLogs, issueWithChangeLogs.attachments)
+          commentWriter.write(initializedBacklogIssue, comments, issueWithChangeLogs.changeLogs, issueWithChangeLogs.attachments)
 
         console(i + index.toInt, total.toInt)
 
