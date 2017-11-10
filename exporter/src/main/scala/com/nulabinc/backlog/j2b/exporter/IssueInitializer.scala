@@ -32,7 +32,7 @@ class IssueInitializer @Inject()(implicit val issueWrites: IssueWrites,
 //      optParentIssueId = parentIssueId(issue),
       description = description(issue),
 //      optStartDate = startDate(issue),
-//      optDueDate = dueDate(issue),
+      optDueDate = dueDate(issue),
 //      optEstimatedHours = estimatedHours(issue),
 //      optIssueTypeName = issueTypeName(issue),
 //      categoryNames = categoryNames(issue),
@@ -84,15 +84,15 @@ class IssueInitializer @Inject()(implicit val issueWrites: IssueWrites,
 //      case None         => Option(issue.getStartDate).map(DateUtil.dateFormat)
 //    }
 //  }
-//
-//  private def dueDate(issue: Issue): Option[String] = {
-//    val issueInitialValue = new IssueInitialValue(RedmineConstantValue.ATTR, RedmineConstantValue.Attr.DUE_DATE)
-//    issueInitialValue.findJournalDetail(journals) match {
-//      case Some(detail) => Option(detail.getOldValue)
-//      case None         => Option(issue.getDueDate).map(DateUtil.dateFormat)
-//    }
-//  }
-//
+
+  private def dueDate(issue: Issue): Option[String] = {
+    val issueInitialValue = new IssueInitialValue(ChangeLogItem.FieldType.JIRA, DueDateFieldId)
+    issueInitialValue.findJournalDetail(issue.changeLogs) match {
+      case Some(detail) => detail.fromDisplayString
+      case None         => issue.dueDate.map(DateUtil.dateFormat)
+    }
+  }
+
 //  private def estimatedHours(issue: Issue): Option[Float] = {
 //    val issueInitialValue = new IssueInitialValue(RedmineConstantValue.ATTR, RedmineConstantValue.Attr.ESTIMATED_HOURS)
 //    issueInitialValue.findJournalDetail(journals) match {

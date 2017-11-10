@@ -15,13 +15,15 @@ class ChangelogItemWrites @Inject()(fields: Seq[Field]) extends Writes[ChangeLog
   override def writes(changeLogItem: ChangeLogItem) =
     BacklogChangeLog(
       field               = field(changeLogItem),
-      optOriginalValue    = {
-        if (changeLogItem.fieldId.contains(AssigneeFieldId)) changeLogItem.from
-        else                                                 changeLogItem.fromDisplayString
+      optOriginalValue = changeLogItem.fieldId match {
+        case Some(AssigneeFieldId)  => changeLogItem.from
+        case Some(DueDateFieldId)   => changeLogItem.from
+        case _                      => changeLogItem.fromDisplayString
       },
-      optNewValue         = {
-        if (changeLogItem.fieldId.contains(AssigneeFieldId)) changeLogItem.to
-        else                                                 changeLogItem.toDisplayString
+      optNewValue = changeLogItem.fieldId match {
+        case Some(AssigneeFieldId)  => changeLogItem.to
+        case Some(DueDateFieldId)   => changeLogItem.to
+        case _                      => changeLogItem.toDisplayString
       },
       optAttachmentInfo   = attachmentInfo(changeLogItem),
       optAttributeInfo    = attributeInfo(changeLogItem),
