@@ -3,9 +3,8 @@ package com.nulabinc.backlog.j2b.exporter
 import javax.inject.Inject
 
 import com.nulabinc.backlog.j2b.issue.writer.convert._
-import com.nulabinc.backlog.j2b.jira.converter.PriorityConverter
+import com.nulabinc.backlog.j2b.jira.service.UserService
 import com.nulabinc.backlog.migration.common.convert.Convert
-import com.nulabinc.backlog.migration.common.convert.writes.UserWrites
 import com.nulabinc.backlog.migration.common.domain._
 import com.nulabinc.backlog.migration.common.utils._
 import com.nulabinc.jira.client.domain._
@@ -15,7 +14,8 @@ class IssueInitializer @Inject()(implicit val issueWrites: IssueWrites,
                                  implicit val attachmentWrites: AttachmentWrites,
                                  implicit val userWrites: UserWrites,
                                  implicit val customFieldWrites: FieldWrites,
-                                 implicit val customFieldValueWrites: IssueFieldWrites)
+                                 implicit val customFieldValueWrites: IssueFieldWrites,
+                                 userService: UserService)
     extends Logging {
 
   def initialize(issue: Issue): BacklogIssue = {
@@ -32,13 +32,13 @@ class IssueInitializer @Inject()(implicit val issueWrites: IssueWrites,
 //      optParentIssueId = parentIssueId(issue),
       description = description(issue),
 //      optStartDate = startDate(issue),
-//      optDueDate = dueDate(issue),
+      optDueDate = dueDate(issue),
 //      optEstimatedHours = estimatedHours(issue),
 //      optIssueTypeName = issueTypeName(issue),
 //      categoryNames = categoryNames(issue),
 //      milestoneNames = milestoneNames(issue),
       priorityName = priorityName(issue),
-//      optAssignee = assignee(issue),
+      optAssignee = assignee(issue),
 //      customFields = issue.issueFields.flatMap(customField),
 //      attachments = backlogAttachments,
       notifiedUsers = Seq.empty[BacklogUser]
@@ -47,8 +47,8 @@ class IssueInitializer @Inject()(implicit val issueWrites: IssueWrites,
 
   private def summary(issue: Issue): BacklogIssueSummary = {
     val issueInitialValue = new IssueInitialValue(ChangeLogItem.FieldType.JIRA, SummaryFieldId)
-    issueInitialValue.findJournalDetail(issue.changeLogs) match {
-      case Some(detail) => BacklogIssueSummary(value = detail.from.getOrElse(""), original = issue.summary)
+    issueInitialValue.findChangeLogItem(issue.changeLogs) match {
+      case Some(detail) => BacklogIssueSummary(value = detail.fromDisplayString.getOrElse(""), original = issue.summary)
       case None         => BacklogIssueSummary(value = issue.summary, original = issue.summary)
     }
   }
@@ -71,8 +71,8 @@ class IssueInitializer @Inject()(implicit val issueWrites: IssueWrites,
 
   private def description(issue: Issue): String = {
     val issueInitialValue = new IssueInitialValue(ChangeLogItem.FieldType.JIRA, DescriptionFieldId)
-    issueInitialValue.findJournalDetail(issue.changeLogs) match {
-      case Some(detail) => detail.from.getOrElse("")
+    issueInitialValue.findChangeLogItem(issue.changeLogs) match {
+      case Some(detail) => detail.fromDisplayString.getOrElse("")
       case None         => issue.description.getOrElse("")
     }
   }
@@ -84,15 +84,15 @@ class IssueInitializer @Inject()(implicit val issueWrites: IssueWrites,
 //      case None         => Option(issue.getStartDate).map(DateUtil.dateFormat)
 //    }
 //  }
-//
-//  private def dueDate(issue: Issue): Option[String] = {
-//    val issueInitialValue = new IssueInitialValue(RedmineConstantValue.ATTR, RedmineConstantValue.Attr.DUE_DATE)
-//    issueInitialValue.findJournalDetail(journals) match {
-//      case Some(detail) => Option(detail.getOldValue)
-//      case None         => Option(issue.getDueDate).map(DateUtil.dateFormat)
-//    }
-//  }
-//
+
+  private def dueDate(issue: Issue): Option[String] = {
+    val issueInitialValue = new IssueInitialValue(ChangeLogItem.FieldType.JIRA, DueDateFieldId)
+    issueInitialValue.findChangeLogItem(issue.changeLogs) match {
+      case Some(detail) => detail.fromDisplayString
+      case None         => issue.dueDate.map(DateUtil.dateFormat)
+    }
+  }
+
 //  private def estimatedHours(issue: Issue): Option[Float] = {
 //    val issueInitialValue = new IssueInitialValue(RedmineConstantValue.ATTR, RedmineConstantValue.Attr.ESTIMATED_HOURS)
 //    issueInitialValue.findJournalDetail(journals) match {
@@ -109,19 +109,20 @@ class IssueInitializer @Inject()(implicit val issueWrites: IssueWrites,
 //      case None => Option(issue.getTracker).map(_.getName)
 //    }
 //  }
-//
-//  private def categoryNames(issue: Issue): Seq[String] = {
-//    val issueInitialValue = new IssueInitialValue(RedmineConstantValue.ATTR, RedmineConstantValue.Attr.CATEGORY)
-//    val optDetails        = issueInitialValue.findJournalDetails(journals)
-//    optDetails match {
-//      case Some(details) =>
-//        details.flatMap { detail =>
-//          exportContext.propertyValue.categoryOfId(Option(detail.getOldValue)).map(_.getName)
-//        }
-//      case _ => Option(issue.getCategory).map(_.getName).toSeq
-//    }
-//  }
-//
+
+  private def categoryNames(issue: Issue): Seq[String] = {
+    val changeLogItems = issue.changeLogs.flatMap { changeLog =>
+      changeLog.items.filter(_.fieldId.contains(ComponentFieldId))
+    }
+    val fromChangeLogItems = changeLogItems.flatMap(_.fromDisplayString)
+    val toChangeLogItems   = changeLogItems.flatMap(_.toDisplayString)
+
+    val currentCategories = issue.components.map(_.name).toSet
+    val fullCategories    = currentCategories ++ fromChangeLogItems.toSet
+    val initialCategories = fullCategories    -- toChangeLogItems.toSet
+    initialCategories.toSeq
+  }
+
 //  private def milestoneNames(issue: Issue): Seq[String] = {
 //    val issueInitialValue = new IssueInitialValue(RedmineConstantValue.ATTR, RedmineConstantValue.Attr.VERSION)
 //    val optDetails        = issueInitialValue.findJournalDetails(journals)
@@ -136,21 +137,20 @@ class IssueInitializer @Inject()(implicit val issueWrites: IssueWrites,
 
   private def priorityName(issue: Issue): String = {
     val issueInitialValue = new IssueInitialValue(ChangeLogItem.FieldType.JIRA, PriorityFieldId)
-    issueInitialValue.findJournalDetail(issue.changeLogs) match {
-      case Some(detail) => detail.from.getOrElse("")
+    issueInitialValue.findChangeLogItem(issue.changeLogs) match {
+      case Some(detail) => detail.fromDisplayString.getOrElse("")
       case None         => issue.priority.name
     }
   }
 
-//  private def assignee(issue: Issue): Option[BacklogUser] = {
-//    val issueInitialValue = new IssueInitialValue(RedmineConstantValue.ATTR, RedmineConstantValue.Attr.ASSIGNED)
-//    issueInitialValue.findJournalDetail(journals) match {
-//      case Some(detail) =>
-//        exportContext.propertyValue.userOfId(Option(detail.getOldValue)).map(Convert.toBacklog(_))
-//      case None => Option(issue.getAssignee).map(Convert.toBacklog(_))
-//    }
-//  }
-//
+  private def assignee(issue: Issue): Option[BacklogUser] = {
+    val issueInitialValue = new IssueInitialValue(ChangeLogItem.FieldType.JIRA, AssigneeFieldId)
+    issueInitialValue.findChangeLogItem(issue.changeLogs) match {
+      case Some(detail) => userService.optUserOfKey(detail.from).map(Convert.toBacklog(_))
+      case None         => issue.assignee.map(Convert.toBacklog(_))
+    }
+  }
+
 //  private def customField(customField: IssueField): Option[BacklogCustomField] = {
 //    val optCustomFieldDefinition = exportContext.propertyValue.customFieldDefinitionOfName(customField.getName)
 //    optCustomFieldDefinition match {

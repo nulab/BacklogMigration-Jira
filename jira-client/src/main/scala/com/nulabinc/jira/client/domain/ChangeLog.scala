@@ -14,7 +14,9 @@ case class ChangeLogItem(
   fieldType: String,
   fieldId: Option[FieldId],
   from: Option[String],
-  to: Option[String]
+  fromDisplayString: Option[String],
+  to: Option[String],
+  toDisplayString: Option[String]
 )
 
 object ChangeLogItem {

@@ -18,12 +18,15 @@ class JiraClientUserService @Inject()(jira: JiraRestClient) extends UserService 
       }
     }
 
-  override def optUserOfId(id: String) =
-    jira.userAPI.user(id) match {
-      case Right(user) => Some(user)
-      case Left(error) => {
-        logger.error(error.message)
-        None
+  override def optUserOfKey(key: Option[String]) =
+    key.flatMap { k =>
+      jira.userAPI.user(k) match {
+        case Right(user) => Some(user)
+        case Left(error) => {
+          logger.error(error.message)
+          None
+        }
       }
     }
+
 }

@@ -14,15 +14,27 @@ object ChangeLogMappingJsonProtocol extends DefaultJsonProtocol {
 
     def read(json: JsValue) = {
       val jsObject = json.asJsObject
-      val from = jsObject.getFields("fromString") match {
-        case Seq(JsString(fromString)) => Some(fromString)
-        case _                         => None
+
+      val from = jsObject.getFields("from") match {
+        case Seq(JsString(s)) => Some(s)
+        case _                => None
       }
-      val to = jsObject.getFields("toString") match {
-        case Seq(JsNull)              => None
-        case Seq(JsString(toString))  => Some(toString)
-        case _                        => None
+      val fromString = jsObject.getFields("fromString") match {
+        case Seq(JsString(s)) => Some(s)
+        case _                => None
       }
+
+      val to = jsObject.getFields("to") match {
+        case Seq(JsNull)       => None
+        case Seq(JsString(s))  => Some(s)
+        case _                 => None
+      }
+      val toString = jsObject.getFields("toString") match {
+        case Seq(JsNull)       => None
+        case Seq(JsString(s))  => Some(s)
+        case _                 => None
+      }
+
       val fieldId = jsObject.getFields("fieldId") match {
         case Seq(JsString(id)) => Some(id)
         case _                 => None
@@ -32,10 +44,12 @@ object ChangeLogMappingJsonProtocol extends DefaultJsonProtocol {
         case Seq(JsString(field), JsString(fieldType)) =>
           ChangeLogItem(
             field = field,
-            fieldType = fieldType,
-            fieldId = fieldId.map(FieldId.parse),
-            from = from,
-            to = to
+            fieldType           = fieldType,
+            fieldId             = fieldId.map(FieldId.parse),
+            from                = from,
+            fromDisplayString   = fromString,
+            to                  = to,
+            toDisplayString     = toString
           )
         case other => deserializationError("Cannot deserialize ChangeLogItem: invalid input. Raw input: " + other)
       }
