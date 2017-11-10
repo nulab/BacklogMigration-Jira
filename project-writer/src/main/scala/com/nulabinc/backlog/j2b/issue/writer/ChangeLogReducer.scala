@@ -31,6 +31,9 @@ private [writer] class ChangeLogReducer(issueDirPath: Path,
           getValue(privateValue(changeLog.optOriginalValue)),
           getValue(privateValue(changeLog.optNewValue)))
         (None, s"${message}\n")
+      case BacklogConstantValue.ChangeLog.RESOLUTION =>
+        val message = Messages("common.change_comment", Messages("common.resolution"), getValue(changeLog.optOriginalValue), getValue(changeLog.optNewValue))
+        (None, s"${message}\n")
         // TODO: Check project
 //      case "project_id" =>
 //        val message = Messages("common.change_comment",
