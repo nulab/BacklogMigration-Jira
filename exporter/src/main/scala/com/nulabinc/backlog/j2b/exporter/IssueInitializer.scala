@@ -33,7 +33,7 @@ class IssueInitializer @Inject()(implicit val issueWrites: IssueWrites,
       description = description(issue),
 //      optStartDate = startDate(issue),
       optDueDate = dueDate(issue),
-//      optEstimatedHours = estimatedHours(issue),
+      optEstimatedHours = estimatedHours(issue),
       optIssueTypeName = issueTypeName(issue),
 //      categoryNames = categoryNames(issue),
 //      milestoneNames = milestoneNames(issue),
@@ -93,13 +93,13 @@ class IssueInitializer @Inject()(implicit val issueWrites: IssueWrites,
     }
   }
 
-//  private def estimatedHours(issue: Issue): Option[Float] = {
-//    val issueInitialValue = new IssueInitialValue(RedmineConstantValue.ATTR, RedmineConstantValue.Attr.ESTIMATED_HOURS)
-//    issueInitialValue.findJournalDetail(journals) match {
-//      case Some(detail) => Option(detail.getOldValue).filter(_.nonEmpty).map(_.toFloat)
-//      case None         => Option(issue.getEstimatedHours).map(_.toFloat)
-//    }
-//  }
+  private def estimatedHours(issue: Issue): Option[Float] = {
+    val issueInitialValue = new IssueInitialValue(ChangeLogItem.FieldType.JIRA, TimeEstimateFieldId)
+    issueInitialValue.findChangeLogItem(issue.changeLogs) match {
+      case Some(detail) => detail.fromDisplayString.filter(_.nonEmpty).map(_.toFloat / 3600)
+      case None         => issue.timeTrack.flatMap(_.originalEstimateSeconds.map(_.toFloat / 3600))
+    }
+  }
 
   private def issueTypeName(issue: Issue): Option[String] = {
     val issueInitialValue = new IssueInitialValue(ChangeLogItem.FieldType.JIRA, IssueTypeFieldId)

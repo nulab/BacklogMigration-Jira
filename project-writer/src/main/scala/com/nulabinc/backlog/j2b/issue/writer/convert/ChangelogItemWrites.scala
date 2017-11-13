@@ -14,16 +14,18 @@ class ChangelogItemWrites @Inject()(fields: Seq[Field]) extends Writes[ChangeLog
 
   override def writes(changeLogItem: ChangeLogItem) =
     BacklogChangeLog(
-      field               = field(changeLogItem),
+      field            = field(changeLogItem),
       optOriginalValue = changeLogItem.fieldId match {
-        case Some(AssigneeFieldId)  => changeLogItem.from
-        case Some(DueDateFieldId)   => changeLogItem.from
-        case _                      => changeLogItem.fromDisplayString
+        case Some(AssigneeFieldId)              => changeLogItem.from
+        case Some(DueDateFieldId)               => changeLogItem.from
+        case Some(TimeOriginalEstimateFieldId)  => changeLogItem.from.map( sec => (sec.toInt / 3600).toString)
+        case _                                  => changeLogItem.fromDisplayString
       },
       optNewValue = changeLogItem.fieldId match {
-        case Some(AssigneeFieldId)  => changeLogItem.to
-        case Some(DueDateFieldId)   => changeLogItem.to
-        case _                      => changeLogItem.toDisplayString
+        case Some(AssigneeFieldId)              => changeLogItem.to
+        case Some(DueDateFieldId)               => changeLogItem.to
+        case Some(TimeOriginalEstimateFieldId)  => changeLogItem.to.map( sec => (sec.toInt / 3600).toString)
+        case _                                  => changeLogItem.toDisplayString
       },
       optAttachmentInfo   = attachmentInfo(changeLogItem),
       optAttributeInfo    = attributeInfo(changeLogItem),
@@ -48,7 +50,7 @@ class ChangelogItemWrites @Inject()(fields: Seq[Field]) extends Writes[ChangeLog
     case Some(StatusFieldId)                  => BacklogConstantValue.ChangeLog.STATUS
     case Some(DueDateFieldId)                 => BacklogConstantValue.ChangeLog.LIMIT_DATE
     case Some(TimeOriginalEstimateFieldId)    => BacklogConstantValue.ChangeLog.ESTIMATED_HOURS
-    case Some(TimeEstimateFieldId)            => BacklogConstantValue.ChangeLog.ESTIMATED_HOURS
+    case Some(TimeEstimateFieldId)            => changeLogItem.field
     case Some(ResolutionFieldId)              => BacklogConstantValue.ChangeLog.RESOLUTION
     case Some(GeneralFieldId(v))              => v
     case _ if changeLogItem.field == "Parent" => BacklogConstantValue.ChangeLog.ISSUE_TYPE

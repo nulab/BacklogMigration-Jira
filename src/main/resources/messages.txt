@@ -30,6 +30,7 @@ common.empty=empty
 common.relation=Related issue
 common.private=Private
 common.resolution=Resolution
+common.timeestimate=Time estimate
 common.change_comment={0}: {1} -> {2}
 common.anonymous=Anonymous
 common.link=Link
