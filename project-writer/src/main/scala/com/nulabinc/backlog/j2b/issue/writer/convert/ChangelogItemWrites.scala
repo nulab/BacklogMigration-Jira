@@ -19,12 +19,14 @@ class ChangelogItemWrites @Inject()(fields: Seq[Field]) extends Writes[ChangeLog
         case Some(AssigneeFieldId)              => changeLogItem.from
         case Some(DueDateFieldId)               => changeLogItem.from
         case Some(TimeOriginalEstimateFieldId)  => changeLogItem.from.map( sec => (sec.toInt / 3600).toString)
+        case Some(TimeEstimateFieldId)          => changeLogItem.from.map( sec => (sec.toInt / 3600).toString)
         case _                                  => changeLogItem.fromDisplayString
       },
       optNewValue = changeLogItem.fieldId match {
         case Some(AssigneeFieldId)              => changeLogItem.to
         case Some(DueDateFieldId)               => changeLogItem.to
         case Some(TimeOriginalEstimateFieldId)  => changeLogItem.to.map( sec => (sec.toInt / 3600).toString)
+        case Some(TimeEstimateFieldId)          => changeLogItem.to.map( sec => (sec.toInt / 3600).toString)
         case _                                  => changeLogItem.toDisplayString
       },
       optAttachmentInfo   = attachmentInfo(changeLogItem),

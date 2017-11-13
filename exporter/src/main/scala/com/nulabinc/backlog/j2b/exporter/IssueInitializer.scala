@@ -31,7 +31,6 @@ class IssueInitializer @Inject()(implicit val issueWrites: IssueWrites,
       summary = summary(issue),
 //      optParentIssueId = parentIssueId(issue),
       description = description(issue),
-//      optStartDate = startDate(issue),
       optDueDate = dueDate(issue),
       optEstimatedHours = estimatedHours(issue),
       optIssueTypeName = issueTypeName(issue),
@@ -53,22 +52,6 @@ class IssueInitializer @Inject()(implicit val issueWrites: IssueWrites,
     }
   }
 
-//  private def parentIssueId(issue: Issue): Option[Long] = {
-//    val issueInitialValue = new IssueInitialValue(RedmineConstantValue.ATTR, RedmineConstantValue.Attr.PARENT)
-//    issueInitialValue.findJournalDetail(journals) match {
-//      case Some(detail) =>
-//        Option(detail.getOldValue) match {
-//          case Some(value) if (value.nonEmpty) =>
-//            StringUtil.safeStringToInt(value) match {
-//              case Some(intValue) => Some(intValue)
-//              case _              => None
-//            }
-//          case _ => None
-//        }
-//      case None => Option(issue.getParentId).map(_.intValue())
-//    }
-//  }
-
   private def description(issue: Issue): String = {
     val issueInitialValue = new IssueInitialValue(ChangeLogItem.FieldType.JIRA, DescriptionFieldId)
     issueInitialValue.findChangeLogItem(issue.changeLogs) match {
@@ -76,14 +59,6 @@ class IssueInitializer @Inject()(implicit val issueWrites: IssueWrites,
       case None         => issue.description.getOrElse("")
     }
   }
-
-//  private def startDate(issue: Issue): Option[String] = {
-//    val issueInitialValue = new IssueInitialValue(RedmineConstantValue.ATTR, RedmineConstantValue.Attr.START_DATE)
-//    issueInitialValue.findJournalDetail(journals) match {
-//      case Some(detail) => Option(detail.getOldValue)
-//      case None         => Option(issue.getStartDate).map(DateUtil.dateFormat)
-//    }
-//  }
 
   private def dueDate(issue: Issue): Option[String] = {
     val issueInitialValue = new IssueInitialValue(ChangeLogItem.FieldType.JIRA, DueDateFieldId)
