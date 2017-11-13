@@ -47,9 +47,14 @@ class MappingUserConverter @Inject()(implicit val userWrites: UserWrites)
   private def mappingOfInfoName(mappings: Seq[Mapping], userName: String): Mapping = {
     mappings.find(_.info.map(_.name).getOrElse("").trim == userName.trim) match {
       case Some(mapping) if mapping.dst.nonEmpty => mapping
-      case _ =>
-        ConsoleOut.error(Messages("convert.user.failed", userName))
-        throw new RuntimeException(Messages("convert.user.failed", userName))
+      case _                                     => mappings.find(_.dst.trim == userName.trim) match {
+        case Some(user) => user
+        case _          => {
+          ConsoleOut.error(Messages("convert.user.failed", userName))
+          throw new RuntimeException(Messages("convert.user.failed", userName))
+        }
+      }
+
     }
   }
 }
