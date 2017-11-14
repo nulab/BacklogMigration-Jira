@@ -1,6 +1,7 @@
 package com.nulabinc.jira.client.json
 
-import com.nulabinc.jira.client.domain._
+import com.nulabinc.jira.client.domain.{changeLog, _}
+import com.nulabinc.jira.client.domain.changeLog._
 import org.joda.time.DateTime
 import spray.json.{JsNull, _}
 
@@ -43,7 +44,7 @@ object ChangeLogMappingJsonProtocol extends DefaultJsonProtocol {
       jsObject.getFields("field", "fieldtype") match {
         case Seq(JsString(field), JsString(fieldType)) =>
           ChangeLogItem(
-            field = field,
+            field               = ChangeLogItemField.parse(field),
             fieldType           = fieldType,
             fieldId             = fieldId.map(FieldId.parse),
             from                = from,
@@ -63,7 +64,7 @@ object ChangeLogMappingJsonProtocol extends DefaultJsonProtocol {
       val jsObject = json.asJsObject
       jsObject.getFields("id", "author", "created", "items") match {
         case Seq(JsString(id), author, created, items) =>
-          ChangeLog(
+          changeLog.ChangeLog(
             id        = id.toLong,
             author    = author.convertTo[User],
             createdAt = created.convertTo[DateTime],

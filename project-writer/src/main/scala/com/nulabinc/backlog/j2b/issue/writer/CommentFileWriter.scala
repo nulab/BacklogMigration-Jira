@@ -9,6 +9,7 @@ import com.nulabinc.backlog.migration.common.convert.Convert
 import com.nulabinc.backlog.migration.common.domain.{BacklogComment, BacklogIssue}
 import com.nulabinc.backlog.migration.common.utils.{DateUtil, IOUtil}
 import com.nulabinc.jira.client.domain._
+import com.nulabinc.jira.client.domain.changeLog.ChangeLog
 import spray.json._
 
 class CommentFileWriter @Inject()(implicit val commentWrites: CommentWrites,

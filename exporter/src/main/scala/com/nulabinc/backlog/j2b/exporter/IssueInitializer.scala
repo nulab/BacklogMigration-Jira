@@ -7,7 +7,7 @@ import com.nulabinc.backlog.j2b.jira.service.UserService
 import com.nulabinc.backlog.migration.common.convert.Convert
 import com.nulabinc.backlog.migration.common.domain._
 import com.nulabinc.backlog.migration.common.utils._
-import com.nulabinc.jira.client.domain._
+import com.nulabinc.jira.client.domain.changeLog._
 import com.nulabinc.jira.client.domain.issue._
 
 class IssueInitializer @Inject()(implicit val issueWrites: IssueWrites,

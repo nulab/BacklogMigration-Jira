@@ -7,6 +7,7 @@ import com.nulabinc.backlog.j2b.jira.service._
 import com.nulabinc.backlog.j2b.jira.writer._
 import com.nulabinc.backlog.migration.common.utils.{ConsoleOut, Logging, ProgressBar}
 import com.nulabinc.jira.client.domain._
+import com.nulabinc.jira.client.domain.changeLog.AssigneeFieldId
 import com.osinka.i18n.Messages
 
 class Exporter @Inject()(projectKey: JiraProjectKey,
@@ -77,7 +78,7 @@ class Exporter @Inject()(projectKey: JiraProjectKey,
     if (issues.isEmpty) users
     else {
       val collected = issues.zipWithIndex.map {
-        case (issue, i) =>
+        case (issue, i) => {
 
           // changelogs
           val issueWithChangeLogs = issueService.injectChangeLogsToIssue(issue) // API Call
@@ -85,7 +86,7 @@ class Exporter @Inject()(projectKey: JiraProjectKey,
           // comments
           val comments = commentService.issueComments(issueWithChangeLogs)
 
-          // attachments
+          // attachments TODO: re
           issueService.downloadAttachments(issueWithChangeLogs)
 
           // export issue
@@ -93,32 +94,39 @@ class Exporter @Inject()(projectKey: JiraProjectKey,
           issueWriter.write(initializedBacklogIssue, issueWithChangeLogs.createdAt.toDate)
 
           // export issue comments
-          commentWriter.write(initializedBacklogIssue, comments, issueWithChangeLogs.changeLogs, issueWithChangeLogs.attachments)
+          val changeLogs = ChangeLogsReconstructor.reconstruct(initializedBacklogIssue.categoryNames, issueWithChangeLogs.changeLogs)
+          commentWriter.write(initializedBacklogIssue, comments, changeLogs, issueWithChangeLogs.attachments)
 
-        console(i + index.toInt, total.toInt)
+          console(i + index.toInt, total.toInt)
 
-        val changeLogItemUsers = issueWithChangeLogs.changeLogs
-          .flatMap { changeLog =>
-            changeLog.items
-              .filter(_.fieldId.contains(AssigneeFieldId)) // ChangeLogItem.FieldId is AssigneeFieldId
-          }.flatMap { changeLogItem =>                     // TODO: Add filter: if user already exists
-            Seq(
-              userService.optUserOfKey(changeLogItem.from),
-              userService.optUserOfKey(changeLogItem.to)
-            ).flatten
-          }
+          val changeLogUsers = issueWithChangeLogs.changeLogs.map(_.author)
 
-        val changeLogUsers = issueWithChangeLogs.changeLogs.map(_.author)
+          val collectedUsers = Seq(
+            Some(issueWithChangeLogs.creator),
+            issueWithChangeLogs.assignee
+          ).filter(_.nonEmpty).flatten ++ changeLogUsers ++ users
 
+          val changeLogItemUsers = changeLogs
+            .flatMap { changeLog =>
+              changeLog.items
+                .filter(_.fieldId.contains(AssigneeFieldId)) // ChangeLogItem.FieldId is AssigneeFieldId
+            }.flatMap { changeLogItem =>
+              Seq(
+                collectedUsers.find( u => changeLogItem.from.contains(u.name)) match {
+                  case Some(user) => Some(user)
+                  case None       => userService.optUserOfKey(changeLogItem.from)
+                },
+                collectedUsers.find( u => changeLogItem.to.contains(u.name)) match {
+                  case Some(user) => Some(user)
+                  case None       => userService.optUserOfKey(changeLogItem.to)
+                }
+              ).flatten
+            }
 
-        // Collect users
-        Seq(
-          Some(issueWithChangeLogs.creator),
-          issueWithChangeLogs.assignee
-        ).filter(_.nonEmpty).flatten ++ changeLogItemUsers ++ changeLogUsers
-
+          collectedUsers ++ changeLogItemUsers
+        }
       }
-      fetchIssue(users ++ collected.flatten, index + collected.length , total, startAt + maxResults, maxResults)
+      fetchIssue(collected.flatten.toSet, index + collected.length , total, startAt + maxResults, maxResults)
     }
   }
 

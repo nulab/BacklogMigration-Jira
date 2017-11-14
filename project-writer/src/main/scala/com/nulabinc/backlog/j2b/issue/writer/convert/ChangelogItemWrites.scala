@@ -9,6 +9,7 @@ import com.nulabinc.backlog.migration.common.utils.FileUtil
 import com.nulabinc.backlog4j.CustomField.FieldType
 import com.nulabinc.jira.client.domain.field._
 import com.nulabinc.jira.client.domain._
+import com.nulabinc.jira.client.domain.changeLog._
 
 class ChangelogItemWrites @Inject()(fields: Seq[Field]) extends Writes[ChangeLogItem, BacklogChangeLog] {
 
@@ -52,11 +53,11 @@ class ChangelogItemWrites @Inject()(fields: Seq[Field]) extends Writes[ChangeLog
     case Some(StatusFieldId)                  => BacklogConstantValue.ChangeLog.STATUS
     case Some(DueDateFieldId)                 => BacklogConstantValue.ChangeLog.LIMIT_DATE
     case Some(TimeOriginalEstimateFieldId)    => BacklogConstantValue.ChangeLog.ESTIMATED_HOURS
-    case Some(TimeEstimateFieldId)            => changeLogItem.field
+    case Some(TimeEstimateFieldId)            => changeLogItem.field.value
     case Some(ResolutionFieldId)              => BacklogConstantValue.ChangeLog.RESOLUTION
     case Some(GeneralFieldId(v))              => v
-    case _ if changeLogItem.field == "Parent" => BacklogConstantValue.ChangeLog.ISSUE_TYPE
-    case None                                 => changeLogItem.field
+    case _ if changeLogItem.field == Parent   => BacklogConstantValue.ChangeLog.ISSUE_TYPE
+    case None                                 => changeLogItem.field.value
   }
 
   private def attachmentInfo(changeLogItem: ChangeLogItem): Option[BacklogAttachment] = changeLogItem.fieldId match {

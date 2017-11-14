@@ -1,5 +1,6 @@
-package com.nulabinc.jira.client.domain
+package com.nulabinc.jira.client.domain.changeLog
 
+import com.nulabinc.jira.client.domain._
 import org.joda.time.DateTime
 
 case class ChangeLog(
@@ -10,7 +11,7 @@ case class ChangeLog(
 )
 
 case class ChangeLogItem(
-  field: String,
+  field: ChangeLogItemField,
   fieldType: String,
   fieldId: Option[FieldId],
   from: Option[String],
@@ -18,6 +19,18 @@ case class ChangeLogItem(
   to: Option[String],
   toDisplayString: Option[String]
 )
+
+sealed abstract class ChangeLogItemField(val value: String)
+case object Component extends ChangeLogItemField("Component")
+case object Parent extends ChangeLogItemField("Parent")
+case class DefaultField(name: String) extends ChangeLogItemField(name)
+
+object ChangeLogItemField {
+  def parse(value: String) = value match {
+    case Component.value => Component
+    case v               => DefaultField(v)
+  }
+}
 
 object ChangeLogItem {
   object FieldType {

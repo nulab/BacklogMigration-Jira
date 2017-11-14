@@ -1,6 +1,6 @@
 package com.nulabinc.backlog.j2b.exporter
 
-import com.nulabinc.jira.client.domain._
+import com.nulabinc.jira.client.domain.changeLog.{ChangeLog, ChangeLogItem, FieldId}
 
 private [exporter] class IssueInitialValue(fieldType: String, fieldId: FieldId) {
 

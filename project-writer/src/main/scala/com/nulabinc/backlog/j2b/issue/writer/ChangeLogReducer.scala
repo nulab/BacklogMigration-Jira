@@ -89,7 +89,7 @@ private [writer] class ChangeLogReducer(issueDirPath: Path,
   object ValueReducer {
     def reduce(targetComment: BacklogComment, changeLog: BacklogChangeLog): Option[String] = {
       changeLog.field match {
-        case BacklogConstantValue.ChangeLog.VERSION | BacklogConstantValue.ChangeLog.MILESTONE | BacklogConstantValue.ChangeLog.COMPONENT =>
+        case BacklogConstantValue.ChangeLog.VERSION | BacklogConstantValue.ChangeLog.MILESTONE =>
           findProperty(comments)(changeLog.field) match {
             case Some(lastComment) if (lastComment.optCreated == targetComment.optCreated) =>
               changeLog.field match {
@@ -98,9 +98,6 @@ private [writer] class ChangeLogReducer(issueDirPath: Path,
                   if (issueValue.trim.isEmpty) changeLog.optNewValue else Some(issueValue)
                 case BacklogConstantValue.ChangeLog.MILESTONE =>
                   val issueValue = issue.milestoneNames.mkString(", ")
-                  if (issueValue.trim.isEmpty) changeLog.optNewValue else Some(issueValue)
-                case BacklogConstantValue.ChangeLog.COMPONENT =>
-                  val issueValue = issue.categoryNames.mkString(", ")
                   if (issueValue.trim.isEmpty) changeLog.optNewValue else Some(issueValue)
 //                case BacklogConstantValue.ChangeLog.ISSUE_TYPE =>
 //                  val issueValue = issue.optIssueTypeName.getOrElse("")

@@ -3,6 +3,7 @@ package com.nulabinc.jira.client.domain.issue
 import java.util.Date
 
 import com.nulabinc.jira.client.domain._
+import com.nulabinc.jira.client.domain.changeLog.ChangeLog
 import org.joda.time.DateTime
 
 case class Issue(
