@@ -16,7 +16,7 @@ object Calc {
       val r = (b.from, b.to) match {
         case (f, t) if f.isEmpty => prev.copy(to = a.last.to ++ t)
         case (f, t) if t.isEmpty => prev.copy(from = a.last.to, to = a.last.to.filterNot(f.contains(_)))
-          // TODO: case (f, t) =>
+        case (f, t)              => prev.copy(to = a.last.to.filterNot(f.contains(_)) ++ t)
       }
       a :+ r
     }.tail
