@@ -4,37 +4,35 @@ import com.nulabinc.jira.client.domain.changeLog.{ChangeLog, ChangeLogItemField,
 
 object Calc {
 
-  def run(initialValues: Seq[String], events: Seq[Event]): Seq[Result] = {
+  def run(initialValues: Seq[String], histories: Seq[History]): Seq[Result] = {
 
     val head = Result(Seq.empty[String], to = initialValues)
-    val tail = events.map { a =>
-      val f = if (a.from.isDefined) a.from.get.split(",").toSeq else Seq.empty[String]
-      val t = if (a.to.isDefined) a.to.get.split(",").toSeq else Seq.empty[String]
-      Result(from = f, to = t)
-    }
+    val tail = histories.map( history => Result(from = history.fromToSeq(), to = history.toToSeq()))
 
-    println(tail)
-    println("==============")
+    tail.foldLeft(Seq(head)) { (a, b) =>
 
-    tail.foldLeft(Seq(head)) {
-      (a, b) =>
+      val prev = Result(a.last.to, Seq.empty[String])
 
-        val prev = Result(a.last.to, Seq.empty[String])
-        println("Prev:" + prev)
-
-        val r = (b.from, b.to) match {
-          case (f, t) if f.isEmpty => prev.copy(to = a.last.to ++ t)
-          case (f, t) if t.isEmpty => prev.copy(from = a.last.to, to = a.last.to.filterNot(f.contains(_)))
-            // TODO: case (f, t) =>
-        }
-
-        println("Result:" + r)
-        a :+ r
+      val r = (b.from, b.to) match {
+        case (f, t) if f.isEmpty => prev.copy(to = a.last.to ++ t)
+        case (f, t) if t.isEmpty => prev.copy(from = a.last.to, to = a.last.to.filterNot(f.contains(_)))
+          // TODO: case (f, t) =>
+      }
+      a :+ r
     }.tail
   }
 }
 
-case class Event(from: Option[String], to: Option[String])
+case class History(from: Option[String], to: Option[String]) {
+  def fromToSeq(): Seq[String] = from match {
+    case Some(f) => f.split(",").toSeq
+    case _       => Seq.empty[String]
+  }
+  def toToSeq(): Seq[String] = to match {
+    case Some(t) => t.split(",").toSeq
+    case _       => Seq.empty[String]
+  }
+}
 case class Result(from: Seq[String], to: Seq[String])
 
 
@@ -47,19 +45,19 @@ object ChangeLogsReconstructor {
   }
 
   private def impl(targetField: ChangeLogItemField, lastValues: Seq[String], changeLogs: Seq[ChangeLog]): Seq[ChangeLog] = {
-    val concated = changeLogs.map(concat(targetField, _))
+    val concatenated = changeLogs.map(concat(targetField, _))
 
-    val events = concated.flatMap { changeLog =>
-      changeLog.items.filter(_.field == targetField).map { item => Event(item.fromDisplayString, item.toDisplayString)}
+    val histories = concatenated.flatMap { changeLog =>
+      changeLog.items.filter(_.field == targetField).map { item => History(item.fromDisplayString, item.toDisplayString)}
     }
 
-    val result = Calc.run(lastValues, events)
+    val result = Calc.run(lastValues, histories)
 
-    val ret = result.zip(concated).map {
+    val ret = result.zip(concatenated).map {
       case (r, changeLog) =>
         val items = changeLog.items.map { changeLogItem =>
           if (changeLogItem.field == targetField) changeLogItem.copy(fromDisplayString = Some(r.from.mkString(", ")), toDisplayString = Some(r.to.mkString(", ")))
-          else changeLogItem
+          else                                    changeLogItem
         }.distinct
         changeLog.copy(items = items)
     }
@@ -81,7 +79,7 @@ object ChangeLogsReconstructor {
 
     val items = changeLog.items.map { item =>
       if (item.field == targetField) item.copy(fromDisplayString = fromStrings, toDisplayString = toStrings)
-      else item
+      else                           item
     }.distinct
     changeLog.copy(items = items)
   }

@@ -66,12 +66,12 @@ class ChangeLogsReconstructorSpec extends Specification {
 
   "Calc.run1" >> {
     val init = Seq[String]("B", "C")
-    val events = Seq[Event](
-      Event(
+    val events = Seq[History](
+      History(
         from = None,
         to = Some("A")
       ),
-      Event(
+      History(
         from = Some("B"),
         to = None
       )
@@ -84,16 +84,16 @@ class ChangeLogsReconstructorSpec extends Specification {
 
   "Calc.run2" >> {
     val init = Seq[String]("A")
-    val events = Seq[Event](
-      Event(
+    val events = Seq[History](
+      History(
         from = None,
         to = Some("B")
       ),
-      Event(
+      History(
         from = None,
         to = Some("C")
       ),
-      Event(
+      History(
         from = Some("A"),
         to = None
       )
