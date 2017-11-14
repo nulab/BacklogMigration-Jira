@@ -2,7 +2,7 @@ package com.nulabinc.backlog.j2b.exporter
 
 import org.specs2.mutable.Specification
 
-class ChangeLogsReconstructorSpec extends Specification {
+class ChangeLogsPlayerSpec extends Specification {
 
   "Calc.run1" >> {
     val init = Seq[String]("B", "C")
