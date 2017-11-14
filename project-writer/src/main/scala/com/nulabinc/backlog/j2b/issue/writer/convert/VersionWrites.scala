@@ -14,12 +14,12 @@ private [writer] class VersionWrites @Inject()() extends Writes[Seq[Version], Se
 
   private[this] def toBacklog(version: Version) = {
     BacklogVersion(
-      optId = version.id,
-      name = version.name,
-      description = version.description,
-      optStartDate = None,
+      optId             = version.id,
+      name              = version.name,
+      description       = version.description.getOrElse(""),
+      optStartDate      = None,
       optReleaseDueDate = version.releaseDate.map(_.toDate).map(DateUtil.dateFormat),
-      delete = false
+      delete            = false
     )
   }
 }

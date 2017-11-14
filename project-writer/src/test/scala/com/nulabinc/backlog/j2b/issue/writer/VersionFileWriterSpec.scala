@@ -11,8 +11,8 @@ class VersionFileWriterSpec extends Specification with FileWriterTestHelper {
   "should write versions to file" >> {
 
     val versions = Seq[Version](
-      Version(id = None, name = "v1", description = "some version1", archived = true, released = true, releaseDate = Some(DateTime.parse("1988-04-16"))),
-      Version(id = Some(124), name = "v2", description = "some version2", archived = false, released = false, releaseDate = None)
+      Version(id = None, name = "v1", description = Some("some version1"), archived = true, released = true, releaseDate = Some(DateTime.parse("1988-04-16"))),
+      Version(id = Some(124), name = "v2", description = Some("some version2"), archived = false, released = false, releaseDate = None)
     )
 
     // Output to file
