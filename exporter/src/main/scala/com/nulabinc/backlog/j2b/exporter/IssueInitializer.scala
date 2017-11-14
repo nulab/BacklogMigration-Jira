@@ -35,7 +35,8 @@ class IssueInitializer @Inject()(implicit val issueWrites: IssueWrites,
       optEstimatedHours = estimatedHours(issue),
       optIssueTypeName = issueTypeName(issue),
       categoryNames = categoryNames(issue),
-//      milestoneNames = milestoneNames(issue),
+//      milestoneNames  = milestoneNames(issue),
+      versionNames    = milestoneNames(issue),
       priorityName = priorityName(issue),
       optAssignee = assignee(issue),
 //      customFields = issue.issueFields.flatMap(customField),
@@ -85,19 +86,11 @@ class IssueInitializer @Inject()(implicit val issueWrites: IssueWrites,
   }
 
   private def categoryNames(issue: Issue): Seq[String] =
-    ChangeLogsPlayer.reversePlay(Component, issue.components.map(_.name), issue.changeLogs)
+    ChangeLogsPlayer.reversePlay(ComponentChangeLogItemField, issue.components.map(_.name), issue.changeLogs)
 
-//  private def milestoneNames(issue: Issue): Seq[String] = {
-//    val issueInitialValue = new IssueInitialValue(RedmineConstantValue.ATTR, RedmineConstantValue.Attr.VERSION)
-//    val optDetails        = issueInitialValue.findJournalDetails(journals)
-//    optDetails match {
-//      case Some(details) =>
-//        details.flatMap { detail =>
-//          exportContext.propertyValue.versionOfId(Option(detail.getOldValue)).map(_.getName)
-//        }
-//      case _ => Option(issue.getTargetVersion).map(_.getName).toSeq
-//    }
-//  }
+  private def milestoneNames(issue: Issue): Seq[String] =
+    ChangeLogsPlayer.reversePlay(FixVersion, issue.fixVersions.map(_.name), issue.changeLogs)
+
 
   private def priorityName(issue: Issue): String = {
     val issueInitialValue = new IssueInitialValue(ChangeLogItem.FieldType.JIRA, PriorityFieldId)

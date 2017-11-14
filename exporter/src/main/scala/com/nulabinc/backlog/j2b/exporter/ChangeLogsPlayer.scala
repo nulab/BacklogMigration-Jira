@@ -1,29 +1,29 @@
 package com.nulabinc.backlog.j2b.exporter
 
-import com.nulabinc.jira.client.domain.changeLog.{ChangeLog, ChangeLogItemField, Component}
+import com.nulabinc.jira.client.domain.changeLog.{ChangeLog, ChangeLogItemField}
 
 object Calc {
 
   def run(initialValues: Seq[String], histories: Seq[History]): Seq[Result] = {
 
-    val head = Result(Seq.empty[String], to = initialValues)
-    val tail = histories.map( history => Result(from = history.fromToSeq(), to = history.toToSeq()))
+    val head = Result(0, Seq.empty[String], to = initialValues)
+    val tail = histories.map( history => Result(history.id, from = history.fromToSeq(), to = history.toToSeq()))
 
     tail.foldLeft(Seq(head)) { (a, b) =>
 
-      val prev = Result(a.last.to, Seq.empty[String])
+      val prev = Result(a.last.id, a.last.to, Seq.empty[String])
 
       val r = (b.from, b.to) match {
-        case (f, t) if f.isEmpty => prev.copy(to = a.last.to ++ t)
-        case (f, t) if t.isEmpty => prev.copy(from = a.last.to, to = a.last.to.filterNot(f.contains(_)))
-        case (f, t)              => prev.copy(to = a.last.to.filterNot(f.contains(_)) ++ t)
+        case (f, t) if f.isEmpty => prev.copy(b.id, to = a.last.to ++ t)
+        case (f, t) if t.isEmpty => prev.copy(b.id, from = a.last.to, to = a.last.to.filterNot(f.contains(_)))
+        case (f, t)              => prev.copy(b.id, to = a.last.to.filterNot(f.contains(_)) ++ t)
       }
       a :+ r
     }.tail
   }
 }
 
-case class History(from: Option[String], to: Option[String]) {
+case class History(id: Long, from: Option[String], to: Option[String]) {
 
   def fromToSeq(): Seq[String] = from match {
     case Some(f) => f.split(",").toSeq
@@ -36,7 +36,7 @@ case class History(from: Option[String], to: Option[String]) {
   }
 
   def reverse(): History =
-    History(from = to, to = from)
+    this.copy(from = to, to = from)
 
 }
 
@@ -44,19 +44,31 @@ object History {
 
   def fromChangeLogs(targetField: ChangeLogItemField, changeLogs: Seq[ChangeLog]): Seq[History] =
     changeLogs.flatMap { changeLog =>
-      changeLog.items.filter(_.field == targetField).map { item => History(item.fromDisplayString, item.toDisplayString)}
+      changeLog.items.filter(_.field == targetField).map { item => History(changeLog.id, item.fromDisplayString, item.toDisplayString)}
     }.distinct
 
 }
-case class Result(from: Seq[String], to: Seq[String])
+case class Result(id: Long, from: Seq[String], to: Seq[String])
 
 
 object ChangeLogsPlayer {
 
-  def play(latestValues: Seq[String], changeLogs: Seq[ChangeLog]): Seq[ChangeLog] = {
-    val category = impl(Component, latestValues, changeLogs)
+  def play(targetField: ChangeLogItemField, latestValues: Seq[String], changeLogs: Seq[ChangeLog]): Seq[ChangeLog] = {
+    val concatenated = changeLogs.map(concat(targetField, _))
+    val histories = History.fromChangeLogs(targetField, concatenated)
+    val result = Calc.run(latestValues, histories)
 
-    category
+    concatenated.map { changeLog =>
+      val items = changeLog.items.map { changeLogItem =>
+        val r = result.find(_.id == changeLog.id)
+
+        if (changeLogItem.field == targetField) {
+          changeLogItem.copy(fromDisplayString = r.map(_.from.mkString(", ")), toDisplayString = r.map(_.to.mkString(", ")))
+        } else
+          changeLogItem
+      }.distinct
+      changeLog.copy(items = items)
+    }
   }
 
   def reversePlay(targetField: ChangeLogItemField, initialValues: Seq[String], changeLogs: Seq[ChangeLog]): Seq[String] = {
@@ -68,26 +80,6 @@ object ChangeLogsPlayer {
       case Some(r) => r.to.distinct
       case _       => Seq.empty[String]
     }
-  }
-
-  private def impl(targetField: ChangeLogItemField, lastValues: Seq[String], changeLogs: Seq[ChangeLog]): Seq[ChangeLog] = {
-    val concatenated = changeLogs.map(concat(targetField, _))
-
-    val histories = concatenated.flatMap { changeLog =>
-      changeLog.items.filter(_.field == targetField).map { item => History(item.fromDisplayString, item.toDisplayString)}
-    }.distinct
-
-    val result = Calc.run(lastValues, histories)
-
-    val ret = result.zip(concatenated).map {
-      case (r, changeLog) =>
-        val items = changeLog.items.map { changeLogItem =>
-          if (changeLogItem.field == targetField) changeLogItem.copy(fromDisplayString = Some(r.from.mkString(", ")), toDisplayString = Some(r.to.mkString(", ")))
-          else                                    changeLogItem
-        }.distinct
-        changeLog.copy(items = items)
-    }
-    ret
   }
 
   private def concat(targetField: ChangeLogItemField, changeLog: ChangeLog): ChangeLog = {

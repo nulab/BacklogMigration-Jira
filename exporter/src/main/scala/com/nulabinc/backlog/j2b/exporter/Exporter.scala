@@ -7,7 +7,7 @@ import com.nulabinc.backlog.j2b.jira.service._
 import com.nulabinc.backlog.j2b.jira.writer._
 import com.nulabinc.backlog.migration.common.utils.{ConsoleOut, Logging, ProgressBar}
 import com.nulabinc.jira.client.domain._
-import com.nulabinc.jira.client.domain.changeLog.AssigneeFieldId
+import com.nulabinc.jira.client.domain.changeLog.{AssigneeFieldId, ComponentChangeLogItemField, FixVersion}
 import com.osinka.i18n.Messages
 
 class Exporter @Inject()(projectKey: JiraProjectKey,
@@ -94,7 +94,8 @@ class Exporter @Inject()(projectKey: JiraProjectKey,
           issueWriter.write(initializedBacklogIssue, issueWithChangeLogs.createdAt.toDate)
 
           // export issue comments
-          val changeLogs = ChangeLogsPlayer.play(initializedBacklogIssue.categoryNames, issueWithChangeLogs.changeLogs)
+          val changeLogs1 = ChangeLogsPlayer.play(ComponentChangeLogItemField, initializedBacklogIssue.categoryNames, issueWithChangeLogs.changeLogs)
+          val changeLogs = ChangeLogsPlayer.play(FixVersion, initializedBacklogIssue.versionNames, changeLogs1)
           commentWriter.write(initializedBacklogIssue, comments, changeLogs, issueWithChangeLogs.attachments)
 
           console(i + index.toInt, total.toInt)

@@ -89,23 +89,23 @@ private [writer] class ChangeLogReducer(issueDirPath: Path,
   object ValueReducer {
     def reduce(targetComment: BacklogComment, changeLog: BacklogChangeLog): Option[String] = {
       changeLog.field match {
-        case BacklogConstantValue.ChangeLog.VERSION | BacklogConstantValue.ChangeLog.MILESTONE =>
-          findProperty(comments)(changeLog.field) match {
-            case Some(lastComment) if (lastComment.optCreated == targetComment.optCreated) =>
-              changeLog.field match {
-                case BacklogConstantValue.ChangeLog.VERSION =>
-                  val issueValue = issue.versionNames.mkString(", ")
-                  if (issueValue.trim.isEmpty) changeLog.optNewValue else Some(issueValue)
-                case BacklogConstantValue.ChangeLog.MILESTONE =>
-                  val issueValue = issue.milestoneNames.mkString(", ")
-                  if (issueValue.trim.isEmpty) changeLog.optNewValue else Some(issueValue)
+//        case BacklogConstantValue.ChangeLog.VERSION | BacklogConstantValue.ChangeLog.MILESTONE =>
+//          findProperty(comments)(changeLog.field) match {
+//            case Some(lastComment) if lastComment.optCreated == targetComment.optCreated =>
+//              changeLog.field match {
+//                case BacklogConstantValue.ChangeLog.VERSION =>
+//                  val issueValue = issue.versionNames.mkString(", ")
+//                  if (issueValue.trim.isEmpty) changeLog.optNewValue else Some(issueValue)
+//                case BacklogConstantValue.ChangeLog.MILESTONE =>
+//                  val issueValue = issue.milestoneNames.mkString(", ")
+//                  if (issueValue.trim.isEmpty) changeLog.optNewValue else Some(issueValue)
 //                case BacklogConstantValue.ChangeLog.ISSUE_TYPE =>
 //                  val issueValue = issue.optIssueTypeName.getOrElse("")
 //                  if (issueValue.trim.isEmpty) changeLog.optNewValue else Some(issueValue)
-                case _ => throw new RuntimeException
-              }
-            case _ => changeLog.optNewValue
-          }
+//                case _ => throw new RuntimeException
+//              }
+//            case _ => changeLog.optNewValue
+//          }
         case _ => changeLog.optNewValue
       }
     }
