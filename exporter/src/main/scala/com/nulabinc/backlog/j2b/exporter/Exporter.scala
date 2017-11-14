@@ -94,7 +94,7 @@ class Exporter @Inject()(projectKey: JiraProjectKey,
           issueWriter.write(initializedBacklogIssue, issueWithChangeLogs.createdAt.toDate)
 
           // export issue comments
-          val changeLogs = ChangeLogsReconstructor.reconstruct(initializedBacklogIssue.categoryNames, issueWithChangeLogs.changeLogs)
+          val changeLogs = ChangeLogsPlayer.play(initializedBacklogIssue.categoryNames, issueWithChangeLogs.changeLogs)
           commentWriter.write(initializedBacklogIssue, comments, changeLogs, issueWithChangeLogs.attachments)
 
           console(i + index.toInt, total.toInt)

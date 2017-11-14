@@ -24,24 +24,50 @@ object Calc {
 }
 
 case class History(from: Option[String], to: Option[String]) {
+
   def fromToSeq(): Seq[String] = from match {
     case Some(f) => f.split(",").toSeq
     case _       => Seq.empty[String]
   }
+
   def toToSeq(): Seq[String] = to match {
     case Some(t) => t.split(",").toSeq
     case _       => Seq.empty[String]
   }
+
+  def reverse(): History =
+    History(from = to, to = from)
+
+}
+
+object History {
+
+  def fromChangeLogs(targetField: ChangeLogItemField, changeLogs: Seq[ChangeLog]): Seq[History] =
+    changeLogs.flatMap { changeLog =>
+      changeLog.items.filter(_.field == targetField).map { item => History(item.fromDisplayString, item.toDisplayString)}
+    }.distinct
+
 }
 case class Result(from: Seq[String], to: Seq[String])
 
 
-object ChangeLogsReconstructor {
+object ChangeLogsPlayer {
 
-  def reconstruct(latestValues: Seq[String], changeLogs: Seq[ChangeLog]): Seq[ChangeLog] = {
+  def play(latestValues: Seq[String], changeLogs: Seq[ChangeLog]): Seq[ChangeLog] = {
     val category = impl(Component, latestValues, changeLogs)
 
     category
+  }
+
+  def reversePlay(targetField: ChangeLogItemField, initialValues: Seq[String], changeLogs: Seq[ChangeLog]): Seq[String] = {
+    val concatenated = changeLogs.map(concat(targetField, _))
+    val histories = History.fromChangeLogs(targetField, concatenated)
+    val result = Calc.run(initialValues, histories.reverse.map(_.reverse()))
+
+    result.lastOption match {
+      case Some(r) => r.to.distinct
+      case _       => Seq.empty[String]
+    }
   }
 
   private def impl(targetField: ChangeLogItemField, lastValues: Seq[String], changeLogs: Seq[ChangeLog]): Seq[ChangeLog] = {
@@ -49,7 +75,7 @@ object ChangeLogsReconstructor {
 
     val histories = concatenated.flatMap { changeLog =>
       changeLog.items.filter(_.field == targetField).map { item => History(item.fromDisplayString, item.toDisplayString)}
-    }
+    }.distinct
 
     val result = Calc.run(lastValues, histories)
 
@@ -71,8 +97,8 @@ object ChangeLogsReconstructor {
       else None
     }
 
-    val fromNames = changeLog.items.filter(_.field == Component).flatten(_.fromDisplayString)
-    val toNames   = changeLog.items.filter(_.field == Component).flatten(_.toDisplayString)
+    val fromNames = changeLog.items.filter(_.field == targetField).flatten(_.fromDisplayString)
+    val toNames   = changeLog.items.filter(_.field == targetField).flatten(_.toDisplayString)
 
     val fromStrings = makeStrings(fromNames)
     val toStrings = makeStrings(toNames)

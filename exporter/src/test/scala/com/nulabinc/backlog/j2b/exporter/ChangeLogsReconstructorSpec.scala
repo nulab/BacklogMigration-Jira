@@ -56,5 +56,11 @@ class ChangeLogsReconstructorSpec extends Specification {
     val actual = Calc.run(init, histories)
     println(actual)
     actual(0) must equalTo(Result(Seq("確認", "テスト"), Seq("テスト", "設計")))
+
+    val last = Seq("設計", "テスト")
+    val histories2 = histories.reverse.map(_.reverse)
+    val replay = Calc.run(last, histories2)
+
+    replay(0).to must equalTo(Seq("テスト", "確認"))
   }
 }

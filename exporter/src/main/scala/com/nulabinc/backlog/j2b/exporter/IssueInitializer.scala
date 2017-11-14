@@ -84,18 +84,8 @@ class IssueInitializer @Inject()(implicit val issueWrites: IssueWrites,
     }
   }
 
-  private def categoryNames(issue: Issue): Seq[String] = {
-    val changeLogItems = issue.changeLogs.flatMap { changeLog =>
-      changeLog.items.filter(_.fieldId.contains(ComponentFieldId))
-    }
-    val fromChangeLogItems = changeLogItems.flatMap(_.fromDisplayString)
-    val toChangeLogItems   = changeLogItems.flatMap(_.toDisplayString)
-
-    val currentCategories = issue.components.map(_.name).toSet
-    val fullCategories    = currentCategories ++ fromChangeLogItems.toSet
-    val initialCategories = fullCategories    -- toChangeLogItems.toSet
-    initialCategories.toSeq
-  }
+  private def categoryNames(issue: Issue): Seq[String] =
+    ChangeLogsPlayer.reversePlay(Component, issue.components.map(_.name), issue.changeLogs)
 
 //  private def milestoneNames(issue: Issue): Seq[String] = {
 //    val issueInitialValue = new IssueInitialValue(RedmineConstantValue.ATTR, RedmineConstantValue.Attr.VERSION)
