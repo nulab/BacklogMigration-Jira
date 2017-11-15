@@ -86,11 +86,8 @@ class Exporter @Inject()(projectKey: JiraProjectKey,
           // comments
           val comments = commentService.issueComments(issueWithChangeLogs)
 
-          // attachments TODO: re
-          issueService.downloadAttachments(issueWithChangeLogs)
-
           // export issue
-          val initializedBacklogIssue = initializer.initialize(issueWithChangeLogs)
+          val initializedBacklogIssue = initializer.initialize(issueWithChangeLogs, comments)
           issueWriter.write(initializedBacklogIssue, issueWithChangeLogs.createdAt.toDate)
 
           // export issue comments

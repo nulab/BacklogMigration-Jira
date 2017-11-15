@@ -1,14 +1,14 @@
-package com.nulabinc.backlog.j2b.issue.writer
+package com.nulabinc.backlog.j2b.exporter
 
 import com.nulabinc.backlog.migration.common.conf.BacklogConstantValue
 import com.nulabinc.backlog.migration.common.domain._
-import com.nulabinc.backlog.migration.common.utils.{FileUtil, Logging, StringUtil}
+import com.nulabinc.backlog.migration.common.utils.{FileUtil, Logging}
 import com.nulabinc.jira.client.domain.Attachment
 import com.osinka.i18n.Messages
 
 import scalax.file.Path
 
-private [writer] class ChangeLogReducer(issueDirPath: Path,
+private [exporter] class ChangeLogReducer(issueDirPath: Path,
                                         issue: BacklogIssue,
                                         comments: Seq[BacklogComment],
                                         attachments: Seq[Attachment])
@@ -16,7 +16,7 @@ private [writer] class ChangeLogReducer(issueDirPath: Path,
 
   def reduce(targetComment: BacklogComment, changeLog: BacklogChangeLog): (Option[BacklogChangeLog], String) = {
     changeLog.field match {
-      case BacklogConstantValue.ChangeLog.ATTACHMENT => (AttachmentReducer.reduce(changeLog), "")
+//      case BacklogConstantValue.ChangeLog.ATTACHMENT => (AttachmentReducer.reduce(changeLog), "")
       case "done_ratio" =>
         val message =
           Messages("common.change_comment", Messages("common.done_ratio"), getValue(changeLog.optOriginalValue), getValue(changeLog.optNewValue))

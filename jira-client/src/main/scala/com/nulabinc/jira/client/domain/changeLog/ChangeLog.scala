@@ -24,13 +24,15 @@ sealed abstract class ChangeLogItemField(val value: String)
 case object ComponentChangeLogItemField extends ChangeLogItemField("Component")
 case object FixVersion extends ChangeLogItemField("Fix Version")
 case object Parent extends ChangeLogItemField("Parent")
+case object AttachmentChangeLogItemField extends ChangeLogItemField("Attachment")
 case class DefaultField(name: String) extends ChangeLogItemField(name)
 
 object ChangeLogItemField {
   def parse(value: String) = value match {
-    case ComponentChangeLogItemField.value => ComponentChangeLogItemField
-    case FixVersion.value                  => FixVersion
-    case v                                 => DefaultField(v)
+    case ComponentChangeLogItemField.value  => ComponentChangeLogItemField
+    case FixVersion.value                   => FixVersion
+    case AttachmentChangeLogItemField.value => AttachmentChangeLogItemField
+    case v                                  => DefaultField(v)
   }
 }
 

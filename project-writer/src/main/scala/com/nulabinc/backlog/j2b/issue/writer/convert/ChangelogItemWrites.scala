@@ -63,7 +63,7 @@ class ChangelogItemWrites @Inject()(fields: Seq[Field]) extends Writes[ChangeLog
   private def attachmentInfo(changeLogItem: ChangeLogItem): Option[BacklogAttachment] = changeLogItem.fieldId match {
     case Some(AttachmentFieldId) => Some(
       BacklogAttachment(
-        optId = None,
+        optId = changeLogItem.to.map(_.toLong),
         name = FileUtil.normalize(changeLogItem.toDisplayString.getOrElse(""))
       )
     )

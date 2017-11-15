@@ -3,10 +3,11 @@ package com.nulabinc.backlog.j2b.exporter
 import javax.inject.Inject
 
 import com.nulabinc.backlog.j2b.issue.writer.convert._
-import com.nulabinc.backlog.j2b.jira.service.UserService
+import com.nulabinc.backlog.j2b.jira.service.{IssueService, UserService}
 import com.nulabinc.backlog.migration.common.convert.Convert
 import com.nulabinc.backlog.migration.common.domain._
 import com.nulabinc.backlog.migration.common.utils._
+import com.nulabinc.jira.client.domain.Comment
 import com.nulabinc.jira.client.domain.changeLog._
 import com.nulabinc.jira.client.domain.issue._
 
@@ -15,33 +16,34 @@ class IssueInitializer @Inject()(implicit val issueWrites: IssueWrites,
                                  implicit val userWrites: UserWrites,
                                  implicit val customFieldWrites: FieldWrites,
                                  implicit val customFieldValueWrites: IssueFieldWrites,
-                                 userService: UserService)
+                                 userService: UserService,
+                                 issueService: IssueService)
     extends Logging {
 
-  def initialize(issue: Issue): BacklogIssue = {
+  def initialize(issue: Issue, comments: Seq[Comment]): BacklogIssue = {
     //attachments
-//    val attachmentFilter    = new AttachmentFilter(journals)
-//    val filteredAttachments = attachmentFilter.filter(attachments)
-//    val backlogAttachments  = filteredAttachments.map(Convert.toBacklog(_))
-//    filteredAttachments.foreach(attachment)
+//    val attachmentFilter    = new AttachmentFilter(issue.changeLogs)
+//    val filteredAttachments = attachmentFilter.filter(issue.attachments)
 
-    val backlogIssue = Convert.toBacklog(issue)
+    val filteredIssue = AttachmentFilter.filteredIssue(issue, comments)
+
+    val backlogIssue = Convert.toBacklog(filteredIssue)
 
     backlogIssue.copy(
-      summary = summary(issue),
+      summary           = summary(filteredIssue),
 //      optParentIssueId = parentIssueId(issue),
-      description = description(issue),
-      optDueDate = dueDate(issue),
-      optEstimatedHours = estimatedHours(issue),
-      optIssueTypeName = issueTypeName(issue),
-      categoryNames = categoryNames(issue),
+      description       = description(filteredIssue),
+      optDueDate        = dueDate(filteredIssue),
+      optEstimatedHours = estimatedHours(filteredIssue),
+      optIssueTypeName  = issueTypeName(filteredIssue),
+      categoryNames     = categoryNames(filteredIssue),
 //      milestoneNames  = milestoneNames(issue),
-      versionNames    = milestoneNames(issue),
-      priorityName = priorityName(issue),
-      optAssignee = assignee(issue),
+      versionNames      = milestoneNames(filteredIssue),
+      priorityName      = priorityName(filteredIssue),
+      optAssignee       = assignee(filteredIssue),
 //      customFields = issue.issueFields.flatMap(customField),
-//      attachments = backlogAttachments,
-      notifiedUsers = Seq.empty[BacklogUser]
+      attachments       = attachmentNames(filteredIssue),
+      notifiedUsers     = Seq.empty[BacklogUser]
     )
   }
 
@@ -91,6 +93,10 @@ class IssueInitializer @Inject()(implicit val issueWrites: IssueWrites,
   private def milestoneNames(issue: Issue): Seq[String] =
     ChangeLogsPlayer.reversePlay(FixVersion, issue.fixVersions.map(_.name), issue.changeLogs)
 
+  private def attachmentNames(issue: Issue): Seq[BacklogAttachment] = {
+    val histories = ChangeLogsPlayer.reversePlay(AttachmentChangeLogItemField, issue.attachments.map(_.fileName), issue.changeLogs)
+    histories.map( h => BacklogAttachment(None, h))
+  }
 
   private def priorityName(issue: Issue): String = {
     val issueInitialValue = new IssueInitialValue(ChangeLogItem.FieldType.JIRA, PriorityFieldId)

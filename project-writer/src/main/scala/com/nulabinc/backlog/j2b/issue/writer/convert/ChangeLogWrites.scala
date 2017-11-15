@@ -15,7 +15,7 @@ class ChangeLogWrites @Inject()(implicit val userWrites: UserWrites,
     BacklogComment(
       eventType       = "comment",
       optIssueId      = None,
-      optContent      = Some(""),
+      optContent      = None,
       changeLogs      = changeLog.items.map(Convert.toBacklog(_)),
       notifications   = Seq.empty[BacklogNotification],
       isCreateIssue   = false,

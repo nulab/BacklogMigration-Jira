@@ -1,15 +1,17 @@
 package com.nulabinc.backlog.j2b.exporter.service
 
+import java.util.Date
 import javax.inject.Inject
 
 import com.nulabinc.backlog.j2b.jira.conf.JiraApiConfiguration
 import com.nulabinc.backlog.j2b.jira.domain.JiraProjectKey
 import com.nulabinc.backlog.j2b.jira.service.IssueService
 import com.nulabinc.backlog.migration.common.conf.BacklogPaths
-import com.nulabinc.backlog.migration.common.utils.{IOUtil, Logging}
+import com.nulabinc.backlog.migration.common.utils.Logging
 import com.nulabinc.jira.client.JiraRestClient
-import com.nulabinc.jira.client.domain.Attachment
 import com.nulabinc.jira.client.domain.issue.Issue
+
+import scalax.file.Path
 
 class JiraClientIssueService @Inject()(apiConfig: JiraApiConfiguration,
                                        projectKey: JiraProjectKey,
@@ -42,19 +44,10 @@ class JiraClientIssueService @Inject()(apiConfig: JiraApiConfiguration,
     issue.copy(changeLogs = changeLogs.right.get.values)
   }
 
-  override def downloadAttachments(issue: Issue): Unit = {
-    def saveAttachment(issue: Issue, attachment: Attachment) = {
-      val issueDir       = backlogPaths.issueDirectoryPath("issue", issue.id, issue.createdAt.toDate, 0)
-      val dir            = backlogPaths.issueAttachmentDirectoryPath(issueDir)
-      val attachmentPath = backlogPaths.issueAttachmentPath(dir, attachment.fileName)
-
-      IOUtil.createDirectory(dir)
-
-      jira.httpClient.download(attachment.content, attachmentPath.path)
-    }
-    issue.attachments.foreach { a => saveAttachment(issue, a) }
+  override def downloadAttachments(attachmentId: Long, saveDirectory: Path, fileName: String): Unit = {
+    // content = https://(workspace name).atlassian.net/secure/attachment/(attachment ID)/(file name)
+    jira.httpClient.download(jira.url + s"/secure/attachment/$attachmentId/$fileName", saveDirectory.path)
   }
-
 
   override def injectAttachmentsToIssue(issue: Issue) = ???
 
