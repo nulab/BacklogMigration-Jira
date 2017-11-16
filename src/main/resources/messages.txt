@@ -147,6 +147,9 @@ import.error.attachment.too_large=Attachment file upload failed. The size of att
 import.error.failed.import=Could not register project [{0}]. : {1}
 import.error.failed.comment=Could not register comment on issue [{0}]. : {1}
 
+# Export
+export.attachment.empty=Attachment: {0} -> {1}
+
 # Convert
 convert.start=Start convert.
 convert.finish=Convert completed.

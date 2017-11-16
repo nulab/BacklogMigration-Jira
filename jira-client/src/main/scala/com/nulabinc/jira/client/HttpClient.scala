@@ -1,10 +1,8 @@
 package com.nulabinc.jira.client
 
 import java.io.{File, FileOutputStream}
-import java.net.{HttpURLConnection, URL, URLConnection}
 import java.nio.channels.Channels
 import java.nio.charset.Charset
-import java.nio.file.{Files, Paths}
 
 import org.apache.commons.codec.binary.Base64
 import org.apache.http.{HttpHeaders, HttpStatus}
@@ -20,6 +18,10 @@ case object AuthenticateFailedError extends HttpClientError("Bad credential")
 case class ApiNotFoundError(url: String) extends HttpClientError(url)
 case class BadRequestError(error: String) extends HttpClientError(error)
 case class UndefinedError(statusCode: Int) extends HttpClientError(s"Unknown status code: $statusCode")
+
+sealed trait DownloadResult
+case object Success extends DownloadResult
+case object Failure extends DownloadResult
 
 class HttpClient(url: String, username: String, password: String) {
 
@@ -55,7 +57,7 @@ class HttpClient(url: String, username: String, password: String) {
     }
   }
 
-  def download(url: String, destinationFilePath: String): Unit = {
+  def download(url: String, destinationFilePath: String): DownloadResult = {
     using(HttpClientBuilder.create().build()) { http =>
       val request = new HttpGet(url)
       request.setHeader(HttpHeaders.AUTHORIZATION, authHeader)
@@ -66,10 +68,11 @@ class HttpClient(url: String, username: String, password: String) {
             using(Channels.newChannel(inputStream)) { rbc =>
               using(new FileOutputStream(new File(destinationFilePath))) { fos =>
                 fos.getChannel.transferFrom(rbc, 0, java.lang.Long.MAX_VALUE)
+                Success
               }
             }
           }
-        case _ => ()
+        case _ => Failure
       }
     }
   }
