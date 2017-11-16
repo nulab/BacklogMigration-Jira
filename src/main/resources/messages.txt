@@ -83,17 +83,17 @@ cli.param.error.project_key=The project key [{0}] is incorrect.(Uppercase letter
 cli.param.error.client.unknown=Unknown JIRA rest client error.:[{0}]
 
 # CLI Mapping
-#cli.mapping.delete_status=Deleted status[{0}]
-#cli.mapping.error.broken_file=The mapping file {0} is broken.
-#cli.mapping.fix_file="{0}" needs to be fixed.\nTo recreate, run the sub-command "export".
-#cli.mapping.show=The mapping {0} is as follows.
-#cli.mapping.error=The mapping of {0} has the following error.
+cli.mapping.delete_status=Deleted status[{0}]
+cli.mapping.error.broken_file=The mapping file {0} is broken.
+cli.mapping.fix_file="{0}" needs to be fixed.\nTo recreate, run the sub-command "export".
+cli.mapping.show=The mapping {0} is as follows.
+cli.mapping.error=The mapping of {0} has the following error.
 cli.mapping.configurable=The values accepted for {0} in Backlog are "{1}".
 cli.mapping.error.not_exist.item=The {0}[{1}] is not registered in destination {2}.
-#cli.mapping.error.not_defined.item={0} [{1}] required for migration is not defined in mapping file [{2}].
+cli.mapping.error.not_defined.item={0} [{1}] required for migration is not defined in mapping file [{2}].
 cli.mapping.error.empty.item=Corresponding item for {0} "{1}" in {2} is not specified.
-#cli.mapping.output_file=The mapping file about {0} is created. Check the mapping file and fix it if necessary.
-##cli.mapping.merge_file=The following {0} was added to the mapping file of {0}. Check the mapping file and fix it if necessary.
+cli.mapping.output_file=The mapping file about {0} is created. Check the mapping file and fix it if necessary.
+cli.mapping.merge_file=The following {0} was added to the mapping file of {0}. Check the mapping file and fix it if necessary.
 cli.mapping.no_change=There was no change in the mapping file of {0}.
 
 # Message
@@ -110,17 +110,19 @@ message.analyzed=Analyzed
 message.collecting=Collecting
 message.collected=Collected
 
+# -----------------------------------------------------------------------------
 # Mapping
+# -----------------------------------------------------------------------------
+# status
 mapping.status.backlog.open=Open
 mapping.status.backlog.in_progress=In Progress
 mapping.status.backlog.resolved=Resolved
 mapping.status.backlog.closed=Closed
-mapping.status.jira.new=New
-mapping.status.jira.in_progress=InProgress
-mapping.status.jira.resolved=Resolved
-mapping.status.jira.feedback=Feedback
-mapping.status.jira.closed=Closed
-mapping.status.jira.rejected=Rejected
+mapping.status.jira.to_do=To Do
+mapping.status.jira.in_progress=In Progress
+mapping.status.jira.in_review=In Review
+mapping.status.jira.done=Done
+# priority
 mapping.priority.backlog.low=Low
 mapping.priority.backlog.normal=Normal
 mapping.priority.backlog.high=High
