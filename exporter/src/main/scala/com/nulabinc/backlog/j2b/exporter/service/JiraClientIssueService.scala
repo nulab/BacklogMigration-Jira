@@ -8,9 +8,10 @@ import com.nulabinc.backlog.j2b.jira.domain.JiraProjectKey
 import com.nulabinc.backlog.j2b.jira.service.IssueService
 import com.nulabinc.backlog.migration.common.conf.BacklogPaths
 import com.nulabinc.backlog.migration.common.utils.Logging
-import com.nulabinc.jira.client.JiraRestClient
+import com.nulabinc.jira.client.{DownloadResult, JiraRestClient}
 import com.nulabinc.jira.client.domain.issue.Issue
 
+import scala.util.{Failure, Success, Try}
 import scalax.file.Path
 
 class JiraClientIssueService @Inject()(apiConfig: JiraApiConfiguration,
@@ -44,7 +45,7 @@ class JiraClientIssueService @Inject()(apiConfig: JiraApiConfiguration,
     issue.copy(changeLogs = changeLogs.right.get.values)
   }
 
-  override def downloadAttachments(attachmentId: Long, saveDirectory: Path, fileName: String): Unit = {
+  override def downloadAttachments(attachmentId: Long, saveDirectory: Path, fileName: String): DownloadResult = {
     // content = https://(workspace name).atlassian.net/secure/attachment/(attachment ID)/(file name)
     jira.httpClient.download(jira.url + s"/secure/attachment/$attachmentId/$fileName", saveDirectory.path)
   }

@@ -95,7 +95,9 @@ class IssueInitializer @Inject()(implicit val issueWrites: IssueWrites,
 
   private def attachmentNames(issue: Issue): Seq[BacklogAttachment] = {
     val histories = ChangeLogsPlayer.reversePlay(AttachmentChangeLogItemField, issue.attachments.map(_.fileName), issue.changeLogs)
-    histories.map( h => BacklogAttachment(None, h))
+    histories.map { h =>
+      BacklogAttachment(issue.attachments.find(_.fileName == h).map(_.id), h)
+    }
   }
 
   private def priorityName(issue: Issue): String = {

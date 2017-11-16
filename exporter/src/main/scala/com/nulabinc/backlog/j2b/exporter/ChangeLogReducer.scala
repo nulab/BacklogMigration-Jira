@@ -1,22 +1,26 @@
 package com.nulabinc.backlog.j2b.exporter
 
-import com.nulabinc.backlog.migration.common.conf.BacklogConstantValue
+import com.nulabinc.backlog.j2b.jira.service.IssueService
+import com.nulabinc.backlog.migration.common.conf.{BacklogConstantValue, BacklogPaths}
 import com.nulabinc.backlog.migration.common.domain._
-import com.nulabinc.backlog.migration.common.utils.{FileUtil, Logging}
+import com.nulabinc.backlog.migration.common.utils.Logging
+import com.nulabinc.jira.client._
 import com.nulabinc.jira.client.domain.Attachment
 import com.osinka.i18n.Messages
 
 import scalax.file.Path
 
 private [exporter] class ChangeLogReducer(issueDirPath: Path,
-                                        issue: BacklogIssue,
-                                        comments: Seq[BacklogComment],
-                                        attachments: Seq[Attachment])
+                                          backlogPaths: BacklogPaths,
+                                          issue: BacklogIssue,
+                                          comments: Seq[BacklogComment],
+                                          attachments: Seq[Attachment],
+                                          issueService: IssueService)
   extends Logging {
 
   def reduce(targetComment: BacklogComment, changeLog: BacklogChangeLog): (Option[BacklogChangeLog], String) = {
     changeLog.field match {
-//      case BacklogConstantValue.ChangeLog.ATTACHMENT => (AttachmentReducer.reduce(changeLog), "")
+      case BacklogConstantValue.ChangeLog.ATTACHMENT => attachment(changeLog)
       case "done_ratio" =>
         val message =
           Messages("common.change_comment", Messages("common.done_ratio"), getValue(changeLog.optOriginalValue), getValue(changeLog.optNewValue))
@@ -72,17 +76,40 @@ private [exporter] class ChangeLogReducer(issueDirPath: Path,
     }
   }
 
-  object AttachmentReducer {
-    def reduce(changeLog: BacklogChangeLog): Option[BacklogChangeLog] = {
-      changeLog.optAttachmentInfo match {
-        case Some(attachmentInfo) =>
-          val optAttachment = attachments.find(attachment => FileUtil.normalize(attachment.fileName) == attachmentInfo.name)
-          optAttachment match {
-            case Some(_) => Some(changeLog)
-            case _       => None
-          }
-        case _ => Some(changeLog)
-      }
+  private def attachment(changeLog: BacklogChangeLog): (Option[BacklogChangeLog], String) = {
+    changeLog.optAttachmentInfo match {
+      case Some(attachmentInfo) =>
+        attachmentInfo.optId match {
+          case Some(attachmentInfoId) =>
+            // download
+            val dir  = backlogPaths.issueAttachmentDirectoryPath(issueDirPath)
+            val path = backlogPaths.issueAttachmentPath(dir, attachmentInfo.name)
+            issueService.downloadAttachments(attachmentInfoId.toLong, path, attachmentInfo.name) match {
+              case Success =>
+                (Some(changeLog), "")
+              case Failure =>
+                val emptyMessage = Messages(
+                  "export.attachment.empty",
+                  changeLog.optOriginalValue.getOrElse(Messages("common.empty")),
+                  changeLog.optNewValue.getOrElse(Messages("common.empty"))
+                )
+                (None, s"$emptyMessage\n")
+            }
+          case _ =>
+            val emptyMessage = Messages(
+              "export.attachment.empty",
+              changeLog.optOriginalValue.getOrElse(Messages("common.empty")),
+              changeLog.optNewValue.getOrElse(Messages("common.empty"))
+            )
+            (None, s"$emptyMessage\n")
+        }
+      case _ =>
+        val emptyMessage = Messages(
+          "export.attachment.empty",
+          changeLog.optOriginalValue.getOrElse(Messages("common.empty")),
+          changeLog.optNewValue.getOrElse(Messages("common.empty"))
+        )
+        (None, s"$emptyMessage\n")
     }
   }
 
@@ -108,18 +135,6 @@ private [exporter] class ChangeLogReducer(issueDirPath: Path,
 //          }
         case _ => changeLog.optNewValue
       }
-    }
-
-    private[this] def findProperty(comments: Seq[BacklogComment])(field: String): Option[BacklogComment] = {
-      comments.reverse.find(comment => findProperty(comment)(field))
-    }
-
-    private[this] def findProperty(comment: BacklogComment)(field: String): Boolean = {
-      comment.changeLogs.map(findProperty).exists(_(field))
-    }
-
-    private[this] def findProperty(changeLog: BacklogChangeLog)(field: String): Boolean = {
-      changeLog.field == field
     }
   }
 

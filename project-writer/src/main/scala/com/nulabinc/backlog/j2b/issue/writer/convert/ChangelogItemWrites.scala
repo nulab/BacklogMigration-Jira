@@ -8,7 +8,6 @@ import com.nulabinc.backlog.migration.common.domain._
 import com.nulabinc.backlog.migration.common.utils.FileUtil
 import com.nulabinc.backlog4j.CustomField.FieldType
 import com.nulabinc.jira.client.domain.field._
-import com.nulabinc.jira.client.domain._
 import com.nulabinc.jira.client.domain.changeLog._
 
 class ChangelogItemWrites @Inject()(fields: Seq[Field]) extends Writes[ChangeLogItem, BacklogChangeLog] {
