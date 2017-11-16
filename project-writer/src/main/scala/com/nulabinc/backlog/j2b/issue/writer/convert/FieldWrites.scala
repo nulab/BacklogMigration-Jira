@@ -60,10 +60,10 @@ class FieldWrites extends Writes[Seq[Field], Seq[BacklogCustomFieldSetting]] wit
 //        case _                                        => redmineCustomFieldDefinition.possibleValues
 //      }
 
-    def toBacklogItem(name: String): BacklogItem =
-      BacklogItem(optId = None, name = name)
+//    def toBacklogItem(name: String): BacklogItem =
+//      BacklogItem(optId = None, name = name)
 
-    def booleanPossibleValues() = Seq(Messages("common.no"), Messages("common.yes"))
+//    def booleanPossibleValues() = Seq(Messages("common.no"), Messages("common.yes"))
 
     BacklogCustomFieldMultipleProperty(
       typeId = multipleTypeId(isMultiple),

@@ -1,13 +1,11 @@
 package com.nulabinc.backlog.j2b.modules
 
 import com.nulabinc.backlog.j2b.conf.AppConfiguration
-import com.nulabinc.backlog.j2b.exporter.{CommentFileWriter, IssueFileWriter, IssueInitializer}
+import com.nulabinc.backlog.j2b.exporter.{CommentFileWriter, IssueFileWriter}
 import com.nulabinc.backlog.j2b.exporter.service._
 import com.nulabinc.backlog.j2b.issue.writer._
-import com.nulabinc.backlog.j2b.issue.writer.convert._
 import com.nulabinc.backlog.j2b.jira.service._
 import com.nulabinc.backlog.j2b.jira.writer._
-import com.nulabinc.jira.client.domain.field.Field
 
 class ExportModule(config: AppConfiguration) extends DefaultModule(config) {
 

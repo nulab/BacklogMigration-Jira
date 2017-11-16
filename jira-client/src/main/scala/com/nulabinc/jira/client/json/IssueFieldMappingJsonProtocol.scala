@@ -41,13 +41,13 @@ object IssueFieldMappingJsonProtocol extends DefaultJsonProtocol {
       value match {
         case v: JsNumber => NumberFieldValue(v.value)
         case v: JsArray  => ArrayFieldValue(v.elements.map(convertToIssueFieldValue))
-        case v: JsObject => {
+        case v: JsObject =>
           List(
             Try { OptionFieldValue(v.convertTo[IssueFieldOption]).asInstanceOf[FieldValue] },
             Try { UserFieldValue(v.convertTo[User]).asInstanceOf[FieldValue] }
           ).filter(_.isSuccess).head.getOrElse(AnyFieldValue(v.convertTo[String]))
-        }
         case v: JsString => StringFieldValue(v.value.replace("\"", ""))
+        case v           => AnyFieldValue(v.toString)
       }
   }
 

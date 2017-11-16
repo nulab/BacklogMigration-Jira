@@ -24,9 +24,9 @@ class StatusMappingFile(jiraApiConfig: JiraApiConfiguration,
       MappingItem(status.name, status.name)
     }
 
-    def condition(target: String)(status: JiraStatus): Boolean = {
-      status.name == target
-    }
+//    def condition(target: String)(status: JiraStatus): Boolean = {
+//      status.name == target
+//    }
 
 //    def collectItems(acc: Seq[MappingItem], status: String): Seq[MappingItem] = {
 //      if (statuses.exists(condition(status))) acc

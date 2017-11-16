@@ -32,7 +32,7 @@ class Exporter @Inject()(projectKey: JiraProjectKey,
     extends Logging {
 
   private val console            = (ProgressBar.progress _)(Messages("common.issues"), Messages("message.exporting"), Messages("message.exported"))
-  private val issuesInfoProgress = (ProgressBar.progress _)(Messages("common.issues_info"), Messages("message.collecting"), Messages("message.collected"))
+//  private val issuesInfoProgress = (ProgressBar.progress _)(Messages("common.issues_info"), Messages("message.collecting"), Messages("message.collected"))
 
   def export(): CollectData = {
 
