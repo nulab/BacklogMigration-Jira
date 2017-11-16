@@ -3,11 +3,12 @@ package com.nulabinc.backlog.j2b.exporter
 import javax.inject.Inject
 
 import com.nulabinc.backlog.j2b.issue.writer.convert._
-import com.nulabinc.backlog.j2b.jira.service.UserService
+import com.nulabinc.backlog.j2b.jira.service.{IssueService, UserService}
 import com.nulabinc.backlog.migration.common.convert.Convert
 import com.nulabinc.backlog.migration.common.domain._
 import com.nulabinc.backlog.migration.common.utils._
-import com.nulabinc.jira.client.domain._
+import com.nulabinc.jira.client.domain.Comment
+import com.nulabinc.jira.client.domain.changeLog._
 import com.nulabinc.jira.client.domain.issue._
 
 class IssueInitializer @Inject()(implicit val issueWrites: IssueWrites,
@@ -15,33 +16,34 @@ class IssueInitializer @Inject()(implicit val issueWrites: IssueWrites,
                                  implicit val userWrites: UserWrites,
                                  implicit val customFieldWrites: FieldWrites,
                                  implicit val customFieldValueWrites: IssueFieldWrites,
-                                 userService: UserService)
+                                 userService: UserService,
+                                 issueService: IssueService)
     extends Logging {
 
-  def initialize(issue: Issue): BacklogIssue = {
+  def initialize(issue: Issue, comments: Seq[Comment]): BacklogIssue = {
     //attachments
-//    val attachmentFilter    = new AttachmentFilter(journals)
-//    val filteredAttachments = attachmentFilter.filter(attachments)
-//    val backlogAttachments  = filteredAttachments.map(Convert.toBacklog(_))
-//    filteredAttachments.foreach(attachment)
+//    val attachmentFilter    = new AttachmentFilter(issue.changeLogs)
+//    val filteredAttachments = attachmentFilter.filter(issue.attachments)
 
-    val backlogIssue = Convert.toBacklog(issue)
+    val filteredIssue = AttachmentFilter.filteredIssue(issue, comments)
+
+    val backlogIssue = Convert.toBacklog(filteredIssue)
 
     backlogIssue.copy(
-      summary = summary(issue),
+      summary           = summary(filteredIssue),
 //      optParentIssueId = parentIssueId(issue),
-      description = description(issue),
-//      optStartDate = startDate(issue),
-      optDueDate = dueDate(issue),
-//      optEstimatedHours = estimatedHours(issue),
-//      optIssueTypeName = issueTypeName(issue),
-//      categoryNames = categoryNames(issue),
-//      milestoneNames = milestoneNames(issue),
-      priorityName = priorityName(issue),
-      optAssignee = assignee(issue),
+      description       = description(filteredIssue),
+      optDueDate        = dueDate(filteredIssue),
+      optEstimatedHours = estimatedHours(filteredIssue),
+      optIssueTypeName  = issueTypeName(filteredIssue),
+      categoryNames     = categoryNames(filteredIssue),
+//      milestoneNames  = milestoneNames(issue),
+      versionNames      = milestoneNames(filteredIssue),
+      priorityName      = priorityName(filteredIssue),
+      optAssignee       = assignee(filteredIssue),
 //      customFields = issue.issueFields.flatMap(customField),
-//      attachments = backlogAttachments,
-      notifiedUsers = Seq.empty[BacklogUser]
+      attachments       = attachmentNames(filteredIssue),
+      notifiedUsers     = Seq.empty[BacklogUser]
     )
   }
 
@@ -53,22 +55,6 @@ class IssueInitializer @Inject()(implicit val issueWrites: IssueWrites,
     }
   }
 
-//  private def parentIssueId(issue: Issue): Option[Long] = {
-//    val issueInitialValue = new IssueInitialValue(RedmineConstantValue.ATTR, RedmineConstantValue.Attr.PARENT)
-//    issueInitialValue.findJournalDetail(journals) match {
-//      case Some(detail) =>
-//        Option(detail.getOldValue) match {
-//          case Some(value) if (value.nonEmpty) =>
-//            StringUtil.safeStringToInt(value) match {
-//              case Some(intValue) => Some(intValue)
-//              case _              => None
-//            }
-//          case _ => None
-//        }
-//      case None => Option(issue.getParentId).map(_.intValue())
-//    }
-//  }
-
   private def description(issue: Issue): String = {
     val issueInitialValue = new IssueInitialValue(ChangeLogItem.FieldType.JIRA, DescriptionFieldId)
     issueInitialValue.findChangeLogItem(issue.changeLogs) match {
@@ -76,14 +62,6 @@ class IssueInitializer @Inject()(implicit val issueWrites: IssueWrites,
       case None         => issue.description.getOrElse("")
     }
   }
-
-//  private def startDate(issue: Issue): Option[String] = {
-//    val issueInitialValue = new IssueInitialValue(RedmineConstantValue.ATTR, RedmineConstantValue.Attr.START_DATE)
-//    issueInitialValue.findJournalDetail(journals) match {
-//      case Some(detail) => Option(detail.getOldValue)
-//      case None         => Option(issue.getStartDate).map(DateUtil.dateFormat)
-//    }
-//  }
 
   private def dueDate(issue: Issue): Option[String] = {
     val issueInitialValue = new IssueInitialValue(ChangeLogItem.FieldType.JIRA, DueDateFieldId)
@@ -93,47 +71,34 @@ class IssueInitializer @Inject()(implicit val issueWrites: IssueWrites,
     }
   }
 
-//  private def estimatedHours(issue: Issue): Option[Float] = {
-//    val issueInitialValue = new IssueInitialValue(RedmineConstantValue.ATTR, RedmineConstantValue.Attr.ESTIMATED_HOURS)
-//    issueInitialValue.findJournalDetail(journals) match {
-//      case Some(detail) => Option(detail.getOldValue).filter(_.nonEmpty).map(_.toFloat)
-//      case None         => Option(issue.getEstimatedHours).map(_.toFloat)
-//    }
-//  }
-//
-//  private def issueTypeName(issue: Issue): Option[String] = {
-//    val issueInitialValue = new IssueInitialValue(RedmineConstantValue.ATTR, RedmineConstantValue.Attr.TRACKER)
-//    issueInitialValue.findJournalDetail(journals) match {
-//      case Some(detail) =>
-//        exportContext.propertyValue.trackerOfId(Option(detail.getOldValue)).map(_.getName)
-//      case None => Option(issue.getTracker).map(_.getName)
-//    }
-//  }
-
-  private def categoryNames(issue: Issue): Seq[String] = {
-    val changeLogItems = issue.changeLogs.flatMap { changeLog =>
-      changeLog.items.filter(_.fieldId.contains(ComponentFieldId))
+  private def estimatedHours(issue: Issue): Option[Float] = {
+    val issueInitialValue = new IssueInitialValue(ChangeLogItem.FieldType.JIRA, TimeEstimateFieldId)
+    issueInitialValue.findChangeLogItem(issue.changeLogs) match {
+      case Some(detail) => detail.fromDisplayString.filter(_.nonEmpty).map(_.toFloat / 3600)
+      case None         => issue.timeTrack.flatMap(_.originalEstimateSeconds.map(_.toFloat / 3600))
     }
-    val fromChangeLogItems = changeLogItems.flatMap(_.fromDisplayString)
-    val toChangeLogItems   = changeLogItems.flatMap(_.toDisplayString)
-
-    val currentCategories = issue.components.map(_.name).toSet
-    val fullCategories    = currentCategories ++ fromChangeLogItems.toSet
-    val initialCategories = fullCategories    -- toChangeLogItems.toSet
-    initialCategories.toSeq
   }
 
-//  private def milestoneNames(issue: Issue): Seq[String] = {
-//    val issueInitialValue = new IssueInitialValue(RedmineConstantValue.ATTR, RedmineConstantValue.Attr.VERSION)
-//    val optDetails        = issueInitialValue.findJournalDetails(journals)
-//    optDetails match {
-//      case Some(details) =>
-//        details.flatMap { detail =>
-//          exportContext.propertyValue.versionOfId(Option(detail.getOldValue)).map(_.getName)
-//        }
-//      case _ => Option(issue.getTargetVersion).map(_.getName).toSeq
-//    }
-//  }
+  private def issueTypeName(issue: Issue): Option[String] = {
+    val issueInitialValue = new IssueInitialValue(ChangeLogItem.FieldType.JIRA, IssueTypeFieldId)
+    issueInitialValue.findChangeLogItem(issue.changeLogs) match {
+      case Some(detail) => detail.fromDisplayString
+      case None         => Option(issue.issueType.name)
+    }
+  }
+
+  private def categoryNames(issue: Issue): Seq[String] =
+    ChangeLogsPlayer.reversePlay(ComponentChangeLogItemField, issue.components.map(_.name), issue.changeLogs)
+
+  private def milestoneNames(issue: Issue): Seq[String] =
+    ChangeLogsPlayer.reversePlay(FixVersion, issue.fixVersions.map(_.name), issue.changeLogs)
+
+  private def attachmentNames(issue: Issue): Seq[BacklogAttachment] = {
+    val histories = ChangeLogsPlayer.reversePlay(AttachmentChangeLogItemField, issue.attachments.map(_.fileName), issue.changeLogs)
+    histories.map { h =>
+      BacklogAttachment(issue.attachments.find(_.fileName == h).map(_.id), h)
+    }
+  }
 
   private def priorityName(issue: Issue): String = {
     val issueInitialValue = new IssueInitialValue(ChangeLogItem.FieldType.JIRA, PriorityFieldId)

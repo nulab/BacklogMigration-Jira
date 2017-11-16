@@ -5,7 +5,7 @@ import javax.inject.Inject
 import com.nulabinc.backlog.migration.common.convert.{Convert, Writes}
 import com.nulabinc.backlog.migration.common.domain._
 import com.nulabinc.backlog.migration.common.utils.DateUtil
-import com.nulabinc.jira.client.domain.ChangeLog
+import com.nulabinc.jira.client.domain.changeLog.ChangeLog
 
 class ChangeLogWrites @Inject()(implicit val userWrites: UserWrites,
                                 implicit val changelogItemWrites: ChangelogItemWrites)
@@ -15,7 +15,7 @@ class ChangeLogWrites @Inject()(implicit val userWrites: UserWrites,
     BacklogComment(
       eventType       = "comment",
       optIssueId      = None,
-      optContent      = Some(""),
+      optContent      = None,
       changeLogs      = changeLog.items.map(Convert.toBacklog(_)),
       notifications   = Seq.empty[BacklogNotification],
       isCreateIssue   = false,

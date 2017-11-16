@@ -11,24 +11,26 @@ object VersionMappingJsonProtocol extends DefaultJsonProtocol {
 
     def read(json: JsValue) = {
       val jsObject = json.asJsObject
-      jsObject.getFields("id", "name", "description", "archived", "released", "releaseDate") match {
-        case Seq(JsString(id), JsString(name), JsString(description), JsBoolean(archived), JsBoolean(released), JsString(releaseDate)) =>
+
+      val description = jsObject.getFields("description") match {
+        case Seq(JsString(str)) => Some(str)
+        case _                  => None
+      }
+
+      val releaseDate = jsObject.getFields("releaseDate") match {
+        case Seq(JsString(str)) => Option(str).map(DateTime.parse)
+        case _                  => None
+      }
+
+      jsObject.getFields("id", "name", "archived", "released") match {
+        case Seq(JsString(id), JsString(name), JsBoolean(archived), JsBoolean(released)) =>
           Version(
             id = Option(id.toLong),
             name = name,
             description = description,
             archived = archived,
             released = released,
-            releaseDate = Option(releaseDate).map(DateTime.parse)
-          )
-        case Seq(JsString(id), JsString(name), JsString(description), JsBoolean(archived), JsBoolean(released)) =>
-          Version(
-            id = Option(id.toLong),
-            name = name,
-            description = description,
-            archived = archived,
-            released = released,
-            releaseDate = None
+            releaseDate = releaseDate
           )
         case other => deserializationError("Cannot deserialize Version: invalid input. Raw input: " + other)
       }

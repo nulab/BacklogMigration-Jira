@@ -4,6 +4,7 @@ import java.text.SimpleDateFormat
 import java.util.Date
 
 import com.nulabinc.jira.client.domain._
+import com.nulabinc.jira.client.domain.changeLog.ChangeLog
 import com.nulabinc.jira.client.domain.issue._
 import org.joda.time._
 import spray.json._

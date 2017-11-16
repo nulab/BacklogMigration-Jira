@@ -8,22 +8,26 @@ import com.nulabinc.backlog.migration.common.domain._
 import com.nulabinc.backlog.migration.common.utils.FileUtil
 import com.nulabinc.backlog4j.CustomField.FieldType
 import com.nulabinc.jira.client.domain.field._
-import com.nulabinc.jira.client.domain._
+import com.nulabinc.jira.client.domain.changeLog._
 
 class ChangelogItemWrites @Inject()(fields: Seq[Field]) extends Writes[ChangeLogItem, BacklogChangeLog] {
 
   override def writes(changeLogItem: ChangeLogItem) =
     BacklogChangeLog(
-      field               = field(changeLogItem),
+      field            = field(changeLogItem),
       optOriginalValue = changeLogItem.fieldId match {
-        case Some(AssigneeFieldId)  => changeLogItem.from
-        case Some(DueDateFieldId)   => changeLogItem.from
-        case _                      => changeLogItem.fromDisplayString
+        case Some(AssigneeFieldId)              => changeLogItem.from
+        case Some(DueDateFieldId)               => changeLogItem.from
+        case Some(TimeOriginalEstimateFieldId)  => changeLogItem.from.map( sec => (sec.toInt / 3600).toString)
+        case Some(TimeEstimateFieldId)          => changeLogItem.from.map( sec => (sec.toInt / 3600).toString)
+        case _                                  => changeLogItem.fromDisplayString
       },
       optNewValue = changeLogItem.fieldId match {
-        case Some(AssigneeFieldId)  => changeLogItem.to
-        case Some(DueDateFieldId)   => changeLogItem.to
-        case _                      => changeLogItem.toDisplayString
+        case Some(AssigneeFieldId)              => changeLogItem.to
+        case Some(DueDateFieldId)               => changeLogItem.to
+        case Some(TimeOriginalEstimateFieldId)  => changeLogItem.to.map( sec => (sec.toInt / 3600).toString)
+        case Some(TimeEstimateFieldId)          => changeLogItem.to.map( sec => (sec.toInt / 3600).toString)
+        case _                                  => changeLogItem.toDisplayString
       },
       optAttachmentInfo   = attachmentInfo(changeLogItem),
       optAttributeInfo    = attributeInfo(changeLogItem),
@@ -48,17 +52,17 @@ class ChangelogItemWrites @Inject()(fields: Seq[Field]) extends Writes[ChangeLog
     case Some(StatusFieldId)                  => BacklogConstantValue.ChangeLog.STATUS
     case Some(DueDateFieldId)                 => BacklogConstantValue.ChangeLog.LIMIT_DATE
     case Some(TimeOriginalEstimateFieldId)    => BacklogConstantValue.ChangeLog.ESTIMATED_HOURS
-    case Some(TimeEstimateFieldId)            => BacklogConstantValue.ChangeLog.ESTIMATED_HOURS
+    case Some(TimeEstimateFieldId)            => changeLogItem.field.value
     case Some(ResolutionFieldId)              => BacklogConstantValue.ChangeLog.RESOLUTION
     case Some(GeneralFieldId(v))              => v
-    case _ if changeLogItem.field == "Parent" => BacklogConstantValue.ChangeLog.ISSUE_TYPE
-    case None                                 => changeLogItem.field
+    case _ if changeLogItem.field == Parent   => BacklogConstantValue.ChangeLog.ISSUE_TYPE
+    case None                                 => changeLogItem.field.value
   }
 
   private def attachmentInfo(changeLogItem: ChangeLogItem): Option[BacklogAttachment] = changeLogItem.fieldId match {
     case Some(AttachmentFieldId) => Some(
       BacklogAttachment(
-        optId = None,
+        optId = changeLogItem.to.map(_.toLong),
         name = FileUtil.normalize(changeLogItem.toDisplayString.getOrElse(""))
       )
     )

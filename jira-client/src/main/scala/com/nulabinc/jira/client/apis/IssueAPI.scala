@@ -2,7 +2,7 @@ package com.nulabinc.jira.client.apis
 
 import com.netaporter.uri.dsl._
 import com.nulabinc.jira.client._
-import com.nulabinc.jira.client.domain.ChangeLogResult
+import com.nulabinc.jira.client.domain.changeLog.ChangeLogResult
 import com.nulabinc.jira.client.domain.issue.Issue
 import spray.json._
 
