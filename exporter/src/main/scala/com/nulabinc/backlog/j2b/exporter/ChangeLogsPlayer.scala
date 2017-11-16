@@ -78,7 +78,7 @@ object ChangeLogsPlayer {
 
     result.lastOption match {
       case Some(r) => r.to.distinct
-      case _       => Seq.empty[String]
+      case _       => initialValues
     }
   }
 
