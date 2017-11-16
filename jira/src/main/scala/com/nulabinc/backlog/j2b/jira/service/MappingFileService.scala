@@ -1,12 +1,13 @@
 package com.nulabinc.backlog.j2b.jira.service
 
+import com.nulabinc.backlog.j2b.jira.domain.MappingFile
 import com.nulabinc.jira.client.domain.{Priority, Status, User}
 
 trait MappingFileService {
 
-  def outputUserMappingFile(users: Set[User]): Unit
+  def createUserMappingFile(users: Set[User]): MappingFile
 
-  def outputPriorityMappingFile(priorities: Seq[Priority]): Unit
+  def createPriorityMappingFile(priorities: Seq[Priority]): MappingFile
 
-  def outputStatusMappingFile(statuses: Seq[Status]): Unit
+  def createStatusMappingFile(statuses: Seq[Status]): MappingFile
 }

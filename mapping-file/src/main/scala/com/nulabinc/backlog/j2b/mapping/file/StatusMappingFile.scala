@@ -1,6 +1,7 @@
 package com.nulabinc.backlog.j2b.mapping.file
 
 import com.nulabinc.backlog.j2b.jira.conf.JiraApiConfiguration
+import com.nulabinc.backlog.j2b.jira.domain.{MappingFile, MappingItem}
 import com.nulabinc.backlog.j2b.jira.service.{StatusService => JiraStatusService}
 import com.nulabinc.backlog.j2b.mapping.core.MappingDirectory
 import com.nulabinc.backlog.migration.common.modules.{ServiceInjector => BacklogInjector}
@@ -71,18 +72,14 @@ class StatusMappingFile(jiraApiConfig: JiraApiConfiguration,
   }
 
   private[this] object Jira {
-    val NEW_JA: String         = Messages("mapping.status.jira.new")(Lang("ja"))
+    val TO_DO_JA: String       = Messages("mapping.status.jira.to_do")(Lang("ja"))
     val IN_PROGRESS_JA: String = Messages("mapping.status.jira.in_progress")(Lang("ja"))
-    val RESOLVED_JA: String    = Messages("mapping.status.jira.resolved")(Lang("ja"))
-    val FEEDBACK_JA: String    = Messages("mapping.status.jira.feedback")(Lang("ja"))
-    val CLOSED_JA: String      = Messages("mapping.status.jira.closed")(Lang("ja"))
-    val REJECTED_JA: String    = Messages("mapping.status.jira.rejected")(Lang("ja"))
-    val NEW_EN: String         = Messages("mapping.status.jira.new")(Lang("en"))
+    val IN_REVIEW_JA: String   = Messages("mapping.status.jira.in_review")(Lang("ja"))
+    val DONE_JA: String        = Messages("mapping.status.jira.done")(Lang("ja"))
+    val TO_DO_EN: String       = Messages("mapping.status.jira.to_do")(Lang("en"))
     val IN_PROGRESS_EN: String = Messages("mapping.status.jira.in_progress")(Lang("en"))
-    val RESOLVED_EN: String    = Messages("mapping.status.jira.resolved")(Lang("en"))
-    val FEEDBACK_EN: String    = Messages("mapping.status.jira.feedback")(Lang("en"))
-    val CLOSED_EN: String      = Messages("mapping.status.jira.closed")(Lang("en"))
-    val REJECTED_EN: String    = Messages("mapping.status.jira.rejected")(Lang("en"))
+    val IN_REVIEW_EN: String   = Messages("mapping.status.jira.in_review")(Lang("en"))
+    val DONE_EN: String        = Messages("mapping.status.jira.done")(Lang("en"))
   }
 
   override def matchItem(jira: MappingItem): String =
@@ -90,13 +87,11 @@ class StatusMappingFile(jiraApiConfig: JiraApiConfiguration,
       case Some(backlog) => backlog
       case None =>
         jira.name match {
-          case Jira.NEW_JA | Jira.NEW_EN                 => Backlog.open()
-          case Jira.IN_PROGRESS_JA | Jira.IN_PROGRESS_EN => Backlog.inProgress()
-          case Jira.RESOLVED_JA | Jira.RESOLVED_EN       => Backlog.resolved()
-          case Jira.FEEDBACK_JA | Jira.FEEDBACK_EN       => ""
-          case Jira.CLOSED_JA | Jira.CLOSED_EN           => Backlog.closed()
-          case Jira.REJECTED_JA | Jira.REJECTED_EN       => ""
-          case _                                         => ""
+          case Jira.TO_DO_JA        | Jira.TO_DO_EN       => Backlog.open()
+          case Jira.IN_PROGRESS_JA  | Jira.IN_PROGRESS_EN => Backlog.inProgress()
+          case Jira.IN_REVIEW_JA    | Jira.IN_REVIEW_EN   => Backlog.resolved()
+          case Jira.DONE_JA         | Jira.DONE_EN        => Backlog.closed()
+          case _                                          => ""
         }
     }
 

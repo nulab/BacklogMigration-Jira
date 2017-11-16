@@ -18,7 +18,8 @@ import com.nulabinc.jira.client.domain.{Priority, Status, User}
 object J2BCli extends BacklogConfiguration
     with Logging
     with HelpCommand
-    with ConfigValidatable {
+    with ConfigValidatable
+    with MappingConsole {
 
   def export(config: AppConfiguration): Unit = {
 
@@ -29,15 +30,17 @@ object J2BCli extends BacklogConfiguration
     val spaceService   = backlogInjector.getInstance(classOf[SpaceService])
 
     if (validateConfig(config, jiraRestClient, spaceService)) {
-      val exporter = jiraInjector.getInstance(classOf[Exporter])
+      val exporter            = jiraInjector.getInstance(classOf[Exporter])
+      val collectData         = exporter.export()
+      val mappingFileService  = jiraInjector.getInstance(classOf[MappingFileService])
 
-      val collectData = exporter.export()
-
-      val mappingFileService = jiraInjector.getInstance(classOf[MappingFileService])
-
-      mappingFileService.outputUserMappingFile(collectData.users)
-      mappingFileService.outputPriorityMappingFile(collectData.priorities)
-      mappingFileService.outputStatusMappingFile(collectData.statuses)
+      List(
+        mappingFileService.createUserMappingFile(collectData.users),
+        mappingFileService.createPriorityMappingFile(collectData.priorities),
+        mappingFileService.createStatusMappingFile(collectData.statuses)
+      ).foreach { mappingFile =>
+        displayToConsole(mappingFile)
+      }
     }
   }
 

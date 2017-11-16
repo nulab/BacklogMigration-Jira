@@ -4,6 +4,7 @@ import com.nulabinc.backlog.migration.common.conf.BacklogApiConfiguration
 import com.nulabinc.backlog.migration.common.modules.{ServiceInjector => BacklogInjector}
 import com.nulabinc.backlog.migration.common.service.{PriorityService => BacklogPriorityService}
 import com.nulabinc.backlog.j2b.jira.conf.JiraApiConfiguration
+import com.nulabinc.backlog.j2b.jira.domain.{MappingFile, MappingItem}
 import com.nulabinc.backlog.j2b.mapping.core.MappingDirectory
 import com.nulabinc.jira.client.domain.{Priority => JiraPriority}
 import com.nulabinc.backlog4j.{Priority => BacklogPriority}
