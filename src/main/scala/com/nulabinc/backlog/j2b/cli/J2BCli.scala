@@ -1,32 +1,39 @@
 package com.nulabinc.backlog.j2b.cli
 
-import com.google.inject.{Guice, Injector}
-import com.nulabinc.backlog.j2b.conf.{AppConfigValidator, AppConfiguration}
+import com.google.inject.Guice
+import com.nulabinc.backlog.j2b.conf.AppConfiguration
 import com.nulabinc.backlog.j2b.exporter.Exporter
 import com.nulabinc.backlog.j2b.jira.converter.MappingConverter
 import com.nulabinc.backlog.j2b.jira.service._
 import com.nulabinc.backlog.j2b.mapping.file._
 import com.nulabinc.backlog.j2b.modules._
 import com.nulabinc.backlog.migration.common.conf.BacklogConfiguration
-import com.nulabinc.backlog.migration.common.utils.{ConsoleOut, Logging}
+import com.nulabinc.backlog.migration.common.modules.ServiceInjector
+import com.nulabinc.backlog.migration.common.service.SpaceService
+import com.nulabinc.backlog.migration.common.utils.Logging
 import com.nulabinc.backlog.migration.importer.core.Boot
+import com.nulabinc.jira.client.JiraRestClient
 import com.nulabinc.jira.client.domain.{Priority, Status, User}
-import com.osinka.i18n.Messages
 
 object J2BCli extends BacklogConfiguration
     with Logging
-    with HelpCommand {
+    with HelpCommand
+    with ConfigValidatable {
 
   def export(config: AppConfiguration): Unit = {
 
-    val injector = Guice.createInjector(new ExportModule(config))
+    val jiraInjector    = Guice.createInjector(new ExportModule(config))
+    val backlogInjector = ServiceInjector.createInjector(config.backlogConfig)
 
-    if (validateConfig(config, injector)) {
-      val exporter = injector.getInstance(classOf[Exporter])
+    val jiraRestClient = jiraInjector.getInstance(classOf[JiraRestClient])
+    val spaceService   = backlogInjector.getInstance(classOf[SpaceService])
+
+    if (validateConfig(config, jiraRestClient, spaceService)) {
+      val exporter = jiraInjector.getInstance(classOf[Exporter])
 
       val collectData = exporter.export()
 
-      val mappingFileService = injector.getInstance(classOf[MappingFileService])
+      val mappingFileService = jiraInjector.getInstance(classOf[MappingFileService])
 
       mappingFileService.outputUserMappingFile(collectData.users)
       mappingFileService.outputPriorityMappingFile(collectData.priorities)
@@ -36,17 +43,20 @@ object J2BCli extends BacklogConfiguration
 
   def `import`(config: AppConfiguration): Unit = {
 
-    val injector = Guice.createInjector(new ImportModule(config))
+    val jiraInjector    = Guice.createInjector(new ImportModule(config))
+    val backlogInjector = ServiceInjector.createInjector(config.backlogConfig)
 
-    if (validateConfig(config, injector)) {
+    val jiraRestClient = jiraInjector.getInstance(classOf[JiraRestClient])
+    val spaceService   = backlogInjector.getInstance(classOf[SpaceService])
 
+    if (validateConfig(config, jiraRestClient, spaceService)) {
 
       // Convert
       val userMappingFile     = new UserMappingFile(config.jiraConfig, config.backlogConfig, Seq.empty[User])
       val priorityMappingFile = new PriorityMappingFile(config.jiraConfig, config.backlogConfig, Seq.empty[Priority])
       val statusMappingFile   = new StatusMappingFile(config.jiraConfig, config.backlogConfig, Seq.empty[Status])
 
-      val converter = injector.getInstance(classOf[MappingConverter])
+      val converter = jiraInjector.getInstance(classOf[MappingConverter])
       converter.convert(
         userMaps = userMappingFile.tryUnmarshal(),
         priorityMaps = priorityMappingFile.tryUnmarshal(),
@@ -60,28 +70,12 @@ object J2BCli extends BacklogConfiguration
 
   def doImport(config: AppConfiguration): Unit = {
 
-    val injector = Guice.createInjector(new ImportModule(config))
-
-    if (validateConfig(config, injector)) {
-
-    }
+//    val injector = Guice.createInjector(new ImportModule(config))
+//
+//    if (validateConfig(config, injector)) {
+//
+//    }
   }
 
-  private def validateConfig(config: AppConfiguration, injector: Injector): Boolean = {
-    val validator = injector.getInstance(classOf[AppConfigValidator])
-    val errors = validator.validate(config)
-    if (errors.isEmpty) true
-    else {
-      val message =
-        s"""
-           |
-           |${Messages("cli.param.error")}
-           |--------------------------------------------------
-           |${errors.mkString("\n")}
-           |
-        """.stripMargin
-      ConsoleOut.error(message)
-      false
-    }
-  }
+
 }
