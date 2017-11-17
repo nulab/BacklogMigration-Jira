@@ -3,7 +3,6 @@ package com.nulabinc.backlog.j2b.mapping.converter
 import javax.inject.Inject
 
 import com.nulabinc.backlog.j2b.jira.converter.UserConverter
-import com.nulabinc.backlog.j2b.jira.domain.MappingType
 import com.nulabinc.backlog.j2b.jira.domain.mapping.{Mapping, MappingType}
 import com.nulabinc.backlog.j2b.mapping.converter.writes.UserWrites
 import com.nulabinc.backlog.migration.common.convert.Convert

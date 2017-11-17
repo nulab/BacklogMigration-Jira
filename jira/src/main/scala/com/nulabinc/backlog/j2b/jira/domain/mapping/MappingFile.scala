@@ -1,11 +1,11 @@
-package com.nulabinc.backlog.j2b.jira.domain
+package com.nulabinc.backlog.j2b.jira.domain.mapping
 
 import java.util.Locale
 
-import com.nulabinc.backlog.j2b.jira.domain.MappingJsonProtocol._
+import com.nulabinc.backlog.j2b.jira.domain.mapping.MappingJsonProtocol._
 import com.nulabinc.backlog.migration.common.utils.{IOUtil, Logging}
 import com.osinka.i18n.{Lang, Messages}
-import spray.json.{JsonParser, _}
+import spray.json._
 
 import scala.collection.mutable.ArrayBuffer
 import scalax.file.Path
@@ -30,7 +30,7 @@ trait MappingFile extends Logging {
 
   def isExists: Boolean = Path.fromString(filePath).exists
 
-  def isParsed: Boolean = unmarshal().isDefined
+  def isParsed: Boolean = unMarshal().isDefined
 
   def create(): MappingFile = {
     val wrapper = MappingsWrapper(description, jiras.map(convert))
@@ -39,7 +39,7 @@ trait MappingFile extends Logging {
   }
 
   def merge(): Seq[Mapping] = {
-    unmarshal() match {
+    unMarshal() match {
       case Some(currentItems) =>
         val mergeList: ArrayBuffer[Mapping] = ArrayBuffer()
         val addedList: ArrayBuffer[Mapping] = ArrayBuffer()
@@ -59,7 +59,7 @@ trait MappingFile extends Logging {
     }
   }
 
-  def unmarshal(): Option[Seq[Mapping]] = {
+  def unMarshal(): Option[Seq[Mapping]] = {
     val path: Path = Path.fromString(filePath)
     val json       = path.lines().mkString
     try {
@@ -72,22 +72,22 @@ trait MappingFile extends Logging {
     }
   }
 
+  def tryUnMarshal(): Seq[Mapping] = {
+    val path = Path.fromString(filePath)
+    val json = path.lines().mkString
+    JsonParser(json).convertTo[MappingsWrapper].mappings
+  }
+
 //  def tryUnmarshal(): Try[Seq[Mapping]] = {
 //    Try(Resource.fromFile(filePath))
 //      .map(input => input.string(Codec.UTF8))
 //      .map(json => JsonParser(json).convertTo[MappingsWrapper].mappings)
 //  }
 
-  def tryUnmarshal(): Seq[Mapping] = {
-    val path = Path.fromString(filePath)
-    val json = path.lines().mkString
-    JsonParser(json).convertTo[MappingsWrapper].mappings
-  }
-
   def errors: Seq[String] = {
     val fileName  = Path.fromString(filePath).name
     val validator = new MappingValidator(jiras, backlogs, itemName, fileName)
-    validator.validate(unmarshal())
+    validator.validate(unMarshal())
   }
 
   def display(name: String, mappingItems: Seq[MappingItem]): String =
