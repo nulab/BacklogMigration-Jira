@@ -1,6 +1,6 @@
 package com.nulabinc.backlog.j2b.mapping.file
 
-import com.nulabinc.backlog.j2b.jira.domain.{MappingFile, MappingItem}
+import com.nulabinc.backlog.j2b.jira.domain.mapping.{MappingFile, MappingItem}
 import com.nulabinc.backlog.j2b.mapping.core.MappingDirectory
 import com.nulabinc.backlog4j.{Status => BacklogStatus}
 import com.nulabinc.jira.client.domain.{Status => JiraStatus}

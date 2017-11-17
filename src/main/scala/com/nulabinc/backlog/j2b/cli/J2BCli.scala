@@ -62,9 +62,9 @@ object J2BCli extends BacklogConfiguration
 
       val converter = jiraInjector.getInstance(classOf[MappingConverter])
       converter.convert(
-        userMaps = userMappingFile.tryUnmarshal(),
-        priorityMaps = priorityMappingFile.tryUnmarshal(),
-        statusMaps = statusMappingFile.tryUnmarshal()
+        userMaps = userMappingFile.tryUnMarshal(),
+        priorityMaps = priorityMappingFile.tryUnMarshal(),
+        statusMaps = statusMappingFile.tryUnMarshal()
       )
 
       // Import

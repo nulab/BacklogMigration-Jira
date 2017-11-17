@@ -6,9 +6,9 @@ import com.nulabinc.backlog.migration.common.modules.{ServiceInjector => Backlog
 import com.nulabinc.backlog.migration.common.service.{UserService => BacklogUserService}
 import com.nulabinc.backlog.migration.common.utils.StringUtil
 import com.nulabinc.backlog.j2b.mapping.core.MappingDirectory
-import com.nulabinc.backlog.j2b.jira.domain.MappingJsonProtocol._
+import com.nulabinc.backlog.j2b.jira.domain.mapping.MappingJsonProtocol._
 import com.nulabinc.backlog.j2b.jira.conf.JiraApiConfiguration
-import com.nulabinc.backlog.j2b.jira.domain.{Mapping, MappingFile, MappingItem, MappingsWrapper}
+import com.nulabinc.backlog.j2b.jira.domain.mapping.{Mapping, MappingFile, MappingItem, MappingsWrapper}
 import com.nulabinc.jira.client.domain.{User => JiraUser}
 import com.osinka.i18n.Messages
 import spray.json.JsonParser
@@ -69,7 +69,7 @@ class UserMappingFile(jiraApiConfig: JiraApiConfiguration,
     } else mapping
   }
 
-  override def tryUnmarshal(): Seq[Mapping] = {
+  override def tryUnMarshal(): Seq[Mapping] = {
     val path    = Path.fromString(filePath)
     val json    = path.lines().mkString
     val convert = convertForNAI(allUsers()) _

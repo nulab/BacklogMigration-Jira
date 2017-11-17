@@ -1,6 +1,6 @@
 package com.nulabinc.backlog.j2b.jira.service
 
-import com.nulabinc.backlog.j2b.jira.domain.MappingFile
+import com.nulabinc.backlog.j2b.jira.domain.mapping.MappingFile
 import com.nulabinc.jira.client.domain.{Priority, Status, User}
 
 trait MappingFileService {

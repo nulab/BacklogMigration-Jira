@@ -1,4 +1,4 @@
-package com.nulabinc.backlog.j2b.jira.domain
+package com.nulabinc.backlog.j2b.jira.domain.mapping
 
 import com.nulabinc.backlog.migration.common.domain.BacklogUser
 import com.nulabinc.backlog.migration.common.utils.Logging

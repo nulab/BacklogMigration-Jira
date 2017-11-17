@@ -1,7 +1,7 @@
 package com.nulabinc.backlog.j2b.mapping.converter
 
 import com.nulabinc.backlog.j2b.jira.converter.{MappingConverter, PriorityConverter}
-import com.nulabinc.backlog.j2b.jira.domain.Mapping
+import com.nulabinc.backlog.j2b.jira.domain.mapping.Mapping
 
 class MappingPriorityConverter extends PriorityConverter {
 

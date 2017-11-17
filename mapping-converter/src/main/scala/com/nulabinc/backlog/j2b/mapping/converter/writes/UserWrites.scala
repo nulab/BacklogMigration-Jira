@@ -1,6 +1,6 @@
 package com.nulabinc.backlog.j2b.mapping.converter.writes
 
-import com.nulabinc.backlog.j2b.jira.domain.Mapping
+import com.nulabinc.backlog.j2b.jira.domain.mapping.Mapping
 import com.nulabinc.backlog.migration.common.conf.BacklogConstantValue
 import com.nulabinc.backlog.migration.common.convert.Writes
 import com.nulabinc.backlog.migration.common.domain.BacklogUser

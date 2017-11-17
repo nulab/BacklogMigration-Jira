@@ -3,7 +3,7 @@ package com.nulabinc.backlog.j2b.mapping.file
 import javax.inject.Inject
 
 import com.nulabinc.backlog.j2b.jira.conf.JiraApiConfiguration
-import com.nulabinc.backlog.j2b.jira.domain.MappingFile
+import com.nulabinc.backlog.j2b.jira.domain.mapping.MappingFile
 import com.nulabinc.backlog.j2b.jira.service.MappingFileService
 import com.nulabinc.jira.client.domain.{Priority, Status, User}
 import com.nulabinc.backlog.migration.common.modules.{ServiceInjector => BacklogInjector}
