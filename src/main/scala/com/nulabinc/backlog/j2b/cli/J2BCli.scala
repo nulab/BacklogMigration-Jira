@@ -58,13 +58,14 @@ object J2BCli extends BacklogConfiguration
       // Convert
       val userMappingFile     = new UserMappingFile(config.jiraConfig, config.backlogConfig, Seq.empty[User])
       val priorityMappingFile = new PriorityMappingFile(config.jiraConfig, config.backlogConfig, Seq.empty[Priority])
-      val statusMappingFile   = new StatusMappingFile(Seq.empty[JiraStatus], Seq.empty[BacklogStatus])
 
+      val mappingFileService = jiraInjector.getInstance(classOf[MappingFileService])
       val converter = jiraInjector.getInstance(classOf[MappingConverter])
+
       converter.convert(
-        userMaps = userMappingFile.tryUnMarshal(),
-        priorityMaps = priorityMappingFile.tryUnMarshal(),
-        statusMaps = statusMappingFile.tryUnMarshal()
+        userMaps      4= userMappingFile.tryUnMarshal(),
+        priorityMaps  = priorityMappingFile.tryUnMarshal(),
+        statusMaps    = mappingFileService.statusMappingsFromFile()
       )
 
       // Import
