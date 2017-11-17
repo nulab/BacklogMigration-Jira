@@ -5,7 +5,6 @@ import com.nulabinc.backlog.j2b.conf.AppConfiguration
 import com.nulabinc.backlog.j2b.exporter.Exporter
 import com.nulabinc.backlog.j2b.jira.converter.MappingConverter
 import com.nulabinc.backlog.j2b.jira.service._
-import com.nulabinc.backlog.j2b.mapping.file._
 import com.nulabinc.backlog.j2b.modules._
 import com.nulabinc.backlog.migration.common.conf.BacklogConfiguration
 import com.nulabinc.backlog.migration.common.modules.ServiceInjector
@@ -13,8 +12,6 @@ import com.nulabinc.backlog.migration.common.service.SpaceService
 import com.nulabinc.backlog.migration.common.utils.Logging
 import com.nulabinc.backlog.migration.importer.core.Boot
 import com.nulabinc.jira.client.JiraRestClient
-import com.nulabinc.jira.client.domain.{Priority, Status => JiraStatus, User}
-import com.nulabinc.backlog4j.{Status => BacklogStatus}
 
 object J2BCli extends BacklogConfiguration
     with Logging
@@ -56,15 +53,12 @@ object J2BCli extends BacklogConfiguration
     if (validateConfig(config, jiraRestClient, spaceService)) {
 
       // Convert
-      val userMappingFile     = new UserMappingFile(config.jiraConfig, config.backlogConfig, Seq.empty[User])
-      val priorityMappingFile = new PriorityMappingFile(config.jiraConfig, config.backlogConfig, Seq.empty[Priority])
-
       val mappingFileService = jiraInjector.getInstance(classOf[MappingFileService])
       val converter = jiraInjector.getInstance(classOf[MappingConverter])
 
       converter.convert(
-        userMaps      4= userMappingFile.tryUnMarshal(),
-        priorityMaps  = priorityMappingFile.tryUnMarshal(),
+        userMaps      = mappingFileService.userMappingsFromFile(),
+        priorityMaps  = mappingFileService.priorityMappingsFromFile(),
         statusMaps    = mappingFileService.statusMappingsFromFile()
       )
 

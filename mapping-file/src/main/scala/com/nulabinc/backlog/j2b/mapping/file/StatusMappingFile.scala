@@ -6,35 +6,7 @@ import com.nulabinc.backlog4j.{Status => BacklogStatus}
 import com.nulabinc.jira.client.domain.{Status => JiraStatus}
 import com.osinka.i18n.{Lang, Messages}
 
-class StatusMappingFile(statuses: Seq[JiraStatus], backlogStatuses: Seq[BacklogStatus]) extends MappingFile {
-
-  private[this] val jiraItems = getJiraItems()
-
-  private def createItem(status: BacklogStatus): MappingItem = {
-    MappingItem(status.getName, status.getName)
-  }
-
-  private[this] def getJiraItems(): Seq[MappingItem] = {
-
-    def createItem(status: JiraStatus): MappingItem = {
-      MappingItem(status.name, status.name)
-    }
-
-//    def condition(target: String)(status: JiraStatus): Boolean = {
-//      status.name == target
-//    }
-
-//    def collectItems(acc: Seq[MappingItem], status: String): Seq[MappingItem] = {
-//      if (statuses.exists(condition(status))) acc
-//      else acc :+ MappingItem(Messages("cli.mapping.delete_status", status), Messages("cli.mapping.delete_status", status))
-//    }
-
-    val jiras       = statuses.map(createItem)
-//    val deleteItems = statuses.foldLeft(Seq.empty[MappingItem])(collectItems)
-//    jiras union deleteItems
-    // TODO: Check this impl
-    jiras
-  }
+class StatusMappingFile(jiraStatuses: Seq[JiraStatus], backlogStatuses: Seq[BacklogStatus]) extends MappingFile {
 
   private[this] object Backlog {
     val OPEN_JA: String        = Messages("mapping.status.backlog.open")(Lang("ja"))
@@ -79,9 +51,11 @@ class StatusMappingFile(statuses: Seq[JiraStatus], backlogStatuses: Seq[BacklogS
         }
     }
 
-  override def jiras: Seq[MappingItem] = jiraItems
+  override def jiras: Seq[MappingItem] =
+    jiraStatuses.map(status => MappingItem(status.name, status.name))
 
-  override def backlogs: Seq[MappingItem] = backlogStatuses.map(createItem)
+  override def backlogs: Seq[MappingItem] =
+    backlogStatuses.map(status => MappingItem(status.getName, status.getName))
 
   override def filePath: String = MappingDirectory.STATUS_MAPPING_FILE
 
