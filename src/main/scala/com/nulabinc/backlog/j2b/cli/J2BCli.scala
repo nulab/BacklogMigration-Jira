@@ -13,7 +13,8 @@ import com.nulabinc.backlog.migration.common.service.SpaceService
 import com.nulabinc.backlog.migration.common.utils.Logging
 import com.nulabinc.backlog.migration.importer.core.Boot
 import com.nulabinc.jira.client.JiraRestClient
-import com.nulabinc.jira.client.domain.{Priority, Status, User}
+import com.nulabinc.jira.client.domain.{Priority, Status => JiraStatus, User}
+import com.nulabinc.backlog4j.{Status => BacklogStatus}
 
 object J2BCli extends BacklogConfiguration
     with Logging
@@ -57,7 +58,7 @@ object J2BCli extends BacklogConfiguration
       // Convert
       val userMappingFile     = new UserMappingFile(config.jiraConfig, config.backlogConfig, Seq.empty[User])
       val priorityMappingFile = new PriorityMappingFile(config.jiraConfig, config.backlogConfig, Seq.empty[Priority])
-      val statusMappingFile   = new StatusMappingFile(config.jiraConfig, config.backlogConfig, Seq.empty[Status])
+      val statusMappingFile   = new StatusMappingFile(Seq.empty[JiraStatus], Seq.empty[BacklogStatus])
 
       val converter = jiraInjector.getInstance(classOf[MappingConverter])
       converter.convert(

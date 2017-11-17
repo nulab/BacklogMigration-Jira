@@ -1,23 +1,18 @@
 package com.nulabinc.backlog.j2b.mapping.file
 
-import com.nulabinc.backlog.j2b.jira.conf.JiraApiConfiguration
 import com.nulabinc.backlog.j2b.jira.domain.{MappingFile, MappingItem}
-import com.nulabinc.backlog.j2b.jira.service.{StatusService => JiraStatusService}
 import com.nulabinc.backlog.j2b.mapping.core.MappingDirectory
-import com.nulabinc.backlog.migration.common.modules.{ServiceInjector => BacklogInjector}
-import com.nulabinc.backlog.migration.common.service.{StatusService => BacklogStatusService}
-import com.nulabinc.backlog.migration.common.conf.BacklogApiConfiguration
-import com.nulabinc.backlog.migration.common.utils.StringUtil
 import com.nulabinc.backlog4j.{Status => BacklogStatus}
 import com.nulabinc.jira.client.domain.{Status => JiraStatus}
 import com.osinka.i18n.{Lang, Messages}
 
-class StatusMappingFile(jiraApiConfig: JiraApiConfiguration,
-                        backlogApiConfig: BacklogApiConfiguration,
-                        statuses: Seq[JiraStatus]) extends MappingFile {
+class StatusMappingFile(statuses: Seq[JiraStatus], backlogStatuses: Seq[BacklogStatus]) extends MappingFile {
 
   private[this] val jiraItems = getJiraItems()
-  private[this] val backlogItems = getBacklogItems()
+
+  private def createItem(status: BacklogStatus): MappingItem = {
+    MappingItem(status.getName, status.getName)
+  }
 
   private[this] def getJiraItems(): Seq[MappingItem] = {
 
@@ -39,17 +34,6 @@ class StatusMappingFile(jiraApiConfig: JiraApiConfiguration,
 //    jiras union deleteItems
     // TODO: Check this impl
     jiras
-  }
-
-  private[this] def getBacklogItems(): Seq[MappingItem] = {
-    def createItem(status: BacklogStatus): MappingItem = {
-      MappingItem(status.getName, status.getName)
-    }
-
-    val injector        = BacklogInjector.createInjector(backlogApiConfig)
-    val statusService   = injector.getInstance(classOf[BacklogStatusService])
-    val backlogStatuses = statusService.allStatuses()
-    backlogStatuses.map(createItem)
   }
 
   private[this] object Backlog {
@@ -97,7 +81,7 @@ class StatusMappingFile(jiraApiConfig: JiraApiConfiguration,
 
   override def jiras: Seq[MappingItem] = jiraItems
 
-  override def backlogs: Seq[MappingItem] = backlogItems
+  override def backlogs: Seq[MappingItem] = backlogStatuses.map(createItem)
 
   override def filePath: String = MappingDirectory.STATUS_MAPPING_FILE
 
