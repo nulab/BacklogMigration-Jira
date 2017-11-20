@@ -25,6 +25,7 @@ case object ComponentChangeLogItemField extends ChangeLogItemField("Component")
 case object FixVersion extends ChangeLogItemField("Fix Version")
 case object Parent extends ChangeLogItemField("Parent")
 case object AttachmentChangeLogItemField extends ChangeLogItemField("Attachment")
+case object StatusChangeLogItemField extends ChangeLogItemField("status")
 case class DefaultField(name: String) extends ChangeLogItemField(name)
 
 object ChangeLogItemField {
@@ -32,6 +33,7 @@ object ChangeLogItemField {
     case ComponentChangeLogItemField.value  => ComponentChangeLogItemField
     case FixVersion.value                   => FixVersion
     case AttachmentChangeLogItemField.value => AttachmentChangeLogItemField
+    case StatusChangeLogItemField.value     => StatusChangeLogItemField
     case v                                  => DefaultField(v)
   }
 }

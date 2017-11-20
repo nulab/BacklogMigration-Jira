@@ -66,12 +66,12 @@ class Exporter @Inject()(projectKey: JiraProjectKey,
 
     // issue
     val total = issueService.count
-    val users = fetchIssue(Set.empty[User], 1, total, 0, 100)
+    val users = fetchIssue(Set.empty[User], statuses, 1, total, 0, 100)
 
     CollectData(users, statuses, priorities)
   }
 
-  private def fetchIssue(users: Set[User], index: Long, total: Long, startAt: Long, maxResults: Long): Set[User] = {
+  private def fetchIssue(users: Set[User], statuses: Seq[Status], index: Long, total: Long, startAt: Long, maxResults: Long): Set[User] = {
 
     val issues = issueService.issues(startAt, maxResults)
 
@@ -80,7 +80,7 @@ class Exporter @Inject()(projectKey: JiraProjectKey,
       val collected = issues.zipWithIndex.map {
         case (issue, i) => {
 
-          // changelogs
+          // Change logs
           val issueWithChangeLogs = issueService.injectChangeLogsToIssue(issue) // API Call
 
           // comments
@@ -92,7 +92,8 @@ class Exporter @Inject()(projectKey: JiraProjectKey,
 
           // export issue comments
           val changeLogs1 = ChangeLogsPlayer.play(ComponentChangeLogItemField, initializedBacklogIssue.categoryNames, issueWithChangeLogs.changeLogs)
-          val changeLogs = ChangeLogsPlayer.play(FixVersion, initializedBacklogIssue.versionNames, changeLogs1)
+          val changeLogs2 = ChangeLogsPlayer.play(FixVersion, initializedBacklogIssue.versionNames, changeLogs1)
+          val changeLogs  = ChangeLogStatusConverter.convert(changeLogs2, statuses)
           commentWriter.write(initializedBacklogIssue, comments, changeLogs, issueWithChangeLogs.attachments)
 
           console(i + index.toInt, total.toInt)
@@ -124,7 +125,7 @@ class Exporter @Inject()(projectKey: JiraProjectKey,
           collectedUsers ++ changeLogItemUsers
         }
       }
-      fetchIssue(collected.flatten.toSet, index + collected.length , total, startAt + maxResults, maxResults)
+      fetchIssue(collected.flatten.toSet, statuses, index + collected.length , total, startAt + maxResults, maxResults)
     }
   }
 
