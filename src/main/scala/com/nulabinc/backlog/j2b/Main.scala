@@ -29,7 +29,6 @@ class CommandLineInterface(arguments: Seq[String]) extends ScallopConf(arguments
     val jiraUrl      = opt[String]("jira.url", descr = Messages("cli.help.jira.url"), required = true, noshort = true)
 
     val projectKey = opt[String]("projectKey", descr = Messages("cli.help.projectKey"), required = true)
-    val importOnly = opt[Boolean]("importOnly", descr = Messages("cli.help.importOnly"), required = true)
     val optOut     = opt[Boolean]("optOut", descr = Messages("cli.help.optOut"), required = false)
     val help       = opt[String]("help", descr = Messages("cli.help.show_help"))
   }
@@ -84,7 +83,6 @@ object J2B extends BacklogConfiguration with Logging {
       val cli = new CommandLineInterface(args)
       val config = getConfiguration(cli)
       cli.subcommand match {
-        case Some(cli.importCommand) if cli.importCommand.importOnly() => J2BCli.doImport(config)
         case Some(cli.importCommand)  => J2BCli.`import`(config)
         case Some(cli.exportCommand)  => J2BCli.export(config)
         case _                        => J2BCli.help()
@@ -111,7 +109,6 @@ object J2B extends BacklogConfiguration with Logging {
          |${Messages("common.backlog")} ${Messages("common.url")}[${cli.importCommand.backlogUrl()}]
          |${Messages("common.backlog")} ${Messages("common.access_key")}[${cli.importCommand.backlogKey()}]
          |${Messages("common.backlog")} ${Messages("common.project_key")}[${backlog}]
-         |${Messages("common.importOnly")}[${cli.importCommand.importOnly()}]
          |${Messages("common.optOut")}[${cli.importCommand.optOut.toOption.getOrElse(false)}]
          |--------------------------------------------------
      |""".stripMargin)
@@ -119,7 +116,6 @@ object J2B extends BacklogConfiguration with Logging {
     new AppConfiguration(
       jiraConfig    = new JiraApiConfiguration(username = cli.importCommand.jiraUsername(), password = cli.importCommand.jiraPassword(), cli.importCommand.jiraUrl(), projectKey = jira),
       backlogConfig = new BacklogApiConfiguration(url = cli.importCommand.backlogUrl(), key = cli.importCommand.backlogKey(), projectKey = backlog),
-      importOnly    = cli.importCommand.importOnly(),
       optOut        = cli.importCommand.optOut())
   }
 
