@@ -10,7 +10,7 @@ import com.nulabinc.backlog.j2b.modules._
 import com.nulabinc.backlog.migration.common.conf.{BacklogConfiguration, BacklogPaths}
 import com.nulabinc.backlog.migration.common.domain.BacklogUser
 import com.nulabinc.backlog.migration.common.modules.ServiceInjector
-import com.nulabinc.backlog.migration.common.service.{ProjectService, SpaceService}
+import com.nulabinc.backlog.migration.common.service.{ProjectService, SpaceService, UserService}
 import com.nulabinc.backlog.migration.common.utils.Logging
 import com.nulabinc.backlog.migration.importer.core.Boot
 import com.nulabinc.jira.client.JiraRestClient
@@ -21,7 +21,8 @@ object J2BCli extends BacklogConfiguration
     with ConfigValidator
     with MappingValidator
     with MappingConsole
-    with InteractiveConfirm {
+    with InteractiveConfirm
+    with Tracker {
 
   def export(config: AppConfiguration): Unit = {
 
@@ -92,6 +93,12 @@ object J2BCli extends BacklogConfiguration
 
         // Import
         Boot.execute(config.backlogConfig, false)
+
+        // Tracking
+        if (!config.isOptOut) {
+          val userService = backlogInjector.getInstance(classOf[UserService])
+          tracking(config, spaceService, userService)
+        }
       }
     }
   }
