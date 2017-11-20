@@ -6,12 +6,7 @@ import com.osinka.i18n.Messages
 
 trait MappingConsole extends Logging {
 
-  def displayToConsole(mappingFile: MappingFile): Unit = {
-    if (mappingFile.isExists) mappingFileExists(mappingFile)
-    else                      createMappingFile(mappingFile)
-  }
-
-  private def mappingFileExists(mappingFile: MappingFile): Unit = {
+  def displayMergedMappingFileMessageToConsole(mappingFile: MappingFile): Unit = {
     val addItems = mappingFile.merge()
     val message = if (addItems.nonEmpty) {
       def displayItem(value: String) = {
@@ -36,8 +31,7 @@ trait MappingConsole extends Logging {
     ConsoleOut.println(message)
   }
 
-  private def createMappingFile(mappingFile: MappingFile): Unit = {
-    mappingFile.create()
+  def displayCreateMappingFileMessageToConsole(mappingFile: MappingFile): Unit = {
     val message =
       s"""
          |--------------------------------------------------

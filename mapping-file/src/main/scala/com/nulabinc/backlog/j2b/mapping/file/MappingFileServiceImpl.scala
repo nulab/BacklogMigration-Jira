@@ -40,7 +40,7 @@ class MappingFileServiceImpl @Inject()(jiraApiConfig: JiraApiConfiguration,
     new StatusMappingFile(jiraStatuses, backlogStatuses)
   }
 
-  override def userMappingsFromFile() = {
+  override def userMappingsFromFile(): Seq[Mapping] = {
     val mappingFile = new UserMappingFile(backlogApiConfig, Seq.empty[JiraUser], Seq.empty[BacklogUser])
     mappingFile.tryUnMarshal()
   }
