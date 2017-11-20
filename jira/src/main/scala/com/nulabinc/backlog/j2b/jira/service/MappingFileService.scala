@@ -11,9 +11,4 @@ trait MappingFileService {
 
   def createStatusMappingFile(statuses: Seq[Status]): MappingFile
 
-  def userMappingsFromFile(): Seq[Mapping]
-
-  def priorityMappingsFromFile(): Seq[Mapping]
-
-  def statusMappingsFromFile(): Seq[Mapping]
 }

@@ -10,7 +10,7 @@ import com.nulabinc.backlog.j2b.modules._
 import com.nulabinc.backlog.migration.common.conf.{BacklogConfiguration, BacklogPaths}
 import com.nulabinc.backlog.migration.common.domain.BacklogUser
 import com.nulabinc.backlog.migration.common.modules.ServiceInjector
-import com.nulabinc.backlog.migration.common.service.SpaceService
+import com.nulabinc.backlog.migration.common.service.{ProjectService, SpaceService}
 import com.nulabinc.backlog.migration.common.utils.Logging
 import com.nulabinc.backlog.migration.importer.core.Boot
 import com.nulabinc.jira.client.JiraRestClient
@@ -32,12 +32,15 @@ object J2BCli extends BacklogConfiguration
     val spaceService   = backlogInjector.getInstance(classOf[SpaceService])
 
     if (validateConfig(config, jiraRestClient, spaceService)) {
+
+      // Delete old exports
+      val backlogPaths = backlogInjector.getInstance(classOf[BacklogPaths])
+      backlogPaths.outputPath.deleteRecursively(force = true, continueOnFailure = true)
+
+      // Export
       val exporter            = jiraInjector.getInstance(classOf[Exporter])
       val collectData         = exporter.export()
       val mappingFileService  = jiraInjector.getInstance(classOf[MappingFileService])
-
-      val backlogPaths = backlogInjector.getInstance(classOf[BacklogPaths])
-      backlogPaths.outputPath.deleteRecursively(force = true, continueOnFailure = true)
 
       List(
         mappingFileService.createUserMappingFile(collectData.users),
@@ -64,10 +67,6 @@ object J2BCli extends BacklogConfiguration
 
     if (validateConfig(config, jiraRestClient, spaceService)) {
 
-      // Convert
-      val mappingFileService  = jiraInjector.getInstance(classOf[MappingFileService])
-      val converter           = jiraInjector.getInstance(classOf[MappingConverter])
-
       import com.nulabinc.backlog4j.{Status => BacklogStatus, Priority => BacklogPriority}
       import com.nulabinc.jira.client.domain.{Status => JiraStatus, Priority => JiraPriority, User => JiraUser}
 
@@ -76,22 +75,20 @@ object J2BCli extends BacklogConfiguration
       val userMappingFile     = new UserMappingFile(config.backlogConfig, Seq.empty[JiraUser], Seq.empty[BacklogUser])
 
       for {
-        _ <- mappingFileExists(statusMappingFile).right
-        _ <- mappingFileExists(priorityMappingFile).right
-        _ <- mappingFileExists(userMappingFile).right
-
+        _           <- mappingFileExists(statusMappingFile).right
+        _           <- mappingFileExists(priorityMappingFile).right
+        _           <- mappingFileExists(userMappingFile).right
+        projectKeys <- confirmProject(config, backlogInjector.getInstance(classOf[ProjectService])).right
+        _           <- finalConfirm(projectKeys, statusMappingFile, priorityMappingFile, userMappingFile).right
       } yield ()
 
-//      List(
-//        validateMapping(userMappingFile),
-//        validateMapping(priorityMappingFile),
-//        validateMapping(statusMappingFile)
-//      )
+      // Convert
+      val converter = jiraInjector.getInstance(classOf[MappingConverter])
 
       converter.convert(
-        userMaps      = mappingFileService.userMappingsFromFile(),
-        priorityMaps  = mappingFileService.priorityMappingsFromFile(),
-        statusMaps    = mappingFileService.statusMappingsFromFile()
+        userMaps      = userMappingFile.tryUnMarshal(),
+        priorityMaps  = priorityMappingFile.tryUnMarshal(),
+        statusMaps    = statusMappingFile.tryUnMarshal()
       )
 
       // Import

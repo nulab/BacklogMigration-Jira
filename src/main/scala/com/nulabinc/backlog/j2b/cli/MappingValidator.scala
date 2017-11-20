@@ -4,7 +4,7 @@ import com.nulabinc.backlog.j2b.jira.domain.mapping.MappingFile
 import com.nulabinc.backlog.migration.common.utils.{ConsoleOut, Logging}
 import com.osinka.i18n.Messages
 
-sealed trait MappingValidateError
+sealed trait MappingValidateError extends CliError
 case object MappingFileMissing extends MappingValidateError
 
 

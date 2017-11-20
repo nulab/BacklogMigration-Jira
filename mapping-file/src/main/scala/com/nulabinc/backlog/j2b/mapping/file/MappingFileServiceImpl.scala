@@ -40,18 +40,4 @@ class MappingFileServiceImpl @Inject()(jiraApiConfig: JiraApiConfiguration,
     new StatusMappingFile(jiraStatuses, backlogStatuses)
   }
 
-  override def userMappingsFromFile(): Seq[Mapping] = {
-    val mappingFile = new UserMappingFile(backlogApiConfig, Seq.empty[JiraUser], Seq.empty[BacklogUser])
-    mappingFile.tryUnMarshal()
-  }
-
-  override def priorityMappingsFromFile(): Seq[Mapping] = {
-    val mappingFile = new PriorityMappingFile(Seq.empty[JiraPriority], Seq.empty[BacklogPriority])
-    mappingFile.tryUnMarshal()
-  }
-
-  override def statusMappingsFromFile(): Seq[Mapping] = {
-    val mappingFile = new StatusMappingFile(Seq.empty[JiraStatus], Seq.empty[BacklogStatus])
-    mappingFile.tryUnMarshal()
-  }
 }
