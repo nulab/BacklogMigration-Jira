@@ -6,7 +6,7 @@ import javax.inject.Inject
 
 import com.nulabinc.backlog.migration.common.convert.Writes
 import com.nulabinc.backlog.migration.common.domain.BacklogCustomField
-import com.nulabinc.backlog.migration.common.utils.{DateUtil, Logging}
+import com.nulabinc.backlog.migration.common.utils.Logging
 import com.nulabinc.backlog4j.CustomField.FieldType
 import com.nulabinc.jira.client.domain.field._
 import com.nulabinc.jira.client.domain.issue._

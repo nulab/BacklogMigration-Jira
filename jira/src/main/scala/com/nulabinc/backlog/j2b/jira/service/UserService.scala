@@ -6,6 +6,6 @@ trait UserService {
 
   def allUsers(): Seq[User]
 
-  def optUserOfId(id: String): Option[User]
+  def optUserOfKey(key: Option[String]): Option[User]
 
 }

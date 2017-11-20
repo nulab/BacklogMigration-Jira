@@ -6,7 +6,8 @@ import com.nulabinc.backlog.j2b.jira.domain.{CollectData, JiraProjectKey}
 import com.nulabinc.backlog.j2b.jira.service._
 import com.nulabinc.backlog.j2b.jira.writer._
 import com.nulabinc.backlog.migration.common.utils.{ConsoleOut, Logging, ProgressBar}
-import com.nulabinc.jira.client.domain.{Status, User}
+import com.nulabinc.jira.client.domain._
+import com.nulabinc.jira.client.domain.changeLog.{AssigneeFieldId, ComponentChangeLogItemField, FixVersion}
 import com.osinka.i18n.Messages
 
 class Exporter @Inject()(projectKey: JiraProjectKey,
@@ -23,11 +24,15 @@ class Exporter @Inject()(projectKey: JiraProjectKey,
                          issueService: IssueService,
                          issueWriter: IssueWriter,
                          statusService: StatusService,
-                         priorityService: PriorityService)
+                         priorityService: PriorityService,
+                         commentService: CommentService,
+                         commentWriter: CommentWriter,
+                         initializer: IssueInitializer,
+                         userService: UserService)
     extends Logging {
 
   private val console            = (ProgressBar.progress _)(Messages("common.issues"), Messages("message.exporting"), Messages("message.exported"))
-  private val issuesInfoProgress = (ProgressBar.progress _)(Messages("common.issues_info"), Messages("message.collecting"), Messages("message.collected"))
+//  private val issuesInfoProgress = (ProgressBar.progress _)(Messages("common.issues_info"), Messages("message.collecting"), Messages("message.collected"))
 
   def export(): CollectData = {
 
@@ -73,21 +78,55 @@ class Exporter @Inject()(projectKey: JiraProjectKey,
     if (issues.isEmpty) users
     else {
       val collected = issues.zipWithIndex.map {
-        case (issue, i) =>
+        case (issue, i) => {
 
-        //        val issueWithChangeLogs = issueService.injectChangeLogsToIssue(issue) // API Call
+          // changelogs
+          val issueWithChangeLogs = issueService.injectChangeLogsToIssue(issue) // API Call
 
-          issueWriter.write(issue)
+          // comments
+          val comments = commentService.issueComments(issueWithChangeLogs)
 
-        console(i + index.toInt, total.toInt)
+          // export issue (values are initialized)
+          val initializedBacklogIssue = initializer.initialize(issueWithChangeLogs, comments)
+          issueWriter.write(initializedBacklogIssue, issueWithChangeLogs.createdAt.toDate)
 
-        // Collect users
-        Seq(
-          Some(issue.creator),
-          issue.assignee
-        ).filter(_.nonEmpty).flatten
+          // export issue comments
+          val changeLogs1 = ChangeLogsPlayer.play(ComponentChangeLogItemField, initializedBacklogIssue.categoryNames, issueWithChangeLogs.changeLogs)
+          val changeLogs = ChangeLogsPlayer.play(FixVersion, initializedBacklogIssue.versionNames, changeLogs1)
+          commentWriter.write(initializedBacklogIssue, comments, changeLogs, issueWithChangeLogs.attachments)
+
+          console(i + index.toInt, total.toInt)
+
+          val changeLogUsers = issueWithChangeLogs.changeLogs.map(_.author)
+
+          val collectedUsers = Seq(
+            Some(issueWithChangeLogs.creator),
+            issueWithChangeLogs.assignee
+          ).filter(_.nonEmpty).flatten ++ changeLogUsers ++ users
+
+          val changeLogItemUsers = changeLogs
+            .flatMap { changeLog =>
+              changeLog.items
+                .filter(_.fieldId.contains(AssigneeFieldId)) // ChangeLogItem.FieldId is AssigneeFieldId
+            }.flatMap { changeLogItem =>
+              Seq(
+                collectedUsers.find( u => changeLogItem.from.contains(u.name)) match {
+                  case Some(user) => Some(user)
+                  case None       => userService.optUserOfKey(changeLogItem.from)
+                },
+                collectedUsers.find( u => changeLogItem.to.contains(u.name)) match {
+                  case Some(user) => Some(user)
+                  case None       => userService.optUserOfKey(changeLogItem.to)
+                }
+              ).flatten
+            }
+
+          collectedUsers ++ changeLogItemUsers
+        }
       }
-      fetchIssue(users ++ collected.flatten, index + collected.length , total, startAt + maxResults, maxResults)
+      fetchIssue(collected.flatten.toSet, index + collected.length , total, startAt + maxResults, maxResults)
     }
   }
+
+
 }

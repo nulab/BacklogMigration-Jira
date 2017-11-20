@@ -1,5 +1,7 @@
 package com.nulabinc.jira.client
 
+import java.io.{File, FileOutputStream}
+import java.nio.channels.Channels
 import java.nio.charset.Charset
 
 import org.apache.commons.codec.binary.Base64
@@ -16,6 +18,10 @@ case object AuthenticateFailedError extends HttpClientError("Bad credential")
 case class ApiNotFoundError(url: String) extends HttpClientError(url)
 case class BadRequestError(error: String) extends HttpClientError(error)
 case class UndefinedError(statusCode: Int) extends HttpClientError(s"Unknown status code: $statusCode")
+
+sealed trait DownloadResult
+case object Success extends DownloadResult
+case object Failure extends DownloadResult
 
 class HttpClient(url: String, username: String, password: String) {
 
@@ -47,6 +53,26 @@ class HttpClient(url: String, username: String, password: String) {
         case HttpStatus.SC_NOT_FOUND    => Left(ApiNotFoundError(request.getURI.toString))
         case HttpStatus.SC_UNAUTHORIZED => Left(AuthenticateFailedError)
         case _                          => Left(UndefinedError(httpResponse.getStatusLine.getStatusCode))
+      }
+    }
+  }
+
+  def download(url: String, destinationFilePath: String): DownloadResult = {
+    using(HttpClientBuilder.create().build()) { http =>
+      val request = new HttpGet(url)
+      request.setHeader(HttpHeaders.AUTHORIZATION, authHeader)
+      val httpResponse = http.execute(request)
+      httpResponse.getStatusLine.getStatusCode match {
+        case HttpStatus.SC_OK =>
+          using(httpResponse.getEntity.getContent) { inputStream =>
+            using(Channels.newChannel(inputStream)) { rbc =>
+              using(new FileOutputStream(new File(destinationFilePath))) { fos =>
+                fos.getChannel.transferFrom(rbc, 0, java.lang.Long.MAX_VALUE)
+                Success
+              }
+            }
+          }
+        case _ => Failure
       }
     }
   }

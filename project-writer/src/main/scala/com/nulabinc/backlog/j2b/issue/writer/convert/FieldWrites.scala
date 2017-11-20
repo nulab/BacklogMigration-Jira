@@ -8,9 +8,7 @@ import com.nulabinc.backlog4j.CustomField.FieldType
 import com.nulabinc.jira.client.domain.field._
 import com.osinka.i18n.Messages
 
-private [writer] class FieldWrites
-    extends Writes[Seq[Field], Seq[BacklogCustomFieldSetting]]
-    with Logging {
+class FieldWrites extends Writes[Seq[Field], Seq[BacklogCustomFieldSetting]] with Logging {
 
   override def writes(fields: Seq[Field]) = {
     fields
@@ -62,10 +60,10 @@ private [writer] class FieldWrites
 //        case _                                        => redmineCustomFieldDefinition.possibleValues
 //      }
 
-    def toBacklogItem(name: String): BacklogItem =
-      BacklogItem(optId = None, name = name)
+//    def toBacklogItem(name: String): BacklogItem =
+//      BacklogItem(optId = None, name = name)
 
-    def booleanPossibleValues() = Seq(Messages("common.no"), Messages("common.yes"))
+//    def booleanPossibleValues() = Seq(Messages("common.no"), Messages("common.yes"))
 
     BacklogCustomFieldMultipleProperty(
       typeId = multipleTypeId(isMultiple),

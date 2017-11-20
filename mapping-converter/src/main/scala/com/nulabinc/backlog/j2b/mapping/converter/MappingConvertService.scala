@@ -3,14 +3,13 @@ package com.nulabinc.backlog.j2b.mapping.converter
 import javax.inject.Inject
 
 import com.nulabinc.backlog.j2b.jira.converter._
-import com.nulabinc.backlog.j2b.jira.domain.Mapping
+import com.nulabinc.backlog.j2b.jira.domain.mapping.Mapping
 import com.nulabinc.backlog.j2b.mapping.converter.writes._
-import com.nulabinc.backlog.migration.common.conf.BacklogPaths
+import com.nulabinc.backlog.migration.common.conf.{BacklogConstantValue, BacklogPaths}
 import com.nulabinc.backlog.migration.common.convert.{BacklogUnmarshaller, Convert}
 import com.nulabinc.backlog.migration.common.domain.{BacklogComment, BacklogIssue}
 import com.nulabinc.backlog.migration.common.utils.IOUtil
 import com.nulabinc.backlog.migration.common.domain.BacklogJsonProtocol._
-
 import spray.json._
 
 import scalax.file.Path
@@ -30,7 +29,8 @@ class MappingConvertService @Inject()(implicit val issueWrites: IssueWrites,
     paths.zipWithIndex.foreach {
       case (path, index) =>
         convertIssue(path, index, paths.size, userMaps, priorityMaps, statusMaps)
-    }  }
+    }
+  }
 
   private def convertIssue(path: Path, index: Int, size: Int, userMaps: Seq[Mapping], priorityMaps: Seq[Mapping], statusMaps: Seq[Mapping]) = {
     BacklogUnmarshaller.issue(backlogPaths.issueJson(path)) match {
@@ -47,8 +47,31 @@ class MappingConvertService @Inject()(implicit val issueWrites: IssueWrites,
         )
         IOUtil.output(backlogPaths.issueJson(path), Convert.toBacklog(converted).toJson.prettyPrint)
       }
-      case Some(comment: BacklogComment) =>
-        IOUtil.output(backlogPaths.issueJson(path), Convert.toBacklog(comment).toJson.prettyPrint)
+      case Some(comment: BacklogComment) => {
+        val convertedChangeLogs = comment.changeLogs.map { changeLog =>
+          changeLog.field match {
+            case BacklogConstantValue.ChangeLog.STATUS => changeLog.copy(
+              optOriginalValue = changeLog.optOriginalValue.map(statusConverter.convert(statusMaps, _)),
+              optNewValue      = changeLog.optNewValue.map(statusConverter.convert(statusMaps, _))
+            )
+            case BacklogConstantValue.ChangeLog.PRIORITY => changeLog.copy(
+              optOriginalValue = changeLog.optOriginalValue.map(priorityConverter.convert(priorityMaps, _)),
+              optNewValue      = changeLog.optNewValue.map(priorityConverter.convert(priorityMaps, _))
+            )
+            case BacklogConstantValue.ChangeLog.ASSIGNER => changeLog.copy(
+              optOriginalValue = changeLog.optOriginalValue.map(userConverter.convert(userMaps, _)),
+              optNewValue      = changeLog.optNewValue.map(userConverter.convert(userMaps, _))
+            )
+            case _ => changeLog
+          }
+        }
+        IOUtil.output(
+          backlogPaths.issueJson(path),
+          Convert.toBacklog(
+            comment.copy(changeLogs = convertedChangeLogs)
+          ).toJson.prettyPrint
+        )
+      }
       case _ => throw new RuntimeException(s"Issue file not found.:${backlogPaths.issueJson(path).path}")
     }
 //    issueConsoleProgress(index + 1, size)

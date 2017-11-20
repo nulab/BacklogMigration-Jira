@@ -2,7 +2,7 @@ package com.nulabinc.jira.client.apis
 
 import com.netaporter.uri.dsl._
 import com.nulabinc.jira.client._
-import com.nulabinc.jira.client.domain.ChangeLogResult
+import com.nulabinc.jira.client.domain.changeLog.ChangeLogResult
 import com.nulabinc.jira.client.domain.issue.Issue
 import spray.json._
 
@@ -22,7 +22,8 @@ class IssueRestClientImpl(httpClient: HttpClient) {
     val uri = "/search" ?
       ("startAt"    -> startAt) &
       ("maxResults" -> maxResults) &
-      ("jql"        -> s"project=$key")
+      ("jql"        -> s"project=$key") &
+      ("fields"     -> "*all")
 
     httpClient.get(uri.toString) match {
       case Right(json) => Right(JsonParser(json).convertTo[IssueResult].issues)

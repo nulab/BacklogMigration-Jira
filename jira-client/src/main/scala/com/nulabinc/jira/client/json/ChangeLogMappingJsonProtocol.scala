@@ -1,8 +1,9 @@
 package com.nulabinc.jira.client.json
 
-import com.nulabinc.jira.client.domain._
+import com.nulabinc.jira.client.domain.{changeLog, _}
+import com.nulabinc.jira.client.domain.changeLog._
 import org.joda.time.DateTime
-import spray.json._
+import spray.json.{JsNull, _}
 
 object ChangeLogMappingJsonProtocol extends DefaultJsonProtocol {
 
@@ -14,18 +15,42 @@ object ChangeLogMappingJsonProtocol extends DefaultJsonProtocol {
 
     def read(json: JsValue) = {
       val jsObject = json.asJsObject
-      val from = jsObject.getFields("fromString") match {
-        case Seq(JsString(from)) => Some(from)
-        case _                   => None
+
+      val from = jsObject.getFields("from") match {
+        case Seq(JsString(s)) => Some(s)
+        case _                => None
       }
-      jsObject.getFields("field", "fieldType", "fieldId", "toString") match {
-        case Seq(JsString(field), JsString(fieldType), JsString(fieldId), JsString(to)) =>
+      val fromString = jsObject.getFields("fromString") match {
+        case Seq(JsString(s)) => Some(s)
+        case _                => None
+      }
+
+      val to = jsObject.getFields("to") match {
+        case Seq(JsNull)       => None
+        case Seq(JsString(s))  => Some(s)
+        case _                 => None
+      }
+      val toString = jsObject.getFields("toString") match {
+        case Seq(JsNull)       => None
+        case Seq(JsString(s))  => Some(s)
+        case _                 => None
+      }
+
+      val fieldId = jsObject.getFields("fieldId") match {
+        case Seq(JsString(id)) => Some(id)
+        case _                 => None
+      }
+
+      jsObject.getFields("field", "fieldtype") match {
+        case Seq(JsString(field), JsString(fieldType)) =>
           ChangeLogItem(
-            field = field,
-            fieldType = fieldType,
-            fieldId = fieldId,
-            from = from,
-            to = to
+            field               = ChangeLogItemField.parse(field),
+            fieldType           = fieldType,
+            fieldId             = fieldId.map(FieldId.parse),
+            from                = from,
+            fromDisplayString   = fromString,
+            to                  = to,
+            toDisplayString     = toString
           )
         case other => deserializationError("Cannot deserialize ChangeLogItem: invalid input. Raw input: " + other)
       }
@@ -39,7 +64,7 @@ object ChangeLogMappingJsonProtocol extends DefaultJsonProtocol {
       val jsObject = json.asJsObject
       jsObject.getFields("id", "author", "created", "items") match {
         case Seq(JsString(id), author, created, items) =>
-          ChangeLog(
+          changeLog.ChangeLog(
             id        = id.toLong,
             author    = author.convertTo[User],
             createdAt = created.convertTo[DateTime],

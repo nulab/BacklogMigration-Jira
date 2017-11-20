@@ -1,37 +1,12 @@
 package com.nulabinc.backlog.j2b.mapping.file
 
-import com.nulabinc.backlog.migration.common.conf.BacklogApiConfiguration
-import com.nulabinc.backlog.migration.common.modules.{ServiceInjector => BacklogInjector}
-import com.nulabinc.backlog.migration.common.service.{PriorityService => BacklogPriorityService}
-import com.nulabinc.backlog.j2b.jira.conf.JiraApiConfiguration
+import com.nulabinc.backlog.j2b.jira.domain.mapping.{MappingFile, MappingItem}
 import com.nulabinc.backlog.j2b.mapping.core.MappingDirectory
 import com.nulabinc.jira.client.domain.{Priority => JiraPriority}
 import com.nulabinc.backlog4j.{Priority => BacklogPriority}
 import com.osinka.i18n.{Lang, Messages}
 
-class PriorityMappingFile(jiraApiConfig: JiraApiConfiguration,
-                          backlogApiConfig: BacklogApiConfiguration,
-                          priorities: Seq[JiraPriority]) extends MappingFile {
-
-  private[this] val jiraItems = getJiraItems()
-  private[this] val backlogItems = getBacklogItems()
-
-  private[this] def getJiraItems(): Seq[MappingItem] = {
-    def createItem(priority: JiraPriority): MappingItem = {
-      MappingItem(priority.name, priority.name)
-    }
-    priorities.map(createItem)
-  }
-
-  private[this] def getBacklogItems(): Seq[MappingItem] = {
-    def createItem(priority: BacklogPriority): MappingItem = {
-      MappingItem(priority.getName, priority.getName)
-    }
-    val injector          = BacklogInjector.createInjector(backlogApiConfig)
-    val priorityService   = injector.getInstance(classOf[BacklogPriorityService])
-    val backlogPriorities = priorityService.allPriorities()
-    backlogPriorities.map(createItem)
-  }
+class PriorityMappingFile(jiraPriorities: Seq[JiraPriority], backlogPriorities: Seq[BacklogPriority]) extends MappingFile {
 
   private object Backlog {
     val LOW_JA: String    = Messages("mapping.priority.backlog.low")(Lang("ja"))
@@ -75,9 +50,11 @@ class PriorityMappingFile(jiraApiConfig: JiraApiConfiguration,
         }
     }
 
-  override def jiras: Seq[MappingItem] = jiraItems
+  override def jiras: Seq[MappingItem] =
+    jiraPriorities.map(priority => MappingItem(priority.name, priority.name))
 
-  override def backlogs: Seq[MappingItem] = backlogItems
+  override def backlogs: Seq[MappingItem] =
+    backlogPriorities.map(priority => MappingItem(priority.getName, priority.getName))
 
   override def filePath: String = MappingDirectory.PRIORITY_MAPPING_FILE
 

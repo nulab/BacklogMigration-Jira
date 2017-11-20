@@ -1,15 +1,23 @@
 package com.nulabinc.backlog.j2b.exporter.service
 
+import java.util.Date
 import javax.inject.Inject
 
 import com.nulabinc.backlog.j2b.jira.conf.JiraApiConfiguration
 import com.nulabinc.backlog.j2b.jira.domain.JiraProjectKey
 import com.nulabinc.backlog.j2b.jira.service.IssueService
+import com.nulabinc.backlog.migration.common.conf.BacklogPaths
 import com.nulabinc.backlog.migration.common.utils.Logging
-import com.nulabinc.jira.client.JiraRestClient
+import com.nulabinc.jira.client.{DownloadResult, JiraRestClient}
 import com.nulabinc.jira.client.domain.issue.Issue
 
-class JiraClientIssueService @Inject()(apiConfig: JiraApiConfiguration, projectKey: JiraProjectKey, jira: JiraRestClient)
+import scala.util.{Failure, Success, Try}
+import scalax.file.Path
+
+class JiraClientIssueService @Inject()(apiConfig: JiraApiConfiguration,
+                                       projectKey: JiraProjectKey,
+                                       jira: JiraRestClient,
+                                       backlogPaths: BacklogPaths)
     extends IssueService with Logging {
 
   override def count() = {
@@ -34,6 +42,14 @@ class JiraClientIssueService @Inject()(apiConfig: JiraApiConfiguration, projectK
   override def injectChangeLogsToIssue(issue: Issue) = {
     val changeLogs = jira.issueAPI.changeLogs(issue.id.toString, 0, 100)
 
-    issue
+    issue.copy(changeLogs = changeLogs.right.get.values)
   }
+
+  override def downloadAttachments(attachmentId: Long, saveDirectory: Path, fileName: String): DownloadResult = {
+    // content = https://(workspace name).atlassian.net/secure/attachment/(attachment ID)/(file name)
+    jira.httpClient.download(jira.url + s"/secure/attachment/$attachmentId/$fileName", saveDirectory.path)
+  }
+
+  override def injectAttachmentsToIssue(issue: Issue) = ???
+
 }
