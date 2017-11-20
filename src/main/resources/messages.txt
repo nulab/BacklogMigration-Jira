@@ -38,7 +38,6 @@ common.access_key=Access Key
 common.project_key=Project Key
 common.username=Username
 common.password=Password
-common.importOnly=Only Import
 common.optOut=Opt Out
 common.url=URL
 
@@ -63,7 +62,6 @@ cli.help.backlog.url=Your Backlog url (required) Example:--backlog.url [your bac
 cli.help.jira.username=Your Jira user name (required) Example:--jira.username [your jira username]
 cli.help.jira.password=Your Jira user password (required) Example:--jira.password [your jira password]
 cli.help.jira.url=Your Jira url (required) Example:--jira.url [your jira url]
-cli.help.importOnly=If you set this option, only import will be run by the program.
 cli.help.optOut=If you set this option, tracking will not be run by the program.
 
 # CLI Validate Param

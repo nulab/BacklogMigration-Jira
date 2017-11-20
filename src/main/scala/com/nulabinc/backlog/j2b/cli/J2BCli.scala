@@ -96,14 +96,4 @@ object J2BCli extends BacklogConfiguration
     }
   }
 
-  def doImport(config: AppConfiguration): Unit = {
-
-//    val injector = Guice.createInjector(new ImportModule(config))
-//
-//    if (validateConfig(config, injector)) {
-//
-//    }
-  }
-
-
 }
