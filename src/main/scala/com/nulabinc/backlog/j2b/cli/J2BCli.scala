@@ -80,19 +80,19 @@ object J2BCli extends BacklogConfiguration
         _           <- mappingFileExists(userMappingFile).right
         projectKeys <- confirmProject(config, backlogInjector.getInstance(classOf[ProjectService])).right
         _           <- finalConfirm(projectKeys, statusMappingFile, priorityMappingFile, userMappingFile).right
-      } yield ()
+      } yield {
+        // Convert
+        val converter = jiraInjector.getInstance(classOf[MappingConverter])
 
-      // Convert
-      val converter = jiraInjector.getInstance(classOf[MappingConverter])
+        converter.convert(
+          userMaps      = userMappingFile.tryUnMarshal(),
+          priorityMaps  = priorityMappingFile.tryUnMarshal(),
+          statusMaps    = statusMappingFile.tryUnMarshal()
+        )
 
-      converter.convert(
-        userMaps      = userMappingFile.tryUnMarshal(),
-        priorityMaps  = priorityMappingFile.tryUnMarshal(),
-        statusMaps    = statusMappingFile.tryUnMarshal()
-      )
-
-      // Import
-      Boot.execute(config.backlogConfig, false)
+        // Import
+        Boot.execute(config.backlogConfig, false)
+      }
     }
   }
 
