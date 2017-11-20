@@ -7,18 +7,21 @@ import com.nulabinc.backlog.j2b.jira.converter.MappingConverter
 import com.nulabinc.backlog.j2b.jira.service._
 import com.nulabinc.backlog.j2b.mapping.file._
 import com.nulabinc.backlog.j2b.modules._
-import com.nulabinc.backlog.migration.common.conf.BacklogConfiguration
+import com.nulabinc.backlog.migration.common.conf.{BacklogConfiguration, BacklogPaths}
+import com.nulabinc.backlog.migration.common.domain.BacklogUser
 import com.nulabinc.backlog.migration.common.modules.ServiceInjector
-import com.nulabinc.backlog.migration.common.service.SpaceService
+import com.nulabinc.backlog.migration.common.service.{ProjectService, SpaceService}
 import com.nulabinc.backlog.migration.common.utils.Logging
 import com.nulabinc.backlog.migration.importer.core.Boot
 import com.nulabinc.jira.client.JiraRestClient
-import com.nulabinc.jira.client.domain.{Priority, Status, User}
 
 object J2BCli extends BacklogConfiguration
     with Logging
     with HelpCommand
-    with ConfigValidatable {
+    with ConfigValidator
+    with MappingValidator
+    with MappingConsole
+    with InteractiveConfirm {
 
   def export(config: AppConfiguration): Unit = {
 
@@ -29,15 +32,28 @@ object J2BCli extends BacklogConfiguration
     val spaceService   = backlogInjector.getInstance(classOf[SpaceService])
 
     if (validateConfig(config, jiraRestClient, spaceService)) {
-      val exporter = jiraInjector.getInstance(classOf[Exporter])
 
-      val collectData = exporter.export()
+      // Delete old exports
+      val backlogPaths = backlogInjector.getInstance(classOf[BacklogPaths])
+      backlogPaths.outputPath.deleteRecursively(force = true, continueOnFailure = true)
 
-      val mappingFileService = jiraInjector.getInstance(classOf[MappingFileService])
+      // Export
+      val exporter            = jiraInjector.getInstance(classOf[Exporter])
+      val collectData         = exporter.export()
+      val mappingFileService  = jiraInjector.getInstance(classOf[MappingFileService])
 
-      mappingFileService.outputUserMappingFile(collectData.users)
-      mappingFileService.outputPriorityMappingFile(collectData.priorities)
-      mappingFileService.outputStatusMappingFile(collectData.statuses)
+      List(
+        mappingFileService.createUserMappingFile(collectData.users),
+        mappingFileService.createPriorityMappingFile(collectData.priorities),
+        mappingFileService.createStatusMappingFile(collectData.statuses)
+      ).foreach { mappingFile =>
+        if (mappingFile.isExists) {
+          displayMergedMappingFileMessageToConsole(mappingFile)
+        } else {
+          mappingFile.create()
+          displayCreateMappingFileMessageToConsole(mappingFile)
+        }
+      }
     }
   }
 
@@ -51,16 +67,28 @@ object J2BCli extends BacklogConfiguration
 
     if (validateConfig(config, jiraRestClient, spaceService)) {
 
-      // Convert
-      val userMappingFile     = new UserMappingFile(config.jiraConfig, config.backlogConfig, Seq.empty[User])
-      val priorityMappingFile = new PriorityMappingFile(config.jiraConfig, config.backlogConfig, Seq.empty[Priority])
-      val statusMappingFile   = new StatusMappingFile(config.jiraConfig, config.backlogConfig, Seq.empty[Status])
+      import com.nulabinc.backlog4j.{Status => BacklogStatus, Priority => BacklogPriority}
+      import com.nulabinc.jira.client.domain.{Status => JiraStatus, Priority => JiraPriority, User => JiraUser}
 
+      val statusMappingFile   = new StatusMappingFile(Seq.empty[JiraStatus], Seq.empty[BacklogStatus])
+      val priorityMappingFile = new PriorityMappingFile(Seq.empty[JiraPriority], Seq.empty[BacklogPriority])
+      val userMappingFile     = new UserMappingFile(config.backlogConfig, Seq.empty[JiraUser], Seq.empty[BacklogUser])
+
+      for {
+        _           <- mappingFileExists(statusMappingFile).right
+        _           <- mappingFileExists(priorityMappingFile).right
+        _           <- mappingFileExists(userMappingFile).right
+        projectKeys <- confirmProject(config, backlogInjector.getInstance(classOf[ProjectService])).right
+        _           <- finalConfirm(projectKeys, statusMappingFile, priorityMappingFile, userMappingFile).right
+      } yield ()
+
+      // Convert
       val converter = jiraInjector.getInstance(classOf[MappingConverter])
+
       converter.convert(
-        userMaps = userMappingFile.tryUnmarshal(),
-        priorityMaps = priorityMappingFile.tryUnmarshal(),
-        statusMaps = statusMappingFile.tryUnmarshal()
+        userMaps      = userMappingFile.tryUnMarshal(),
+        priorityMaps  = priorityMappingFile.tryUnMarshal(),
+        statusMaps    = statusMappingFile.tryUnMarshal()
       )
 
       // Import

@@ -6,7 +6,7 @@ import com.nulabinc.backlog.migration.common.utils._
 import com.nulabinc.jira.client.JiraRestClient
 import com.osinka.i18n.Messages
 
-trait ConfigValidatable extends Logging {
+trait ConfigValidator extends Logging {
 
   def validateConfig(config: AppConfiguration,
                      jiraRestClient: JiraRestClient,

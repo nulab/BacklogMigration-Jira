@@ -19,7 +19,6 @@ class ImportModule(config: AppConfiguration) extends DefaultModule(config) {
     bind(classOf[UserConverter]).to(classOf[MappingUserConverter])
     bind(classOf[PriorityConverter]).to(classOf[MappingPriorityConverter])
     bind(classOf[StatusConverter]).to(classOf[MappingStatusConverter])
-    bind(classOf[MappingConverter]).to(classOf[MappingConvertService])
 
     // Mapping-converter
     bind(classOf[MappingConverter]).to(classOf[MappingConvertService])

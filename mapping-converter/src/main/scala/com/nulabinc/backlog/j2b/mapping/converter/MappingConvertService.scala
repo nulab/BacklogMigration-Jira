@@ -3,7 +3,7 @@ package com.nulabinc.backlog.j2b.mapping.converter
 import javax.inject.Inject
 
 import com.nulabinc.backlog.j2b.jira.converter._
-import com.nulabinc.backlog.j2b.jira.domain.Mapping
+import com.nulabinc.backlog.j2b.jira.domain.mapping.Mapping
 import com.nulabinc.backlog.j2b.mapping.converter.writes._
 import com.nulabinc.backlog.migration.common.conf.{BacklogConstantValue, BacklogPaths}
 import com.nulabinc.backlog.migration.common.convert.{BacklogUnmarshaller, Convert}
