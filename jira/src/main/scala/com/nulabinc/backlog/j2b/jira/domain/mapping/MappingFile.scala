@@ -101,7 +101,6 @@ trait MappingFile extends Logging {
   private[this] def convert(jira: MappingItem): Mapping =
     Mapping(
       info = None,
-      mappingType = "",
       src = jira.name,
       dst = matchItem(jira)
     )

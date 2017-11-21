@@ -29,7 +29,7 @@ class MappingUserConverter @Inject()(implicit val userWrites: UserWrites)
     mappingOfName(mappings, user).dst
 
   private def mappingOfUserId(mappings: Seq[Mapping], userId: String): Mapping = {
-    mappings.filter(_.getMappingType() == MappingType.UserId).find(_.src.trim == userId.trim) match {
+    mappings.find(_.src.trim == userId.trim) match {
       case Some(mapping) if mapping.dst.nonEmpty => mapping
       case _ =>
         ConsoleOut.error(Messages("convert.user.failed", userId))
