@@ -5,15 +5,8 @@ Migrate your projects from JIRA to [Backlog].
 
 **Backlog Migration for JIRA is in beta.  To avoid problems, create a new project and import data before importing data to the existing project in Backlog.**
 
-![Backlog icon](https://raw.githubusercontent.com/nulab/BacklogMigration-Jira/master/icon.png)
-
 * Backlog
-    * [http://backlog.jp](http://backlog.jp)
-    * [http://backlogtool.com](http://backlogtool.com)
-
-## DEMO
-
-![Demo](http://www.backlog.jp/backlog-migration/backlog-migration-jira.gif)
+    * [https://backlog.com](https://backlog.com/)
 
 ## Requirements
 * **Java 8**
@@ -206,16 +199,17 @@ MIT License
 
 Please contact us if you encounter any problems during the JIRA to Backlog migration.
 
-https://www.backlog.jp/contact/
+https://backlog.com/contact/
+
+
 
 # Backlog Migration for JIRA
-JIRA[Backlog]に移行するためのツールです。
+JIRAのプロジェクトを[Backlog]に移行するためのツールです。
 
-**Backlog Migration for JIRAはベータバージョンです。Backlog上の既存プロジェクトにインポートする場合は、先に新しく別プロジェクトを作成し、こちらにインポートし内容を確認後。正式なプロジェクトにインポートしてください**
+**Backlog Migration for JIRAはベータバージョンです。Backlog上の既存プロジェクトにインポートする場合は、先に新しく別プロジェクトを作成し、こちらにインポートし内容を確認後、正式なプロジェクトにインポートしてください**
 
 * Backlog
-    * [http://backlog.jp](http://backlog.jp)
-    * [http://backlogtool.com](http://backlogtool.com)
+    * [https://www.backlog.jp](https://www.backlog.jp/)
 
 ## 必須要件
 * **Java 8**
@@ -408,4 +402,4 @@ MIT License
 
 https://www.backlog.jp/contact/
 
-[Backlog]: http://www.backlog.jp/
+[Backlog]: https://www.backlog.jp/
