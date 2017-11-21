@@ -22,4 +22,4 @@ backlog/project
 mapping/*.json
 mapping2/*.json
 backlog-migration-jira-*\.jar
-*.log
+log/
