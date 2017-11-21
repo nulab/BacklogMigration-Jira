@@ -68,4 +68,22 @@ class ChangeLogsPlayerSpec extends Specification {
 
     replay(0).to must equalTo(Seq("テスト", "確認"))
   }
+
+  "Calc.run4" >> {
+    val init = Seq("AAA")
+    val histories = Seq(
+      History(
+        id = 1,
+        from = None,
+        to = Some("CCC")
+      ),
+      History(
+        id = 2,
+        from = Some("BBB, CCC"),
+        to = None
+      )
+    )
+    val actual = Calc.run(init, histories)
+    actual.last must equalTo(Result(2, Seq("AAA", "CCC"), Seq("AAA")))
+  }
 }

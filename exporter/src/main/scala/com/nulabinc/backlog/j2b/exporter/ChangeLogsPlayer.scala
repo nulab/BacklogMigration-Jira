@@ -26,12 +26,12 @@ object Calc {
 case class History(id: Long, from: Option[String], to: Option[String]) {
 
   def fromToSeq(): Seq[String] = from match {
-    case Some(f) => f.split(",").toSeq
+    case Some(f) => f.split(",").map(_.trim).toSeq
     case _       => Seq.empty[String]
   }
 
   def toToSeq(): Seq[String] = to match {
-    case Some(t) => t.split(",").toSeq
+    case Some(t) => t.split(",").map(_.trim).toSeq
     case _       => Seq.empty[String]
   }
 
@@ -63,7 +63,7 @@ object ChangeLogsPlayer {
         val r = result.find(_.id == changeLog.id)
 
         if (changeLogItem.field == targetField) {
-          changeLogItem.copy(fromDisplayString = r.map(_.from.mkString(", ")), toDisplayString = r.map(_.to.mkString(", ")))
+          changeLogItem.copy(fromDisplayString = r.map(_.from.mkString(",")), toDisplayString = r.map(_.to.mkString(",")))
         } else
           changeLogItem
       }.distinct
@@ -85,7 +85,7 @@ object ChangeLogsPlayer {
   private def concat(targetField: ChangeLogItemField, changeLog: ChangeLog): ChangeLog = {
 
     def makeStrings(array: Seq[String]) = {
-      if (array.nonEmpty) Some(array.mkString(", "))
+      if (array.nonEmpty) Some(array.mkString(","))
       else None
     }
 
