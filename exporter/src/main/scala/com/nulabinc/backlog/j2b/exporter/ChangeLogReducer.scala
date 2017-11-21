@@ -3,7 +3,7 @@ package com.nulabinc.backlog.j2b.exporter
 import com.nulabinc.backlog.j2b.jira.service.IssueService
 import com.nulabinc.backlog.migration.common.conf.{BacklogConstantValue, BacklogPaths}
 import com.nulabinc.backlog.migration.common.domain._
-import com.nulabinc.backlog.migration.common.utils.Logging
+import com.nulabinc.backlog.migration.common.utils.{IOUtil, Logging}
 import com.nulabinc.jira.client._
 import com.nulabinc.jira.client.domain.Attachment
 import com.osinka.i18n.Messages
@@ -84,6 +84,7 @@ private [exporter] class ChangeLogReducer(issueDirPath: Path,
             // download
             val dir  = backlogPaths.issueAttachmentDirectoryPath(issueDirPath)
             val path = backlogPaths.issueAttachmentPath(dir, attachmentInfo.name)
+            IOUtil.createDirectory(dir)
             issueService.downloadAttachments(attachmentInfoId.toLong, path, attachmentInfo.name) match {
               case Success =>
                 (Some(changeLog), "")
