@@ -9,6 +9,7 @@ import com.nulabinc.backlog.j2b.jira.writer._
 import com.nulabinc.backlog.migration.common.utils.{ConsoleOut, Logging, ProgressBar}
 import com.nulabinc.jira.client.domain._
 import com.nulabinc.jira.client.domain.changeLog.{AssigneeFieldId, ComponentChangeLogItemField, FixVersion}
+import com.nulabinc.jira.client.domain.issue.Issue
 import com.osinka.i18n.Messages
 
 class Exporter @Inject()(projectKey: JiraProjectKey,
@@ -67,7 +68,7 @@ class Exporter @Inject()(projectKey: JiraProjectKey,
 
     // issue
     val total = issueService.count
-    val users = fetchIssue(Set.empty[User], statuses, 1, total, 0, 100)
+    val users = fetchIssue(Set.empty[User], statuses, categories, versions, 1, total, 0, 100)
 
     // Output Jira data
     val collectedData = CollectData(users, statuses, priorities)
@@ -79,7 +80,11 @@ class Exporter @Inject()(projectKey: JiraProjectKey,
     collectedData
   }
 
-  private def fetchIssue(users: Set[User], statuses: Seq[Status], index: Long, total: Long, startAt: Long, maxResults: Long): Set[User] = {
+  private def fetchIssue(users: Set[User],
+                         statuses: Seq[Status],
+                         components: Seq[Component],
+                         versions: Seq[Version],
+                         index: Long, total: Long, startAt: Long, maxResults: Long): Set[User] = {
 
     val issues = issueService.issues(startAt, maxResults)
 
@@ -94,23 +99,28 @@ class Exporter @Inject()(projectKey: JiraProjectKey,
           // comments
           val comments = commentService.issueComments(issueWithChangeLogs)
 
+          // filter comments
+          val changeLogsFilteredIssue: Issue = issueWithChangeLogs.copy(
+            changeLogs = ChangeLogFilter.filter(components, versions, issueWithChangeLogs.changeLogs)
+          )
+
           // export issue (values are initialized)
-          val initializedBacklogIssue = initializer.initialize(issueWithChangeLogs, comments)
-          issueWriter.write(initializedBacklogIssue, issueWithChangeLogs.createdAt.toDate)
+          val initializedBacklogIssue = initializer.initialize(changeLogsFilteredIssue, comments)
+          issueWriter.write(initializedBacklogIssue, changeLogsFilteredIssue.createdAt.toDate)
 
           // export issue comments
-          val changeLogs1 = ChangeLogsPlayer.play(ComponentChangeLogItemField, initializedBacklogIssue.categoryNames, issueWithChangeLogs.changeLogs)
-          val changeLogs2 = ChangeLogsPlayer.play(FixVersion, initializedBacklogIssue.versionNames, changeLogs1)
-          val changeLogs  = ChangeLogStatusConverter.convert(changeLogs2, statuses)
-          commentWriter.write(initializedBacklogIssue, comments, changeLogs, issueWithChangeLogs.attachments)
+          val categoryPlayedChangeLogs  = ChangeLogsPlayer.play(ComponentChangeLogItemField, initializedBacklogIssue.categoryNames, changeLogsFilteredIssue.changeLogs)
+          val versionPlayedChangeLogs   = ChangeLogsPlayer.play(FixVersion, initializedBacklogIssue.versionNames, categoryPlayedChangeLogs)
+          val changeLogs                = ChangeLogStatusConverter.convert(versionPlayedChangeLogs, statuses)
+          commentWriter.write(initializedBacklogIssue, comments, changeLogs, changeLogsFilteredIssue.attachments)
 
           console(i + index.toInt, total.toInt)
 
-          val changeLogUsers = issueWithChangeLogs.changeLogs.map(_.author)
+          val changeLogUsers = changeLogs.map(_.author)
 
           val collectedUsers = Seq(
-            Some(issueWithChangeLogs.creator),
-            issueWithChangeLogs.assignee
+            Some(changeLogsFilteredIssue.creator),
+            changeLogsFilteredIssue.assignee
           ).filter(_.nonEmpty).flatten ++ changeLogUsers ++ users
 
           val changeLogItemUsers = changeLogs
@@ -133,7 +143,7 @@ class Exporter @Inject()(projectKey: JiraProjectKey,
           collectedUsers ++ changeLogItemUsers
         }
       }
-      fetchIssue(collected.flatten.toSet, statuses, index + collected.length , total, startAt + maxResults, maxResults)
+      fetchIssue(collected.flatten.toSet, statuses, components, versions, index + collected.length , total, startAt + maxResults, maxResults)
     }
   }
 
