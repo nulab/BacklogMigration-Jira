@@ -2,7 +2,6 @@ package com.nulabinc.backlog.j2b.cli
 
 import com.nulabinc.backlog.j2b.conf.AppConfiguration
 import com.nulabinc.backlog.j2b.jira.domain.mapping.MappingFile
-import com.nulabinc.backlog.j2b.mapping.file._
 import com.nulabinc.backlog.migration.common.service.ProjectService
 import com.nulabinc.backlog.migration.common.utils.{ConsoleOut, Logging}
 import com.osinka.i18n.Messages
@@ -25,9 +24,9 @@ trait InteractiveConfirm extends Logging {
     }
 
   def finalConfirm(confirmedProjectKeys: ConfirmedProjectKeys,
-                   statusMappingFile: StatusMappingFile,
-                   priorityMappingFile: PriorityMappingFile,
-                   userMappingFile: UserMappingFile): Either[ConfirmError, Unit] = {
+                   statusMappingFile: MappingFile,
+                   priorityMappingFile: MappingFile,
+                   userMappingFile: MappingFile): Either[ConfirmError, Unit] = {
     def mappingString(mappingFile: MappingFile): String = {
       mappingFile.unMarshal() match {
         case Some(mappings) =>
