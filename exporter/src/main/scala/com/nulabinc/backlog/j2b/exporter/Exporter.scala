@@ -38,39 +38,38 @@ class Exporter @Inject()(projectKey: JiraProjectKey,
 
   def export(backlogPaths: JiraBacklogPaths): CollectData = {
 
-    val project = projectService.getProjectByKey(projectKey)
-    val categories = categoryService.all()
-    val versions = versionService.all()
-    val issueTypes = issueTypeService.all()
-    val fields = fieldService.all()
-    val priorities = priorityService.allPriorities()
-    val statuses = statusService.all()
-
     // project
+    val project = projectService.getProjectByKey(projectKey)
     projectWriter.write(project)
     ConsoleOut.boldln(Messages("message.executed", Messages("common.project"), Messages("message.exported")), 1)
 
     // category
+    val categories = categoryService.all()
     categoryWriter.write(categories)
     ConsoleOut.boldln(Messages("message.executed", Messages("common.category"), Messages("message.exported")), 1)
 
     // version
+    val versions = versionService.all()
     versionsWriter.write(versions)
     ConsoleOut.boldln(Messages("message.executed", Messages("common.version"), Messages("message.exported")), 1)
 
     // issue type
+    val issueTypes = issueTypeService.all()
     issueTypesWriter.write(issueTypes)
     ConsoleOut.boldln(Messages("message.executed", Messages("common.issue_type"), Messages("message.exported")), 1)
 
     // custom field
+    val fields = fieldService.all()
     fieldWriter.write(fields)
     ConsoleOut.boldln(Messages("message.executed", Messages("common.custom_field"), Messages("message.exported")), 1)
 
     // issue
+    val statuses = statusService.all()
     val total = issueService.count
     val users = fetchIssue(Set.empty[User], statuses, categories, versions, 1, total, 0, 100)
 
     // Output Jira data
+    val priorities    = priorityService.allPriorities()
     val collectedData = CollectData(users, statuses, priorities)
 
     collectedData.outputJiraUsersToFile(backlogPaths.jiraUsersJson)
