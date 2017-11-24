@@ -2,6 +2,7 @@ package com.nulabinc.backlog.j2b.exporter
 
 import javax.inject.Inject
 
+import com.nulabinc.backlog.j2b.jira.conf.JiraBacklogPaths
 import com.nulabinc.backlog.j2b.jira.domain.{CollectData, JiraProjectKey}
 import com.nulabinc.backlog.j2b.jira.service._
 import com.nulabinc.backlog.j2b.jira.writer._
@@ -34,7 +35,7 @@ class Exporter @Inject()(projectKey: JiraProjectKey,
   private val console            = (ProgressBar.progress _)(Messages("common.issues"), Messages("message.exporting"), Messages("message.exported"))
 //  private val issuesInfoProgress = (ProgressBar.progress _)(Messages("common.issues_info"), Messages("message.collecting"), Messages("message.collected"))
 
-  def export(): CollectData = {
+  def export(backlogPaths: JiraBacklogPaths): CollectData = {
 
     val project = projectService.getProjectByKey(projectKey)
     val categories = categoryService.all()
@@ -68,7 +69,14 @@ class Exporter @Inject()(projectKey: JiraProjectKey,
     val total = issueService.count
     val users = fetchIssue(Set.empty[User], statuses, 1, total, 0, 100)
 
-    CollectData(users, statuses, priorities)
+    // Output Jira data
+    val collectedData = CollectData(users, statuses, priorities)
+
+    collectedData.outputJiraUsersToFile(backlogPaths.jiraUsersJson)
+    collectedData.outputJiraPrioritiesToFile(backlogPaths.jiraPrioritiesJson)
+    collectedData.outputJiraStatusesToFile(backlogPaths.jiraStatusesJson)
+
+    collectedData
   }
 
   private def fetchIssue(users: Set[User], statuses: Seq[Status], index: Long, total: Long, startAt: Long, maxResults: Long): Set[User] = {
