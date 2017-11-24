@@ -3,6 +3,7 @@ package com.nulabinc.backlog.j2b.exporter
 import javax.inject.Inject
 
 import com.nulabinc.backlog.j2b.jira.conf.JiraBacklogPaths
+import com.nulabinc.backlog.j2b.jira.domain.mapping.MappingCollectDatabase
 import com.nulabinc.backlog.j2b.jira.domain.{CollectData, JiraProjectKey}
 import com.nulabinc.backlog.j2b.jira.service._
 import com.nulabinc.backlog.j2b.jira.writer._
@@ -30,7 +31,8 @@ class Exporter @Inject()(projectKey: JiraProjectKey,
                          commentService: CommentService,
                          commentWriter: CommentWriter,
                          initializer: IssueInitializer,
-                         userService: UserService)
+                         userService: UserService,
+                         mappingCollectDatabase: MappingCollectDatabase)
     extends Logging {
 
   private val console            = (ProgressBar.progress _)(Messages("common.issues"), Messages("message.exporting"), Messages("message.exported"))
@@ -65,12 +67,12 @@ class Exporter @Inject()(projectKey: JiraProjectKey,
 
     // issue
     val statuses = statusService.all()
-    val total = issueService.count
-    val users = fetchIssue(Set.empty[User], statuses, categories, versions, 1, total, 0, 100)
+    val total = issueService.count()
+    fetchIssue(statuses, categories, versions, 1, total, 0, 100)
 
     // Output Jira data
     val priorities    = priorityService.allPriorities()
-    val collectedData = CollectData(users, statuses, priorities)
+    val collectedData = CollectData(mappingCollectDatabase.existUsers, statuses, priorities)
 
     collectedData.outputJiraUsersToFile(backlogPaths.jiraUsersJson)
     collectedData.outputJiraPrioritiesToFile(backlogPaths.jiraPrioritiesJson)
@@ -79,17 +81,15 @@ class Exporter @Inject()(projectKey: JiraProjectKey,
     collectedData
   }
 
-  private def fetchIssue(users: Set[User],
-                         statuses: Seq[Status],
+  private def fetchIssue(statuses: Seq[Status],
                          components: Seq[Component],
                          versions: Seq[Version],
-                         index: Long, total: Long, startAt: Long, maxResults: Long): Set[User] = {
+                         index: Long, total: Long, startAt: Long, maxResults: Long): Unit = {
 
     val issues = issueService.issues(startAt, maxResults)
 
-    if (issues.isEmpty) users
-    else {
-      val collected = issues.zipWithIndex.map {
+    if (issues.nonEmpty) {
+      issues.zipWithIndex.foreach {
         case (issue, i) => {
 
           // Change logs
@@ -104,7 +104,7 @@ class Exporter @Inject()(projectKey: JiraProjectKey,
           )
 
           // export issue (values are initialized)
-          val initializedBacklogIssue = initializer.initialize(changeLogsFilteredIssue, comments)
+          val initializedBacklogIssue = initializer.initialize(mappingCollectDatabase, changeLogsFilteredIssue, comments)
           issueWriter.write(initializedBacklogIssue, changeLogsFilteredIssue.createdAt.toDate)
 
           // export issue comments
@@ -115,34 +115,28 @@ class Exporter @Inject()(projectKey: JiraProjectKey,
 
           console(i + index.toInt, total.toInt)
 
-          val changeLogUsers = changeLogs.map(_.author)
+          changeLogs.foreach( changeLog => mappingCollectDatabase.add(changeLog.author))
+          mappingCollectDatabase.add(changeLogsFilteredIssue.creator)
+          mappingCollectDatabase.add(changeLogsFilteredIssue.assignee)
 
-          val collectedUsers = Seq(
-            Some(changeLogsFilteredIssue.creator),
-            changeLogsFilteredIssue.assignee
-          ).filter(_.nonEmpty).flatten ++ changeLogUsers ++ users
-
-          val changeLogItemUsers = changeLogs
-            .flatMap { changeLog =>
-              changeLog.items
-                .filter(_.fieldId.contains(AssigneeFieldId)) // ChangeLogItem.FieldId is AssigneeFieldId
-            }.flatMap { changeLogItem =>
-              Seq(
-                collectedUsers.find( u => changeLogItem.from.contains(u.name)) match {
-                  case Some(user) => Some(user)
-                  case None       => userService.optUserOfKey(changeLogItem.from)
-                },
-                collectedUsers.find( u => changeLogItem.to.contains(u.name)) match {
-                  case Some(user) => Some(user)
-                  case None       => userService.optUserOfKey(changeLogItem.to)
-                }
-              ).flatten
-            }
-
-          collectedUsers ++ changeLogItemUsers
+          changeLogs.foreach { changeLog =>
+            changeLog.items
+              .filter(_.fieldId.contains(AssigneeFieldId))
+              .foreach { changeLogItem =>
+                List(changeLogItem.from, changeLogItem.to)
+                  .foreach { maybeUserName =>
+                    if ( ! mappingCollectDatabase.existsByName(maybeUserName)) {
+                      userService.optUserOfKey(maybeUserName) match {
+                        case Some(u) => mappingCollectDatabase.add(u)
+                        case None    => mappingCollectDatabase.addDeletedUser(maybeUserName)
+                      }
+                    }
+                  }
+              }
+          }
         }
       }
-      fetchIssue(collected.flatten.toSet, statuses, components, versions, index + collected.length , total, startAt + maxResults, maxResults)
+      fetchIssue(statuses, components, versions, index + mappingCollectDatabase.existUsers.size , total, startAt + maxResults, maxResults)
     }
   }
 
