@@ -10,9 +10,10 @@ import com.nulabinc.backlog.j2b.modules._
 import com.nulabinc.backlog.migration.common.conf.BacklogConfiguration
 import com.nulabinc.backlog.migration.common.modules.{ServiceInjector => BacklogInjector}
 import com.nulabinc.backlog.migration.common.service.{ProjectService, SpaceService, PriorityService => BacklogPriorityService, StatusService => BacklogStatusService, UserService => BacklogUserService}
-import com.nulabinc.backlog.migration.common.utils.Logging
+import com.nulabinc.backlog.migration.common.utils.{ConsoleOut, Logging}
 import com.nulabinc.backlog.migration.importer.core.Boot
 import com.nulabinc.jira.client.JiraRestClient
+import com.osinka.i18n.Messages
 
 object J2BCli extends BacklogConfiguration
     with Logging
@@ -20,10 +21,13 @@ object J2BCli extends BacklogConfiguration
     with ConfigValidator
     with MappingValidator
     with MappingConsole
+    with ProgressConsole
     with InteractiveConfirm
     with Tracker {
 
   def export(config: AppConfiguration): Unit = {
+
+    startExportMessage()
 
     val jiraInjector    = Guice.createInjector(new ExportModule(config))
     val jiraRestClient  = jiraInjector.getInstance(classOf[JiraRestClient])
@@ -61,7 +65,7 @@ object J2BCli extends BacklogConfiguration
         }
       }
 
-
+      finishExportMessage()
     }
   }
 
