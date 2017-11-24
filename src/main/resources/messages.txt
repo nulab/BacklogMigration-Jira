@@ -161,6 +161,8 @@ import.error.failed.comment=Could not register comment on issue [{0}]. : {1}
 # -----------------------------------------------------------------------------
 # Export
 # -----------------------------------------------------------------------------
+export.start=Start export.
+export.finish=Export completed.
 export.attachment.empty=Attachment: {0} -> {1}
 
 # -----------------------------------------------------------------------------
