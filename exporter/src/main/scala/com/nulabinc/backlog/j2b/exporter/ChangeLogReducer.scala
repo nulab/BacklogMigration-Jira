@@ -48,6 +48,12 @@ private [exporter] class ChangeLogReducer(issueDirPath: Path,
 //          getProjectName(changeLog.optOriginalValue),
 //          getProjectName(changeLog.optNewValue))
 //        (None, s"${message}\n")
+      case "deleted_category" =>
+        val message = Messages("common.change_comment", Messages("common.category"), getValue(changeLog.optOriginalValue), getValue(changeLog.optNewValue))
+        (None, s"${message}\n")
+      case "deleted_version" =>
+        val message = Messages("common.change_comment", Messages("common.version"), getValue(changeLog.optOriginalValue), getValue(changeLog.optNewValue))
+        (None, s"${message}\n")
       case _ =>
         (Some(changeLog.copy(optNewValue = ValueReducer.reduce(targetComment, changeLog))), "")
     }
