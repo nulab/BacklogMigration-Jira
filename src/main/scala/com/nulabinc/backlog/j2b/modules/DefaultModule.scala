@@ -28,6 +28,8 @@ class DefaultModule(config: AppConfiguration) extends AbstractModule {
     bind(classOf[JiraApiConfiguration]).toInstance(config.jiraConfig)
     bind(classOf[JiraProjectKey]).toInstance(JiraProjectKey(config.jiraConfig.projectKey))
     bind(classOf[BacklogApiConfiguration]).toInstance(config.backlogConfig)
+
+    // Paths
     bind(classOf[BacklogPaths]).toInstance(new BacklogPaths(config.backlogProjectKey))
 
     // Mapping-file
