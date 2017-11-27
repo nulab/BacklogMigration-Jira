@@ -50,6 +50,4 @@ class JiraClientIssueService @Inject()(apiConfig: JiraApiConfiguration,
     jira.httpClient.download(jira.url + s"/secure/attachment/$attachmentId/$fileName", saveDirectory.path)
   }
 
-  override def injectAttachmentsToIssue(issue: Issue) = ???
-
 }

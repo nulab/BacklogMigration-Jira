@@ -14,9 +14,6 @@ trait IssueService {
 
   def changeLogs(issue: Issue): Seq[ChangeLog]
 
-  def injectAttachmentsToIssue(issue: Issue): Issue
-
   def downloadAttachments(attachmentId: Long, destinationPath: Path, fileName: String): DownloadResult
-
-
+  
 }
