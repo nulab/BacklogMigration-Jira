@@ -10,6 +10,7 @@ import com.nulabinc.backlog.j2b.jira.writer._
 import com.nulabinc.backlog.migration.common.utils.{ConsoleOut, Logging, ProgressBar}
 import com.nulabinc.jira.client.domain._
 import com.nulabinc.jira.client.domain.changeLog.{AssigneeFieldId, ComponentChangeLogItemField, FixVersion}
+import com.nulabinc.jira.client.domain.issue.Issue
 import com.osinka.i18n.Messages
 
 class Exporter @Inject()(projectKey: JiraProjectKey,
@@ -98,14 +99,20 @@ class Exporter @Inject()(projectKey: JiraProjectKey,
           val comments = commentService.issueComments(issue)
 
           // filter change logs
-          val filteredChangeLogs = ChangeLogFilter.filter(components, versions, issueChangeLogs)
+          val issueWithFilteredChangeLogs: Issue = issue.copy(
+            changeLogs = ChangeLogFilter.filter(components, versions, issueChangeLogs)
+          )
 
           // export issue (values are initialized)
-          val initializedBacklogIssue = initializer.initialize(mappingCollectDatabase, issue, comments)
+          val initializedBacklogIssue = initializer.initialize(
+            mappingCollectDatabase  = mappingCollectDatabase,
+            issue                   = issueWithFilteredChangeLogs,
+            comments                = comments
+          )
           issueWriter.write(initializedBacklogIssue, issue.createdAt.toDate)
 
           // export issue comments
-          val categoryPlayedChangeLogs  = ChangeLogsPlayer.play(ComponentChangeLogItemField, initializedBacklogIssue.categoryNames, filteredChangeLogs)
+          val categoryPlayedChangeLogs  = ChangeLogsPlayer.play(ComponentChangeLogItemField, initializedBacklogIssue.categoryNames, issueWithFilteredChangeLogs.changeLogs)
           val versionPlayedChangeLogs   = ChangeLogsPlayer.play(FixVersion, initializedBacklogIssue.versionNames, categoryPlayedChangeLogs)
           val changeLogs                = ChangeLogStatusConverter.convert(versionPlayedChangeLogs, statuses)
           commentWriter.write(initializedBacklogIssue, comments, changeLogs, issue.attachments)

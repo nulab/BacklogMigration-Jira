@@ -65,11 +65,11 @@ class IssueInitializer @Inject()(implicit val issueWrites: IssueWrites,
   }
 
   private def dueDate(issue: Issue): Option[String] = {
-    val issueInitialValue = new IssueInitialValue(ChangeLogItem.FieldType.JIRA, DueDateFieldId)
-    issueInitialValue.findChangeLogItem(issue.changeLogs) match {
-      case Some(detail) => detail.fromDisplayString
-      case None         => issue.dueDate.map(DateUtil.dateFormat)
+    val initialValues = issue.dueDate.map(d => DateUtil.dateFormat(d)) match {
+      case Some(dateString) => Seq(dateString + " 00:00:00.0")  // player reads "display string"
+      case _                => Seq.empty[String]
     }
+    ChangeLogsPlayer.reversePlay(DueDateChangeLogItemField, initialValues, issue.changeLogs).headOption
   }
 
   private def estimatedHours(issue: Issue): Option[Float] = {
