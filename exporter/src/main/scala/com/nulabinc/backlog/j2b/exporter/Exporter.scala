@@ -10,7 +10,6 @@ import com.nulabinc.backlog.j2b.jira.writer._
 import com.nulabinc.backlog.migration.common.utils.{ConsoleOut, Logging, ProgressBar}
 import com.nulabinc.jira.client.domain._
 import com.nulabinc.jira.client.domain.changeLog.{AssigneeFieldId, ComponentChangeLogItemField, FixVersion}
-import com.nulabinc.jira.client.domain.issue.Issue
 import com.osinka.i18n.Messages
 
 class Exporter @Inject()(projectKey: JiraProjectKey,
@@ -126,7 +125,7 @@ class Exporter @Inject()(projectKey: JiraProjectKey,
                     if ( ! mappingCollectDatabase.existsByName(maybeUserName)) {
                       userService.optUserOfKey(maybeUserName) match {
                         case Some(u) => mappingCollectDatabase.add(u)
-                        case None    => mappingCollectDatabase.addDeletedUser(maybeUserName)
+                        case None    => mappingCollectDatabase.add(maybeUserName)
                       }
                     }
                   }

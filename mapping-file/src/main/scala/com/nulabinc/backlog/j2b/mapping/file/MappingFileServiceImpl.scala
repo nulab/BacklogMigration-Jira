@@ -29,12 +29,8 @@ class MappingFileServiceImpl @Inject()(jiraApiConfig: JiraApiConfiguration,
   override def createStatusMappingFile(jiraStatuses: Seq[JiraStatus], backlogStatuses: Seq[BacklogStatus]): MappingFile =
     new StatusMappingFile(jiraStatuses, backlogStatuses)
 
-  override def createUserMappingFileFromJson(jiraUsersFilePath: Path, backlogUsers: Seq[BacklogUser]): MappingFile = {
-    import com.nulabinc.jira.client.json.UserMappingJsonProtocol._
-    val jiraUsers = JsonParser(IOUtil.input(jiraUsersFilePath).get).convertTo[Seq[JiraUser]]
-
-    new UserMappingFile(backlogApiConfig, jiraUsers, backlogUsers)
-  }
+  override def createUserMappingFileFromJson(jiraUsersFilePath: Path, backlogUsers: Seq[BacklogUser]): MappingFile =
+    new UserMappingFile(backlogApiConfig, usersFromJson(jiraUsersFilePath), backlogUsers)
 
   override def createPrioritiesMappingFileFromJson(jiraPrioritiesFilePath: Path, backlogPriorities: Seq[BacklogPriority]): PriorityMappingFile = {
     import com.nulabinc.jira.client.json.PriorityMappingJsonProtocol._
@@ -48,5 +44,10 @@ class MappingFileServiceImpl @Inject()(jiraApiConfig: JiraApiConfiguration,
     val jiraStatuses = JsonParser(IOUtil.input(jiraStatusesFilePath).get).convertTo[Seq[JiraStatus]]
 
     new StatusMappingFile(jiraStatuses, backlogStatuses)
+  }
+
+  override def usersFromJson(jiraUsersFilePath: Path): Seq[JiraUser] = {
+    import com.nulabinc.jira.client.json.UserMappingJsonProtocol._
+    JsonParser(IOUtil.input(jiraUsersFilePath).get).convertTo[Seq[JiraUser]]
   }
 }

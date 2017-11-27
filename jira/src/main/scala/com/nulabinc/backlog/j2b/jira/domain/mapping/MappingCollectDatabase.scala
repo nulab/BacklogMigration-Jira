@@ -8,7 +8,7 @@ trait MappingCollectDatabase {
 
   def add(user: User): User
 
-  def addDeletedUser(name: Option[String])
+  def add(name: Option[String]): Option[User]
 
   def existUsers: Set[User]
 

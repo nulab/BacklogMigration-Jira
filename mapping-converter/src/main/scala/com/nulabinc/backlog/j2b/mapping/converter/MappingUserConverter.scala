@@ -3,7 +3,7 @@ package com.nulabinc.backlog.j2b.mapping.converter
 import javax.inject.Inject
 
 import com.nulabinc.backlog.j2b.jira.converter.UserConverter
-import com.nulabinc.backlog.j2b.jira.domain.mapping.{Mapping, MappingType}
+import com.nulabinc.backlog.j2b.jira.domain.mapping.{Mapping, MappingCollectDatabase, MappingType}
 import com.nulabinc.backlog.j2b.mapping.converter.writes.UserWrites
 import com.nulabinc.backlog.migration.common.convert.Convert
 import com.nulabinc.backlog.migration.common.domain.BacklogUser
@@ -13,48 +13,47 @@ import com.osinka.i18n.Messages
 class MappingUserConverter @Inject()(implicit val userWrites: UserWrites)
     extends UserConverter with Logging {
 
-  override def convert(mappings: Seq[Mapping], user: BacklogUser): BacklogUser =
+  override def convert(mappingCollectDatabase: MappingCollectDatabase, mappings: Seq[Mapping], user: BacklogUser): BacklogUser =
     user.optUserId match {
       case Some(userId) =>
         try {
           Convert.toBacklog(mappingOfUserId(mappings, userId))
         } catch {
           case _: Throwable =>
-            Convert.toBacklog(mappingOfName(mappings, user.name))
+            Convert.toBacklog(mappingOfName(mappingCollectDatabase, mappings, user.name))
         }
-      case _ => Convert.toBacklog(mappingOfName(mappings, user.name))
-    }
-
-  override def convert(mappings: Seq[Mapping], user: String) =
-    mappingOfName(mappings, user).dst
-
-  private def mappingOfUserId(mappings: Seq[Mapping], userId: String): Mapping = {
-    mappings.find(_.src.trim == userId.trim) match {
-      case Some(mapping) if mapping.dst.nonEmpty => mapping
       case _ =>
-        ConsoleOut.error(Messages("convert.user.failed", userId))
-        throw new RuntimeException(Messages("convert.user.failed", userId))
+        val m = mappingOfName(mappingCollectDatabase, mappings, user.name)
+        Convert.toBacklog(m)
     }
-  }
 
-  private def mappingOfName(mappings: Seq[Mapping], userName: String): Mapping = {
-    mappings.find(_.src.trim == userName.trim) match {
-      case Some(mapping) if mapping.dst.nonEmpty => mapping
-      case _                                     => mappingOfInfoName(mappings, userName)
-    }
-  }
+  override def convert(mappingCollectDatabase: MappingCollectDatabase, mappings: Seq[Mapping], user: String) =
+    mappingOfName(mappingCollectDatabase, mappings, user).dst
 
-  private def mappingOfInfoName(mappings: Seq[Mapping], userName: String): Mapping = {
-    mappings.find(_.info.map(_.name).getOrElse("").trim == userName.trim) match {
-      case Some(mapping) if mapping.dst.nonEmpty => mapping
-      case _                                     => mappings.find(_.dst.trim == userName.trim) match {
-        case Some(user) => user
-        case _          => {
-          ConsoleOut.error(Messages("convert.user.failed", userName))
-          throw new RuntimeException(Messages("convert.user.failed", userName))
-        }
+  private def mappingOfUserId(mappings: Seq[Mapping], userId: String): Mapping =
+    mappings.find(_.dst.trim == userId.trim) match {
+      case Some(mapping) if mapping.dst.nonEmpty => Mapping(None, userId, userId)
+      case _ => mappings.find( u => u.src.trim == userId.trim) match {
+        case Some(mapping) if mapping.dst.nonEmpty => mapping
+        case _ =>
+          ConsoleOut.error(Messages("convert.user.failed", userId))
+          throw new RuntimeException(Messages("convert.user.failed", userId))
       }
+    }
 
+  private def mappingOfName(mappingCollectDatabase: MappingCollectDatabase, mappings: Seq[Mapping], userName: String): Mapping =
+    mappings.find(u => u.dst.trim == userName.trim) match {
+      case Some(mapping) if mapping.dst.nonEmpty => Mapping(None, mapping.dst, mapping.dst)
+      case _ => mappings.find(u => u.src.trim == userName.trim) match {
+        case Some(mapping) if mapping.dst.nonEmpty => Mapping(None, mapping.dst, mapping.dst)
+        case _                                     => mappingOfInfoName(mappingCollectDatabase, mappings, userName)
+      }
+    }
+
+  private def mappingOfInfoName(mappingCollectDatabase: MappingCollectDatabase, mappings: Seq[Mapping], userName: String): Mapping = {
+    mappingCollectDatabase.findByName(Some(userName)) match {
+      case Some(user) => Mapping(None, user.name, user.name)
+      case _          => Mapping(None, userName, userName)
     }
   }
 }
