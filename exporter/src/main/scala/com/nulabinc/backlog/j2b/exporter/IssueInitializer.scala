@@ -69,7 +69,8 @@ class IssueInitializer @Inject()(implicit val issueWrites: IssueWrites,
       case Some(dateString) => Seq(dateString + " 00:00:00.0")  // player reads "display string"
       case _                => Seq.empty[String]
     }
-    ChangeLogsPlayer.reversePlay(DueDateChangeLogItemField, initialValues, issue.changeLogs).headOption
+    val initializedDueDate = ChangeLogsPlayer.reversePlay(DueDateChangeLogItemField, initialValues, issue.changeLogs).headOption
+    initializedDueDate.map(_.replace(" 00:00:00.0", "")) // TODO: refactor time string
   }
 
   private def estimatedHours(issue: Issue): Option[Float] = {
