@@ -93,31 +93,29 @@ class Exporter @Inject()(projectKey: JiraProjectKey,
         case (issue, i) => {
 
           // Change logs
-          val issueWithChangeLogs = issueService.injectChangeLogsToIssue(issue) // API Call
+          val issueChangeLogs = issueService.changeLogs(issue) // API Call
 
           // comments
-          val comments = commentService.issueComments(issueWithChangeLogs)
+          val comments = commentService.issueComments(issue)
 
-          // filter comments
-          val changeLogsFilteredIssue: Issue = issueWithChangeLogs.copy(
-            changeLogs = ChangeLogFilter.filter(components, versions, issueWithChangeLogs.changeLogs)
-          )
+          // filter change logs
+          val filteredChangeLogs = ChangeLogFilter.filter(components, versions, issueChangeLogs)
 
           // export issue (values are initialized)
-          val initializedBacklogIssue = initializer.initialize(mappingCollectDatabase, changeLogsFilteredIssue, comments)
-          issueWriter.write(initializedBacklogIssue, changeLogsFilteredIssue.createdAt.toDate)
+          val initializedBacklogIssue = initializer.initialize(mappingCollectDatabase, issue, comments)
+          issueWriter.write(initializedBacklogIssue, issue.createdAt.toDate)
 
           // export issue comments
-          val categoryPlayedChangeLogs  = ChangeLogsPlayer.play(ComponentChangeLogItemField, initializedBacklogIssue.categoryNames, changeLogsFilteredIssue.changeLogs)
+          val categoryPlayedChangeLogs  = ChangeLogsPlayer.play(ComponentChangeLogItemField, initializedBacklogIssue.categoryNames, filteredChangeLogs)
           val versionPlayedChangeLogs   = ChangeLogsPlayer.play(FixVersion, initializedBacklogIssue.versionNames, categoryPlayedChangeLogs)
           val changeLogs                = ChangeLogStatusConverter.convert(versionPlayedChangeLogs, statuses)
-          commentWriter.write(initializedBacklogIssue, comments, changeLogs, changeLogsFilteredIssue.attachments)
+          commentWriter.write(initializedBacklogIssue, comments, changeLogs, issue.attachments)
 
           console(i + index.toInt, total.toInt)
 
           changeLogs.foreach( changeLog => mappingCollectDatabase.add(changeLog.author))
-          mappingCollectDatabase.add(changeLogsFilteredIssue.creator)
-          mappingCollectDatabase.add(changeLogsFilteredIssue.assignee)
+          mappingCollectDatabase.add(issue.creator)
+          mappingCollectDatabase.add(issue.assignee)
 
           changeLogs.foreach { changeLog =>
             changeLog.items
