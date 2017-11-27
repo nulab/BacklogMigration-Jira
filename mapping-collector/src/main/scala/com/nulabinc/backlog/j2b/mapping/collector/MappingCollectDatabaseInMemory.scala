@@ -7,31 +7,39 @@ import scala.collection.mutable
 
 class MappingCollectDatabaseInMemory extends MappingCollectDatabase {
 
-  private case class UserExt(name: String, displayName: String, exists: Boolean)
-
-  private var userSet: mutable.Set[UserExt] = mutable.Set[UserExt]()
+  private val userSet: mutable.Set[User] = mutable.Set[User]()
 
   override def add(user: Option[User]): Boolean = user match {
-    case Some(u) => userSet += UserExt(u.name, u.displayName, true); true
-    case None    => false
+    case Some(u) =>
+      userSet += u
+      true
+    case None => false
   }
 
   override def add(user: User): User = {
-    userSet += UserExt(user.name, user.displayName, true)
+    userSet += user
     user
   }
 
-  override def addDeletedUser(name: Option[String]): Unit = name.map(n => userSet += UserExt(n, "", false))
+  override def add(name: Option[String]) = name match {
+    case Some(n) =>
+      val user = User(n, n)
+      userSet += user
+      Some(user)
+    case None => None
+  }
 
-  override def existUsers: Set[User] = userSet.toSet.filter(_.exists).map(u => User(u.name, u.displayName))
+
+  override def existUsers: Set[User] = userSet.toSet
 
   override def existsByName(name: Option[String]): Boolean = name match {
     case Some(n) => userSet.exists(_.name == n)
     case None    => false
   }
 
-  override def findByName(name: Option[String]) = name match {
-    case Some(_)  => userSet.find(_.name == name).map(u => User(u.name, u.displayName))
+  override def findByName(name: Option[String]): Option[User] = name match {
+    case Some(_)  => userSet.find(_.name == name)
     case None     => None
   }
+
 }

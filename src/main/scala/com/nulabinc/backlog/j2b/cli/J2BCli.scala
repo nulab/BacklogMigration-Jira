@@ -5,15 +5,19 @@ import com.nulabinc.backlog.j2b.conf.AppConfiguration
 import com.nulabinc.backlog.j2b.exporter.Exporter
 import com.nulabinc.backlog.j2b.jira.conf.JiraBacklogPaths
 import com.nulabinc.backlog.j2b.jira.converter.MappingConverter
+import com.nulabinc.backlog.j2b.jira.domain.mapping.MappingCollectDatabase
 import com.nulabinc.backlog.j2b.jira.service._
+import com.nulabinc.backlog.j2b.jira.writer.ProjectUserWriter
+import com.nulabinc.backlog.j2b.mapping.converter.writes.MappingUserWrites
 import com.nulabinc.backlog.j2b.modules._
 import com.nulabinc.backlog.migration.common.conf.BacklogConfiguration
+import com.nulabinc.backlog.migration.common.convert.Convert
 import com.nulabinc.backlog.migration.common.modules.{ServiceInjector => BacklogInjector}
 import com.nulabinc.backlog.migration.common.service.{ProjectService, SpaceService, PriorityService => BacklogPriorityService, StatusService => BacklogStatusService, UserService => BacklogUserService}
-import com.nulabinc.backlog.migration.common.utils.{ConsoleOut, Logging}
+import com.nulabinc.backlog.migration.common.utils.Logging
 import com.nulabinc.backlog.migration.importer.core.Boot
 import com.nulabinc.jira.client.JiraRestClient
-import com.osinka.i18n.Messages
+import com.nulabinc.jira.client.domain.User
 
 object J2BCli extends BacklogConfiguration
     with Logging
@@ -53,7 +57,7 @@ object J2BCli extends BacklogConfiguration
       val mappingFileService  = jiraInjector.getInstance(classOf[MappingFileService])
 
       List(
-        mappingFileService.createUserMappingFile(collectData.users, backlogUserService.allUsers()),
+        mappingFileService.createUserMappingFile(collectData.users.map(u => User(u.name, u.displayName)), backlogUserService.allUsers()),
         mappingFileService.createPriorityMappingFile(collectData.priorities, backlogPriorityService.allPriorities()),
         mappingFileService.createStatusMappingFile(collectData.statuses, backlogStatusService.allStatuses())
       ).foreach { mappingFile =>
@@ -99,14 +103,27 @@ object J2BCli extends BacklogConfiguration
         projectKeys <- confirmProject(config, backlogInjector.getInstance(classOf[ProjectService])).right
         _           <- finalConfirm(projectKeys, statusMappingFile, priorityMappingFile, userMappingFile).right
       } yield {
+
+        // Collect database
+        val database = jiraInjector.getInstance(classOf[MappingCollectDatabase])
+        mappingFileService.usersFromJson(jiraBacklogPaths.jiraUsersJson).foreach { user =>
+          database.add(user)
+        }
+
         // Convert
         val converter = jiraInjector.getInstance(classOf[MappingConverter])
-
         converter.convert(
+          database      = database,
           userMaps      = userMappingFile.tryUnMarshal(),
           priorityMaps  = priorityMappingFile.tryUnMarshal(),
           statusMaps    = statusMappingFile.tryUnMarshal()
         )
+
+        // Project users mapping
+        implicit val mappingUserWrites: MappingUserWrites = new MappingUserWrites
+        val projectUserWriter = jiraInjector.getInstance(classOf[ProjectUserWriter])
+        val projectUsers = userMappingFile.tryUnMarshal().map(Convert.toBacklog(_))
+        projectUserWriter.write(projectUsers)
 
         // Import
         Boot.execute(config.backlogConfig, false)

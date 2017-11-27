@@ -3,11 +3,12 @@ package com.nulabinc.backlog.j2b.exporter
 import javax.inject.Inject
 
 import com.nulabinc.backlog.j2b.issue.writer.convert._
+import com.nulabinc.backlog.j2b.jira.domain.mapping.MappingCollectDatabase
 import com.nulabinc.backlog.j2b.jira.service.{IssueService, UserService}
 import com.nulabinc.backlog.migration.common.convert.Convert
 import com.nulabinc.backlog.migration.common.domain._
 import com.nulabinc.backlog.migration.common.utils._
-import com.nulabinc.jira.client.domain.Comment
+import com.nulabinc.jira.client.domain.{Comment, User}
 import com.nulabinc.jira.client.domain.changeLog._
 import com.nulabinc.jira.client.domain.issue._
 
@@ -20,7 +21,7 @@ class IssueInitializer @Inject()(implicit val issueWrites: IssueWrites,
                                  issueService: IssueService)
     extends Logging {
 
-  def initialize(issue: Issue, comments: Seq[Comment]): BacklogIssue = {
+  def initialize(mappingCollectDatabase: MappingCollectDatabase, issue: Issue, comments: Seq[Comment]): BacklogIssue = {
     //attachments
 //    val attachmentFilter    = new AttachmentFilter(issue.changeLogs)
 //    val filteredAttachments = attachmentFilter.filter(issue.attachments)
@@ -40,7 +41,7 @@ class IssueInitializer @Inject()(implicit val issueWrites: IssueWrites,
 //      milestoneNames  = milestoneNames(issue),
       versionNames      = milestoneNames(filteredIssue),
       priorityName      = priorityName(filteredIssue),
-      optAssignee       = assignee(filteredIssue),
+      optAssignee       = assignee(mappingCollectDatabase, filteredIssue),
 //      customFields = issue.issueFields.flatMap(customField),
       attachments       = attachmentNames(filteredIssue),
       notifiedUsers     = Seq.empty[BacklogUser]
@@ -108,10 +109,19 @@ class IssueInitializer @Inject()(implicit val issueWrites: IssueWrites,
     }
   }
 
-  private def assignee(issue: Issue): Option[BacklogUser] = {
+  private def assignee(mappingCollectDatabase: MappingCollectDatabase, issue: Issue): Option[BacklogUser] = {
     val issueInitialValue = new IssueInitialValue(ChangeLogItem.FieldType.JIRA, AssigneeFieldId)
     issueInitialValue.findChangeLogItem(issue.changeLogs) match {
-      case Some(detail) => userService.optUserOfKey(detail.from).map(Convert.toBacklog(_))
+      case Some(detail) =>
+        if (mappingCollectDatabase.existsByName(detail.from)) {
+          mappingCollectDatabase.findByName(detail.from).map( u => Convert.toBacklog(User(u.name, u.displayName)))
+        } else {
+          val optUser = userService.optUserOfKey(detail.from) match {
+            case Some(u) => Some(mappingCollectDatabase.add(u))
+            case None    => mappingCollectDatabase.add(detail.from); None
+          }
+          optUser.map(Convert.toBacklog(_))
+        }
       case None         => issue.assignee.map(Convert.toBacklog(_))
     }
   }

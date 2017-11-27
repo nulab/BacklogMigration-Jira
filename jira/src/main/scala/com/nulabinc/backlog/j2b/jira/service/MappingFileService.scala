@@ -21,4 +21,5 @@ trait MappingFileService {
 
   def createStatusesMappingFileFromJson(jiraStatusesFilePath: Path, backlogStatuses: Seq[BacklogStatus]): MappingFile
 
+  def usersFromJson(jiraUsersFilePath: Path): Seq[User]
 }
