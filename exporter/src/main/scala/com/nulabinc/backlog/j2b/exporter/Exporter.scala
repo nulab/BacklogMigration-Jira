@@ -9,7 +9,7 @@ import com.nulabinc.backlog.j2b.jira.service._
 import com.nulabinc.backlog.j2b.jira.writer._
 import com.nulabinc.backlog.migration.common.utils.{ConsoleOut, Logging, ProgressBar}
 import com.nulabinc.jira.client.domain._
-import com.nulabinc.jira.client.domain.changeLog.{AssigneeFieldId, ComponentChangeLogItemField, FixVersion}
+import com.nulabinc.jira.client.domain.changeLog.{AssigneeFieldId, ComponentChangeLogItemField, CustomFieldFieldId, FixVersion}
 import com.nulabinc.jira.client.domain.issue.Issue
 import com.osinka.i18n.Messages
 
@@ -60,15 +60,15 @@ class Exporter @Inject()(projectKey: JiraProjectKey,
     issueTypesWriter.write(issueTypes)
     ConsoleOut.boldln(Messages("message.executed", Messages("common.issue_type"), Messages("message.exported")), 1)
 
-    // custom field
-    val fields = fieldService.all()
-    fieldWriter.write(fields)
-    ConsoleOut.boldln(Messages("message.executed", Messages("common.custom_field"), Messages("message.exported")), 1)
-
     // issue
     val statuses = statusService.all()
     val total = issueService.count()
     fetchIssue(statuses, categories, versions, 1, total, 0, 100)
+
+    // custom field
+    val fields = fieldService.all()
+    fieldWriter.write(mappingCollectDatabase, fields)
+    ConsoleOut.boldln(Messages("message.executed", Messages("common.custom_field"), Messages("message.exported")), 1)
 
     // Output Jira data
     val priorities    = priorityService.allPriorities()
@@ -124,19 +124,27 @@ class Exporter @Inject()(projectKey: JiraProjectKey,
           mappingCollectDatabase.add(issue.assignee)
 
           changeLogs.foreach { changeLog =>
-            changeLog.items
-              .filter(_.fieldId.contains(AssigneeFieldId))
-              .foreach { changeLogItem =>
-                List(changeLogItem.from, changeLogItem.to)
-                  .foreach { maybeUserName =>
-                    if ( ! mappingCollectDatabase.existsByName(maybeUserName)) {
-                      userService.optUserOfKey(maybeUserName) match {
-                        case Some(u) => mappingCollectDatabase.add(u)
-                        case None    => mappingCollectDatabase.add(maybeUserName)
+            changeLog.items.foreach { changeLogItem =>
+              changeLogItem.fieldId match {
+                case Some(AssigneeFieldId) =>
+                  List(changeLogItem.from, changeLogItem.to)
+                    .foreach { maybeUserName =>
+                      if (!mappingCollectDatabase.existsByName(maybeUserName)) {
+                        userService.optUserOfKey(maybeUserName) match {
+                          case Some(u) => mappingCollectDatabase.add(u)
+                          case None => mappingCollectDatabase.add(maybeUserName)
+                        }
                       }
                     }
-                  }
+                case _ => ()
               }
+              changeLogItem.fieldId match {
+                case Some(CustomFieldFieldId(id)) =>
+                  mappingCollectDatabase.addCustomField(id, changeLogItem.fromDisplayString)
+                  mappingCollectDatabase.addCustomField(id, changeLogItem.toDisplayString)
+                case _ => ()
+              }
+            }
           }
         }
       }

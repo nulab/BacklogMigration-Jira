@@ -76,19 +76,19 @@ class ChangelogItemWrites @Inject()(fields: Seq[Field]) extends Writes[ChangeLog
         case Some(field) =>
           field.schema.map { schema =>
             (schema.schemaType, schema.customType) match {
-              case (StatusSchema, Some(Textarea))         => Some(FieldType.TextArea.getIntValue)
-              case (StringSchema, _)                      => Some(FieldType.Text.getIntValue)
-              case (NumberSchema, _)                      => Some(FieldType.Numeric.getIntValue)
-              case (DateSchema, _)                        => Some(FieldType.Date.getIntValue)
-              case (DatetimeSchema, _)                    => Some(FieldType.Date.getIntValue)
-              case (ArraySchema, _)                       => Some(FieldType.MultipleList.getIntValue)
-              case (UserSchema, _)                        => Some(FieldType.Text.getIntValue)
-              case (AnySchema, _)                         => Some(FieldType.Text.getIntValue)
-              case (OptionSchema, Some(Select))           => Some(FieldType.SingleList.getIntValue)
-              case (OptionSchema, Some(MultiCheckBoxes))  => Some(FieldType.MultipleList.getIntValue)
-              case (OptionSchema, Some(RadioButtons))     => Some(FieldType.SingleList.getIntValue)
-              case (OptionSchema, _)                      => Some(FieldType.Text.getIntValue)
-              case (OptionWithChildSchema, _)             => Some(FieldType.MultipleList.getIntValue)
+              case (StatusSchema, Some(Textarea))         => FieldType.TextArea.getIntValue
+              case (StringSchema, _)                      => FieldType.Text.getIntValue
+              case (NumberSchema, _)                      => FieldType.Numeric.getIntValue
+              case (DateSchema, _)                        => FieldType.Date.getIntValue
+              case (DatetimeSchema, _)                    => FieldType.Date.getIntValue
+              case (ArraySchema, _)                       => FieldType.MultipleList.getIntValue
+              case (UserSchema, _)                        => FieldType.Text.getIntValue
+              case (AnySchema, _)                         => FieldType.Text.getIntValue
+              case (OptionSchema, Some(Select))           => FieldType.SingleList.getIntValue
+              case (OptionSchema, Some(MultiCheckBoxes))  => FieldType.MultipleList.getIntValue
+              case (OptionSchema, Some(RadioButtons))     => FieldType.SingleList.getIntValue
+              case (OptionSchema, _)                      => FieldType.Text.getIntValue
+              case (OptionWithChildSchema, _)             => FieldType.MultipleList.getIntValue
             }
           }
         case _ => throw new RuntimeException(s"custom field id not found [${changeLogItem.field}]")

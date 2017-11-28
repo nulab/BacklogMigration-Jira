@@ -1,6 +1,6 @@
 package com.nulabinc.backlog.j2b.mapping.collector
 
-import com.nulabinc.backlog.j2b.jira.domain.mapping.MappingCollectDatabase
+import com.nulabinc.backlog.j2b.jira.domain.mapping.{CustomFieldRow, MappingCollectDatabase}
 import com.nulabinc.jira.client.domain.User
 
 import scala.collection.mutable
@@ -8,6 +8,7 @@ import scala.collection.mutable
 class MappingCollectDatabaseInMemory extends MappingCollectDatabase {
 
   private val userSet: mutable.Set[User] = mutable.Set[User]()
+  private val customFieldSet = mutable.Set.empty[CustomFieldRow]
 
   override def add(user: Option[User]): Boolean = user match {
     case Some(u) =>
@@ -41,5 +42,24 @@ class MappingCollectDatabaseInMemory extends MappingCollectDatabase {
     case Some(_)  => userSet.find(_.name == name)
     case None     => None
   }
+
+
+  override def addCustomField(fieldId: String, value: Option[String]): Option[String] = value.map { v =>
+    val items = v.split(",").map(_.trim).filter(_.nonEmpty)
+    customFieldSet.find(_.fieldId == fieldId) match {
+      case Some(row) =>
+        items.map(str => row.values.add(str))
+        v
+      case None =>
+        customFieldSet += CustomFieldRow(fieldId, mutable.Set() ++ items)
+        v
+    }
+  }
+
+  override def customFieldRows: Seq[CustomFieldRow] = customFieldSet.toSeq
+
+  override def findCustomFieldValues(fieldId: String): Seq[String] = customFieldSet
+      .find(_.fieldId == fieldId).map(_.values.toSeq)
+      .getOrElse(Seq.empty[String])
 
 }
