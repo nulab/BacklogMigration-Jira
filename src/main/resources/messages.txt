@@ -14,6 +14,7 @@ common.project=Project
 common.done_ratio=% done
 common.comment=Comment
 common.wikis=wikis
+common.labels=Labels
 common.parent_page=Parent page
 common.parent_issue=Parent issue
 common.custom_field=custom field

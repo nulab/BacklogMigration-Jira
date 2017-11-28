@@ -14,6 +14,7 @@ common.project=プロジェクト
 common.done_ratio=進捗率
 common.comment=コメント
 common.wikis=Wiki
+common.labels=ラベル
 common.parent_page=親ページ
 common.parent_issue=親課題
 common.custom_field=カスタムフィールド
