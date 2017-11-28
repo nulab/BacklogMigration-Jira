@@ -1,17 +1,18 @@
 package com.nulabinc.backlog.j2b.issue.writer.convert
 
+import com.nulabinc.backlog.j2b.jira.domain.FieldDefinition
+import com.nulabinc.backlog.j2b.jira.domain.mapping.CustomFieldRow
 import com.nulabinc.backlog.migration.common.conf.BacklogConstantValue
 import com.nulabinc.backlog.migration.common.convert.Writes
 import com.nulabinc.backlog.migration.common.domain._
 import com.nulabinc.backlog.migration.common.utils.Logging
 import com.nulabinc.backlog4j.CustomField.FieldType
 import com.nulabinc.jira.client.domain.field._
-import com.osinka.i18n.Messages
 
-class FieldWrites extends Writes[Seq[Field], Seq[BacklogCustomFieldSetting]] with Logging {
+class FieldWrites extends Writes[FieldDefinition, Seq[BacklogCustomFieldSetting]] with Logging {
 
-  override def writes(fields: Seq[Field]) = {
-    fields
+  override def writes(fieldDefinition: FieldDefinition) = {
+    fieldDefinition.fields
       .filter(_.schema.isDefined)
       .filter(_.id.startsWith("customfield_"))
       .map { field =>
@@ -23,7 +24,7 @@ class FieldWrites extends Writes[Seq[Field], Seq[BacklogCustomFieldSetting]] wit
           required              = false,
           applicableIssueTypes  = Seq.empty[String],
           delete                = false,
-          property              = property(field.schema.get)
+          property              = property(fieldDefinition.definitions, field.schema.get, field.id)
         )
       }
   }
@@ -48,11 +49,15 @@ class FieldWrites extends Writes[Seq[Field], Seq[BacklogCustomFieldSetting]] wit
       optMax = None
     )
 
-  private[this] def multipleProperty(isMultiple: Boolean): BacklogCustomFieldMultipleProperty = {
+  private[this] def multipleProperty(definitions: Seq[CustomFieldRow], isMultiple: Boolean, id: String): BacklogCustomFieldMultipleProperty = {
     def multipleTypeId(isMultiple: Boolean): Int = {
       if (isMultiple) BacklogConstantValue.CustomField.MultipleList
       else BacklogConstantValue.CustomField.SingleList
     }
+
+    def findCustomFieldValues(fieldId: String): Seq[String] = definitions
+      .find(_.fieldId == fieldId).map(_.values.toSeq)
+      .getOrElse(Seq.empty[String])
 
 //    def possibleValues(redmineCustomFieldDefinition: RedmineCustomFieldDefinition): Seq[String] =
 //      redmineCustomFieldDefinition.fieldFormat match {
@@ -60,16 +65,14 @@ class FieldWrites extends Writes[Seq[Field], Seq[BacklogCustomFieldSetting]] wit
 //        case _                                        => redmineCustomFieldDefinition.possibleValues
 //      }
 
-//    def toBacklogItem(name: String): BacklogItem =
-//      BacklogItem(optId = None, name = name)
+    def toBacklogItem(name: String): BacklogItem =
+      BacklogItem(optId = None, name = name)
 
 //    def booleanPossibleValues() = Seq(Messages("common.no"), Messages("common.yes"))
 
     BacklogCustomFieldMultipleProperty(
       typeId = multipleTypeId(isMultiple),
-      items = Seq.empty[BacklogItem],
-      // TODO: get possible values from jira api
-//      items = possibleValues(redmineCustomFieldDefinition).map(toBacklogItem),
+      items = findCustomFieldValues(id).map(toBacklogItem),
       allowAddItem = true,
       allowInput = false
     )
@@ -93,21 +96,21 @@ class FieldWrites extends Writes[Seq[Field], Seq[BacklogCustomFieldSetting]] wit
     }
 
 
-  private [this] def property(schema: FieldSchema): BacklogCustomFieldProperty =
+  private [this] def property(definitions: Seq[CustomFieldRow], schema: FieldSchema, id: String): BacklogCustomFieldProperty =
     (schema.schemaType, schema.customType) match {
       case (StatusSchema, Some(Textarea))         => textProperty()
       case (StringSchema, _)                      => textProperty()
       case (NumberSchema, _)                      => numericProperty()
       case (DateSchema, _)                        => dateProperty()
       case (DatetimeSchema, _)                    => dateProperty()
-      case (ArraySchema, _)                       => multipleProperty(true)
+      case (ArraySchema, _)                       => multipleProperty(definitions, true, id)
       case (UserSchema, _)                        => textProperty()
       case (AnySchema, _)                         => textProperty()
-      case (OptionSchema, Some(Select))           => multipleProperty(false)
-      case (OptionSchema, Some(MultiCheckBoxes))  => multipleProperty(true)
-      case (OptionSchema, Some(RadioButtons))     => multipleProperty(false)
+      case (OptionSchema, Some(Select))           => multipleProperty(definitions, false, id)
+      case (OptionSchema, Some(MultiCheckBoxes))  => multipleProperty(definitions, true, id)
+      case (OptionSchema, Some(RadioButtons))     => multipleProperty(definitions, false, id)
       case (OptionSchema, _)                      => textProperty()
-      case (OptionWithChildSchema, _)             => multipleProperty(true)
+      case (OptionWithChildSchema, _)             => multipleProperty(definitions, true, id)
     }
 
 }
