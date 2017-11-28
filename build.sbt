@@ -2,8 +2,6 @@ import sbt.Keys._
 
 lazy val projectVersion = "0.1.0b1"
 
-assemblyOutputPath in assembly := file(s"./backlog-migration-jira-$projectVersion.jar")
-
 lazy val commonSettings = Seq(
   organization := "com.nulabinc",
   version := projectVersion,
