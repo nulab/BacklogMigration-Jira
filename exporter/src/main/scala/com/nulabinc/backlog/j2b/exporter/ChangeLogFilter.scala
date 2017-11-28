@@ -24,11 +24,13 @@ object ChangeLogFilter {
               item.from,
               item.to
             ).flatten.flatMap { value =>
-              versions.find(_.id == Predef.augmentString(value))
+              versions.find(_.id == value.toLong)
             }.length match {
               case n if n > 0 => item
               case _          => item.copy(field = DefaultField("deleted_version"), fieldId = None)
             }
+          case LinkChangeLogItemField =>
+            item.copy(field = DefaultField("link_issue"), fieldId = None)
           case _ => item
         }
       }
