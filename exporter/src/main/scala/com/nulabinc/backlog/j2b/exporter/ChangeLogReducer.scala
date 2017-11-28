@@ -54,6 +54,9 @@ private [exporter] class ChangeLogReducer(issueDirPath: Path,
       case "deleted_version" =>
         val message = Messages("common.change_comment", Messages("common.version"), getValue(changeLog.optOriginalValue), getValue(changeLog.optNewValue))
         (None, s"${message}\n")
+      case "link_issue" =>
+        val message = Messages("common.change_comment", Messages("common.link"), getValue(changeLog.optOriginalValue), getValue(changeLog.optNewValue))
+        (None, s"${message}\n")
       case _ =>
         (Some(changeLog.copy(optNewValue = ValueReducer.reduce(targetComment, changeLog))), "")
     }
