@@ -30,6 +30,7 @@ case object DueDateChangeLogItemField extends ChangeLogItemField("duedate")
 case object LinkChangeLogItemField extends ChangeLogItemField("Link")
 case object LabelsChangeLogItemField extends ChangeLogItemField("labels")
 case object TimeEstimateChangeLogItemField extends ChangeLogItemField("timeoriginalestimate")
+case object IssueTypeChangeLogItemField extends ChangeLogItemField("issuetype")
 case class DefaultField(name: String) extends ChangeLogItemField(name)
 
 object ChangeLogItemField {
@@ -42,6 +43,7 @@ object ChangeLogItemField {
     case LinkChangeLogItemField.value       => LinkChangeLogItemField
     case LabelsChangeLogItemField.value     => LabelsChangeLogItemField
     case TimeEstimateChangeLogItemField.value => TimeEstimateChangeLogItemField
+    case IssueTypeChangeLogItemField.value    => IssueTypeChangeLogItemField
     case v                                    => DefaultField(v)
   }
 }

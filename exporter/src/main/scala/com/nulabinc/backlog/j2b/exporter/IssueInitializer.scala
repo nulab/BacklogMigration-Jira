@@ -82,13 +82,8 @@ class IssueInitializer @Inject()(implicit val issueWrites: IssueWrites,
     initializedEstimatedSeconds.map(_.toFloat / 3600)
   }
 
-  private def issueTypeName(issue: Issue): Option[String] = {
-    val issueInitialValue = new IssueInitialValue(ChangeLogItem.FieldType.JIRA, IssueTypeFieldId)
-    issueInitialValue.findChangeLogItem(issue.changeLogs) match {
-      case Some(detail) => detail.fromDisplayString
-      case None         => Option(issue.issueType.name)
-    }
-  }
+  private def issueTypeName(issue: Issue): Option[String] =
+    ChangeLogsPlayer.reversePlay(IssueTypeChangeLogItemField, Seq(issue.issueType.name), issue.changeLogs).headOption
 
   private def categoryNames(issue: Issue): Seq[String] =
     ChangeLogsPlayer.reversePlay(ComponentChangeLogItemField, issue.components.map(_.name), issue.changeLogs)
