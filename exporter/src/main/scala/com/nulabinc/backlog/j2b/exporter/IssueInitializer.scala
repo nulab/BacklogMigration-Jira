@@ -74,11 +74,12 @@ class IssueInitializer @Inject()(implicit val issueWrites: IssueWrites,
   }
 
   private def estimatedHours(issue: Issue): Option[Float] = {
-    val issueInitialValue = new IssueInitialValue(ChangeLogItem.FieldType.JIRA, TimeEstimateFieldId)
-    issueInitialValue.findChangeLogItem(issue.changeLogs) match {
-      case Some(detail) => detail.fromDisplayString.filter(_.nonEmpty).map(_.toFloat / 3600)
-      case None         => issue.timeTrack.flatMap(_.originalEstimateSeconds.map(_.toFloat / 3600))
+    val initialValues = issue.timeTrack.flatMap(t => t.originalEstimateSeconds) match {
+      case Some(second) => Seq(second.toString)
+      case _            => Seq.empty[String]
     }
+    val initializedEstimatedSeconds = ChangeLogsPlayer.reversePlay(TimeEstimateChangeLogItemField, initialValues, issue.changeLogs).headOption
+    initializedEstimatedSeconds.map(_.toFloat / 3600)
   }
 
   private def issueTypeName(issue: Issue): Option[String] = {
