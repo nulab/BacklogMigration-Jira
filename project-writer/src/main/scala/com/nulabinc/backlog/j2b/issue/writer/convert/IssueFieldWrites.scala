@@ -4,6 +4,7 @@ import java.text.SimpleDateFormat
 import java.util.Locale
 import javax.inject.Inject
 
+import com.nulabinc.backlog.j2b.jira.utils.DatetimeToDateFormatter
 import com.nulabinc.backlog.migration.common.convert.Writes
 import com.nulabinc.backlog.migration.common.domain.BacklogCustomField
 import com.nulabinc.backlog.migration.common.utils.Logging
@@ -13,7 +14,8 @@ import com.nulabinc.jira.client.domain.issue._
 
 class IssueFieldWrites @Inject()(customFieldDefinitions: Seq[Field])
     extends Writes[IssueField, Option[BacklogCustomField]]
-    with Logging {
+    with Logging
+    with DatetimeToDateFormatter {
 
   override def writes(issueField: IssueField) = {
     customFieldDefinitions.find(_.id == issueField.id) match {
@@ -71,19 +73,14 @@ class IssueFieldWrites @Inject()(customFieldDefinitions: Seq[Field])
       values = Seq.empty[String]
     )
 
-  private def toDateTimeCustomField(field: Field, issueField: StringFieldValue) = {
-    val readFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ", Locale.getDefault())
-    val writeFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-
-    val dateTime = readFormat.parse(issueField.value)
-
+  private def toDateTimeCustomField(field: Field, issueField: StringFieldValue) =
     BacklogCustomField(
       name = field.name,
       fieldTypeId = FieldType.Date.getIntValue,
-      optValue = Option(writeFormat.format(dateTime)),
+      optValue = Option(dateTimeStringToDateString(issueField.value)),
       values = Seq.empty[String]
     )
-  }
+
 
   private def toMultipleListCustomField(field: Field, issueField: ArrayFieldValue) =
     BacklogCustomField(
