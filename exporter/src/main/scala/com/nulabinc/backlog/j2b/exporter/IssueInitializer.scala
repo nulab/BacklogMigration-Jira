@@ -48,6 +48,7 @@ class IssueInitializer @Inject()(implicit val issueWrites: IssueWrites,
       optAssignee       = assignee(mappingCollectDatabase, filteredIssue),
       customFields      = filteredIssue.issueFields.flatMap(f => customField(fields, f, filteredIssue.changeLogs)),
       attachments       = attachmentNames(filteredIssue),
+      optActualHours    = actualHours(filteredIssue),
       notifiedUsers     = Seq.empty[BacklogUser]
     )
   }
@@ -133,6 +134,15 @@ class IssueInitializer @Inject()(implicit val issueWrites: IssueWrites,
         }
       case None => issue.assignee.map(Convert.toBacklog(_))
     }
+  }
+
+  private def actualHours(issue: Issue): Option[Float] = {
+    val initialValues = issue.timeTrack.flatMap(t => t.timeSpentSeconds) match {
+      case Some(second) => Seq(second.toString)
+      case _            => Seq.empty[String]
+    }
+    val initializedTimeSpentSeconds = ChangeLogsPlayer.reversePlay(TimeSpentChangeLogItemField, initialValues, issue.changeLogs).headOption
+    initializedTimeSpentSeconds.map(sec => secondsToHours(sec.toInt))
   }
 
   private def customField(fields: Seq[Field], issueField: IssueField, changeLogs: Seq[ChangeLog]): Option[BacklogCustomField] = {
