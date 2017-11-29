@@ -2,6 +2,7 @@ package com.nulabinc.backlog.j2b.issue.writer.convert
 
 import javax.inject.Inject
 
+import com.nulabinc.backlog.j2b.jira.utils.SecondToHourFormatter
 import com.nulabinc.backlog.migration.common.conf.BacklogConstantValue
 import com.nulabinc.backlog.migration.common.convert.Writes
 import com.nulabinc.backlog.migration.common.domain._
@@ -10,7 +11,9 @@ import com.nulabinc.backlog4j.CustomField.FieldType
 import com.nulabinc.jira.client.domain.field._
 import com.nulabinc.jira.client.domain.changeLog._
 
-class ChangelogItemWrites @Inject()(fields: Seq[Field]) extends Writes[ChangeLogItem, BacklogChangeLog] {
+class ChangelogItemWrites @Inject()(fields: Seq[Field])
+    extends Writes[ChangeLogItem, BacklogChangeLog]
+    with SecondToHourFormatter {
 
   override def writes(changeLogItem: ChangeLogItem) =
     BacklogChangeLog(
@@ -18,15 +21,17 @@ class ChangelogItemWrites @Inject()(fields: Seq[Field]) extends Writes[ChangeLog
       optOriginalValue = changeLogItem.fieldId match {
         case Some(AssigneeFieldId)              => changeLogItem.from
         case Some(DueDateFieldId)               => changeLogItem.from
-        case Some(TimeOriginalEstimateFieldId)  => changeLogItem.from.map( sec => (sec.toInt / 3600).toString)
-        case Some(TimeEstimateFieldId)          => changeLogItem.from.map( sec => (sec.toInt / 3600).toString)
+        case Some(TimeOriginalEstimateFieldId)  => changeLogItem.from.map( sec => secondsToHours(sec.toInt).toString)
+        case Some(TimeEstimateFieldId)          => changeLogItem.from.map( sec => secondsToHours(sec.toInt).toString)
+        case None if changeLogItem.field == ParentChangeLogItemField => changeLogItem.from
         case _                                  => changeLogItem.fromDisplayString
       },
       optNewValue = changeLogItem.fieldId match {
         case Some(AssigneeFieldId)              => changeLogItem.to
         case Some(DueDateFieldId)               => changeLogItem.to
-        case Some(TimeOriginalEstimateFieldId)  => changeLogItem.to.map( sec => (sec.toInt / 3600).toString)
-        case Some(TimeEstimateFieldId)          => changeLogItem.to.map( sec => (sec.toInt / 3600).toString)
+        case Some(TimeOriginalEstimateFieldId)  => changeLogItem.to.map( sec => secondsToHours(sec.toInt).toString)
+        case Some(TimeEstimateFieldId)          => changeLogItem.to.map( sec => secondsToHours(sec.toInt).toString)
+        case None if changeLogItem.field == ParentChangeLogItemField => changeLogItem.to
         case _                                  => changeLogItem.toDisplayString
       },
       optAttachmentInfo   = attachmentInfo(changeLogItem),
