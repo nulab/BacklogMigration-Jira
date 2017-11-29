@@ -8,6 +8,7 @@ import com.nulabinc.backlog.j2b.jira.domain.JiraProjectKey
 import com.nulabinc.backlog.j2b.jira.service.IssueService
 import com.nulabinc.backlog.migration.common.conf.BacklogPaths
 import com.nulabinc.backlog.migration.common.utils.Logging
+import com.nulabinc.jira.client.domain.changeLog.ChangeLog
 import com.nulabinc.jira.client.{DownloadResult, JiraRestClient}
 import com.nulabinc.jira.client.domain.issue.Issue
 
@@ -39,17 +40,14 @@ class JiraClientIssueService @Inject()(apiConfig: JiraApiConfiguration,
       }
     }
 
-  override def injectChangeLogsToIssue(issue: Issue) = {
-    val changeLogs = jira.issueAPI.changeLogs(issue.id.toString, 0, 100)
+  // TODO: count
+  override def changeLogs(issue: Issue): Seq[ChangeLog] =
+    jira.issueAPI.changeLogs(issue.id.toString, 0, 100).right.get.values
 
-    issue.copy(changeLogs = changeLogs.right.get.values)
-  }
 
   override def downloadAttachments(attachmentId: Long, saveDirectory: Path, fileName: String): DownloadResult = {
     // content = https://(workspace name).atlassian.net/secure/attachment/(attachment ID)/(file name)
     jira.httpClient.download(jira.url + s"/secure/attachment/$attachmentId/$fileName", saveDirectory.path)
   }
-
-  override def injectAttachmentsToIssue(issue: Issue) = ???
 
 }

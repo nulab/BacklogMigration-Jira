@@ -2,8 +2,6 @@ import sbt.Keys._
 
 lazy val projectVersion = "0.1.0b1"
 
-assemblyOutputPath in assembly := file(s"./backlog-migration-jira-$projectVersion.jar")
-
 lazy val commonSettings = Seq(
   organization := "com.nulabinc",
   version := projectVersion,
@@ -115,18 +113,18 @@ lazy val mappingConverter = (project in file("mapping-converter"))
   )
   .dependsOn(mappingBase, mappingFile)
 
-//lazy val mappingCollector = (project in file("mapping-collector"))
-//  .settings(commonSettings: _*)
-//  .settings(
-//    name := "backlog-jira-mapping-collector",
-//    scapegoatVersion := "1.1.0",
-//    scapegoatDisabledInspections := Seq(
-//      "NullParameter",
-//      "CatchThrowable",
-//      "NoOpOverride"
-//    )
-//  )
-//  .dependsOn(mappingBase)
+lazy val mappingCollector = (project in file("mapping-collector"))
+  .settings(commonSettings: _*)
+  .settings(
+    name := "backlog-jira-mapping-collector",
+    scapegoatVersion := "1.1.0",
+    scapegoatDisabledInspections := Seq(
+      "NullParameter",
+      "CatchThrowable",
+      "NoOpOverride"
+    )
+  )
+  .dependsOn(jira, mappingBase)
 
 lazy val mappingFile = (project in file("mapping-file"))
   .settings(commonSettings: _*)
@@ -188,5 +186,5 @@ lazy val root = (project in file("."))
     scapegoatVersion := "1.1.0",
     scapegoatDisabledInspections := Seq("NullParameter", "CatchThrowable", "NoOpOverride")
   )
-  .dependsOn(common % "test->test;compile->compile", importer, exporter, writer, client, jira, mappingFile, mappingConverter)
+  .dependsOn(common % "test->test;compile->compile", importer, exporter, writer, client, jira, mappingFile, mappingConverter, mappingCollector)
   .aggregate(common, importer, exporter, writer, client, jira, mappingFile, mappingConverter)

@@ -21,5 +21,4 @@ backlog/project.json
 backlog/project
 mapping/*.json
 mapping2/*.json
-backlog-migration-jira-*\.jar
 log/

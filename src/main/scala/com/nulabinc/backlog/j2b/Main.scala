@@ -91,6 +91,7 @@ object J2B extends BacklogConfiguration with Logging {
     } catch {
       case e: Throwable =>
         logger.error(e.getMessage, e)
+        ConsoleOut.error(s"${Messages("cli.error.unknown")}:${e.getMessage}")
         exit(1)
     }
   }

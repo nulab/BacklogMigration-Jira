@@ -3,7 +3,7 @@ package com.nulabinc.backlog.j2b.mapping.converter
 import javax.inject.Inject
 
 import com.nulabinc.backlog.j2b.jira.converter._
-import com.nulabinc.backlog.j2b.jira.domain.mapping.Mapping
+import com.nulabinc.backlog.j2b.jira.domain.mapping.{Mapping, MappingCollectDatabase}
 import com.nulabinc.backlog.j2b.mapping.converter.writes._
 import com.nulabinc.backlog.migration.common.conf.{BacklogConstantValue, BacklogPaths}
 import com.nulabinc.backlog.migration.common.convert.{BacklogUnmarshaller, Convert}
@@ -22,25 +22,25 @@ class MappingConvertService @Inject()(implicit val issueWrites: IssueWrites,
                                       backlogPaths: BacklogPaths) extends MappingConverter {
 
 
-  def convert(userMaps: Seq[Mapping], priorityMaps: Seq[Mapping], statusMaps: Seq[Mapping]): Unit = {
+  def convert(database: MappingCollectDatabase, userMaps: Seq[Mapping], priorityMaps: Seq[Mapping], statusMaps: Seq[Mapping]): Unit = {
 
     val paths: Seq[Path] = IOUtil.directoryPaths(backlogPaths.issueDirectoryPath)
       .flatMap(_.toAbsolute.children().filter(_.isDirectory).toSeq)
     paths.zipWithIndex.foreach {
       case (path, index) =>
-        convertIssue(path, index, paths.size, userMaps, priorityMaps, statusMaps)
+        convertIssue(database, path, index, paths.size, userMaps, priorityMaps, statusMaps)
     }
   }
 
-  private def convertIssue(path: Path, index: Int, size: Int, userMaps: Seq[Mapping], priorityMaps: Seq[Mapping], statusMaps: Seq[Mapping]) = {
+  private def convertIssue(database: MappingCollectDatabase, path: Path, index: Int, size: Int, userMaps: Seq[Mapping], priorityMaps: Seq[Mapping], statusMaps: Seq[Mapping]): Unit = {
     BacklogUnmarshaller.issue(backlogPaths.issueJson(path)) match {
       case Some(issue: BacklogIssue) => {
         val converted = issue.copy(
-          optAssignee = issue.optAssignee.map(userConverter.convert(userMaps, _)),
-          notifiedUsers = issue.notifiedUsers.map(userConverter.convert(userMaps, _)),
+          optAssignee = issue.optAssignee.map(userConverter.convert(database, userMaps, _)),
+          notifiedUsers = issue.notifiedUsers.map(userConverter.convert(database, userMaps, _)),
           operation = issue.operation.copy(
-            optCreatedUser = issue.operation.optCreatedUser.map(userConverter.convert(userMaps, _)),
-            optUpdatedUser = issue.operation.optUpdatedUser.map(userConverter.convert(userMaps, _))
+            optCreatedUser = issue.operation.optCreatedUser.map(userConverter.convert(database, userMaps, _)),
+            optUpdatedUser = issue.operation.optUpdatedUser.map(userConverter.convert(database, userMaps, _))
           ),
           priorityName = priorityConverter.convert(priorityMaps, issue.priorityName),
           statusName = statusConverter.convert(statusMaps, issue.statusName)
@@ -59,8 +59,8 @@ class MappingConvertService @Inject()(implicit val issueWrites: IssueWrites,
               optNewValue      = changeLog.optNewValue.map(priorityConverter.convert(priorityMaps, _))
             )
             case BacklogConstantValue.ChangeLog.ASSIGNER => changeLog.copy(
-              optOriginalValue = changeLog.optOriginalValue.map(userConverter.convert(userMaps, _)),
-              optNewValue      = changeLog.optNewValue.map(userConverter.convert(userMaps, _))
+              optOriginalValue = changeLog.optOriginalValue.map(userConverter.convert(database, userMaps, _)),
+              optNewValue      = changeLog.optNewValue.map(userConverter.convert(database, userMaps, _))
             )
             case _ => changeLog
           }
