@@ -23,7 +23,7 @@ case class ChangeLogItem(
 sealed abstract class ChangeLogItemField(val value: String)
 case object ComponentChangeLogItemField extends ChangeLogItemField("Component")
 case object FixVersion extends ChangeLogItemField("Fix Version")
-case object Parent extends ChangeLogItemField("Parent")
+case object ParentChangeLogItemField extends ChangeLogItemField("Parent")
 case object AttachmentChangeLogItemField extends ChangeLogItemField("Attachment")
 case object StatusChangeLogItemField extends ChangeLogItemField("status")
 case object DueDateChangeLogItemField extends ChangeLogItemField("duedate")
@@ -44,6 +44,7 @@ object ChangeLogItemField {
     case LabelsChangeLogItemField.value     => LabelsChangeLogItemField
     case TimeEstimateChangeLogItemField.value => TimeEstimateChangeLogItemField
     case IssueTypeChangeLogItemField.value    => IssueTypeChangeLogItemField
+    case ParentChangeLogItemField.value       => ParentChangeLogItemField
     case v                                    => DefaultField(v)
   }
 }
