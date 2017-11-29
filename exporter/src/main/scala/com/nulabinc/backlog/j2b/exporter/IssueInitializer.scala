@@ -5,13 +5,13 @@ import javax.inject.Inject
 import com.nulabinc.backlog.j2b.issue.writer.convert._
 import com.nulabinc.backlog.j2b.jira.domain.mapping.MappingCollectDatabase
 import com.nulabinc.backlog.j2b.jira.service.{IssueService, UserService}
-import com.nulabinc.backlog.j2b.jira.utils.SecondToHourFormatter
+import com.nulabinc.backlog.j2b.jira.utils._
 import com.nulabinc.backlog.migration.common.convert.Convert
 import com.nulabinc.backlog.migration.common.domain._
 import com.nulabinc.backlog.migration.common.utils._
 import com.nulabinc.jira.client.domain.{Comment, User}
 import com.nulabinc.jira.client.domain.changeLog._
-import com.nulabinc.jira.client.domain.field.Field
+import com.nulabinc.jira.client.domain.field.{DatetimeSchema, Field}
 import com.nulabinc.jira.client.domain.issue._
 
 class IssueInitializer @Inject()(implicit val issueWrites: IssueWrites,
@@ -21,7 +21,9 @@ class IssueInitializer @Inject()(implicit val issueWrites: IssueWrites,
                                  implicit val customFieldValueWrites: IssueFieldWrites,
                                  userService: UserService,
                                  issueService: IssueService)
-    extends Logging with SecondToHourFormatter {
+    extends Logging
+    with SecondToHourFormatter
+    with DatetimeToDateFormatter {
 
   def initialize(mappingCollectDatabase: MappingCollectDatabase, fields: Seq[Field], issue: Issue, comments: Seq[Comment]): BacklogIssue = {
     //attachments
@@ -44,7 +46,7 @@ class IssueInitializer @Inject()(implicit val issueWrites: IssueWrites,
       versionNames      = milestoneNames(filteredIssue),
       priorityName      = priorityName(filteredIssue),
       optAssignee       = assignee(mappingCollectDatabase, filteredIssue),
-      customFields      = issue.issueFields.flatMap(f => customField(fields, f, issue.changeLogs)),
+      customFields      = filteredIssue.issueFields.flatMap(f => customField(fields, f, filteredIssue.changeLogs)),
       attachments       = attachmentNames(filteredIssue),
       notifiedUsers     = Seq.empty[BacklogUser]
     )
@@ -120,7 +122,7 @@ class IssueInitializer @Inject()(implicit val issueWrites: IssueWrites,
     val issueInitialValue = new IssueInitialValue(ChangeLogItem.FieldType.JIRA, AssigneeFieldId)
     issueInitialValue.findChangeLogItem(issue.changeLogs) match {
       case Some(detail) =>
-        if (mappingCollectDatabase.existsByName(detail.from)) {
+        if (mappingCollectDatabase.userExistsFromAllUsers(detail.from)) {
           mappingCollectDatabase.findByName(detail.from).map( u => Convert.toBacklog(User(u.name, u.displayName)))
         } else {
           val optUser = userService.optUserOfKey(detail.from) match {
@@ -137,7 +139,13 @@ class IssueInitializer @Inject()(implicit val issueWrites: IssueWrites,
     val fieldDefinition = fields.find(_.id == issueField.id).get // TODO Fix get
     val currentValues = issueField.value match {
       case ArrayFieldValue(values) => values.map(_.value)
-      case value                   => Seq(value.value)
+      case value                   => fieldDefinition.schema match {
+        case Some(v) => v.schemaType match {
+          case DatetimeSchema => Seq(dateTimeStringToDateString(value.value))
+          case _              => Seq(value.value)
+        }
+        case None => Seq(value.value)
+      }
     }
 
     val initialValues = ChangeLogsPlayer.reversePlay(DefaultField(fieldDefinition.name), currentValues, changeLogs)

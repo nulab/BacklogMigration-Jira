@@ -134,24 +134,35 @@ class Exporter @Inject()(projectKey: JiraProjectKey,
 
           console(i + index.toInt, total.toInt)
 
-          changeLogs.foreach( changeLog => mappingCollectDatabase.add(changeLog.author))
-          mappingCollectDatabase.add(issue.creator)
-          mappingCollectDatabase.add(issue.assignee)
-
-          changeLogs.foreach { changeLog =>
-            changeLog.items.foreach { changeLogItem =>
+          val changeLogUsers     = changeLogs.map(u => Some(u.author.name))
+          val changeLogItemUsers = changeLogs.flatMap { changeLog =>
+            changeLog.items.flatMap { changeLogItem =>
               changeLogItem.fieldId match {
-                case Some(AssigneeFieldId) =>
-                  List(changeLogItem.from, changeLogItem.to)
-                    .foreach { maybeUserName =>
-                      if (!mappingCollectDatabase.existsByName(maybeUserName)) {
-                        userService.optUserOfKey(maybeUserName) match {
-                          case Some(u) => mappingCollectDatabase.add(u)
-                          case None => mappingCollectDatabase.add(maybeUserName)
-                        }
-                      }
-                    }
-                case _ => ()
+                case Some(AssigneeFieldId) => Set(changeLogItem.from, changeLogItem.to)
+                case _                     => Set.empty[Option[String]]
+              }
+            }
+          }
+
+          Set(
+            Some(issue.creator.name),
+            issue.assignee.map(_.name)
+          ).foreach { maybeKey =>
+            if (!mappingCollectDatabase.userExistsFromAllUsers(maybeKey)) {
+              userService.optUserOfKey(maybeKey) match {
+                case Some(u) if maybeKey.contains(u.name)  => mappingCollectDatabase.add(u)
+                case Some(_)                               => mappingCollectDatabase.add(maybeKey)
+                case None                                  => mappingCollectDatabase.addIgnoreUser(maybeKey)
+              }
+            }
+          }
+
+          (changeLogUsers ++ changeLogItemUsers).foreach { maybeUserName =>
+            if (!mappingCollectDatabase.userExistsFromAllUsers(maybeUserName)) {
+              userService.optUserOfName(maybeUserName) match {
+                case Some(u) if maybeUserName.contains(u.name)  => mappingCollectDatabase.add(u)
+                case Some(_)                                    => mappingCollectDatabase.add(maybeUserName)
+                case None                                       => mappingCollectDatabase.add(maybeUserName)
               }
             }
           }

@@ -11,10 +11,18 @@ class UserAPI(httpClient: HttpClient) {
 
   def users: Either[JiraRestClientError, Seq[User]] = chunkUsers(Seq.empty[User])
 
-  def user(name: String): Either[JiraRestClientError, User] = {
-    httpClient.get(s"/user?key=$name") match {
+  def findByUsername(name: String): Either[JiraRestClientError, User] = {
+    httpClient.get(s"/user?username=$name") match {
       case Right(json)               => Right(JsonParser(json).convertTo[User])
       case Left(_: ApiNotFoundError) => Left(ResourceNotFoundError("user", name))
+      case Left(error)               => Left(HttpError(error))
+    }
+  }
+
+  def findByKey(key: String): Either[JiraRestClientError, User] = {
+    httpClient.get(s"/user?key=$key") match {
+      case Right(json)               => Right(JsonParser(json).convertTo[User])
+      case Left(_: ApiNotFoundError) => Left(ResourceNotFoundError("user", key))
       case Left(error)               => Left(HttpError(error))
     }
   }

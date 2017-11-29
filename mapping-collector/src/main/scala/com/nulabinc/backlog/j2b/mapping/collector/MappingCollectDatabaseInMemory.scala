@@ -8,6 +8,7 @@ import scala.collection.mutable
 class MappingCollectDatabaseInMemory extends MappingCollectDatabase {
 
   private val userSet: mutable.Set[User] = mutable.Set[User]()
+  private val ignoreUserSet: mutable.Set[String] = mutable.Set[String]()
   private val customFieldSet = mutable.Set.empty[CustomFieldRow]
 
   override def add(user: Option[User]): Boolean = user match {
@@ -30,6 +31,10 @@ class MappingCollectDatabaseInMemory extends MappingCollectDatabase {
     case None => None
   }
 
+  override def addIgnoreUser(name: Option[String]): Unit = name match {
+    case Some(n) => ignoreUserSet += n
+    case None    => ()
+  }
 
   override def existUsers: Set[User] = userSet.toSet
 
@@ -37,6 +42,14 @@ class MappingCollectDatabaseInMemory extends MappingCollectDatabase {
     case Some(n) => userSet.exists(_.name == n)
     case None    => false
   }
+
+  override def userExistsFromAllUsers(name: Option[String]): Boolean = name match {
+    case Some(n) =>
+      if (existsByName(name)) true
+      else ignoreUserSet.contains(n)
+    case None => false
+  }
+
 
   override def findByName(name: Option[String]): Option[User] = name match {
     case Some(_)  => userSet.find(_.name == name)
@@ -57,9 +70,5 @@ class MappingCollectDatabaseInMemory extends MappingCollectDatabase {
   }
 
   override def customFieldRows: Seq[CustomFieldRow] = customFieldSet.toSeq
-
-  override def findCustomFieldValues(fieldId: String): Seq[String] = customFieldSet
-      .find(_.fieldId == fieldId).map(_.values.toSeq)
-      .getOrElse(Seq.empty[String])
 
 }
