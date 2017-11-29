@@ -5,6 +5,7 @@ import javax.inject.Inject
 import com.nulabinc.backlog.j2b.issue.writer.convert._
 import com.nulabinc.backlog.j2b.jira.domain.mapping.MappingCollectDatabase
 import com.nulabinc.backlog.j2b.jira.service.{IssueService, UserService}
+import com.nulabinc.backlog.j2b.jira.utils.SecondToHourFormatter
 import com.nulabinc.backlog.migration.common.convert.Convert
 import com.nulabinc.backlog.migration.common.domain._
 import com.nulabinc.backlog.migration.common.utils._
@@ -20,7 +21,7 @@ class IssueInitializer @Inject()(implicit val issueWrites: IssueWrites,
                                  implicit val customFieldValueWrites: IssueFieldWrites,
                                  userService: UserService,
                                  issueService: IssueService)
-    extends Logging {
+    extends Logging with SecondToHourFormatter {
 
   def initialize(mappingCollectDatabase: MappingCollectDatabase, fields: Seq[Field], issue: Issue, comments: Seq[Comment]): BacklogIssue = {
     //attachments
@@ -33,7 +34,7 @@ class IssueInitializer @Inject()(implicit val issueWrites: IssueWrites,
 
     backlogIssue.copy(
       summary           = summary(filteredIssue),
-//      optParentIssueId = parentIssueId(issue),
+      optParentIssueId = parentIssueId(issue),
       description       = description(filteredIssue),
       optDueDate        = dueDate(filteredIssue),
       optEstimatedHours = estimatedHours(filteredIssue),
@@ -55,6 +56,14 @@ class IssueInitializer @Inject()(implicit val issueWrites: IssueWrites,
       case Some(detail) => BacklogIssueSummary(value = detail.fromDisplayString.getOrElse(""), original = issue.summary)
       case None         => BacklogIssueSummary(value = issue.summary, original = issue.summary)
     }
+  }
+
+  private def parentIssueId(issue: Issue): Option[Long] = {
+    val currentValues = issue.parent match {
+      case Some(parentIssue) => Seq(parentIssue.id.toString)
+      case _                 => Seq.empty[String]
+    }
+    ChangeLogsPlayer.reversePlay(ParentChangeLogItemField, currentValues, issue.changeLogs).headOption.map(_.toLong)
   }
 
   private def description(issue: Issue): String = {
@@ -80,7 +89,7 @@ class IssueInitializer @Inject()(implicit val issueWrites: IssueWrites,
       case _            => Seq.empty[String]
     }
     val initializedEstimatedSeconds = ChangeLogsPlayer.reversePlay(TimeEstimateChangeLogItemField, initialValues, issue.changeLogs).headOption
-    initializedEstimatedSeconds.map(_.toFloat / 3600)
+    initializedEstimatedSeconds.map(sec => secondsToHours(sec.toInt))
   }
 
   private def issueTypeName(issue: Issue): Option[String] =
