@@ -10,6 +10,7 @@ import com.nulabinc.backlog.migration.common.domain._
 import com.nulabinc.backlog.migration.common.utils._
 import com.nulabinc.jira.client.domain.{Comment, User}
 import com.nulabinc.jira.client.domain.changeLog._
+import com.nulabinc.jira.client.domain.field.Field
 import com.nulabinc.jira.client.domain.issue._
 
 class IssueInitializer @Inject()(implicit val issueWrites: IssueWrites,
@@ -21,7 +22,7 @@ class IssueInitializer @Inject()(implicit val issueWrites: IssueWrites,
                                  issueService: IssueService)
     extends Logging {
 
-  def initialize(mappingCollectDatabase: MappingCollectDatabase, issue: Issue, comments: Seq[Comment]): BacklogIssue = {
+  def initialize(mappingCollectDatabase: MappingCollectDatabase, fields: Seq[Field], issue: Issue, comments: Seq[Comment]): BacklogIssue = {
     //attachments
 //    val attachmentFilter    = new AttachmentFilter(issue.changeLogs)
 //    val filteredAttachments = attachmentFilter.filter(issue.attachments)
@@ -42,7 +43,7 @@ class IssueInitializer @Inject()(implicit val issueWrites: IssueWrites,
       versionNames      = milestoneNames(filteredIssue),
       priorityName      = priorityName(filteredIssue),
       optAssignee       = assignee(mappingCollectDatabase, filteredIssue),
-//      customFields = issue.issueFields.flatMap(customField),
+      customFields      = issue.issueFields.flatMap(f => customField(fields, f, issue.changeLogs)),
       attachments       = attachmentNames(filteredIssue),
       notifiedUsers     = Seq.empty[BacklogUser]
     )
@@ -119,45 +120,24 @@ class IssueInitializer @Inject()(implicit val issueWrites: IssueWrites,
           }
           optUser.map(Convert.toBacklog(_))
         }
-      case None         => issue.assignee.map(Convert.toBacklog(_))
+      case None => issue.assignee.map(Convert.toBacklog(_))
     }
   }
 
-//  private def customField(customField: IssueField): Option[BacklogCustomField] = {
-//    val optCustomFieldDefinition = exportContext.propertyValue.customFieldDefinitionOfName(customField.getName)
-//    optCustomFieldDefinition match {
-//      case Some(customFieldDefinition) =>
-//        if (customFieldDefinition.isMultiple) multipleCustomField(customField, customFieldDefinition)
-//        else singleCustomField(customField, customFieldDefinition)
-//      case _ => None
-//    }
-//  }
-//
-//  private def multipleCustomField(issueField: IssueField, field: Field, changeLogs: Seq[ChangeLog]): Option[BacklogCustomField] = {
-//    val issueInitialValue = new IssueInitialValue(ChangeLogItem.FieldType.CUSTOM, field.id)
-//    val optDetails        = issueInitialValue.findJournalDetails(changeLogs)
-//    val initialValues     = optDetails match {
-//      case Some(details) => details.flatMap(detail => Convert.toBacklog((issueField.id, detail.from)))
-//      case _             => issueField.value.asInstanceOf[ArrayFieldValue].values
-//    }
-//    Convert.toBacklog(issueField) match {
-//      case Some(backlogCustomField) => Some(backlogCustomField.copy(values = initialValues))
-//      case _                        => None
-//    }
-//  }
-//
-//  private def singleCustomField(issueField: IssueField, field: Field, changeLogs: Seq[ChangeLog]): Option[BacklogCustomField] = {
-//    val issueInitialValue = new IssueInitialValue(ChangeLogItem.FieldType.CUSTOM, field.id)
-//    val initialValue: Option[String] =
-//      issueInitialValue.findJournalDetail(changeLogs) match {
-//        case Some(detail) => Convert.toBacklog((issueField.id, detail.from))
-//        case _            => Convert.toBacklog((issueField.id, Option(issueField.value.value)))
-//      }
-//    Convert.toBacklog(issueField) match {
-//      case Some(backlogCustomField) => Some(backlogCustomField.copy(optValue = initialValue))
-//      case _                        => None
-//    }
-//  }
+  private def customField(fields: Seq[Field], issueField: IssueField, changeLogs: Seq[ChangeLog]): Option[BacklogCustomField] = {
+    val fieldDefinition = fields.find(_.id == issueField.id).get // TODO Fix get
+    val currentValues = issueField.value match {
+      case ArrayFieldValue(values) => values.map(_.value)
+      case value                   => Seq(value.value)
+    }
 
+    val initialValues = ChangeLogsPlayer.reversePlay(DefaultField(fieldDefinition.name), currentValues, changeLogs)
+    Convert.toBacklog(issueField).map { converted =>
+      issueField.value match {
+        case ArrayFieldValue(_) => converted.copy(values = initialValues)
+        case _                  => converted.copy(optValue = initialValues.headOption)
+      }
+    }
+  }
 }
 

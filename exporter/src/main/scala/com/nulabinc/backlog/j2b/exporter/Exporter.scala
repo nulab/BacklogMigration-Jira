@@ -10,6 +10,7 @@ import com.nulabinc.backlog.j2b.jira.writer._
 import com.nulabinc.backlog.migration.common.utils.{ConsoleOut, Logging, ProgressBar}
 import com.nulabinc.jira.client.domain._
 import com.nulabinc.jira.client.domain.changeLog.{AssigneeFieldId, ComponentChangeLogItemField, CustomFieldFieldId, FixVersion}
+import com.nulabinc.jira.client.domain.field.Field
 import com.nulabinc.jira.client.domain.issue.Issue
 import com.osinka.i18n.Messages
 
@@ -61,12 +62,12 @@ class Exporter @Inject()(projectKey: JiraProjectKey,
     ConsoleOut.boldln(Messages("message.executed", Messages("common.issue_type"), Messages("message.exported")), 1)
 
     // issue
-    val statuses = statusService.all()
-    val total = issueService.count()
-    fetchIssue(statuses, categories, versions, 1, total, 0, 100)
+    val statuses  = statusService.all()
+    val total     = issueService.count()
+    val fields    = fieldService.all()
+    fetchIssue(statuses, categories, versions, fields, 1, total, 0, 100)
 
     // custom field
-    val fields = fieldService.all()
     fieldWriter.write(mappingCollectDatabase, fields)
     ConsoleOut.boldln(Messages("message.executed", Messages("common.custom_field"), Messages("message.exported")), 1)
 
@@ -84,6 +85,7 @@ class Exporter @Inject()(projectKey: JiraProjectKey,
   private def fetchIssue(statuses: Seq[Status],
                          components: Seq[Component],
                          versions: Seq[Version],
+                         fields: Seq[Field],
                          index: Long, total: Long, startAt: Long, maxResults: Long): Unit = {
 
     val issues = issueService.issues(startAt, maxResults)
@@ -103,9 +105,22 @@ class Exporter @Inject()(projectKey: JiraProjectKey,
             changeLogs = ChangeLogFilter.filter(components, versions, issueChangeLogs)
           )
 
+          // collect custom fields
+          issueWithFilteredChangeLogs.changeLogs.foreach { changeLog =>
+            changeLog.items.foreach { changeLogItem =>
+              changeLogItem.fieldId match {
+                case Some(CustomFieldFieldId(id)) =>
+                  mappingCollectDatabase.addCustomField(id, changeLogItem.fromDisplayString)
+                  mappingCollectDatabase.addCustomField(id, changeLogItem.toDisplayString)
+                case _ => ()
+              }
+            }
+          }
+
           // export issue (values are initialized)
           val initializedBacklogIssue = initializer.initialize(
             mappingCollectDatabase  = mappingCollectDatabase,
+            fields                  = fields,
             issue                   = issueWithFilteredChangeLogs,
             comments                = comments
           )
@@ -138,17 +153,11 @@ class Exporter @Inject()(projectKey: JiraProjectKey,
                     }
                 case _ => ()
               }
-              changeLogItem.fieldId match {
-                case Some(CustomFieldFieldId(id)) =>
-                  mappingCollectDatabase.addCustomField(id, changeLogItem.fromDisplayString)
-                  mappingCollectDatabase.addCustomField(id, changeLogItem.toDisplayString)
-                case _ => ()
-              }
             }
           }
         }
       }
-      fetchIssue(statuses, components, versions, index + mappingCollectDatabase.existUsers.size , total, startAt + maxResults, maxResults)
+      fetchIssue(statuses, components, versions, fields, index + mappingCollectDatabase.existUsers.size , total, startAt + maxResults, maxResults)
     }
   }
 
