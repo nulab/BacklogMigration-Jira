@@ -6,7 +6,7 @@ import com.nulabinc.backlog.migration.common.domain._
 import com.nulabinc.backlog.migration.common.utils.{IOUtil, Logging}
 import com.nulabinc.jira.client._
 import com.nulabinc.jira.client.domain.Attachment
-import com.nulabinc.jira.client.domain.changeLog.{LabelsChangeLogItemField, ParentChangeLogItemField}
+import com.nulabinc.jira.client.domain.changeLog.{LabelsChangeLogItemField, ParentChangeLogItemField, TimeSpentChangeLogItemField}
 import com.osinka.i18n.Messages
 
 import scalax.file.Path
