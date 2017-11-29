@@ -60,7 +60,7 @@ class ChangelogItemWrites @Inject()(fields: Seq[Field])
     case Some(TimeEstimateFieldId)            => changeLogItem.field.value
     case Some(ResolutionFieldId)              => BacklogConstantValue.ChangeLog.RESOLUTION
     case Some(GeneralFieldId(v))              => v
-    case _ if changeLogItem.field == Parent   => BacklogConstantValue.ChangeLog.ISSUE_TYPE
+    case _ if changeLogItem.field == ParentChangeLogItemField   => BacklogConstantValue.ChangeLog.PARENT_ISSUE
     case None                                 => changeLogItem.field.value
   }
 
