@@ -122,7 +122,7 @@ class IssueInitializer @Inject()(implicit val issueWrites: IssueWrites,
     val issueInitialValue = new IssueInitialValue(ChangeLogItem.FieldType.JIRA, AssigneeFieldId)
     issueInitialValue.findChangeLogItem(issue.changeLogs) match {
       case Some(detail) =>
-        if (mappingCollectDatabase.existsByName(detail.from)) {
+        if (mappingCollectDatabase.userExistsFromAllUsers(detail.from)) {
           mappingCollectDatabase.findByName(detail.from).map( u => Convert.toBacklog(User(u.name, u.displayName)))
         } else {
           val optUser = userService.optUserOfKey(detail.from) match {

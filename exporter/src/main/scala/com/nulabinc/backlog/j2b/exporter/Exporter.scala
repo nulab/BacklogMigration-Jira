@@ -102,7 +102,7 @@ class Exporter @Inject()(projectKey: JiraProjectKey,
 
           // filter change logs
           val issueWithFilteredChangeLogs: Issue = issue.copy(
-            changeLogs = ChangeLogFilter.filter(components, versions, fields, issueChangeLogs)
+            changeLogs = ChangeLogFilter.filter(components, versions, issueChangeLogs)
           )
 
           // collect custom fields
