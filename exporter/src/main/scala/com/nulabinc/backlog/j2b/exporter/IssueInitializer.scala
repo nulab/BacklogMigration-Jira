@@ -91,7 +91,7 @@ class IssueInitializer @Inject()(implicit val issueWrites: IssueWrites,
       case Some(second) => Seq(second.toString)
       case _            => Seq.empty[String]
     }
-    val initializedEstimatedSeconds = ChangeLogsPlayer.reversePlay(TimeEstimateChangeLogItemField, initialValues, issue.changeLogs).headOption
+    val initializedEstimatedSeconds = ChangeLogsPlayer.reversePlay(TimeOriginalEstimateChangeLogItemField, initialValues, issue.changeLogs).headOption
     initializedEstimatedSeconds.map(sec => secondsToHours(sec.toInt))
   }
 
