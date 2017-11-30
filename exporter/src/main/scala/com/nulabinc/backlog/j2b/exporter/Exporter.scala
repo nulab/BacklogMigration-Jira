@@ -6,6 +6,7 @@ import com.nulabinc.backlog.j2b.jira.conf.JiraBacklogPaths
 import com.nulabinc.backlog.j2b.jira.domain.mapping.MappingCollectDatabase
 import com.nulabinc.backlog.j2b.jira.domain.{CollectData, JiraProjectKey}
 import com.nulabinc.backlog.j2b.jira.service._
+import com.nulabinc.backlog.j2b.jira.utils.DateChangeLogConverter
 import com.nulabinc.backlog.j2b.jira.writer._
 import com.nulabinc.backlog.migration.common.utils.{ConsoleOut, Logging, ProgressBar}
 import com.nulabinc.jira.client.domain._
@@ -34,7 +35,8 @@ class Exporter @Inject()(projectKey: JiraProjectKey,
                          initializer: IssueInitializer,
                          userService: UserService,
                          mappingCollectDatabase: MappingCollectDatabase)
-    extends Logging {
+    extends Logging
+    with DateChangeLogConverter {
 
   private val console            = (ProgressBar.progress _)(Messages("common.issues"), Messages("message.exporting"), Messages("message.exported"))
 //  private val issuesInfoProgress = (ProgressBar.progress _)(Messages("common.issues_info"), Messages("message.collecting"), Messages("message.collected"))
@@ -102,7 +104,10 @@ class Exporter @Inject()(projectKey: JiraProjectKey,
 
           // filter change logs
           val issueWithFilteredChangeLogs: Issue = issue.copy(
-            changeLogs = ChangeLogFilter.filter(components, versions, issueChangeLogs)
+            changeLogs = {
+              val filtered = ChangeLogFilter.filter(components, versions, issueChangeLogs)
+              convertDateChangeLogs(filtered, fields)
+            }
           )
 
           // collect custom fields
