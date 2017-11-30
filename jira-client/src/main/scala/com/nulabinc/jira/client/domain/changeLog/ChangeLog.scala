@@ -50,7 +50,7 @@ object ChangeLogItemField {
     case ParentChangeLogItemField.value               => ParentChangeLogItemField
     case TimeSpentChangeLogItemField.value            => TimeSpentChangeLogItemField
     case WorkIdChangeLogItemField.value               => WorkIdChangeLogItemField
-    case TimeEstimateChangeLogItemField.value         => TimeSpentChangeLogItemField
+    case TimeEstimateChangeLogItemField.value         => TimeEstimateChangeLogItemField
     case v                                            => DefaultField(v)
   }
 }
@@ -83,6 +83,7 @@ case object StatusFieldId extends FieldId("status")
 case object DueDateFieldId extends FieldId("duedate")
 case object TimeOriginalEstimateFieldId extends FieldId("timeoriginalestimate")
 case object TimeEstimateFieldId extends FieldId("timeestimate")
+case object TimeSpentFieldId extends FieldId("timespent")
 case object ResolutionFieldId extends FieldId("resolution")
 case class CustomFieldFieldId(id: String) extends FieldId(id)
 case class GeneralFieldId(id: String) extends FieldId(id)
@@ -102,6 +103,7 @@ object FieldId {
     case DueDateFieldId.value              => DueDateFieldId
     case TimeOriginalEstimateFieldId.value => TimeOriginalEstimateFieldId
     case TimeEstimateFieldId.value         => TimeEstimateFieldId
+    case TimeSpentFieldId.value            => TimeSpentFieldId
     case ResolutionFieldId.value           => ResolutionFieldId
     case v if v.startsWith("customfield_") => CustomFieldFieldId(v)
     case v                                 => GeneralFieldId(v)
