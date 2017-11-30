@@ -35,7 +35,7 @@ object ChangeLogFilter {
           case _ => item
         }
       }
-      changeLog.copy(items = items)
+      changeLog.copy(items = items.filterNot(_.field == WorkIdChangeLogItemField))
     }
   }
 }
