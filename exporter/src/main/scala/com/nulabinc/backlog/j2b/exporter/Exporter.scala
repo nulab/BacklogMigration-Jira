@@ -6,6 +6,7 @@ import com.nulabinc.backlog.j2b.jira.conf.JiraBacklogPaths
 import com.nulabinc.backlog.j2b.jira.domain.mapping.MappingCollectDatabase
 import com.nulabinc.backlog.j2b.jira.domain.{CollectData, JiraProjectKey}
 import com.nulabinc.backlog.j2b.jira.service._
+import com.nulabinc.backlog.j2b.jira.utils.DateChangeLogConverter
 import com.nulabinc.backlog.j2b.jira.writer._
 import com.nulabinc.backlog.migration.common.utils.{ConsoleOut, Logging, ProgressBar}
 import com.nulabinc.jira.client.domain._
@@ -34,7 +35,8 @@ class Exporter @Inject()(projectKey: JiraProjectKey,
                          initializer: IssueInitializer,
                          userService: UserService,
                          mappingCollectDatabase: MappingCollectDatabase)
-    extends Logging {
+    extends Logging
+    with DateChangeLogConverter {
 
   private val console            = (ProgressBar.progress _)(Messages("common.issues"), Messages("message.exporting"), Messages("message.exported"))
 //  private val issuesInfoProgress = (ProgressBar.progress _)(Messages("common.issues_info"), Messages("message.collecting"), Messages("message.collected"))
@@ -129,7 +131,8 @@ class Exporter @Inject()(projectKey: JiraProjectKey,
           // export issue comments
           val categoryPlayedChangeLogs  = ChangeLogsPlayer.play(ComponentChangeLogItemField, initializedBacklogIssue.categoryNames, issueWithFilteredChangeLogs.changeLogs)
           val versionPlayedChangeLogs   = ChangeLogsPlayer.play(FixVersion, initializedBacklogIssue.versionNames, categoryPlayedChangeLogs)
-          val changeLogs                = ChangeLogStatusConverter.convert(versionPlayedChangeLogs, statuses)
+          val dateConvertedChangeLogs   = convertDateChangeLogs(versionPlayedChangeLogs, fields)
+          val changeLogs                = ChangeLogStatusConverter.convert(dateConvertedChangeLogs, statuses)
           commentWriter.write(initializedBacklogIssue, comments, changeLogs, issue.attachments)
 
           console(i + index.toInt, total.toInt)
