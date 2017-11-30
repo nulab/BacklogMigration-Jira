@@ -104,7 +104,10 @@ class Exporter @Inject()(projectKey: JiraProjectKey,
 
           // filter change logs
           val issueWithFilteredChangeLogs: Issue = issue.copy(
-            changeLogs = ChangeLogFilter.filter(components, versions, issueChangeLogs)
+            changeLogs = {
+              val filtered = ChangeLogFilter.filter(components, versions, issueChangeLogs)
+              convertDateChangeLogs(filtered, fields)
+            }
           )
 
           // collect custom fields
@@ -131,8 +134,7 @@ class Exporter @Inject()(projectKey: JiraProjectKey,
           // export issue comments
           val categoryPlayedChangeLogs  = ChangeLogsPlayer.play(ComponentChangeLogItemField, initializedBacklogIssue.categoryNames, issueWithFilteredChangeLogs.changeLogs)
           val versionPlayedChangeLogs   = ChangeLogsPlayer.play(FixVersion, initializedBacklogIssue.versionNames, categoryPlayedChangeLogs)
-          val dateConvertedChangeLogs   = convertDateChangeLogs(versionPlayedChangeLogs, fields)
-          val changeLogs                = ChangeLogStatusConverter.convert(dateConvertedChangeLogs, statuses)
+          val changeLogs                = ChangeLogStatusConverter.convert(versionPlayedChangeLogs, statuses)
           commentWriter.write(initializedBacklogIssue, comments, changeLogs, issue.attachments)
 
           console(i + index.toInt, total.toInt)
