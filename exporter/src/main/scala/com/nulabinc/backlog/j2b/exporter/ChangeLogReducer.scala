@@ -57,6 +57,9 @@ private [exporter] class ChangeLogReducer(issueDirPath: Path,
       case LabelsChangeLogItemField.value =>
         val message = Messages("common.change_comment", Messages("common.labels"), getValue(changeLog.optOriginalValue), getValue(changeLog.optNewValue))
         (None, s"${message}\n")
+      case TimeSpentChangeLogItemField.value =>
+        val message = Messages("common.change_comment", Messages("common.actual_hours"), getValue(changeLog.optOriginalValue), getValue(changeLog.optNewValue))
+        (None, s"${message}\n")
       case _ =>
         (Some(changeLog.copy(optNewValue = ValueReducer.reduce(targetComment, changeLog))), "")
     }

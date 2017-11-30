@@ -31,7 +31,6 @@ object ChangeLogFilter {
               case _          => item.copy(field = DefaultField("deleted_version"), fieldId = None)
             }
           case LinkChangeLogItemField       => item.copy(field = DefaultField("link_issue"), fieldId = None)
-          case TimeSpentChangeLogItemField  => item.copy(field = DefaultField(BacklogConstantValue.ChangeLog.ACTUAL_HOURS), fieldId = None)
           case _ => item
         }
       }

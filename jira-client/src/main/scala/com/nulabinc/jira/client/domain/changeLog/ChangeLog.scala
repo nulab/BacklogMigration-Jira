@@ -29,10 +29,11 @@ case object StatusChangeLogItemField extends ChangeLogItemField("status")
 case object DueDateChangeLogItemField extends ChangeLogItemField("duedate")
 case object LinkChangeLogItemField extends ChangeLogItemField("Link")
 case object LabelsChangeLogItemField extends ChangeLogItemField("labels")
-case object TimeEstimateChangeLogItemField extends ChangeLogItemField("timeoriginalestimate")
+case object TimeOriginalEstimateChangeLogItemField extends ChangeLogItemField("timeoriginalestimate")
 case object IssueTypeChangeLogItemField extends ChangeLogItemField("issuetype")
 case object TimeSpentChangeLogItemField extends ChangeLogItemField("timespent")
 case object WorkIdChangeLogItemField extends ChangeLogItemField("WorklogId")
+case object TimeEstimateChangeLogItemField extends ChangeLogItemField("timeestimate")
 case class DefaultField(name: String) extends ChangeLogItemField(name)
 
 object ChangeLogItemField {
@@ -44,12 +45,13 @@ object ChangeLogItemField {
     case DueDateChangeLogItemField.value    => DueDateChangeLogItemField
     case LinkChangeLogItemField.value       => LinkChangeLogItemField
     case LabelsChangeLogItemField.value     => LabelsChangeLogItemField
-    case TimeEstimateChangeLogItemField.value => TimeEstimateChangeLogItemField
-    case IssueTypeChangeLogItemField.value    => IssueTypeChangeLogItemField
-    case ParentChangeLogItemField.value       => ParentChangeLogItemField
-    case TimeSpentChangeLogItemField.value    => TimeSpentChangeLogItemField
-    case WorkIdChangeLogItemField.value       => WorkIdChangeLogItemField
-    case v                                    => DefaultField(v)
+    case TimeOriginalEstimateChangeLogItemField.value => TimeOriginalEstimateChangeLogItemField
+    case IssueTypeChangeLogItemField.value            => IssueTypeChangeLogItemField
+    case ParentChangeLogItemField.value               => ParentChangeLogItemField
+    case TimeSpentChangeLogItemField.value            => TimeSpentChangeLogItemField
+    case WorkIdChangeLogItemField.value               => WorkIdChangeLogItemField
+    case TimeEstimateChangeLogItemField.value         => TimeSpentChangeLogItemField
+    case v                                            => DefaultField(v)
   }
 }
 
