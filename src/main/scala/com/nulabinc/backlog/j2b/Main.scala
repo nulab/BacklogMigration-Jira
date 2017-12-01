@@ -104,7 +104,6 @@ object J2B extends BacklogConfiguration with Logging {
     ConsoleOut.println(
       s"""--------------------------------------------------
          |${Messages("common.jira")} ${Messages("common.username")}[${cli.importCommand.jiraUsername()}]
-         |${Messages("common.jira")} ${Messages("common.password")}[${cli.importCommand.jiraPassword()}]
          |${Messages("common.jira")} ${Messages("common.url")}[${cli.importCommand.jiraUrl()}]
          |${Messages("common.jira")} ${Messages("common.project_key")}[${jira}]
          |${Messages("common.backlog")} ${Messages("common.url")}[${cli.importCommand.backlogUrl()}]
