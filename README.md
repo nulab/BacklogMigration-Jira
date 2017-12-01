@@ -148,6 +148,10 @@ Single-byte **lowercase** character → Single-byte **uppercase** character
 ### About custom fields
 * Versions and users will be registered as lists and will be the fixed values.
 * Boolean values will be registered in radio button format of "Yes" or "No".
+* The date and time are converted to dates and registered.
+
+### About change logs
+* Worklog is not supported. Scheduled for next release.
 
 ### About limitations in Backlog
 * Importing users will be terminated if the number of users will exceed the limit in Backlog.
@@ -352,6 +356,9 @@ Backlogで **マックスプラン以上** のプランを契約している必�
 * バージョンとユーザーはリストとして登録され固定値になります。
 * 真偽値は[はい]、[いいえ]のラジオボタン形式で登録されます。
 * 日時は日付に変換され登録されます。
+
+### Change logについて
+* Worklogには対応していません。(次回リリースで対応予定)
 
 ### Backlog側の制限について
 * Backlogで登録可能なユーザー数を超えた場合、インポートは中断されます。
