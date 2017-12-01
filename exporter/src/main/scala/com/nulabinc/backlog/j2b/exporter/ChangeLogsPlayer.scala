@@ -1,6 +1,6 @@
 package com.nulabinc.backlog.j2b.exporter
 
-import com.nulabinc.jira.client.domain.changeLog.{ChangeLog, ChangeLogItemField}
+import com.nulabinc.jira.client.domain.changeLog.{ChangeLog, ChangeLogItemField, ParentChangeLogItemField}
 
 object Calc {
 
@@ -89,8 +89,14 @@ object ChangeLogsPlayer {
       else None
     }
 
-    val fromNames = changeLog.items.filter(_.field == targetField).flatten(_.fromDisplayString)
-    val toNames   = changeLog.items.filter(_.field == targetField).flatten(_.toDisplayString)
+    val fromNames = targetField match {
+      case ParentChangeLogItemField => changeLog.items.filter(_.field == targetField).flatten(_.from)
+      case _                        => changeLog.items.filter(_.field == targetField).flatten(_.fromDisplayString)
+    }
+    val toNames = targetField match {
+      case ParentChangeLogItemField => changeLog.items.filter(_.field == targetField).flatten(_.to)
+      case _                        => changeLog.items.filter(_.field == targetField).flatten(_.toDisplayString)
+    }
 
     val fromStrings = makeStrings(fromNames)
     val toStrings = makeStrings(toNames)

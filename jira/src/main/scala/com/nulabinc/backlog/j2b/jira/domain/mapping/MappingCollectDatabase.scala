@@ -14,7 +14,11 @@ trait MappingCollectDatabase {
 
   def add(name: Option[String]): Option[User]
 
+  def addIgnoreUser(name: Option[String]): Unit
+
   def existUsers: Set[User]
+
+  def userExistsFromAllUsers(name: Option[String]): Boolean
 
   def existsByName(name: Option[String]): Boolean
 
@@ -23,6 +27,4 @@ trait MappingCollectDatabase {
   def addCustomField(fieldId: String, value: Option[String]): Option[String]
 
   def customFieldRows: Seq[CustomFieldRow]
-
-  def findCustomFieldValues(fieldId: String): Seq[String]
 }

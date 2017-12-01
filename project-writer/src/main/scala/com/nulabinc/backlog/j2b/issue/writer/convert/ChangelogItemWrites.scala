@@ -23,6 +23,7 @@ class ChangelogItemWrites @Inject()(fields: Seq[Field])
         case Some(DueDateFieldId)               => changeLogItem.from
         case Some(TimeOriginalEstimateFieldId)  => changeLogItem.from.map( sec => secondsToHours(sec.toInt).toString)
         case Some(TimeEstimateFieldId)          => changeLogItem.from.map( sec => secondsToHours(sec.toInt).toString)
+        case Some(TimeSpentFieldId)             => changeLogItem.from.map( sec => secondsToHours(sec.toInt).toString)
         case None if changeLogItem.field == ParentChangeLogItemField => changeLogItem.from
         case _                                  => changeLogItem.fromDisplayString
       },
@@ -31,6 +32,7 @@ class ChangelogItemWrites @Inject()(fields: Seq[Field])
         case Some(DueDateFieldId)               => changeLogItem.to
         case Some(TimeOriginalEstimateFieldId)  => changeLogItem.to.map( sec => secondsToHours(sec.toInt).toString)
         case Some(TimeEstimateFieldId)          => changeLogItem.to.map( sec => secondsToHours(sec.toInt).toString)
+        case Some(TimeSpentFieldId)             => changeLogItem.to.map( sec => secondsToHours(sec.toInt).toString)
         case None if changeLogItem.field == ParentChangeLogItemField => changeLogItem.to
         case _                                  => changeLogItem.toDisplayString
       },
@@ -60,7 +62,8 @@ class ChangelogItemWrites @Inject()(fields: Seq[Field])
     case Some(TimeEstimateFieldId)            => changeLogItem.field.value
     case Some(ResolutionFieldId)              => BacklogConstantValue.ChangeLog.RESOLUTION
     case Some(GeneralFieldId(v))              => v
-    case _ if changeLogItem.field == Parent   => BacklogConstantValue.ChangeLog.ISSUE_TYPE
+    case Some(TimeSpentFieldId)               => BacklogConstantValue.ChangeLog.ACTUAL_HOURS
+    case _ if changeLogItem.field == ParentChangeLogItemField   => BacklogConstantValue.ChangeLog.PARENT_ISSUE
     case None                                 => changeLogItem.field.value
   }
 

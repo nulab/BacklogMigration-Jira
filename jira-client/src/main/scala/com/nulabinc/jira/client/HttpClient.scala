@@ -52,6 +52,7 @@ class HttpClient(url: String, username: String, password: String) {
         }
         case HttpStatus.SC_NOT_FOUND    => Left(ApiNotFoundError(request.getURI.toString))
         case HttpStatus.SC_UNAUTHORIZED => Left(AuthenticateFailedError)
+        case HttpStatus.SC_FORBIDDEN    => Left(AuthenticateFailedError)
         case _                          => Left(UndefinedError(httpResponse.getStatusLine.getStatusCode))
       }
     }

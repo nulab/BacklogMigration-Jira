@@ -48,6 +48,7 @@ class IssueInitializer @Inject()(implicit val issueWrites: IssueWrites,
       optAssignee       = assignee(mappingCollectDatabase, filteredIssue),
       customFields      = filteredIssue.issueFields.flatMap(f => customField(fields, f, filteredIssue.changeLogs)),
       attachments       = attachmentNames(filteredIssue),
+      optActualHours    = actualHours(filteredIssue),
       notifiedUsers     = Seq.empty[BacklogUser]
     )
   }
@@ -77,12 +78,11 @@ class IssueInitializer @Inject()(implicit val issueWrites: IssueWrites,
   }
 
   private def dueDate(issue: Issue): Option[String] = {
-    val initialValues = issue.dueDate.map(d => DateUtil.dateFormat(d)) match {
-      case Some(dateString) => Seq(dateString + " 00:00:00.0")  // player reads "display string"
-      case _                => Seq.empty[String]
+    val issueInitialValue = new IssueInitialValue(ChangeLogItem.FieldType.JIRA, DueDateFieldId)
+    issueInitialValue.findChangeLogItem(issue.changeLogs) match {
+      case Some(detail) => detail.from
+      case None         => issue.dueDate.map(DateUtil.dateFormat)
     }
-    val initializedDueDate = ChangeLogsPlayer.reversePlay(DueDateChangeLogItemField, initialValues, issue.changeLogs).headOption
-    initializedDueDate.map(_.replace(" 00:00:00.0", "")) // TODO: refactor time string
   }
 
   private def estimatedHours(issue: Issue): Option[Float] = {
@@ -90,7 +90,7 @@ class IssueInitializer @Inject()(implicit val issueWrites: IssueWrites,
       case Some(second) => Seq(second.toString)
       case _            => Seq.empty[String]
     }
-    val initializedEstimatedSeconds = ChangeLogsPlayer.reversePlay(TimeEstimateChangeLogItemField, initialValues, issue.changeLogs).headOption
+    val initializedEstimatedSeconds = ChangeLogsPlayer.reversePlay(TimeOriginalEstimateChangeLogItemField, initialValues, issue.changeLogs).headOption
     initializedEstimatedSeconds.map(sec => secondsToHours(sec.toInt))
   }
 
@@ -122,7 +122,7 @@ class IssueInitializer @Inject()(implicit val issueWrites: IssueWrites,
     val issueInitialValue = new IssueInitialValue(ChangeLogItem.FieldType.JIRA, AssigneeFieldId)
     issueInitialValue.findChangeLogItem(issue.changeLogs) match {
       case Some(detail) =>
-        if (mappingCollectDatabase.existsByName(detail.from)) {
+        if (mappingCollectDatabase.userExistsFromAllUsers(detail.from)) {
           mappingCollectDatabase.findByName(detail.from).map( u => Convert.toBacklog(User(u.name, u.displayName)))
         } else {
           val optUser = userService.optUserOfKey(detail.from) match {
@@ -133,6 +133,15 @@ class IssueInitializer @Inject()(implicit val issueWrites: IssueWrites,
         }
       case None => issue.assignee.map(Convert.toBacklog(_))
     }
+  }
+
+  private def actualHours(issue: Issue): Option[Float] = {
+    val initialValues = issue.timeTrack.flatMap(t => t.timeSpentSeconds) match {
+      case Some(second) => Seq(second.toString)
+      case _            => Seq.empty[String]
+    }
+    val initializedTimeSpentSeconds = ChangeLogsPlayer.reversePlay(TimeSpentChangeLogItemField, initialValues, issue.changeLogs).headOption
+    initializedTimeSpentSeconds.map(sec => secondsToHours(sec.toInt))
   }
 
   private def customField(fields: Seq[Field], issueField: IssueField, changeLogs: Seq[ChangeLog]): Option[BacklogCustomField] = {

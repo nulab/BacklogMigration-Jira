@@ -6,7 +6,7 @@ import com.nulabinc.backlog.migration.common.domain._
 import com.nulabinc.backlog.migration.common.utils.{IOUtil, Logging}
 import com.nulabinc.jira.client._
 import com.nulabinc.jira.client.domain.Attachment
-import com.nulabinc.jira.client.domain.changeLog.LabelsChangeLogItemField
+import com.nulabinc.jira.client.domain.changeLog.{LabelsChangeLogItemField, ParentChangeLogItemField, TimeSpentChangeLogItemField}
 import com.osinka.i18n.Messages
 
 import scalax.file.Path
@@ -42,13 +42,9 @@ private [exporter] class ChangeLogReducer(issueDirPath: Path,
       case "timeestimate" =>
         val message = Messages("common.change_comment", Messages("common.timeestimate"), getValue(changeLog.optOriginalValue), getValue(changeLog.optNewValue))
         (None, s"${message}\n")
-        // TODO: Check project
-//      case "project_id" =>
-//        val message = Messages("common.change_comment",
-//          Messages("common.project"),
-//          getProjectName(changeLog.optOriginalValue),
-//          getProjectName(changeLog.optNewValue))
-//        (None, s"${message}\n")
+      case ParentChangeLogItemField.value =>
+        val message = Messages("common.change_comment", Messages("common.parent_issue"), getValue(changeLog.optOriginalValue), getValue(changeLog.optNewValue))
+        (None, s"${message}\n")
       case "deleted_category" =>
         val message = Messages("common.change_comment", Messages("common.category"), getValue(changeLog.optOriginalValue), getValue(changeLog.optNewValue))
         (None, s"${message}\n")
