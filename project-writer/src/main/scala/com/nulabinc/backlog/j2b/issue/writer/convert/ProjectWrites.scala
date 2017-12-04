@@ -13,7 +13,7 @@ private [writer] class ProjectWrites @Inject()(projectKey: BacklogProjectKey)
   override def writes(project: Project) =
     BacklogProject(
       optId = Some(project.id),
-      name = project.key,
+      name = project.name,
       key = projectKey.value,
       isChartEnabled = true,
       isSubtaskingEnabled = true,
