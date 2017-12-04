@@ -10,6 +10,7 @@ import com.nulabinc.backlog.j2b.jira.service._
 import com.nulabinc.backlog.j2b.mapping.collector.MappingCollectDatabaseInMemory
 import com.nulabinc.backlog.j2b.mapping.file.MappingFileServiceImpl
 import com.nulabinc.backlog.migration.common.conf.{BacklogApiConfiguration, BacklogPaths}
+import com.nulabinc.backlog.migration.common.domain.BacklogProjectKey
 import com.nulabinc.jira.client.JiraRestClient
 import com.nulabinc.jira.client.domain.field.Field
 
@@ -29,6 +30,7 @@ class DefaultModule(config: AppConfiguration) extends AbstractModule {
 //    bind(classOf[Project]).toInstance(project)
     bind(classOf[JiraApiConfiguration]).toInstance(config.jiraConfig)
     bind(classOf[JiraProjectKey]).toInstance(JiraProjectKey(config.jiraConfig.projectKey))
+    bind(classOf[BacklogProjectKey]).toInstance(BacklogProjectKey(config.backlogConfig.projectKey))
     bind(classOf[BacklogApiConfiguration]).toInstance(config.backlogConfig)
 
     // Paths

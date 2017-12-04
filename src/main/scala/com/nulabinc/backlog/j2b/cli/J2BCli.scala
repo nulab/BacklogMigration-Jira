@@ -56,7 +56,7 @@ object J2BCli extends BacklogConfiguration
       val backlogStatusService    = backlogInjector.getInstance(classOf[BacklogStatusService])
 
       // Delete old exports
-      val jiraBacklogPaths = new JiraBacklogPaths(config.jiraConfig.projectKey, config.backlogConfig.projectKey)
+      val jiraBacklogPaths = new JiraBacklogPaths(config.backlogConfig.projectKey)
 
       jiraBacklogPaths.outputPath.deleteRecursively(force = true, continueOnFailure = true)
 
@@ -108,7 +108,7 @@ object J2BCli extends BacklogConfiguration
       val backlogStatusService    = backlogInjector.getInstance(classOf[BacklogStatusService])
 
       // Mapping file
-      val jiraBacklogPaths    = new JiraBacklogPaths(config.jiraConfig.projectKey, config.backlogConfig.projectKey)
+      val jiraBacklogPaths    = new JiraBacklogPaths(config.backlogConfig.projectKey)
       val mappingFileService  = jiraInjector.getInstance(classOf[MappingFileService])
       val statusMappingFile   = mappingFileService.createStatusesMappingFileFromJson(jiraBacklogPaths.jiraStatusesJson, backlogStatusService.allStatuses())
       val priorityMappingFile = mappingFileService.createPrioritiesMappingFileFromJson(jiraBacklogPaths.jiraPrioritiesJson, backlogPriorityService.allPriorities())
