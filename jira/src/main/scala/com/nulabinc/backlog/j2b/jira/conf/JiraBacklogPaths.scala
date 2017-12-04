@@ -4,12 +4,12 @@ import com.nulabinc.backlog.migration.common.conf.BacklogPaths
 
 import scalax.file.Path
 
-class JiraBacklogPaths(jiraProjectKey: String, backlogProjectKey: String) extends BacklogPaths(backlogProjectKey) {
+class JiraBacklogPaths(backlogProjectKey: String) extends BacklogPaths(backlogProjectKey) {
 
-  def jiraUsersJson: Path = outputPath / "project" / jiraProjectKey / "jiraUsers.json"
+  def jiraUsersJson: Path = outputPath / "project" / backlogProjectKey / "jiraUsers.json"
 
-  def jiraStatusesJson: Path = outputPath / "project" / jiraProjectKey / "jiraStatuses.json"
+  def jiraStatusesJson: Path = outputPath / "project" / backlogProjectKey / "jiraStatuses.json"
 
-  def jiraPrioritiesJson: Path = outputPath / "project" / jiraProjectKey / "jiraPriorities.json"
+  def jiraPrioritiesJson: Path = outputPath / "project" / backlogProjectKey / "jiraPriorities.json"
 
 }
