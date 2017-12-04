@@ -34,11 +34,19 @@ object J2BCli extends BacklogConfiguration
 
   def export(config: AppConfiguration): Unit = {
 
+    def createJiraExportingInjector(config: AppConfiguration): Option[Injector] =
+      Try(Guice.createInjector(new ExportModule(config))) match {
+        case Success(jiraInjector) => Some(jiraInjector)
+        case Failure(error)        =>
+          logger.error(error.getMessage)
+          None
+      }
+
     val backlogInjector = BacklogInjector.createInjector(config.backlogConfig)
 
     for {
       _            <- checkJiraApiAccessible(config.jiraConfig)
-      jiraInjector <- createJiraInjector(config)
+      jiraInjector <- createJiraExportingInjector(config)
       _            <- validateConfig(config, jiraInjector.getInstance(classOf[JiraRestClient]), backlogInjector.getInstance(classOf[SpaceService]))
     } yield {
       startExportMessage()
@@ -79,12 +87,20 @@ object J2BCli extends BacklogConfiguration
 
   def `import`(config: AppConfiguration): Unit = {
 
+    def createJiraImportingInjector(config: AppConfiguration): Option[Injector] =
+      Try(Guice.createInjector(new ImportModule(config))) match {
+        case Success(jiraInjector) => Some(jiraInjector)
+        case Failure(error)        =>
+          logger.error(error.getMessage)
+          None
+      }
+
     val backlogInjector = BacklogInjector.createInjector(config.backlogConfig)
     val spaceService    = backlogInjector.getInstance(classOf[SpaceService])
 
     for {
       _            <- checkJiraApiAccessible(config.jiraConfig)
-      jiraInjector <- createJiraInjector(config)
+      jiraInjector <- createJiraImportingInjector(config)
       _            <- validateConfig(config, jiraInjector.getInstance(classOf[JiraRestClient]), spaceService)
     } yield {
       val backlogUserService      = backlogInjector.getInstance(classOf[BacklogUserService])
@@ -153,13 +169,5 @@ object J2BCli extends BacklogConfiguration
       case _ => Some(())
     }
   }
-
-  private def createJiraInjector(config: AppConfiguration): Option[Injector] =
-    Try(Guice.createInjector(new ExportModule(config))) match {
-      case Success(jiraInjector) => Some(jiraInjector)
-      case Failure(error)        =>
-        logger.error(error.getMessage)
-        None
-    }
 
 }
