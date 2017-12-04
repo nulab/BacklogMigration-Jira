@@ -1,15 +1,16 @@
 package com.nulabinc.jira.client
 
 import java.io.{File, FileOutputStream}
-import java.nio.channels.Channels
+import java.nio.channels.{Channels, ReadableByteChannel}
 import java.nio.charset.Charset
 
 import org.apache.commons.codec.binary.Base64
-import org.apache.http.{HttpHeaders, HttpStatus}
-import org.apache.http.client.methods.HttpGet
-import org.apache.http.impl.client.HttpClientBuilder
+import org.apache.http._
+import org.apache.http.client.methods.{CloseableHttpResponse, HttpGet}
+import org.apache.http.impl.client.{CloseableHttpClient, HttpClientBuilder}
 import spray.json.{JsArray, JsonParser}
 
+import scala.io.Source
 
 sealed abstract class HttpClientError(val message: String) {
   override def toString: String = message
@@ -17,72 +18,114 @@ sealed abstract class HttpClientError(val message: String) {
 case object AuthenticateFailedError extends HttpClientError("Bad credential")
 case class ApiNotFoundError(url: String) extends HttpClientError(url)
 case class BadRequestError(error: String) extends HttpClientError(error)
+case class GetContentError(throwable: Throwable) extends HttpClientError(throwable.getMessage)
+case class ThrowableError(throwable: Throwable) extends HttpClientError(throwable.getMessage)
 case class UndefinedError(statusCode: Int) extends HttpClientError(s"Unknown status code: $statusCode")
 
 sealed trait DownloadResult
-case object Success extends DownloadResult
-case object Failure extends DownloadResult
+case object DownloadSuccess extends DownloadResult
+case object DownloadFailure extends DownloadResult
 
 class HttpClient(url: String, username: String, password: String) {
 
-  val auth = username + ":" + password
-  val encodedAuth = Base64.encodeBase64(auth.getBytes(Charset.forName("ISO-8859-1")))
-  val authHeader = "Basic " + new String(encodedAuth)
+  val auth: String              = username + ":" + password
+  val encodedAuth: Array[Byte]  = Base64.encodeBase64(auth.getBytes(Charset.forName("ISO-8859-1")))
+  val authHeader: String        = "Basic " + new String(encodedAuth)
 
   def get(path: String): Either[HttpClientError, String] = {
-    using(HttpClientBuilder.create().build()) { http =>
-      val request = new HttpGet(url + "/rest/api/2" + path)
-      request.setHeader(HttpHeaders.AUTHORIZATION, authHeader)
-      val httpResponse = http.execute(request)
-      httpResponse.getStatusLine.getStatusCode match {
+
+    val closableHttpClient = createHttpClient()
+    val httpRequest        = createHttpGetRequest(url + "/rest/api/2" + path)
+
+    try {
+      val closableHttpResponse = httpExecute(closableHttpClient, httpRequest)
+
+      closableHttpResponse.getStatusLine.getStatusCode match {
         case HttpStatus.SC_OK =>
-          using(httpResponse.getEntity.getContent) { inputStream =>
-            val body = io.Source.fromInputStream(inputStream)("UTF-8").getLines.mkString
-            Right(body)
+          try {
+            val content = getContent(closableHttpResponse.getEntity)
+            Right(content)
+          } catch {
+            case e: Throwable => Left(GetContentError(e))
+          } finally {
+            closableHttpResponse.close()
           }
-        case HttpStatus.SC_BAD_REQUEST => {
-          using(httpResponse.getEntity.getContent) { inputStream =>
-            val body = io.Source.fromInputStream(inputStream).getLines.mkString
-            val errors = JsonParser(body).asJsObject.getFields("errorMessages") match {
-              case Seq(JsArray(e)) => e.mkString(" ")
-              case _               => "Bad Request"
+        case HttpStatus.SC_BAD_REQUEST =>
+          try {
+            val content = getContent(closableHttpResponse.getEntity)
+            JsonParser(content).asJsObject.getFields("errorMessages") match {
+              case Seq(JsArray(e)) => Left(BadRequestError(e.mkString(" ")))
+              case _               => Left(BadRequestError("Bad Request"))
             }
-            Left(BadRequestError(errors))
+          } catch {
+            case e: Throwable => Left(GetContentError(e))
+          } finally {
+            closableHttpResponse.close()
           }
-        }
-        case HttpStatus.SC_NOT_FOUND    => Left(ApiNotFoundError(request.getURI.toString))
+        case HttpStatus.SC_NOT_FOUND    => Left(ApiNotFoundError(httpRequest.getURI.toString))
         case HttpStatus.SC_UNAUTHORIZED => Left(AuthenticateFailedError)
         case HttpStatus.SC_FORBIDDEN    => Left(AuthenticateFailedError)
-        case _                          => Left(UndefinedError(httpResponse.getStatusLine.getStatusCode))
+        case statusCode                 => Left(UndefinedError(statusCode))
       }
+    } catch {
+      case e: Throwable => Left(ThrowableError(e))
+    } finally {
+      closableHttpClient.close()
     }
   }
 
   def download(url: String, destinationFilePath: String): DownloadResult = {
-    using(HttpClientBuilder.create().build()) { http =>
-      val request = new HttpGet(url)
-      request.setHeader(HttpHeaders.AUTHORIZATION, authHeader)
-      val httpResponse = http.execute(request)
-      httpResponse.getStatusLine.getStatusCode match {
+
+    def getChannel(entity: HttpEntity): ReadableByteChannel =
+      Channels.newChannel(entity.getContent)
+
+    def createOutputStream(channel: ReadableByteChannel): Long = {
+      val outputStream = new FileOutputStream(new File(destinationFilePath))
+      outputStream.getChannel.transferFrom(channel, 0, java.lang.Long.MAX_VALUE)
+    }
+
+    val closableHttpClient = createHttpClient()
+    val httpRequest        = createHttpGetRequest(url)
+
+    try {
+      val closableHttpResponse = httpExecute(closableHttpClient, httpRequest)
+
+      closableHttpResponse.getStatusLine.getStatusCode match {
         case HttpStatus.SC_OK =>
-          using(httpResponse.getEntity.getContent) { inputStream =>
-            using(Channels.newChannel(inputStream)) { rbc =>
-              using(new FileOutputStream(new File(destinationFilePath))) { fos =>
-                fos.getChannel.transferFrom(rbc, 0, java.lang.Long.MAX_VALUE)
-                Success
-              }
-            }
+          try {
+            val channel = getChannel(closableHttpResponse.getEntity)
+            createOutputStream(channel)
+            DownloadSuccess
+          } catch {
+            case _: Throwable => DownloadFailure
+          } finally {
+            closableHttpResponse.close()
           }
-        case _ => Failure
+        case _ =>
+          closableHttpResponse.close()
+          DownloadFailure
       }
+    } catch {
+      case _: Throwable => DownloadFailure
+    } finally {
+      closableHttpClient.close()
     }
   }
 
-  private [this] def using[A <: {def close()}, B](resource: A)(func: A => B): B = {
-    try {
-      func(resource)
-    } finally {
-      if(resource != null) resource.close()
-    }
+  private def createHttpClient(): CloseableHttpClient =
+    HttpClientBuilder.create().build()
+
+  private def createHttpGetRequest(path: String): HttpGet =
+    new HttpGet(path)
+
+  private def httpExecute(client: CloseableHttpClient, request: HttpGet): CloseableHttpResponse = {
+    request.setHeader(HttpHeaders.AUTHORIZATION, authHeader)
+    client.execute(request)
   }
+
+  private def getContent(entity: HttpEntity): String = {
+    val content = entity.getContent
+    Source.fromInputStream(content)("UTF-8").getLines.mkString
+  }
+
 }
