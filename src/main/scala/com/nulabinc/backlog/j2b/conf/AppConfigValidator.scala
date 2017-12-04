@@ -55,7 +55,7 @@ object AppConfigValidator extends Logging {
         }
       case Left(e) =>
         logger.error(e.message, e)
-        ConfigValidateFailure(s"- ${Messages("cli.param.error.disable.access", Messages("common.jira"))}")
+        ConfigValidateFailure(s"- ${Messages("cli.param.error.disable.access.jira", Messages("common.jira"))}")
     }
   }
 
@@ -71,7 +71,7 @@ object AppConfigValidator extends Logging {
         ConfigValidateFailure(s"- ${Messages("cli.param.error.disable.host", Messages("common.backlog"), config.url)}")
       case e: Throwable =>
         logger.error(e.getMessage, e)
-        ConfigValidateFailure(s"- ${Messages("cli.param.error.disable.access", Messages("common.backlog"))}")
+        ConfigValidateFailure(s"- ${Messages("cli.param.error.disable.access.backlog", Messages("common.backlog"))}")
     }
   }
 

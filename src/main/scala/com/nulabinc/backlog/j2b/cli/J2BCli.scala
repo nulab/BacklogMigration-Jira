@@ -147,7 +147,7 @@ object J2BCli extends BacklogConfiguration
     val jiraClient = JiraRestClient(config.url, config.username, config.password)
     AppConfigValidator.validateConfigJira(jiraClient) match {
       case ConfigValidateFailure(failure) =>
-        ConsoleOut.println(Messages("cli.param.error.disable.access", Messages("common.jira")))
+        ConsoleOut.println(Messages("cli.param.error.disable.access.jira", Messages("common.jira")))
         logger.error(failure)
         None
       case _ => Some(())
