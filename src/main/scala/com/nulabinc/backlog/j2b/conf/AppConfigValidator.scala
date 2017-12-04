@@ -10,7 +10,9 @@ import com.osinka.i18n.Messages
 
 sealed trait ConfigValidateResult
 case object ConfigValidateSuccess extends ConfigValidateResult
-case class ConfigValidateFailure(reason: String) extends ConfigValidateResult
+case class ConfigValidateFailure(reason: String) extends ConfigValidateResult {
+  override def toString: String = reason
+}
 
 class AppConfigValidator(jiraRestClient: JiraRestClient,
                          spaceService: SpaceService) extends Logging {
@@ -18,7 +20,7 @@ class AppConfigValidator(jiraRestClient: JiraRestClient,
   def validate(config: AppConfiguration): List[ConfigValidateResult] = {
     List(
       AppConfigValidator.validateProjectKey(config.backlogProjectKey),
-      AppConfigValidator.validateConfigJira(jiraRestClient),
+//      AppConfigValidator.validateConfigJira(jiraRestClient),
       AppConfigValidator.validateConfigBacklog(spaceService, config.backlogConfig),
       AppConfigValidator.validateJiraProject(jiraRestClient, config.jiraConfig),
       AppConfigValidator.validateAuthBacklog(spaceService)
@@ -53,7 +55,7 @@ object AppConfigValidator extends Logging {
         }
       case Left(e) =>
         logger.error(e.message, e)
-        ConfigValidateFailure(s"- ${Messages("cli.param.error.disable.access", Messages("common.jira"))}")
+        ConfigValidateFailure(s"- ${Messages("cli.param.error.disable.access.jira", Messages("common.jira"))}")
     }
   }
 
@@ -69,7 +71,7 @@ object AppConfigValidator extends Logging {
         ConfigValidateFailure(s"- ${Messages("cli.param.error.disable.host", Messages("common.backlog"), config.url)}")
       case e: Throwable =>
         logger.error(e.getMessage, e)
-        ConfigValidateFailure(s"- ${Messages("cli.param.error.disable.access", Messages("common.backlog"))}")
+        ConfigValidateFailure(s"- ${Messages("cli.param.error.disable.access.backlog", Messages("common.backlog"))}")
     }
   }
 

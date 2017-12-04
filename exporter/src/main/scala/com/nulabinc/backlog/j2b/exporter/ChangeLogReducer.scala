@@ -95,9 +95,9 @@ private [exporter] class ChangeLogReducer(issueDirPath: Path,
             val path = backlogPaths.issueAttachmentPath(dir, attachmentInfo.name)
             IOUtil.createDirectory(dir)
             issueService.downloadAttachments(attachmentInfoId.toLong, path, attachmentInfo.name) match {
-              case Success =>
+              case DownloadSuccess =>
                 (Some(changeLog), "")
-              case Failure =>
+              case DownloadFailure =>
                 val emptyMessage = Messages(
                   "export.attachment.empty",
                   changeLog.optOriginalValue.getOrElse(Messages("common.empty")),

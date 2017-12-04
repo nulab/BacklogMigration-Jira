@@ -1,6 +1,5 @@
 package com.nulabinc.backlog.j2b.exporter.service
 
-import java.util.Date
 import javax.inject.Inject
 
 import com.nulabinc.backlog.j2b.jira.conf.JiraApiConfiguration
@@ -12,7 +11,6 @@ import com.nulabinc.jira.client.domain.changeLog.ChangeLog
 import com.nulabinc.jira.client.{DownloadResult, JiraRestClient}
 import com.nulabinc.jira.client.domain.issue.Issue
 
-import scala.util.{Failure, Success, Try}
 import scalax.file.Path
 
 class JiraClientIssueService @Inject()(apiConfig: JiraApiConfiguration,
