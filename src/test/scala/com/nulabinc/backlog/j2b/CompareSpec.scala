@@ -131,10 +131,21 @@ class CompareSpec extends FlatSpec
             dateToOptionDateString(jiraIssue.dueDate) should equal(dateToOptionDateString(Option(backlogIssue.getDueDate)))
 
             // priority
-            println(s"priority: ${jiraIssue.priority.name} - ${backlogIssue.getPriority.getName}")
-            jiraIssue.priority.name should equal(backlogIssue.getPriority.getName)
-//            convertPriority(redmineIssue.getPriorityText) should equal(backlogIssue.getPriority.getName)
+//            println(s"priority: ${jiraIssue.priority.name} - ${backlogIssue.getPriority.getName}")
+            convertPriority(jiraIssue.priority.name) should equal(backlogIssue.getPriority.getName)
 
+            // status
+            withClue(s"""
+                        |status:${jiraIssue.status.name}
+                        |converted:${convertStatus(jiraIssue.status.name)}
+                        |""".stripMargin) {
+              convertStatus(jiraIssue.status.name) should equal(backlogIssue.getStatus.getName)
+            }
+
+            // assignee TODO test failed
+//            jiraIssue.assignee.map { user =>
+//              convertUser(user.name) should equal(backlogIssue.getAssignee.getName)
+//            }
 
           }
 
