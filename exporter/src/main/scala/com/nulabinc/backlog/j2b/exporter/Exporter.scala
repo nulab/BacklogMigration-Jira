@@ -150,8 +150,8 @@ class Exporter @Inject()(projectKey: JiraProjectKey,
           }
 
           Set(
-            Some(issue.creator.name),
-            issue.assignee.map(_.name)
+            Some(issue.creator.key),
+            issue.assignee.map(_.key)
           ).foreach { maybeKey =>
             if (!mappingCollectDatabase.userExistsFromAllUsers(maybeKey)) {
               userService.optUserOfKey(maybeKey) match {
