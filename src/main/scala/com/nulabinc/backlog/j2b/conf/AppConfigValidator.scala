@@ -10,7 +10,9 @@ import com.osinka.i18n.Messages
 
 sealed trait ConfigValidateResult
 case object ConfigValidateSuccess extends ConfigValidateResult
-case class ConfigValidateFailure(reason: String) extends ConfigValidateResult
+case class ConfigValidateFailure(reason: String) extends ConfigValidateResult {
+  override def toString: String = reason
+}
 
 class AppConfigValidator(jiraRestClient: JiraRestClient,
                          spaceService: SpaceService) extends Logging {
