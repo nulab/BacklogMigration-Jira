@@ -1,7 +1,7 @@
 package com.nulabinc.backlog.j2b.cli
 
 import com.google.inject.Guice
-import com.nulabinc.backlog.j2b.conf.AppConfiguration
+import com.nulabinc.backlog.j2b.conf.{AppConfigValidator, AppConfiguration}
 import com.nulabinc.backlog.j2b.exporter.Exporter
 import com.nulabinc.backlog.j2b.jira.conf.JiraBacklogPaths
 import com.nulabinc.backlog.j2b.jira.converter.MappingConverter
@@ -30,6 +30,10 @@ object J2BCli extends BacklogConfiguration
     with Tracker {
 
   def export(config: AppConfiguration): Unit = {
+
+    // Check JIRA configuration is correct. Before creating injector.
+    val jiraClient = JiraRestClient(config.jiraConfig.url, config.jiraConfig.username, config.jiraConfig.password)
+    AppConfigValidator.validateConfigJira(jiraClient)
 
     startExportMessage()
 
@@ -74,6 +78,10 @@ object J2BCli extends BacklogConfiguration
   }
 
   def `import`(config: AppConfiguration): Unit = {
+
+
+    val jiraClient = JiraRestClient(config.jiraConfig.url, config.jiraConfig.username, config.jiraConfig.password)
+    AppConfigValidator.validateConfigJira(jiraClient)
 
     val jiraInjector    = Guice.createInjector(new ImportModule(config))
     val backlogInjector = BacklogInjector.createInjector(config.backlogConfig)

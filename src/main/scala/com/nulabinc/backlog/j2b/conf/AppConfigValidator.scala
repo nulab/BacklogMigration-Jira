@@ -20,7 +20,7 @@ class AppConfigValidator(jiraRestClient: JiraRestClient,
   def validate(config: AppConfiguration): List[ConfigValidateResult] = {
     List(
       AppConfigValidator.validateProjectKey(config.backlogProjectKey),
-      AppConfigValidator.validateConfigJira(jiraRestClient),
+//      AppConfigValidator.validateConfigJira(jiraRestClient),
       AppConfigValidator.validateConfigBacklog(spaceService, config.backlogConfig),
       AppConfigValidator.validateJiraProject(jiraRestClient, config.jiraConfig),
       AppConfigValidator.validateAuthBacklog(spaceService)
