@@ -10,11 +10,11 @@ trait ConfigValidator extends Logging {
 
   def validateConfig(config: AppConfiguration,
                      jiraRestClient: JiraRestClient,
-                     spaceService: SpaceService): Boolean = {
+                     spaceService: SpaceService): Option[Unit] = {
 
     val validator = AppConfigValidator(jiraRestClient, spaceService)
     val errors    = validator.validate(config)
-    if (errors.isEmpty) true
+    if (errors.isEmpty) Some(())
     else {
       val message =
         s"""
@@ -25,7 +25,7 @@ trait ConfigValidator extends Logging {
            |
         """.stripMargin
       ConsoleOut.error(message)
-      false
+      None
     }
   }
 }
