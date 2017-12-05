@@ -185,6 +185,13 @@ class CompareSpec extends FlatSpec
             """.stripMargin) {
               timestampToString(jiraIssue.updatedAt.toDate) should be(timestampToString(backlogUpdated(backlogIssue)))
             }
+
+            // attachment file
+            val backlogAttachments = backlogIssue.getAttachments.asScala
+            jiraIssue.attachments.map { jiraAttachment =>
+              val backlogAttachment = backlogAttachments.find(_.getName == jiraAttachment.fileName)
+              backlogAttachment should not be empty
+            }
           }
 
         }
