@@ -23,9 +23,9 @@ class MappingCollectDatabaseInMemory extends MappingCollectDatabase {
     user
   }
 
-  override def add(name: Option[String]) = name match {
-    case Some(n) =>
-      val user = User(n, n, n)
+  override def add(optName: Option[String]) = optName match {
+    case Some(name) =>
+      val user = User(key = name, name = name, displayName = name, emailAddress = "")
       userSet += user
       Some(user)
     case None => None

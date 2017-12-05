@@ -68,7 +68,7 @@ object J2BCli extends BacklogConfiguration
       val mappingFileService  = jiraInjector.getInstance(classOf[MappingFileService])
 
       List(
-        mappingFileService.createUserMappingFile(collectData.users.map(u => User(u.key, u.name, u.displayName)), backlogUserService.allUsers()),
+        mappingFileService.createUserMappingFile(collectData.users, backlogUserService.allUsers()),
         mappingFileService.createPriorityMappingFile(collectData.priorities, backlogPriorityService.allPriorities()),
         mappingFileService.createStatusMappingFile(collectData.statuses, backlogStatusService.allStatuses())
       ).foreach { mappingFile =>
