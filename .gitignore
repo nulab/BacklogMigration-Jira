@@ -22,3 +22,4 @@ backlog/project
 mapping/*.json
 mapping2/*.json
 log/
+test.properties
