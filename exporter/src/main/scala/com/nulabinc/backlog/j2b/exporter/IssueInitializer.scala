@@ -123,7 +123,7 @@ class IssueInitializer @Inject()(implicit val issueWrites: IssueWrites,
     issueInitialValue.findChangeLogItem(issue.changeLogs) match {
       case Some(detail) =>
         if (mappingCollectDatabase.userExistsFromAllUsers(detail.from)) {
-          mappingCollectDatabase.findByName(detail.from).map( u => Convert.toBacklog(User(u.name, u.displayName)))
+          mappingCollectDatabase.findByName(detail.from).map( u => Convert.toBacklog(u))
         } else {
           val optUser = userService.optUserOfKey(detail.from) match {
             case Some(u) => Some(mappingCollectDatabase.add(u))
