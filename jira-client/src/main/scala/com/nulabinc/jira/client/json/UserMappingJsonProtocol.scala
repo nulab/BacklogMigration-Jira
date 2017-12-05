@@ -4,5 +4,5 @@ import com.nulabinc.jira.client.domain.User
 import spray.json.DefaultJsonProtocol
 
 object UserMappingJsonProtocol extends DefaultJsonProtocol {
-  implicit val userMappingFormat = jsonFormat2(User)
+  implicit val userMappingFormat = jsonFormat4(User)
 }

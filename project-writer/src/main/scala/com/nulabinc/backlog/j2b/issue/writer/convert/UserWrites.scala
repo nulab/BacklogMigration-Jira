@@ -10,10 +10,10 @@ class UserWrites extends Writes[User, BacklogUser] {
   override def writes(user: User) =
     BacklogUser(
       optId = None,
-      optUserId = None,
+      optUserId = Some(user.key),
       optPassword = None,
       name = user.name,
-      optMailAddress = None,
+      optMailAddress = Some(user.emailAddress),
       roleType = BacklogConstantValue.USER_ROLE
     )
 }
