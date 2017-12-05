@@ -23,6 +23,7 @@ class CompareSpec extends FlatSpec
   testProjectUsers(appConfig.backlogConfig)
   testVersion(appConfig.jiraConfig, appConfig.backlogConfig)
   testIssueType(appConfig.backlogConfig)
+  testCategory(appConfig.jiraConfig, appConfig.backlogConfig)
   testIssue(appConfig.jiraConfig, appConfig.backlogConfig)
 
   def testProject(jiraConfig: JiraApiConfiguration, backlogConfig: BacklogApiConfiguration): Unit = {
@@ -79,6 +80,15 @@ class CompareSpec extends FlatSpec
       }
     }
 
+  def testCategory(jiraConfig: JiraApiConfiguration, backlogConfig: BacklogApiConfiguration): Unit =
+    "Category" should "match" in {
+      val backlogComponents = backlogApi.getCategories(backlogConfig.projectKey).asScala
+      val jiraComponents    = jiraRestApi.componentAPI.projectComponents(jiraConfig.projectKey).right.get
+      jiraComponents.foreach { jiraComponent =>
+        val backlogComponent = backlogComponents.find(backlogComponent => jiraComponent.name == backlogComponent.getName).get
+        jiraComponent.name should equal(backlogComponent.getName)
+      }
+    }
 
   def testIssue(jiraConfig: JiraApiConfiguration, backlogConfig: BacklogApiConfiguration): Unit = {
 
@@ -131,7 +141,6 @@ class CompareSpec extends FlatSpec
             dateToOptionDateString(jiraIssue.dueDate) should equal(dateToOptionDateString(Option(backlogIssue.getDueDate)))
 
             // priority
-//            println(s"priority: ${jiraIssue.priority.name} - ${backlogIssue.getPriority.getName}")
             convertPriority(jiraIssue.priority.name) should equal(backlogIssue.getPriority.getName)
 
             // status
@@ -142,14 +151,31 @@ class CompareSpec extends FlatSpec
               convertStatus(jiraIssue.status.name) should equal(backlogIssue.getStatus.getName)
             }
 
-            // assignee TODO test failed
-//            jiraIssue.assignee.map { user =>
-//              convertUser(user.name) should equal(backlogIssue.getAssignee.getName)
-//            }
+            // assignee
+            jiraIssue.assignee.map { user =>
+              convertUser(user.key) should equal(backlogIssue.getAssignee.getUserId)
+            }
 
+            // actual hours
+            val spentHours  = jiraIssue.timeTrack.flatMap(t => t.timeSpentSeconds).map(s => BigDecimal(s / 3600d).setScale(2, BigDecimal.RoundingMode.HALF_UP))
+            val actualHours = Option(backlogIssue.getActualHours).map(s => BigDecimal(s).setScale(2, BigDecimal.RoundingMode.HALF_UP))
+            spentHours should equal(actualHours)
+
+            // created user
+            convertUser(jiraIssue.creator.key) should equal(backlogIssue.getCreatedUser.getUserId)
+
+            // created
+            timestampToString(jiraIssue.createdAt.toDate) should equal(timestampToString(backlogIssue.getCreated))
+
+            // updated user
+            withClue(s"""
+                        |redmine:${timestampToString(jiraIssue.updatedAt.toDate)}
+                        |backlog:${timestampToString(backlogUpdated(backlogIssue))}
+            """.stripMargin) {
+              timestampToString(jiraIssue.updatedAt.toDate) should be(timestampToString(backlogUpdated(backlogIssue)))
+            }
           }
 
-          println(s"match: ${jiraIssue.id} - ${jiraIssue.summary}")
         }
       }
 

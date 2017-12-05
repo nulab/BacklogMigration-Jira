@@ -6,9 +6,13 @@ import org.joda.time.DateTime
 
 trait DateFormatter {
 
-  private val dateFormat = "yyyy-MM-dd"
+  val dateFormat: String      = "yyyy-MM-dd"
+  val timestampFormat: String = "yyyy-MM-dd'T'HH:mm:ssZ"
 
   def dateToOptionDateString(dateTime: Option[Date]): Option[String] =
     dateTime.map(d => new DateTime(d).toString(dateFormat))
+
+  def timestampToString(date: Date): String =
+    new DateTime(date).toString(timestampFormat)
 
 }
