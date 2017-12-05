@@ -24,6 +24,7 @@ class CompareSpec extends FlatSpec
   testVersion(appConfig.jiraConfig, appConfig.backlogConfig)
   testIssueType(appConfig.backlogConfig)
   testCategory(appConfig.jiraConfig, appConfig.backlogConfig)
+  testCustomFieldDefinitions(appConfig.backlogConfig)
   testIssue(appConfig.jiraConfig, appConfig.backlogConfig)
 
   def testProject(jiraConfig: JiraApiConfiguration, backlogConfig: BacklogApiConfiguration): Unit = {
@@ -87,6 +88,16 @@ class CompareSpec extends FlatSpec
       jiraComponents.foreach { jiraComponent =>
         val backlogComponent = backlogComponents.find(backlogComponent => jiraComponent.name == backlogComponent.getName).get
         jiraComponent.name should equal(backlogComponent.getName)
+      }
+    }
+
+  def testCustomFieldDefinitions(backlogConfig: BacklogApiConfiguration): Unit =
+    "Custom field definition" should "match" in {
+      val backlogCustomFields = backlogApi.getCustomFields(backlogConfig.projectKey).asScala
+      val jiraCustomFields    = jiraRestApi.fieldAPI.all().right.get
+      jiraCustomFields.filter(_.id.contains("customfield_")).foreach { jiraCustomField =>
+        val backlogCustomField = backlogCustomFields.find(_.getName == jiraCustomField.name).get
+        jiraCustomField.name should equal(backlogCustomField.getName)
       }
     }
 
