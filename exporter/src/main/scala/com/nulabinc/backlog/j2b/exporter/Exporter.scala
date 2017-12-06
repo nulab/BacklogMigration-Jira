@@ -105,7 +105,7 @@ class Exporter @Inject()(projectKey: JiraProjectKey,
           // filter change logs
           val issueWithFilteredChangeLogs: Issue = issue.copy(
             changeLogs = {
-              val filtered = ChangeLogFilter.filter(components, versions, issueChangeLogs)
+              val filtered = ChangeLogFilter.filter(fields, components, versions, issueChangeLogs)
               convertDateChangeLogs(filtered, fields)
             }
           )
@@ -115,8 +115,8 @@ class Exporter @Inject()(projectKey: JiraProjectKey,
             case NumberFieldValue(value) => mappingCollectDatabase.addCustomField(id, Some(value.toString))
             case ArrayFieldValue(values) => values.map(v => mappingCollectDatabase.addCustomField(id, Some(v.value)))
             case OptionFieldValue(value) => saveIssueFieldValue(id, value.value)
-            case UserFieldValue(value)   => mappingCollectDatabase.addCustomField(id, Some(value.key))
             case AnyFieldValue(value)    => mappingCollectDatabase.addCustomField(id, Some(value))
+            case UserFieldValue(user)    => mappingCollectDatabase.addCustomField(id, Some(user.key))
           }
 
           issueWithFilteredChangeLogs.issueFields.foreach(v => saveIssueFieldValue(v.id, v.value))

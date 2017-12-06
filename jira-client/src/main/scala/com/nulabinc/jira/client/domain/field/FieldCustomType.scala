@@ -9,6 +9,7 @@ case object Textarea extends FieldCustomType
 case object Textfield extends FieldCustomType
 case object RadioButtons extends FieldCustomType
 case object MultiCheckBoxes extends FieldCustomType
+case object CustomLabel extends FieldCustomType
 
 object FieldCustomType {
 
@@ -20,6 +21,7 @@ object FieldCustomType {
       case "com.atlassian.jira.plugin.system.customfieldtypes:textfield"        => Some(Textfield)    // single line
       case "com.atlassian.jira.plugin.system.customfieldtypes:radiobuttons"     => Some(RadioButtons)
       case "com.atlassian.jira.plugin.system.customfieldtypes:multicheckboxes"  => Some(MultiCheckBoxes)
+      case "com.atlassian.jira.plugin.system.customfieldtypes:labels"           => Some(CustomLabel)      // multi select
       case _ => None
     }
 }
