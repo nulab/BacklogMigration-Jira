@@ -149,7 +149,9 @@ class CompareSpec extends FlatSpec
 
             // TODO milestone
 
-            // TODO parent issue
+            // parent issue
+            if (jiraIssue.parent.isDefined) backlogIssue.getParentIssueId should not be 0
+            else backlogIssue.getParentIssueId should equal(0)
 
             // due date
             dateToOptionDateString(jiraIssue.dueDate) should equal(dateToOptionDateString(Option(backlogIssue.getDueDate)))
@@ -173,7 +175,10 @@ class CompareSpec extends FlatSpec
             val actualHours = Option(backlogIssue.getActualHours).map(s => BigDecimal(s).setScale(2, BigDecimal.RoundingMode.HALF_UP))
             spentHours should equal(actualHours)
 
-            // TODO estimated hours
+            // estimated hours
+            val jiraHours  = jiraIssue.timeTrack.flatMap(t => t.originalEstimateSeconds).map(s => BigDecimal(s / 3600d).setScale(2, BigDecimal.RoundingMode.HALF_UP))
+            val backlogHours = Option(backlogIssue.getEstimatedHours).map(s => BigDecimal(s).setScale(2, BigDecimal.RoundingMode.HALF_UP))
+            jiraHours should equal(backlogHours)
 
             // created user
             convertUser(jiraIssue.creator.key) should equal(backlogIssue.getCreatedUser.getUserId)
