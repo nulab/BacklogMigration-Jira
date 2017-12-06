@@ -208,6 +208,19 @@ class CompareSpec extends FlatSpec
               assertUser(jiraComment.author, backlogComment.get.getCreatedUser)
               timestampToString(jiraComment.createdAt.toDate) should be(timestampToString(backlogComment.get.getCreated))
             }
+
+            // ----- Change log -----
+            // Test
+            //   - creator is same
+            //   - created at is same
+            jiraIssueService.changeLogs(jiraIssue).map { jiraChangeLog =>
+              val backlogChangelog = backlogAllComments.find { backlogComment =>
+                timestampToString(backlogComment.getCreated) == timestampToString(jiraChangeLog.createdAt.toDate)
+              }
+              backlogChangelog should not be empty
+              assertUser(jiraChangeLog.author, backlogChangelog.get.getCreatedUser)
+            }
+
           }
 
         }
