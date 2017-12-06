@@ -198,7 +198,9 @@ class CompareSpec extends FlatSpec
 
             // custom field
             val backlogCustomFields = backlogIssue.getCustomFields.asScala
-            jiraIssue.issueFields.map { jiraCustomField =>
+            val sprintCustomField = jiraCustomFieldDefinitions.find(_.name == "Sprint").get
+
+            jiraIssue.issueFields.filterNot(_.id == sprintCustomField.id).map { jiraCustomField =>
               val jiraDefinition = jiraCustomFieldDefinitions.find(_.id == jiraCustomField.id).get
               val backlogDefinition = backlogCustomFieldDefinitions.find(_.getName == jiraDefinition.name).get
               val backlogCustomField = backlogCustomFields.find(_.getName == jiraDefinition.name).get
@@ -211,28 +213,16 @@ class CompareSpec extends FlatSpec
                   }
                 case BacklogConstantValue.CustomField.Text =>
                   val backlogValue = backlogCustomField.asInstanceOf[TextCustomField]
-                  val jiraValue    = jiraCustomField.value.asInstanceOf[StringFieldValue]
-                  jiraValue.value should equal(backlogValue.getValue)
+                  jiraCustomField.value match {
+                    case UserFieldValue(v)   => v.key should equal(backlogValue.getValue)
+                    case StringFieldValue(v) => v should equal(backlogValue.getValue)
+                  }
                 case BacklogConstantValue.CustomField.TextArea =>
                   val backlogValue = backlogCustomField.asInstanceOf[TextAreaCustomField]
                   jiraCustomField.value.asInstanceOf[StringFieldValue] should equal(backlogValue.getValue)
-//                case BacklogConstantValue.CustomField.Numeric =>
-//                  val dstNumericCustomFieldSetting =
-//                    dstCustomFieldSetting.asInstanceOf[NumericCustomFieldSetting]
-//                  val srcNumericCustomFieldSetting =
-//                    srcCustomFieldSetting.asInstanceOf[NumericCustomFieldSetting]
-//                  dstNumericCustomFieldSetting.getMin should equal(
-//                    srcNumericCustomFieldSetting.getMin
-//                  )
-//                  dstNumericCustomFieldSetting.getMax should equal(
-//                    srcNumericCustomFieldSetting.getMax
-//                  )
-//                  dstNumericCustomFieldSetting.getInitialValue should equal(
-//                    srcNumericCustomFieldSetting.getInitialValue
-//                  )
-//                  dstNumericCustomFieldSetting.getUnit should equal(
-//                    srcNumericCustomFieldSetting.getUnit
-//                  )
+                case BacklogConstantValue.CustomField.Numeric =>
+                  val backlogValue = backlogCustomField.asInstanceOf[NumericCustomField].getValue
+                  jiraCustomField.value.asInstanceOf[NumberFieldValue].v.toInt.toString should equal(backlogValue.toString)
                 case BacklogConstantValue.CustomField.Date =>
                   val backlogValue = backlogCustomField.asInstanceOf[DateCustomField].getValue
                   val jiraValue    = jiraCustomField.value.asInstanceOf[StringFieldValue]
@@ -241,17 +231,10 @@ class CompareSpec extends FlatSpec
                     case DateSchema     => assertDateTime(jiraValue.value, backlogValue)
                     case _              => fail("Custom field type does not match date or datetime")
                   }
-//                case BacklogConstantValue.CustomField.SingleList =>
-//                  val dstSingleListCustomFieldSetting =
-//                    dstCustomFieldSetting.asInstanceOf[SingleListCustomFieldSetting]
-//                  val srcSingleListCustomFieldSetting =
-//                    srcCustomFieldSetting.asInstanceOf[SingleListCustomFieldSetting]
-//                  dstSingleListCustomFieldSetting.getItems should equal(
-//                    srcSingleListCustomFieldSetting.getItems
-//                  )
-//                  dstSingleListCustomFieldSetting.isAllowAddItem should equal(
-//                    srcSingleListCustomFieldSetting.isAllowAddItem
-//                  )
+                case BacklogConstantValue.CustomField.SingleList =>
+                  val backlogValue = backlogCustomField.asInstanceOf[SingleListCustomField].getValue
+                  val jiraValue    = jiraCustomField.value.asInstanceOf[OptionFieldValue]
+                  jiraValue.value should equal(backlogValue.getName)
                 case BacklogConstantValue.CustomField.CheckBox =>
                   val backlogValues = backlogCustomField.asInstanceOf[CheckBoxCustomField].getValue.asScala
                   jiraCustomField.value.asInstanceOf[ArrayFieldValue].values.map { jiraValue =>
