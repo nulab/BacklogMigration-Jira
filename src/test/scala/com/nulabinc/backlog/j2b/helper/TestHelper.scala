@@ -4,8 +4,9 @@ import java.io.{File, FileInputStream}
 import java.util.{Date, Properties}
 
 import com.nulabinc.backlog.j2b.conf.AppConfiguration
+import com.nulabinc.backlog.j2b.exporter.service.{JiraClientCommentService, JiraClientIssueService}
 import com.nulabinc.backlog.j2b.jira.conf.{JiraApiConfiguration, JiraBacklogPaths}
-import com.nulabinc.backlog.j2b.jira.domain.mapping.MappingCollectDatabase
+import com.nulabinc.backlog.j2b.jira.domain.JiraProjectKey
 import com.nulabinc.backlog.j2b.mapping.collector.MappingCollectDatabaseInMemory
 import com.nulabinc.backlog.j2b.mapping.converter.writes.UserWrites
 import com.nulabinc.backlog.j2b.mapping.converter.{MappingPriorityConverter, MappingStatusConverter, MappingUserConverter}
@@ -57,6 +58,10 @@ trait TestHelper {
   mappingFileService.usersFromJson(jiraBacklogPaths.jiraUsersJson).foreach { user =>
     database.add(user)
   }
+
+  // JIRA client service
+  val jiraCommentService = new JiraClientCommentService(jiraRestApi)
+  val jiraIssueService = new JiraClientIssueService(appConfig.jiraConfig, JiraProjectKey(appConfig.jiraKey), jiraRestApi, jiraBacklogPaths)
 
   def createJiraRestApi(config: JiraApiConfiguration) = new JiraRestClient(
     url = config.url,

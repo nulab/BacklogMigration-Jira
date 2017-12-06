@@ -4,10 +4,12 @@ import com.nulabinc.backlog.j2b.exporter.service.JiraClientIssueService
 import com.nulabinc.backlog.j2b.helper._
 import com.nulabinc.backlog.j2b.jira.conf.JiraApiConfiguration
 import com.nulabinc.backlog.j2b.jira.domain.JiraProjectKey
+import com.nulabinc.backlog.j2b.matchers.UserMatcher
 import com.nulabinc.backlog.migration.common.conf.BacklogApiConfiguration
 import com.nulabinc.backlog.migration.common.convert.Convert
 import com.nulabinc.backlog.migration.common.convert.writes.UserWrites
-import com.nulabinc.backlog4j.api.option.GetIssuesParams
+import com.nulabinc.backlog4j.IssueComment
+import com.nulabinc.backlog4j.api.option.{GetIssuesParams, QueryParams}
 import org.scalatest.{DiagrammedAssertions, FlatSpec, Matchers}
 
 import scala.collection.JavaConverters._
@@ -16,7 +18,8 @@ class CompareSpec extends FlatSpec
     with Matchers
     with DiagrammedAssertions
     with TestHelper
-    with DateFormatter {
+    with DateFormatter
+    with UserMatcher {
 
   // --------------------------------------------------------------------------
   testProject(appConfig.jiraConfig, appConfig.backlogConfig)
@@ -103,19 +106,12 @@ class CompareSpec extends FlatSpec
 
   def testIssue(jiraConfig: JiraApiConfiguration, backlogConfig: BacklogApiConfiguration): Unit = {
 
-    val issueService = new JiraClientIssueService(
-      jiraConfig,
-      JiraProjectKey(jiraConfig.projectKey),
-      jiraRestApi,
-      jiraBacklogPaths
-    )
-
     val backlogProject = backlogApi.getProject(backlogConfig.projectKey)
     val params         = new GetIssuesParams(List(Long.box(backlogProject.getId)).asJava)
     val backlogIssues  = backlogApi.getIssues(params).asScala
 
     def fetchIssues(startAt: Long, maxResults: Long): Unit = {
-      val issues = issueService.issues(startAt, maxResults)
+      val issues = jiraIssueService.issues(startAt, maxResults)
 
       issues.foreach { jiraIssue =>
         "Issue" should s"match: ${jiraIssue.id} - ${jiraIssue.summary}" in {
@@ -148,6 +144,8 @@ class CompareSpec extends FlatSpec
 
             // TODO milestone
 
+            // TODO parent issue
+
             // due date
             dateToOptionDateString(jiraIssue.dueDate) should equal(dateToOptionDateString(Option(backlogIssue.getDueDate)))
 
@@ -163,14 +161,14 @@ class CompareSpec extends FlatSpec
             }
 
             // assignee
-            jiraIssue.assignee.map { user =>
-              convertUser(user.key) should equal(backlogIssue.getAssignee.getUserId)
-            }
+            jiraIssue.assignee.map(assertUser(_, backlogIssue.getAssignee))
 
             // actual hours
             val spentHours  = jiraIssue.timeTrack.flatMap(t => t.timeSpentSeconds).map(s => BigDecimal(s / 3600d).setScale(2, BigDecimal.RoundingMode.HALF_UP))
             val actualHours = Option(backlogIssue.getActualHours).map(s => BigDecimal(s).setScale(2, BigDecimal.RoundingMode.HALF_UP))
             spentHours should equal(actualHours)
+
+            // TODO estimated hours
 
             // created user
             convertUser(jiraIssue.creator.key) should equal(backlogIssue.getCreatedUser.getUserId)
@@ -192,6 +190,21 @@ class CompareSpec extends FlatSpec
               val backlogAttachment = backlogAttachments.find(_.getName == jiraAttachment.fileName)
               backlogAttachment should not be empty
             }
+
+            // custom field
+
+            // ----------------------------------------------------------------
+            // comments
+            // ----------------------------------------------------------------
+            val backlogAllComments = allCommentsOfIssue(backlogIssue.getId)
+
+            // comment
+            jiraCommentService.issueComments(jiraIssue).map { jiraComment =>
+              val backlogComment = backlogAllComments.find(_.getContent == jiraComment.body)
+              backlogComment should not be empty
+              assertUser(jiraComment.author, backlogComment.get.getCreatedUser)
+              timestampToString(jiraComment.createdAt.toDate) should be(timestampToString(backlogComment.get.getCreated))
+            }
           }
 
         }
@@ -203,6 +216,28 @@ class CompareSpec extends FlatSpec
     }
 
     fetchIssues(0, 10)
+  }
+
+  private def allCommentsOfIssue(issueId: Long): Seq[IssueComment] = {
+    val allCount = backlogApi.getIssueCommentCount(issueId)
+
+    def loop(optMinId: Option[Long], comments: Seq[IssueComment], offset: Long): Seq[IssueComment] =
+      if (offset < allCount) {
+        val queryParams = new QueryParams()
+        for { minId <- optMinId } yield {
+          queryParams.minId(minId)
+        }
+        queryParams.count(100)
+        queryParams.order(QueryParams.Order.Asc)
+        val commentsPart =
+          backlogApi.getIssueComments(issueId, queryParams).asScala
+        val optLastId = for { lastComment <- commentsPart.lastOption } yield {
+          lastComment.getId
+        }
+        loop(optLastId, comments union commentsPart, offset + 100)
+      } else comments
+
+    loop(None, Seq.empty[IssueComment], 0).sortWith((c1, c2) => c1.getCreated.before(c2.getCreated))
   }
 
 }
