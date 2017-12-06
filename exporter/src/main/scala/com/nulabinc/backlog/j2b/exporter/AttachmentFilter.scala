@@ -3,9 +3,11 @@ package com.nulabinc.backlog.j2b.exporter
 import com.nulabinc.jira.client.domain._
 import com.nulabinc.jira.client.domain.issue.Issue
 
+import scala.util.matching.Regex
+
 object AttachmentFilter {
 
-  val fileNamePattern = """\[\^(.+?)\]""".r
+  val fileNamePattern: Regex = """\[\^(.+?)\]""".r
 
   def filteredIssue(issue: Issue, comments: Seq[Comment]): Issue = {
     val issueAttachments    = issue.attachments
