@@ -10,6 +10,7 @@ import com.nulabinc.backlog.migration.common.convert.Convert
 import com.nulabinc.backlog.migration.common.convert.writes.UserWrites
 import com.nulabinc.backlog4j.IssueComment
 import com.nulabinc.backlog4j.api.option.{GetIssuesParams, QueryParams}
+import com.sun.xml.internal.ws.server.sei.MessageFiller.AttachmentFiller
 import org.scalatest.{DiagrammedAssertions, FlatSpec, Matchers}
 
 import scala.collection.JavaConverters._
@@ -199,7 +200,9 @@ class CompareSpec extends FlatSpec
             val backlogAllComments = allCommentsOfIssue(backlogIssue.getId)
 
             // comment
-            jiraCommentService.issueComments(jiraIssue).map { jiraComment =>
+            jiraCommentService.issueComments(jiraIssue).filterNot { jiraComment =>
+              attachmentCommentPattern.findFirstIn(jiraComment.body).isDefined
+            }.map { jiraComment =>
               val backlogComment = backlogAllComments.find(_.getContent == jiraComment.body)
               backlogComment should not be empty
               assertUser(jiraComment.author, backlogComment.get.getCreatedUser)

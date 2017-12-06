@@ -21,6 +21,7 @@ import com.nulabinc.jira.client.JiraRestClient
 import org.joda.time.DateTime
 
 import scala.collection.JavaConverters._
+import scala.util.matching.Regex
 
 trait TestHelper {
 
@@ -62,6 +63,9 @@ trait TestHelper {
   // JIRA client service
   val jiraCommentService = new JiraClientCommentService(jiraRestApi)
   val jiraIssueService = new JiraClientIssueService(appConfig.jiraConfig, JiraProjectKey(appConfig.jiraKey), jiraRestApi, jiraBacklogPaths)
+
+  // Regex
+  val attachmentCommentPattern: Regex = """\[\^.+?\]""".r
 
   def createJiraRestApi(config: JiraApiConfiguration) = new JiraRestClient(
     url = config.url,
