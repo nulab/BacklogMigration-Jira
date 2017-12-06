@@ -222,7 +222,7 @@ class CompareSpec extends FlatSpec
                   jiraCustomField.value.asInstanceOf[StringFieldValue] should equal(backlogValue.getValue)
                 case BacklogConstantValue.CustomField.Numeric =>
                   val backlogValue = backlogCustomField.asInstanceOf[NumericCustomField].getValue
-                  jiraCustomField.value.asInstanceOf[NumberFieldValue].v.toInt.toString should equal(backlogValue.toString)
+                  jiraCustomField.value.asInstanceOf[NumberFieldValue].v - backlogValue should equal(0)
                 case BacklogConstantValue.CustomField.Date =>
                   val backlogValue = backlogCustomField.asInstanceOf[DateCustomField].getValue
                   val jiraValue    = jiraCustomField.value.asInstanceOf[StringFieldValue]
