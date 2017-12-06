@@ -147,6 +147,7 @@ Single-byte **lowercase** character → Single-byte **uppercase** character
 
 ### About custom fields
 * Versions and users will be registered as lists and will be the fixed values.
+* User will not be converted.
 * Boolean values will be registered in radio button format of "Yes" or "No".
 * The date and time are converted to dates and registered.
 
@@ -354,6 +355,7 @@ Backlogで **マックスプラン以上** のプランを契約している必�
 
 ### カスタムフィールドについて
 * バージョンとユーザーはリストとして登録され固定値になります。
+* ユーザーは変換されません。
 * 真偽値は[はい]、[いいえ]のラジオボタン形式で登録されます。
 * 日時は日付に変換され登録されます。
 

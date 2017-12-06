@@ -24,6 +24,13 @@ class ChangelogItemWrites @Inject()(fields: Seq[Field])
         case Some(TimeOriginalEstimateFieldId)  => changeLogItem.from.map( sec => secondsToHours(sec.toInt).toString)
         case Some(TimeEstimateFieldId)          => changeLogItem.from.map( sec => secondsToHours(sec.toInt).toString)
         case Some(TimeSpentFieldId)             => changeLogItem.from.map( sec => secondsToHours(sec.toInt).toString)
+        case Some(CustomFieldFieldId(id))       =>
+          fields.find(_.id == id) match {
+            case Some(field) if field.schema.isDefined =>
+              if(field.schema.get.schemaType == UserSchema) changeLogItem.from
+              else changeLogItem.fromDisplayString
+            case None => changeLogItem.fromDisplayString
+          }
         case None if changeLogItem.field == ParentChangeLogItemField => changeLogItem.from
         case _                                  => changeLogItem.fromDisplayString
       },
@@ -33,6 +40,13 @@ class ChangelogItemWrites @Inject()(fields: Seq[Field])
         case Some(TimeOriginalEstimateFieldId)  => changeLogItem.to.map( sec => secondsToHours(sec.toInt).toString)
         case Some(TimeEstimateFieldId)          => changeLogItem.to.map( sec => secondsToHours(sec.toInt).toString)
         case Some(TimeSpentFieldId)             => changeLogItem.to.map( sec => secondsToHours(sec.toInt).toString)
+        case Some(CustomFieldFieldId(id))       =>
+          fields.find(_.id == id) match {
+            case Some(field) if field.schema.isDefined =>
+              if(field.schema.get.schemaType == UserSchema) changeLogItem.to
+              else changeLogItem.toDisplayString
+            case None => changeLogItem.toDisplayString
+          }
         case None if changeLogItem.field == ParentChangeLogItemField => changeLogItem.to
         case _                                  => changeLogItem.toDisplayString
       },
@@ -85,6 +99,7 @@ class ChangelogItemWrites @Inject()(fields: Seq[Field])
           field.schema.map { schema =>
             (schema.schemaType, schema.customType) match {
               case (StatusSchema, Some(Textarea))         => FieldType.TextArea.getIntValue
+              case (StringSchema, Some(CustomLabel))      => FieldType.MultipleList.getIntValue
               case (StringSchema, _)                      => FieldType.Text.getIntValue
               case (NumberSchema, _)                      => FieldType.Numeric.getIntValue
               case (DateSchema, _)                        => FieldType.Date.getIntValue

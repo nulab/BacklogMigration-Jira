@@ -1,26 +1,31 @@
 package com.nulabinc.backlog.j2b
 
-import com.nulabinc.backlog.j2b.exporter.service.JiraClientIssueService
 import com.nulabinc.backlog.j2b.helper._
 import com.nulabinc.backlog.j2b.jira.conf.JiraApiConfiguration
-import com.nulabinc.backlog.j2b.jira.domain.JiraProjectKey
-import com.nulabinc.backlog.j2b.matchers.UserMatcher
-import com.nulabinc.backlog.migration.common.conf.BacklogApiConfiguration
+import com.nulabinc.backlog.j2b.matchers.{DateMatcher, UserMatcher}
+import com.nulabinc.backlog.migration.common.conf.{BacklogApiConfiguration, BacklogConstantValue}
 import com.nulabinc.backlog.migration.common.convert.Convert
 import com.nulabinc.backlog.migration.common.convert.writes.UserWrites
-import com.nulabinc.backlog4j.IssueComment
+import com.nulabinc.backlog4j.{CustomFieldSetting, IssueComment, ResponseList}
 import com.nulabinc.backlog4j.api.option.{GetIssuesParams, QueryParams}
-import com.sun.xml.internal.ws.server.sei.MessageFiller.AttachmentFiller
+import com.nulabinc.backlog4j.internal.json.customFields._
+import com.nulabinc.jira.client.domain.field._
+import com.nulabinc.jira.client.domain.issue._
 import org.scalatest.{DiagrammedAssertions, FlatSpec, Matchers}
 
 import scala.collection.JavaConverters._
+import scala.collection.mutable
 
 class CompareSpec extends FlatSpec
     with Matchers
     with DiagrammedAssertions
     with TestHelper
     with DateFormatter
-    with UserMatcher {
+    with UserMatcher
+    with DateMatcher {
+
+  val jiraCustomFieldDefinitions: Seq[Field] = jiraRestApi.fieldAPI.all().right.get
+  val backlogCustomFieldDefinitions: mutable.Seq[CustomFieldSetting] = backlogApi.getCustomFields(appConfig.backlogConfig.projectKey).asScala
 
   // --------------------------------------------------------------------------
   testProject(appConfig.jiraConfig, appConfig.backlogConfig)
@@ -98,8 +103,7 @@ class CompareSpec extends FlatSpec
   def testCustomFieldDefinitions(backlogConfig: BacklogApiConfiguration): Unit =
     "Custom field definition" should "match" in {
       val backlogCustomFields = backlogApi.getCustomFields(backlogConfig.projectKey).asScala
-      val jiraCustomFields    = jiraRestApi.fieldAPI.all().right.get
-      jiraCustomFields.filter(_.id.contains("customfield_")).foreach { jiraCustomField =>
+      jiraCustomFieldDefinitions.filter(_.id.contains("customfield_")).foreach { jiraCustomField =>
         val backlogCustomField = backlogCustomFields.find(_.getName == jiraCustomField.name).get
         jiraCustomField.name should equal(backlogCustomField.getName)
       }
@@ -193,6 +197,55 @@ class CompareSpec extends FlatSpec
             }
 
             // custom field
+            val backlogCustomFields = backlogIssue.getCustomFields.asScala
+            val sprintCustomField = jiraCustomFieldDefinitions.find(_.name == "Sprint").get
+
+            jiraIssue.issueFields.filterNot(_.id == sprintCustomField.id).map { jiraCustomField =>
+              val jiraDefinition = jiraCustomFieldDefinitions.find(_.id == jiraCustomField.id).get
+              val backlogDefinition = backlogCustomFieldDefinitions.find(_.getName == jiraDefinition.name).get
+              val backlogCustomField = backlogCustomFields.find(_.getName == jiraDefinition.name).get
+
+              backlogDefinition.getFieldTypeId match {
+                case BacklogConstantValue.CustomField.MultipleList =>
+                  val backlogItems = backlogCustomField.asInstanceOf[MultipleListCustomField].getValue.asScala
+                  jiraCustomField.value.asInstanceOf[ArrayFieldValue].values.map { jiraValue =>
+                    backlogItems.find(_.getName == jiraValue.value) should not be empty
+                  }
+                case BacklogConstantValue.CustomField.Text =>
+                  val backlogValue = backlogCustomField.asInstanceOf[TextCustomField]
+                  jiraCustomField.value match {
+                    case UserFieldValue(v)   => v.key should equal(backlogValue.getValue)
+                    case StringFieldValue(v) => v should equal(backlogValue.getValue)
+                  }
+                case BacklogConstantValue.CustomField.TextArea =>
+                  val backlogValue = backlogCustomField.asInstanceOf[TextAreaCustomField]
+                  jiraCustomField.value.asInstanceOf[StringFieldValue] should equal(backlogValue.getValue)
+                case BacklogConstantValue.CustomField.Numeric =>
+                  val backlogValue = backlogCustomField.asInstanceOf[NumericCustomField].getValue
+                  jiraCustomField.value.asInstanceOf[NumberFieldValue].v - backlogValue should equal(0)
+                case BacklogConstantValue.CustomField.Date =>
+                  val backlogValue = backlogCustomField.asInstanceOf[DateCustomField].getValue
+                  val jiraValue    = jiraCustomField.value.asInstanceOf[StringFieldValue]
+                  jiraDefinition.schema.get.schemaType match {
+                    case DatetimeSchema => assertDate(jiraValue.value, backlogValue)
+                    case DateSchema     => assertDateTime(jiraValue.value, backlogValue)
+                    case _              => fail("Custom field type does not match date or datetime")
+                  }
+                case BacklogConstantValue.CustomField.SingleList =>
+                  val backlogValue = backlogCustomField.asInstanceOf[SingleListCustomField].getValue
+                  val jiraValue    = jiraCustomField.value.asInstanceOf[OptionFieldValue]
+                  jiraValue.value should equal(backlogValue.getName)
+                case BacklogConstantValue.CustomField.CheckBox =>
+                  val backlogValues = backlogCustomField.asInstanceOf[CheckBoxCustomField].getValue.asScala
+                  jiraCustomField.value.asInstanceOf[ArrayFieldValue].values.map { jiraValue =>
+                    backlogValues.find(_.getName == jiraValue.value) should not be empty
+                  }
+                case BacklogConstantValue.CustomField.Radio =>
+                  val backlogValue = backlogCustomField.asInstanceOf[RadioCustomField]
+                  val jiraValue    = jiraCustomField.value.asInstanceOf[OptionFieldValue]
+                  jiraValue.value should equal(backlogValue.getValue.getName)
+              }
+            }
 
             // ----------------------------------------------------------------
             // comments

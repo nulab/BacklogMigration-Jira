@@ -12,7 +12,7 @@ import com.nulabinc.backlog.migration.common.utils.{ConsoleOut, Logging, Progres
 import com.nulabinc.jira.client.domain._
 import com.nulabinc.jira.client.domain.changeLog.{AssigneeFieldId, ComponentChangeLogItemField, CustomFieldFieldId, FixVersion}
 import com.nulabinc.jira.client.domain.field.Field
-import com.nulabinc.jira.client.domain.issue.Issue
+import com.nulabinc.jira.client.domain.issue._
 import com.osinka.i18n.Messages
 
 class Exporter @Inject()(projectKey: JiraProjectKey,
@@ -105,10 +105,21 @@ class Exporter @Inject()(projectKey: JiraProjectKey,
           // filter change logs
           val issueWithFilteredChangeLogs: Issue = issue.copy(
             changeLogs = {
-              val filtered = ChangeLogFilter.filter(components, versions, issueChangeLogs)
+              val filtered = ChangeLogFilter.filter(fields, components, versions, issueChangeLogs)
               convertDateChangeLogs(filtered, fields)
             }
           )
+
+          def saveIssueFieldValue(id: String, fieldValue: FieldValue): Unit = fieldValue match {
+            case StringFieldValue(value) => mappingCollectDatabase.addCustomField(id, Some(value))
+            case NumberFieldValue(value) => mappingCollectDatabase.addCustomField(id, Some(value.toString))
+            case ArrayFieldValue(values) => values.map(v => mappingCollectDatabase.addCustomField(id, Some(v.value)))
+            case OptionFieldValue(value) => saveIssueFieldValue(id, value.value)
+            case AnyFieldValue(value)    => mappingCollectDatabase.addCustomField(id, Some(value))
+            case UserFieldValue(user)    => mappingCollectDatabase.addCustomField(id, Some(user.key))
+          }
+
+          issueWithFilteredChangeLogs.issueFields.foreach(v => saveIssueFieldValue(v.id, v.value))
 
           // collect custom fields
           issueWithFilteredChangeLogs.changeLogs.foreach { changeLog =>

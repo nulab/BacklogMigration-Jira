@@ -12,6 +12,9 @@ trait DateFormatter {
   def dateToOptionDateString(dateTime: Option[Date]): Option[String] =
     dateTime.map(d => new DateTime(d).toString(dateFormat))
 
+  def dateToDateString(date: Date): String =
+    new DateTime(date).toString(dateFormat)
+
   def timestampToString(date: Date): String =
     new DateTime(date).toString(timestampFormat)
 

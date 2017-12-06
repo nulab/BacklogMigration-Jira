@@ -81,6 +81,9 @@ class FieldWrites extends Writes[FieldDefinition, Seq[BacklogCustomFieldSetting]
   private [this] def typeId(schema: FieldSchema): Int =
     (schema.schemaType, schema.customType) match {
       case (StatusSchema, Some(Textarea))         => FieldType.TextArea.getIntValue
+      case (OptionSchema, Some(Select))           => FieldType.SingleList.getIntValue
+      case (ArraySchema, Some(MultiCheckBoxes))   => FieldType.CheckBox.getIntValue
+      case (OptionSchema, Some(RadioButtons))     => FieldType.Radio.getIntValue
       case (StringSchema, _)                      => FieldType.Text.getIntValue
       case (NumberSchema, _)                      => FieldType.Numeric.getIntValue
       case (DateSchema, _)                        => FieldType.Date.getIntValue
@@ -88,9 +91,6 @@ class FieldWrites extends Writes[FieldDefinition, Seq[BacklogCustomFieldSetting]
       case (ArraySchema, _)                       => FieldType.MultipleList.getIntValue
       case (UserSchema, _)                        => FieldType.Text.getIntValue
       case (AnySchema, _)                         => FieldType.Text.getIntValue
-      case (OptionSchema, Some(Select))           => FieldType.SingleList.getIntValue
-      case (OptionSchema, Some(MultiCheckBoxes))  => FieldType.MultipleList.getIntValue
-      case (OptionSchema, Some(RadioButtons))     => FieldType.Radio.getIntValue
       case (OptionSchema, _)                      => FieldType.Text.getIntValue
       case (OptionWithChildSchema, _)             => FieldType.MultipleList.getIntValue
     }
