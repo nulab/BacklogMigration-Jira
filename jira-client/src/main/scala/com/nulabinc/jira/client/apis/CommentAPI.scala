@@ -1,21 +1,26 @@
 package com.nulabinc.jira.client.apis
 
+import com.netaporter.uri.dsl._
 import com.nulabinc.jira.client._
 import com.nulabinc.jira.client.domain.CommentResult
 import spray.json._
 
-class CommentAPI(httpClient: HttpClient) extends Pagenable {
+class CommentAPI(httpClient: HttpClient) extends Pageable {
 
   import com.nulabinc.jira.client.json.CommentMappingJsonProtocol._
 
-  def issueComments(id: Long) = fetch(id.toString)
+  def issueComments(id: Long, startAt: Long, maxResults: Long): Either[JiraRestClientError, CommentResult] =
+    fetch(id.toString, startAt, maxResults)
 
-  def issueComments(projectKey: String) = fetch(projectKey)
+  def issueComments(projectKey: String, startAt: Long, maxResults: Long): Either[JiraRestClientError, CommentResult] =
+    fetch(projectKey, startAt, maxResults)
 
-  private def fetch(projectIdOrKey: String) =
-    httpClient.get(s"/issue/$projectIdOrKey/comment") match {
-      case Right(json)               => Right(JsonParser(json).convertTo[CommentResult].comments)
-      case Left(_: ApiNotFoundError) => Left(ResourceNotFoundError("Component", projectIdOrKey))
-      case Left(error)               => Left(HttpError(error))
+  private def fetch(projectIdOrKey: String, startAt: Long, maxResults: Long): Either[JiraRestClientError, CommentResult] = {
+    val uri = s"/issue/$projectIdOrKey/comment" ? paginateUri(startAt, maxResults)
+    httpClient.get(uri.toString) match {
+      case Right(json)                => Right(JsonParser(json).convertTo[CommentResult])
+      case Left(_: ApiNotFoundError)  => Left(ResourceNotFoundError("Component", projectIdOrKey))
+      case Left(error)                => Left(HttpError(error))
     }
+  }
 }

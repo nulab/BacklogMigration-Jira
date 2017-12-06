@@ -26,6 +26,6 @@ object CommentMappingJsonProtocol extends DefaultJsonProtocol {
     }
   }
 
-  implicit val commentResultJsonFormat = jsonFormat2(CommentResult)
+  implicit val commentResultJsonFormat = jsonFormat3(CommentResult)
 
 }

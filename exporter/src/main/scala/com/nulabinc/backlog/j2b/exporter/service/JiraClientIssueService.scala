@@ -19,7 +19,7 @@ class JiraClientIssueService @Inject()(apiConfig: JiraApiConfiguration,
                                        backlogPaths: BacklogPaths)
     extends IssueService with Logging {
 
-  override def count() = {
+  override def count(): Long = {
     jira.searchAPI.searchJql(s"project=${projectKey.value}", 0, 0) match {
       case Right(result) => result.total
       case Left(error) => {
@@ -29,7 +29,7 @@ class JiraClientIssueService @Inject()(apiConfig: JiraApiConfiguration,
     }
   }
 
-  override def issues(startAt: Long, maxResults: Long) =
+  override def issues(startAt: Long, maxResults: Long): Seq[Issue] =
     jira.issueAPI.projectIssues(projectKey.value, startAt, maxResults) match {
       case Right(result) => result
       case Left(error) => {
@@ -38,10 +38,20 @@ class JiraClientIssueService @Inject()(apiConfig: JiraApiConfiguration,
       }
     }
 
-  // TODO: count
-  override def changeLogs(issue: Issue): Seq[ChangeLog] =
-    jira.issueAPI.changeLogs(issue.id.toString, 0, 100).right.get.values
+  override def changeLogs(issue: Issue): Seq[ChangeLog] = {
 
+    def fetch(issue: Issue, startAt: Long, maxResults: Long, changeLogs: Seq[ChangeLog]): Seq[ChangeLog] =
+      jira.issueAPI.changeLogs(issue.id.toString, startAt, maxResults) match {
+        case Right(result) =>
+          val appendedChangeLogs = changeLogs ++ result.values
+          if (result.hasPage) fetch(issue, startAt + maxResults, maxResults, appendedChangeLogs)
+          else appendedChangeLogs
+        case Left(error) =>
+          throw new RuntimeException(s"Cannot get issue change logs: ${error.message}")
+      }
+
+    fetch(issue, 0, 100, Seq.empty[ChangeLog])
+  }
 
   override def downloadAttachments(attachmentId: Long, saveDirectory: Path, fileName: String): DownloadResult = {
     // content = https://(workspace name).atlassian.net/secure/attachment/(attachment ID)/(file name)

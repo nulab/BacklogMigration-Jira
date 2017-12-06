@@ -63,11 +63,11 @@ object ChangeLogItem {
   }
 }
 
-case class ChangeLogResult(
-  total: Long,
-  isLast: Boolean,
-  values: Seq[ChangeLog]
-)
+case class ChangeLogResult(total: Long, isLast: Boolean, values: Seq[ChangeLog]) {
+
+  def hasPage: Boolean = !isLast
+
+}
 
 sealed abstract class FieldId(val value: String)
 
