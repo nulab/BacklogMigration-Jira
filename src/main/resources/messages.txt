@@ -15,6 +15,7 @@ common.done_ratio=% done
 common.comment=Comment
 common.wikis=wikis
 common.labels=Labels
+common.sprint=Sprint
 common.actual_hours=Actual Hours
 common.parent_page=Parent page
 common.parent_issue=Parent issue

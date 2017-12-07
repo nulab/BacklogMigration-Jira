@@ -1,5 +1,6 @@
 package com.nulabinc.backlog.j2b.mapping.collector
 
+import com.nulabinc.backlog.j2b.jira.domain.export.Milestone
 import com.nulabinc.backlog.j2b.jira.domain.mapping.{CustomFieldRow, MappingCollectDatabase}
 import com.nulabinc.jira.client.domain.User
 
@@ -10,6 +11,7 @@ class MappingCollectDatabaseInMemory extends MappingCollectDatabase {
   private val userSet: mutable.Set[User] = mutable.Set[User]()
   private val ignoreUserSet: mutable.Set[String] = mutable.Set[String]()
   private val customFieldSet = mutable.Set.empty[CustomFieldRow]
+  private val milestoneSet = mutable.Set.empty[Milestone]
 
   override def add(user: Option[User]): Boolean = user match {
     case Some(u) =>
@@ -70,5 +72,10 @@ class MappingCollectDatabaseInMemory extends MappingCollectDatabase {
   }
 
   override def customFieldRows: Seq[CustomFieldRow] = customFieldSet.toSeq
+
+  override def addMilestone(milestone: Milestone): Unit = milestoneSet += milestone
+
+  override def milestones: Seq[Milestone] = milestoneSet.toSeq
+
 
 }
