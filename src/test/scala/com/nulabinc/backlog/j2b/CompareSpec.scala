@@ -117,6 +117,7 @@ class CompareSpec extends FlatSpec
 
     def fetchIssues(startAt: Long, maxResults: Long): Unit = {
       val issues = jiraIssueService.issues(startAt, maxResults)
+      val sprintCustomField = jiraCustomFieldDefinitions.find(_.name == "Sprint").get
 
       issues.foreach { jiraIssue =>
         "Issue" should s"match: ${jiraIssue.id} - ${jiraIssue.summary}" in {
@@ -147,7 +148,13 @@ class CompareSpec extends FlatSpec
               backlogIssue.getVersions.asScala.find(_.getName == jiraVersion.name) should not be empty
             }
 
-            // TODO milestone
+            // milestone
+            jiraIssue.issueFields.filter(_.id == sprintCustomField.id).map { sprint =>
+              val backlogMilestones = backlogIssue.getMilestone.asScala
+              sprint.value.asInstanceOf[ArrayFieldValue].values.map { jiraMilestone =>
+                backlogMilestones.find(m => jiraMilestone.value.contains(m.getName)) should not be empty
+              }
+            }
 
             // parent issue
             if (jiraIssue.parent.isDefined) backlogIssue.getParentIssueId should not be 0
@@ -203,7 +210,6 @@ class CompareSpec extends FlatSpec
 
             // custom field
             val backlogCustomFields = backlogIssue.getCustomFields.asScala
-            val sprintCustomField = jiraCustomFieldDefinitions.find(_.name == "Sprint").get
 
             jiraIssue.issueFields.filterNot(_.id == sprintCustomField.id).map { jiraCustomField =>
               val jiraDefinition = jiraCustomFieldDefinitions.find(_.id == jiraCustomField.id).get
