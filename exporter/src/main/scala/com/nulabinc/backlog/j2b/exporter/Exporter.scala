@@ -93,7 +93,7 @@ class Exporter @Inject()(projectKey: JiraProjectKey,
                          index: Long, total: Long, startAt: Long, maxResults: Long): Unit = {
 
     val issues = issueService.issues(startAt, maxResults)
-
+    
     if (issues.nonEmpty) {
       issues.zipWithIndex.foreach {
         case (issue, i) => {
@@ -194,7 +194,7 @@ class Exporter @Inject()(projectKey: JiraProjectKey,
           }
         }
       }
-      fetchIssue(statuses, components, versions, fields, index + mappingCollectDatabase.existUsers.size , total, startAt + maxResults, maxResults)
+      fetchIssue(statuses, components, versions, fields, index + issues.length , total, startAt + maxResults, maxResults)
     }
   }
 
