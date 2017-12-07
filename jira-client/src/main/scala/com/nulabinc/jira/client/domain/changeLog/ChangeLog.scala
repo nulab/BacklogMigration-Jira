@@ -34,6 +34,7 @@ case object IssueTypeChangeLogItemField extends ChangeLogItemField("issuetype")
 case object TimeSpentChangeLogItemField extends ChangeLogItemField("timespent")
 case object WorkIdChangeLogItemField extends ChangeLogItemField("WorklogId")
 case object TimeEstimateChangeLogItemField extends ChangeLogItemField("timeestimate")
+case object SprintChangeLogItemField extends ChangeLogItemField("Sprint")
 case class DefaultField(name: String) extends ChangeLogItemField(name)
 
 object ChangeLogItemField {
@@ -51,6 +52,7 @@ object ChangeLogItemField {
     case TimeSpentChangeLogItemField.value            => TimeSpentChangeLogItemField
     case WorkIdChangeLogItemField.value               => WorkIdChangeLogItemField
     case TimeEstimateChangeLogItemField.value         => TimeEstimateChangeLogItemField
+    case SprintChangeLogItemField.value               => SprintChangeLogItemField
     case v                                            => DefaultField(v)
   }
 }

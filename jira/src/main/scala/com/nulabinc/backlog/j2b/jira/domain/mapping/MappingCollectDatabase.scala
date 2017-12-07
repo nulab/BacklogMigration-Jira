@@ -1,5 +1,6 @@
 package com.nulabinc.backlog.j2b.jira.domain.mapping
 
+import com.nulabinc.backlog.j2b.jira.domain.export.Milestone
 import com.nulabinc.jira.client.domain.User
 
 import scala.collection.mutable
@@ -27,4 +28,8 @@ trait MappingCollectDatabase {
   def addCustomField(fieldId: String, value: Option[String]): Option[String]
 
   def customFieldRows: Seq[CustomFieldRow]
+
+  def addMilestone(milestone: Milestone): Unit
+
+  def milestones: Seq[Milestone]
 }

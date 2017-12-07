@@ -55,8 +55,6 @@ class Exporter @Inject()(projectKey: JiraProjectKey,
 
     // version
     val versions = versionService.all()
-    versionsWriter.write(versions)
-    ConsoleOut.boldln(Messages("message.executed", Messages("common.version"), Messages("message.exported")), 1)
 
     // issue type
     val issueTypes = issueTypeService.all()
@@ -68,6 +66,10 @@ class Exporter @Inject()(projectKey: JiraProjectKey,
     val total     = issueService.count()
     val fields    = fieldService.all()
     fetchIssue(statuses, categories, versions, fields, 1, total, 0, 100)
+
+    // version & milestone
+    versionsWriter.write(versions, mappingCollectDatabase.milestones)
+    ConsoleOut.boldln(Messages("message.executed", Messages("common.version"), Messages("message.exported")), 1)
 
     // custom field
     fieldWriter.write(mappingCollectDatabase, fields)
@@ -102,12 +104,17 @@ class Exporter @Inject()(projectKey: JiraProjectKey,
           // comments
           val comments = commentService.issueComments(issue)
 
-          // filter change logs
+          // milestone
+          val milestones = MilestoneExtractor.extract(fields, issue.issueFields)
+          milestones.foreach(m => mappingCollectDatabase.addMilestone(m))
+
+          // filter change logs and custom fields
           val issueWithFilteredChangeLogs: Issue = issue.copy(
             changeLogs = {
               val filtered = ChangeLogFilter.filter(fields, components, versions, issueChangeLogs)
               convertDateChangeLogs(filtered, fields)
-            }
+            },
+            issueFields = IssueFieldFilter.filterMilestone(fields, issue.issueFields)
           )
 
           def saveIssueFieldValue(id: String, fieldValue: FieldValue): Unit = fieldValue match {
@@ -122,9 +129,11 @@ class Exporter @Inject()(projectKey: JiraProjectKey,
           issueWithFilteredChangeLogs.issueFields.foreach(v => saveIssueFieldValue(v.id, v.value))
 
           // collect custom fields
+          val sprintDefinition = fields.find(_.name == "Sprint").get
           issueWithFilteredChangeLogs.changeLogs.foreach { changeLog =>
             changeLog.items.foreach { changeLogItem =>
               changeLogItem.fieldId match {
+                case Some(CustomFieldFieldId(id)) if sprintDefinition.id == id => ()
                 case Some(CustomFieldFieldId(id)) =>
                   mappingCollectDatabase.addCustomField(id, changeLogItem.fromDisplayString)
                   mappingCollectDatabase.addCustomField(id, changeLogItem.toDisplayString)
@@ -137,6 +146,7 @@ class Exporter @Inject()(projectKey: JiraProjectKey,
           val initializedBacklogIssue = initializer.initialize(
             mappingCollectDatabase  = mappingCollectDatabase,
             fields                  = fields,
+            milestones              = milestones,
             issue                   = issueWithFilteredChangeLogs,
             comments                = comments
           )
