@@ -210,8 +210,11 @@ class CompareSpec extends FlatSpec
 
             // custom field
             val backlogCustomFields = backlogIssue.getCustomFields.asScala
-
-            jiraIssue.issueFields.filterNot(_.id == sprintCustomField.id).map { jiraCustomField =>
+            val rankCustomField = jiraCustomFieldDefinitions.find(_.name == "Rank").get
+            jiraIssue.issueFields
+              .filterNot(_.id == sprintCustomField.id)
+              .filterNot(_.id == rankCustomField.id)
+              .map { jiraCustomField =>
               val jiraDefinition = jiraCustomFieldDefinitions.find(_.id == jiraCustomField.id).get
               val backlogDefinition = backlogCustomFieldDefinitions.find(_.getName == jiraDefinition.name).get
               val backlogCustomField = backlogCustomFields.find(_.getName == jiraDefinition.name).get
