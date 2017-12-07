@@ -168,7 +168,7 @@ class CompareSpec extends FlatSpec
 
             // status
             withClue(s"""
-                        |status:${jiraIssue.status.name}
+                        |status:   ${jiraIssue.status.name}
                         |converted:${convertStatus(jiraIssue.status.name)}
                         |""".stripMargin) {
               convertStatus(jiraIssue.status.name) should equal(backlogIssue.getStatus.getName)
@@ -195,7 +195,7 @@ class CompareSpec extends FlatSpec
 
             // updated user
             withClue(s"""
-                        |redmine:${timestampToString(jiraIssue.updatedAt.toDate)}
+                        |JIRA:   ${timestampToString(jiraIssue.updatedAt.toDate)}
                         |backlog:${timestampToString(backlogUpdated(backlogIssue))}
             """.stripMargin) {
               timestampToString(jiraIssue.updatedAt.toDate) should be(timestampToString(backlogUpdated(backlogIssue)))
