@@ -50,6 +50,31 @@ class CommandLineInterface(arguments: Seq[String]) extends ScallopConf(arguments
   verify()
 }
 
+class NextCommand(args: Seq[String]) extends BacklogConfiguration {
+
+  import com.nulabinc.backlog.j2b.buildinfo.BuildInfo
+
+  private val formattedArgs = args
+    .filterNot(_ == "export")
+    .grouped(2)
+    .collect {
+      case Seq(k, v) if k.contains("password") => language match {
+        case "ja" => s"    $k JIRAのパスワード"
+        case "en" => s"    $k JIRA_PASSWORD"
+        case _    => s"    $k JIRA_PASSWORD"
+      }
+      case Seq(k, v) => s"    $k $v"
+    }.toSeq
+
+  def command(): String = (
+      Seq(
+        "java -jar",
+        s"  ${BuildInfo.name}-${BuildInfo.version}.jar",
+        "  import"
+     ) ++ formattedArgs
+    ).mkString(" \\ \n")
+}
+
 object J2B extends BacklogConfiguration with Logging {
 
   def main(args: Array[String]): Unit = {
@@ -72,7 +97,6 @@ object J2B extends BacklogConfiguration with Logging {
     // DisableSSLCertificateCheckUtil.disableChecks() // TODO: ???
     // checkRelease()                                 // TODO: Github repo does not exist
 
-
     if ( ! ClassVersion.isValid()) {
       ConsoleOut.error(Messages("cli.require_java8", System.getProperty("java.specification.version")))
       exit(1)
@@ -80,17 +104,20 @@ object J2B extends BacklogConfiguration with Logging {
 
     // Run
     try {
-      val cli = new CommandLineInterface(args)
-      val config = getConfiguration(cli)
+      val cli         = new CommandLineInterface(args)
+      val config      = getConfiguration(cli)
+      val nextCommand = new NextCommand(args)
+
       cli.subcommand match {
         case Some(cli.importCommand)  => J2BCli.`import`(config)
-        case Some(cli.exportCommand)  => J2BCli.export(config)
+        case Some(cli.exportCommand)  => J2BCli.export(config, nextCommand)
         case _                        => J2BCli.help()
       }
       exit(0)
     } catch {
       case e: Throwable =>
         logger.error(e.getMessage, e)
+        ConsoleOut.error(s"${Messages("cli.error.unknown")}:${e.getMessage}")
         exit(1)
     }
   }
@@ -103,7 +130,6 @@ object J2B extends BacklogConfiguration with Logging {
     ConsoleOut.println(
       s"""--------------------------------------------------
          |${Messages("common.jira")} ${Messages("common.username")}[${cli.importCommand.jiraUsername()}]
-         |${Messages("common.jira")} ${Messages("common.password")}[${cli.importCommand.jiraPassword()}]
          |${Messages("common.jira")} ${Messages("common.url")}[${cli.importCommand.jiraUrl()}]
          |${Messages("common.jira")} ${Messages("common.project_key")}[${jira}]
          |${Messages("common.backlog")} ${Messages("common.url")}[${cli.importCommand.backlogUrl()}]
@@ -114,8 +140,8 @@ object J2B extends BacklogConfiguration with Logging {
      |""".stripMargin)
 
     new AppConfiguration(
-      jiraConfig    = new JiraApiConfiguration(username = cli.importCommand.jiraUsername(), password = cli.importCommand.jiraPassword(), cli.importCommand.jiraUrl(), projectKey = jira),
-      backlogConfig = new BacklogApiConfiguration(url = cli.importCommand.backlogUrl(), key = cli.importCommand.backlogKey(), projectKey = backlog),
+      jiraConfig    = JiraApiConfiguration(username = cli.importCommand.jiraUsername(), password = cli.importCommand.jiraPassword(), cli.importCommand.jiraUrl(), projectKey = jira),
+      backlogConfig = BacklogApiConfiguration(url = cli.importCommand.backlogUrl(), key = cli.importCommand.backlogKey(), projectKey = backlog),
       optOut        = cli.importCommand.optOut())
   }
 

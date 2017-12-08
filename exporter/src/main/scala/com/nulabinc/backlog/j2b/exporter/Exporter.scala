@@ -2,12 +2,17 @@ package com.nulabinc.backlog.j2b.exporter
 
 import javax.inject.Inject
 
+import com.nulabinc.backlog.j2b.jira.conf.JiraBacklogPaths
+import com.nulabinc.backlog.j2b.jira.domain.mapping.MappingCollectDatabase
 import com.nulabinc.backlog.j2b.jira.domain.{CollectData, JiraProjectKey}
 import com.nulabinc.backlog.j2b.jira.service._
+import com.nulabinc.backlog.j2b.jira.utils.DateChangeLogConverter
 import com.nulabinc.backlog.j2b.jira.writer._
 import com.nulabinc.backlog.migration.common.utils.{ConsoleOut, Logging, ProgressBar}
 import com.nulabinc.jira.client.domain._
-import com.nulabinc.jira.client.domain.changeLog.{AssigneeFieldId, ComponentChangeLogItemField, FixVersion}
+import com.nulabinc.jira.client.domain.changeLog.{AssigneeFieldId, ComponentChangeLogItemField, CustomFieldFieldId, FixVersion}
+import com.nulabinc.jira.client.domain.field.Field
+import com.nulabinc.jira.client.domain.issue._
 import com.osinka.i18n.Messages
 
 class Exporter @Inject()(projectKey: JiraProjectKey,
@@ -28,104 +33,168 @@ class Exporter @Inject()(projectKey: JiraProjectKey,
                          commentService: CommentService,
                          commentWriter: CommentWriter,
                          initializer: IssueInitializer,
-                         userService: UserService)
-    extends Logging {
+                         userService: UserService,
+                         mappingCollectDatabase: MappingCollectDatabase)
+    extends Logging
+    with DateChangeLogConverter {
 
   private val console            = (ProgressBar.progress _)(Messages("common.issues"), Messages("message.exporting"), Messages("message.exported"))
 //  private val issuesInfoProgress = (ProgressBar.progress _)(Messages("common.issues_info"), Messages("message.collecting"), Messages("message.collected"))
 
-  def export(): CollectData = {
-
-    val project = projectService.getProjectByKey(projectKey)
-    val categories = categoryService.all()
-    val versions = versionService.all()
-    val issueTypes = issueTypeService.all()
-    val fields = fieldService.all()
-    val priorities = priorityService.allPriorities()
-    val statuses = statusService.all()
+  def export(backlogPaths: JiraBacklogPaths): CollectData = {
 
     // project
+    val project = projectService.getProjectByKey(projectKey)
     projectWriter.write(project)
     ConsoleOut.boldln(Messages("message.executed", Messages("common.project"), Messages("message.exported")), 1)
 
     // category
+    val categories = categoryService.all()
     categoryWriter.write(categories)
     ConsoleOut.boldln(Messages("message.executed", Messages("common.category"), Messages("message.exported")), 1)
 
     // version
-    versionsWriter.write(versions)
-    ConsoleOut.boldln(Messages("message.executed", Messages("common.version"), Messages("message.exported")), 1)
+    val versions = versionService.all()
 
     // issue type
+    val issueTypes = issueTypeService.all()
     issueTypesWriter.write(issueTypes)
     ConsoleOut.boldln(Messages("message.executed", Messages("common.issue_type"), Messages("message.exported")), 1)
 
+    // issue
+    val statuses  = statusService.all()
+    val total     = issueService.count()
+    val fields    = fieldService.all()
+    fetchIssue(statuses, categories, versions, fields, 1, total, 0, 100)
+
+    // version & milestone
+    versionsWriter.write(versions, mappingCollectDatabase.milestones)
+    ConsoleOut.boldln(Messages("message.executed", Messages("common.version"), Messages("message.exported")), 1)
+
     // custom field
-    fieldWriter.write(fields)
+    fieldWriter.write(mappingCollectDatabase, fields)
     ConsoleOut.boldln(Messages("message.executed", Messages("common.custom_field"), Messages("message.exported")), 1)
 
-    // issue
-    val total = issueService.count
-    val users = fetchIssue(Set.empty[User], statuses, 1, total, 0, 100)
+    // Output Jira data
+    val priorities    = priorityService.allPriorities()
+    val collectedData = CollectData(mappingCollectDatabase.existUsers, statuses, priorities)
 
-    CollectData(users, statuses, priorities)
+    collectedData.outputJiraUsersToFile(backlogPaths.jiraUsersJson)
+    collectedData.outputJiraPrioritiesToFile(backlogPaths.jiraPrioritiesJson)
+    collectedData.outputJiraStatusesToFile(backlogPaths.jiraStatusesJson)
+
+    collectedData
   }
 
-  private def fetchIssue(users: Set[User], statuses: Seq[Status], index: Long, total: Long, startAt: Long, maxResults: Long): Set[User] = {
+  private def fetchIssue(statuses: Seq[Status],
+                         components: Seq[Component],
+                         versions: Seq[Version],
+                         fields: Seq[Field],
+                         index: Long, total: Long, startAt: Long, maxResults: Long): Unit = {
 
     val issues = issueService.issues(startAt, maxResults)
-
-    if (issues.isEmpty) users
-    else {
-      val collected = issues.zipWithIndex.map {
+    
+    if (issues.nonEmpty) {
+      issues.zipWithIndex.foreach {
         case (issue, i) => {
 
           // Change logs
-          val issueWithChangeLogs = issueService.injectChangeLogsToIssue(issue) // API Call
+          val issueChangeLogs = issueService.changeLogs(issue) // API Call
 
           // comments
-          val comments = commentService.issueComments(issueWithChangeLogs)
+          val comments = commentService.issueComments(issue)
+
+          // milestone
+          val milestones = MilestoneExtractor.extract(fields, issue.issueFields)
+          milestones.foreach(m => mappingCollectDatabase.addMilestone(m))
+
+          // filter change logs and custom fields
+          val issueWithFilteredChangeLogs: Issue = issue.copy(
+            changeLogs = {
+              val filtered = ChangeLogFilter.filter(fields, components, versions, issueChangeLogs)
+              convertDateChangeLogs(filtered, fields)
+            },
+            issueFields = IssueFieldFilter.filterMilestone(fields, issue.issueFields)
+          )
+
+          def saveIssueFieldValue(id: String, fieldValue: FieldValue): Unit = fieldValue match {
+            case StringFieldValue(value) => mappingCollectDatabase.addCustomField(id, Some(value))
+            case NumberFieldValue(value) => mappingCollectDatabase.addCustomField(id, Some(value.toString))
+            case ArrayFieldValue(values) => values.map(v => mappingCollectDatabase.addCustomField(id, Some(v.value)))
+            case OptionFieldValue(value) => saveIssueFieldValue(id, value.value)
+            case AnyFieldValue(value)    => mappingCollectDatabase.addCustomField(id, Some(value))
+            case UserFieldValue(user)    => mappingCollectDatabase.addCustomField(id, Some(user.key))
+          }
+
+          issueWithFilteredChangeLogs.issueFields.foreach(v => saveIssueFieldValue(v.id, v.value))
+
+          // collect custom fields
+          val sprintDefinition = fields.find(_.name == "Sprint").get
+          issueWithFilteredChangeLogs.changeLogs.foreach { changeLog =>
+            changeLog.items.foreach { changeLogItem =>
+              changeLogItem.fieldId match {
+                case Some(CustomFieldFieldId(id)) if sprintDefinition.id == id => ()
+                case Some(CustomFieldFieldId(id)) =>
+                  mappingCollectDatabase.addCustomField(id, changeLogItem.fromDisplayString)
+                  mappingCollectDatabase.addCustomField(id, changeLogItem.toDisplayString)
+                case _ => ()
+              }
+            }
+          }
 
           // export issue (values are initialized)
-          val initializedBacklogIssue = initializer.initialize(issueWithChangeLogs, comments)
-          issueWriter.write(initializedBacklogIssue, issueWithChangeLogs.createdAt.toDate)
+          val initializedBacklogIssue = initializer.initialize(
+            mappingCollectDatabase  = mappingCollectDatabase,
+            fields                  = fields,
+            milestones              = milestones,
+            issue                   = issueWithFilteredChangeLogs,
+            comments                = comments
+          )
+          issueWriter.write(initializedBacklogIssue, issue.createdAt.toDate)
 
           // export issue comments
-          val changeLogs1 = ChangeLogsPlayer.play(ComponentChangeLogItemField, initializedBacklogIssue.categoryNames, issueWithChangeLogs.changeLogs)
-          val changeLogs2 = ChangeLogsPlayer.play(FixVersion, initializedBacklogIssue.versionNames, changeLogs1)
-          val changeLogs  = ChangeLogStatusConverter.convert(changeLogs2, statuses)
-          commentWriter.write(initializedBacklogIssue, comments, changeLogs, issueWithChangeLogs.attachments)
+          val categoryPlayedChangeLogs  = ChangeLogsPlayer.play(ComponentChangeLogItemField, initializedBacklogIssue.categoryNames, issueWithFilteredChangeLogs.changeLogs)
+          val versionPlayedChangeLogs   = ChangeLogsPlayer.play(FixVersion, initializedBacklogIssue.versionNames, categoryPlayedChangeLogs)
+          val changeLogs                = ChangeLogStatusConverter.convert(versionPlayedChangeLogs, statuses)
+          commentWriter.write(initializedBacklogIssue, comments, changeLogs, issue.attachments)
 
           console(i + index.toInt, total.toInt)
 
-          val changeLogUsers = issueWithChangeLogs.changeLogs.map(_.author)
-
-          val collectedUsers = Seq(
-            Some(issueWithChangeLogs.creator),
-            issueWithChangeLogs.assignee
-          ).filter(_.nonEmpty).flatten ++ changeLogUsers ++ users
-
-          val changeLogItemUsers = changeLogs
-            .flatMap { changeLog =>
-              changeLog.items
-                .filter(_.fieldId.contains(AssigneeFieldId)) // ChangeLogItem.FieldId is AssigneeFieldId
-            }.flatMap { changeLogItem =>
-              Seq(
-                collectedUsers.find( u => changeLogItem.from.contains(u.name)) match {
-                  case Some(user) => Some(user)
-                  case None       => userService.optUserOfKey(changeLogItem.from)
-                },
-                collectedUsers.find( u => changeLogItem.to.contains(u.name)) match {
-                  case Some(user) => Some(user)
-                  case None       => userService.optUserOfKey(changeLogItem.to)
-                }
-              ).flatten
+          val changeLogUsers     = changeLogs.map(u => Some(u.author.name))
+          val changeLogItemUsers = changeLogs.flatMap { changeLog =>
+            changeLog.items.flatMap { changeLogItem =>
+              changeLogItem.fieldId match {
+                case Some(AssigneeFieldId) => Set(changeLogItem.from, changeLogItem.to)
+                case _                     => Set.empty[Option[String]]
+              }
             }
+          }
 
-          collectedUsers ++ changeLogItemUsers
+          Set(
+            Some(issue.creator.key),
+            issue.assignee.map(_.key)
+          ).foreach { maybeKey =>
+            if (!mappingCollectDatabase.userExistsFromAllUsers(maybeKey)) {
+              userService.optUserOfKey(maybeKey) match {
+                case Some(u) if maybeKey.contains(u.name)  => mappingCollectDatabase.add(u)
+                case Some(_)                               => mappingCollectDatabase.add(maybeKey)
+                case None                                  => mappingCollectDatabase.addIgnoreUser(maybeKey)
+              }
+            }
+          }
+
+          (changeLogUsers ++ changeLogItemUsers).foreach { maybeUserName =>
+            if (!mappingCollectDatabase.userExistsFromAllUsers(maybeUserName)) {
+              userService.optUserOfName(maybeUserName) match {
+                case Some(u) if maybeUserName.contains(u.name)  => mappingCollectDatabase.add(u)
+                case Some(_)                                    => mappingCollectDatabase.add(maybeUserName)
+                case None                                       => mappingCollectDatabase.add(maybeUserName)
+              }
+            }
+          }
         }
       }
-      fetchIssue(collected.flatten.toSet, statuses, index + collected.length , total, startAt + maxResults, maxResults)
+      fetchIssue(statuses, components, versions, fields, index + issues.length , total, startAt + maxResults, maxResults)
     }
   }
 

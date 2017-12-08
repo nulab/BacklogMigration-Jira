@@ -8,11 +8,7 @@ case class MappingsWrapper(`//`: String, mappings: Seq[Mapping])
 
 case class MappingInfo(name: String, mail: String)
 
-case class Mapping(info: Option[MappingInfo], mappingType: String, src: String, dst: String) {
-
-  def getMappingType() = MappingType(mappingType)
-
-}
+case class Mapping(info: Option[MappingInfo], src: String, dst: String)
 
 object Mapping extends Logging {
 
@@ -21,14 +17,12 @@ object Mapping extends Logging {
       case Some(userId) =>
         Mapping(
           info = Some(MappingInfo(name = user.name, mail = user.optMailAddress.getOrElse(""))),
-          mappingType = MappingType.UserId.toString,
           src = userId,
           dst = ""
         )
       case None =>
         Mapping(
           info = Some(MappingInfo(name = user.name, mail = user.optMailAddress.getOrElse(""))),
-          mappingType = MappingType.Name.toString,
           src = user.name,
           dst = ""
         )
@@ -37,7 +31,6 @@ object Mapping extends Logging {
   def create(value: String) =
     Mapping(
       info = Some(MappingInfo(name = value, mail = "")),
-      mappingType = MappingType.Name.toString,
       src = value,
       dst = ""
     )
@@ -46,7 +39,7 @@ object Mapping extends Logging {
 
 object MappingJsonProtocol extends DefaultJsonProtocol {
   implicit val MappingDescriptionFormat = jsonFormat2(MappingInfo)
-  implicit val MappingFormat            = jsonFormat4(Mapping.apply)
+  implicit val MappingFormat            = jsonFormat3(Mapping.apply)
   implicit val MappingsWrapperFormat    = jsonFormat2(MappingsWrapper)
 }
 

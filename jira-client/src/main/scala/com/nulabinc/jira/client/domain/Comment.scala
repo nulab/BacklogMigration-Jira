@@ -9,7 +9,7 @@ case class Comment(
   createdAt: DateTime
 )
 
-case class CommentResult(
-  total: Long,
-  comments: Seq[Comment]
-)
+case class CommentResult(startAt: Long, total: Long, comments: Seq[Comment]) {
+
+  def hasPage: Boolean = startAt < total
+}

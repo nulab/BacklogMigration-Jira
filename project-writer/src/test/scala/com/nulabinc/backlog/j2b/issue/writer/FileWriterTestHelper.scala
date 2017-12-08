@@ -1,14 +1,14 @@
 package com.nulabinc.backlog.j2b.issue.writer
 
 import com.nulabinc.backlog.j2b.issue.writer.convert._
-import com.nulabinc.backlog.j2b.jira.domain.JiraProjectKey
 import com.nulabinc.backlog.migration.common.conf.BacklogPaths
+import com.nulabinc.backlog.migration.common.domain.BacklogProjectKey
 
 import scalax.file.Path
 
 trait FileWriterTestHelper {
 
-  val projectKey = new JiraProjectKey("PLAYCMS")
+  val projectKey = new BacklogProjectKey("PLAYCMS")
 
   implicit val projectWrites          = new ProjectWrites(projectKey)
   implicit val issueCategoriesWrites  = new ComponentWrites

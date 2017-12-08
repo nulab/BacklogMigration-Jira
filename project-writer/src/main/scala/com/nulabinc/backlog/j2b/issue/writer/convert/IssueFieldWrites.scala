@@ -1,9 +1,8 @@
 package com.nulabinc.backlog.j2b.issue.writer.convert
 
-import java.text.SimpleDateFormat
-import java.util.Locale
 import javax.inject.Inject
 
+import com.nulabinc.backlog.j2b.jira.utils.DatetimeToDateFormatter
 import com.nulabinc.backlog.migration.common.convert.Writes
 import com.nulabinc.backlog.migration.common.domain.BacklogCustomField
 import com.nulabinc.backlog.migration.common.utils.Logging
@@ -13,7 +12,8 @@ import com.nulabinc.jira.client.domain.issue._
 
 class IssueFieldWrites @Inject()(customFieldDefinitions: Seq[Field])
     extends Writes[IssueField, Option[BacklogCustomField]]
-    with Logging {
+    with Logging
+    with DatetimeToDateFormatter {
 
   override def writes(issueField: IssueField) = {
     customFieldDefinitions.find(_.id == issueField.id) match {
@@ -21,6 +21,9 @@ class IssueFieldWrites @Inject()(customFieldDefinitions: Seq[Field])
         field.schema.map { schema =>
           (schema.schemaType, schema.customType) match {
             case (StatusSchema, Some(Textarea))         => toTextAreaCustomField(field, issueField.value.asInstanceOf[StringFieldValue])
+            case (OptionSchema, Some(Select))           => toSingleListCustomField(field, issueField.value.asInstanceOf[OptionFieldValue])
+            case (ArraySchema, Some(MultiCheckBoxes))   => toCheckBoxCustomField(field, issueField.value.asInstanceOf[ArrayFieldValue])
+            case (OptionSchema, Some(RadioButtons))     => toRadioCustomField(field, issueField.value.asInstanceOf[OptionFieldValue])
             case (StringSchema, _)                      => toTextCustomField(field, issueField.value.asInstanceOf[StringFieldValue])
             case (NumberSchema, _)                      => toNumberCustomField(field, issueField.value.asInstanceOf[NumberFieldValue])
             case (DateSchema, _)                        => toDateCustomField(field, issueField.value.asInstanceOf[StringFieldValue])
@@ -28,9 +31,6 @@ class IssueFieldWrites @Inject()(customFieldDefinitions: Seq[Field])
             case (ArraySchema, _)                       => toMultipleListCustomField(field, issueField.value.asInstanceOf[ArrayFieldValue])
             case (UserSchema, _)                        => toUserCustomField(field, issueField.value.asInstanceOf[UserFieldValue])
             case (AnySchema, _)                         => toTextCustomField(field, issueField.value.asInstanceOf[StringFieldValue])
-            case (OptionSchema, Some(Select))           => toSingleListCustomField(field, issueField.value.asInstanceOf[OptionFieldValue])
-            case (OptionSchema, Some(MultiCheckBoxes))  => toMultipleListCustomField(field, issueField.value.asInstanceOf[ArrayFieldValue])
-            case (OptionSchema, Some(RadioButtons))     => toSingleListCustomField(field, issueField.value.asInstanceOf[OptionFieldValue])
             case (OptionSchema, _)                      => toTextCustomField(field, issueField.value.asInstanceOf[StringFieldValue])
             case (OptionWithChildSchema, _)             => toMultipleListCustomField(field, issueField.value.asInstanceOf[ArrayFieldValue])
           }
@@ -71,19 +71,14 @@ class IssueFieldWrites @Inject()(customFieldDefinitions: Seq[Field])
       values = Seq.empty[String]
     )
 
-  private def toDateTimeCustomField(field: Field, issueField: StringFieldValue) = {
-    val readFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ", Locale.getDefault())
-    val writeFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-
-    val dateTime = readFormat.parse(issueField.value)
-
+  private def toDateTimeCustomField(field: Field, issueField: StringFieldValue) =
     BacklogCustomField(
       name = field.name,
       fieldTypeId = FieldType.Date.getIntValue,
-      optValue = Option(writeFormat.format(dateTime)),
+      optValue = Option(dateTimeStringToDateString(issueField.value)),
       values = Seq.empty[String]
     )
-  }
+
 
   private def toMultipleListCustomField(field: Field, issueField: ArrayFieldValue) =
     BacklogCustomField(
@@ -93,10 +88,26 @@ class IssueFieldWrites @Inject()(customFieldDefinitions: Seq[Field])
       values = issueField.values.map(_.value)
     )
 
+  private def toCheckBoxCustomField(field: Field, issueField: ArrayFieldValue) =
+    BacklogCustomField(
+      name = field.name,
+      fieldTypeId = FieldType.CheckBox.getIntValue,
+      optValue = None,
+      values = issueField.values.map(_.value)
+    )
+
   private def toSingleListCustomField(field: Field, issueField: OptionFieldValue) =
     BacklogCustomField(
       name = field.name,
       fieldTypeId = FieldType.SingleList.getIntValue,
+      optValue = Option(issueField.value),
+      values = Seq.empty[String]
+    )
+
+  private def toRadioCustomField(field: Field, issueField: OptionFieldValue) =
+    BacklogCustomField(
+      name = field.name,
+      fieldTypeId = FieldType.Radio.getIntValue,
       optValue = Option(issueField.value),
       values = Seq.empty[String]
     )

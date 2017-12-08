@@ -8,7 +8,7 @@ import spray.json._
 
 case class IssueResult(total: Int, issues: Seq[Issue])
 
-class IssueRestClientImpl(httpClient: HttpClient) {
+class IssueRestClientImpl(httpClient: HttpClient) extends Pageable {
 
   import com.nulabinc.jira.client.json.IssueMappingJsonProtocol._
   import com.nulabinc.jira.client.json.IssueResultMappingJsonProtocol._
@@ -18,10 +18,8 @@ class IssueRestClientImpl(httpClient: HttpClient) {
 
   def issue(key: String) = fetchIssue(key)
 
-  def projectIssues(key: String, startAt: Long = 0, maxResults: Long = 100) = {
-    val uri = "/search" ?
-      ("startAt"    -> startAt) &
-      ("maxResults" -> maxResults) &
+  def projectIssues(key: String, startAt: Long = 0, maxResults: Long = 100): Either[HttpError, Seq[Issue]] = {
+    val uri = "/search" ? paginateUri(startAt, maxResults) &
       ("jql"        -> s"project=$key") &
       ("fields"     -> "*all")
 

@@ -9,6 +9,7 @@ import com.nulabinc.jira.client.domain.User
 
 class JiraClientUserService @Inject()(jira: JiraRestClient) extends UserService with Logging {
 
+
   override def allUsers() =
     jira.userAPI.users match {
       case Right(users) => users
@@ -20,7 +21,7 @@ class JiraClientUserService @Inject()(jira: JiraRestClient) extends UserService 
 
   override def optUserOfKey(key: Option[String]) =
     key.flatMap { k =>
-      jira.userAPI.user(k) match {
+      jira.userAPI.findByKey(k) match {
         case Right(user) => Some(user)
         case Left(error) => {
           logger.error(error.message)
@@ -29,4 +30,14 @@ class JiraClientUserService @Inject()(jira: JiraRestClient) extends UserService 
       }
     }
 
+  override def optUserOfName(name: Option[String]) =
+    name.flatMap { k =>
+      jira.userAPI.findByUsername(k) match {
+        case Right(user) => Some(user)
+        case Left(error) => {
+          logger.error(error.message)
+          None
+        }
+      }
+    }
 }

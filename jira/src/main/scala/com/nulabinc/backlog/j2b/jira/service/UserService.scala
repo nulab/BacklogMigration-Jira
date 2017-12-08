@@ -8,4 +8,6 @@ trait UserService {
 
   def optUserOfKey(key: Option[String]): Option[User]
 
+  def optUserOfName(name: Option[String]): Option[User]
+
 }

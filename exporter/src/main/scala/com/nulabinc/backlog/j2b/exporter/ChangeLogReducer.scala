@@ -6,6 +6,7 @@ import com.nulabinc.backlog.migration.common.domain._
 import com.nulabinc.backlog.migration.common.utils.{IOUtil, Logging}
 import com.nulabinc.jira.client._
 import com.nulabinc.jira.client.domain.Attachment
+import com.nulabinc.jira.client.domain.changeLog._
 import com.osinka.i18n.Messages
 
 import scalax.file.Path
@@ -41,13 +42,24 @@ private [exporter] class ChangeLogReducer(issueDirPath: Path,
       case "timeestimate" =>
         val message = Messages("common.change_comment", Messages("common.timeestimate"), getValue(changeLog.optOriginalValue), getValue(changeLog.optNewValue))
         (None, s"${message}\n")
-        // TODO: Check project
-//      case "project_id" =>
-//        val message = Messages("common.change_comment",
-//          Messages("common.project"),
-//          getProjectName(changeLog.optOriginalValue),
-//          getProjectName(changeLog.optNewValue))
-//        (None, s"${message}\n")
+      case ParentChangeLogItemField.value =>
+        val message = Messages("common.change_comment", Messages("common.parent_issue"), getValue(changeLog.optOriginalValue), getValue(changeLog.optNewValue))
+        (None, s"${message}\n")
+      case "deleted_category" =>
+        val message = Messages("common.change_comment", Messages("common.category"), getValue(changeLog.optOriginalValue), getValue(changeLog.optNewValue))
+        (None, s"${message}\n")
+      case "deleted_version" =>
+        val message = Messages("common.change_comment", Messages("common.version"), getValue(changeLog.optOriginalValue), getValue(changeLog.optNewValue))
+        (None, s"${message}\n")
+      case "link_issue" =>
+        val message = Messages("common.change_comment", Messages("common.link"), getValue(changeLog.optOriginalValue), getValue(changeLog.optNewValue))
+        (None, s"${message}\n")
+      case LabelsChangeLogItemField.value =>
+        val message = Messages("common.change_comment", Messages("common.labels"), getValue(changeLog.optOriginalValue), getValue(changeLog.optNewValue))
+        (None, s"${message}\n")
+      case SprintChangeLogItemField.value =>
+        val message = Messages("common.change_comment", Messages("common.sprint"), getValue(changeLog.optOriginalValue), getValue(changeLog.optNewValue))
+        (None, s"${message}\n")
       case _ =>
         (Some(changeLog.copy(optNewValue = ValueReducer.reduce(targetComment, changeLog))), "")
     }
@@ -86,9 +98,9 @@ private [exporter] class ChangeLogReducer(issueDirPath: Path,
             val path = backlogPaths.issueAttachmentPath(dir, attachmentInfo.name)
             IOUtil.createDirectory(dir)
             issueService.downloadAttachments(attachmentInfoId.toLong, path, attachmentInfo.name) match {
-              case Success =>
+              case DownloadSuccess =>
                 (Some(changeLog), "")
-              case Failure =>
+              case DownloadFailure =>
                 val emptyMessage = Messages(
                   "export.attachment.empty",
                   changeLog.optOriginalValue.getOrElse(Messages("common.empty")),

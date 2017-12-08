@@ -23,9 +23,18 @@ case class ChangeLogItem(
 sealed abstract class ChangeLogItemField(val value: String)
 case object ComponentChangeLogItemField extends ChangeLogItemField("Component")
 case object FixVersion extends ChangeLogItemField("Fix Version")
-case object Parent extends ChangeLogItemField("Parent")
+case object ParentChangeLogItemField extends ChangeLogItemField("Parent")
 case object AttachmentChangeLogItemField extends ChangeLogItemField("Attachment")
 case object StatusChangeLogItemField extends ChangeLogItemField("status")
+case object DueDateChangeLogItemField extends ChangeLogItemField("duedate")
+case object LinkChangeLogItemField extends ChangeLogItemField("Link")
+case object LabelsChangeLogItemField extends ChangeLogItemField("labels")
+case object TimeOriginalEstimateChangeLogItemField extends ChangeLogItemField("timeoriginalestimate")
+case object IssueTypeChangeLogItemField extends ChangeLogItemField("issuetype")
+case object TimeSpentChangeLogItemField extends ChangeLogItemField("timespent")
+case object WorkIdChangeLogItemField extends ChangeLogItemField("WorklogId")
+case object TimeEstimateChangeLogItemField extends ChangeLogItemField("timeestimate")
+case object SprintChangeLogItemField extends ChangeLogItemField("Sprint")
 case class DefaultField(name: String) extends ChangeLogItemField(name)
 
 object ChangeLogItemField {
@@ -34,7 +43,17 @@ object ChangeLogItemField {
     case FixVersion.value                   => FixVersion
     case AttachmentChangeLogItemField.value => AttachmentChangeLogItemField
     case StatusChangeLogItemField.value     => StatusChangeLogItemField
-    case v                                  => DefaultField(v)
+    case DueDateChangeLogItemField.value    => DueDateChangeLogItemField
+    case LinkChangeLogItemField.value       => LinkChangeLogItemField
+    case LabelsChangeLogItemField.value     => LabelsChangeLogItemField
+    case TimeOriginalEstimateChangeLogItemField.value => TimeOriginalEstimateChangeLogItemField
+    case IssueTypeChangeLogItemField.value            => IssueTypeChangeLogItemField
+    case ParentChangeLogItemField.value               => ParentChangeLogItemField
+    case TimeSpentChangeLogItemField.value            => TimeSpentChangeLogItemField
+    case WorkIdChangeLogItemField.value               => WorkIdChangeLogItemField
+    case TimeEstimateChangeLogItemField.value         => TimeEstimateChangeLogItemField
+    case SprintChangeLogItemField.value               => SprintChangeLogItemField
+    case v                                            => DefaultField(v)
   }
 }
 
@@ -46,11 +65,11 @@ object ChangeLogItem {
   }
 }
 
-case class ChangeLogResult(
-  total: Long,
-  isLast: Boolean,
-  values: Seq[ChangeLog]
-)
+case class ChangeLogResult(total: Long, isLast: Boolean, values: Seq[ChangeLog]) {
+
+  def hasPage: Boolean = !isLast
+
+}
 
 sealed abstract class FieldId(val value: String)
 
@@ -66,6 +85,7 @@ case object StatusFieldId extends FieldId("status")
 case object DueDateFieldId extends FieldId("duedate")
 case object TimeOriginalEstimateFieldId extends FieldId("timeoriginalestimate")
 case object TimeEstimateFieldId extends FieldId("timeestimate")
+case object TimeSpentFieldId extends FieldId("timespent")
 case object ResolutionFieldId extends FieldId("resolution")
 case class CustomFieldFieldId(id: String) extends FieldId(id)
 case class GeneralFieldId(id: String) extends FieldId(id)
@@ -85,6 +105,7 @@ object FieldId {
     case DueDateFieldId.value              => DueDateFieldId
     case TimeOriginalEstimateFieldId.value => TimeOriginalEstimateFieldId
     case TimeEstimateFieldId.value         => TimeEstimateFieldId
+    case TimeSpentFieldId.value            => TimeSpentFieldId
     case ResolutionFieldId.value           => ResolutionFieldId
     case v if v.startsWith("customfield_") => CustomFieldFieldId(v)
     case v                                 => GeneralFieldId(v)

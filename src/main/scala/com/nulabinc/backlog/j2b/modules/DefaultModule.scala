@@ -5,9 +5,12 @@ import com.nulabinc.backlog.j2b.conf.AppConfiguration
 import com.nulabinc.backlog.j2b.issue.writer.convert._
 import com.nulabinc.backlog.j2b.jira.conf.JiraApiConfiguration
 import com.nulabinc.backlog.j2b.jira.domain.JiraProjectKey
+import com.nulabinc.backlog.j2b.jira.domain.mapping.MappingCollectDatabase
 import com.nulabinc.backlog.j2b.jira.service._
+import com.nulabinc.backlog.j2b.mapping.collector.MappingCollectDatabaseInMemory
 import com.nulabinc.backlog.j2b.mapping.file.MappingFileServiceImpl
 import com.nulabinc.backlog.migration.common.conf.{BacklogApiConfiguration, BacklogPaths}
+import com.nulabinc.backlog.migration.common.domain.BacklogProjectKey
 import com.nulabinc.jira.client.JiraRestClient
 import com.nulabinc.jira.client.domain.field.Field
 
@@ -27,7 +30,10 @@ class DefaultModule(config: AppConfiguration) extends AbstractModule {
 //    bind(classOf[Project]).toInstance(project)
     bind(classOf[JiraApiConfiguration]).toInstance(config.jiraConfig)
     bind(classOf[JiraProjectKey]).toInstance(JiraProjectKey(config.jiraConfig.projectKey))
+    bind(classOf[BacklogProjectKey]).toInstance(BacklogProjectKey(config.backlogConfig.projectKey))
     bind(classOf[BacklogApiConfiguration]).toInstance(config.backlogConfig)
+
+    // Paths
     bind(classOf[BacklogPaths]).toInstance(new BacklogPaths(config.backlogProjectKey))
 
     // Mapping-file
@@ -44,5 +50,8 @@ class DefaultModule(config: AppConfiguration) extends AbstractModule {
     bind(classOf[IssueFieldWrites]).toInstance(new IssueFieldWrites(fields))
     bind(classOf[ChangelogItemWrites]).toInstance(new ChangelogItemWrites(fields))
     bind(classOf[AttachmentWrites]).toInstance(new AttachmentWrites)
+
+    // Collector
+    bind(classOf[MappingCollectDatabase]).to(classOf[MappingCollectDatabaseInMemory])
   }
 }

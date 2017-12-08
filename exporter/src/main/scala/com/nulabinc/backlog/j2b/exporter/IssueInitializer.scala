@@ -3,12 +3,16 @@ package com.nulabinc.backlog.j2b.exporter
 import javax.inject.Inject
 
 import com.nulabinc.backlog.j2b.issue.writer.convert._
+import com.nulabinc.backlog.j2b.jira.domain.export.Milestone
+import com.nulabinc.backlog.j2b.jira.domain.mapping.MappingCollectDatabase
 import com.nulabinc.backlog.j2b.jira.service.{IssueService, UserService}
+import com.nulabinc.backlog.j2b.jira.utils._
 import com.nulabinc.backlog.migration.common.convert.Convert
 import com.nulabinc.backlog.migration.common.domain._
 import com.nulabinc.backlog.migration.common.utils._
-import com.nulabinc.jira.client.domain.Comment
+import com.nulabinc.jira.client.domain.{Comment, User}
 import com.nulabinc.jira.client.domain.changeLog._
+import com.nulabinc.jira.client.domain.field.{DatetimeSchema, Field}
 import com.nulabinc.jira.client.domain.issue._
 
 class IssueInitializer @Inject()(implicit val issueWrites: IssueWrites,
@@ -18,9 +22,15 @@ class IssueInitializer @Inject()(implicit val issueWrites: IssueWrites,
                                  implicit val customFieldValueWrites: IssueFieldWrites,
                                  userService: UserService,
                                  issueService: IssueService)
-    extends Logging {
+    extends Logging
+    with SecondToHourFormatter
+    with DatetimeToDateFormatter {
 
-  def initialize(issue: Issue, comments: Seq[Comment]): BacklogIssue = {
+  def initialize(mappingCollectDatabase: MappingCollectDatabase,
+                 fields: Seq[Field],
+                 milestones: Seq[Milestone],
+                 issue: Issue,
+                 comments: Seq[Comment]): BacklogIssue = {
     //attachments
 //    val attachmentFilter    = new AttachmentFilter(issue.changeLogs)
 //    val filteredAttachments = attachmentFilter.filter(issue.attachments)
@@ -31,18 +41,20 @@ class IssueInitializer @Inject()(implicit val issueWrites: IssueWrites,
 
     backlogIssue.copy(
       summary           = summary(filteredIssue),
-//      optParentIssueId = parentIssueId(issue),
+      optParentIssueId = parentIssueId(issue),
       description       = description(filteredIssue),
       optDueDate        = dueDate(filteredIssue),
       optEstimatedHours = estimatedHours(filteredIssue),
       optIssueTypeName  = issueTypeName(filteredIssue),
       categoryNames     = categoryNames(filteredIssue),
-//      milestoneNames  = milestoneNames(issue),
-      versionNames      = milestoneNames(filteredIssue),
+//      milestoneNames    = milestoneNames(filteredIssue, milestones),
+      milestoneNames    = milestones.map(_.name),
+      versionNames      = versionNames(filteredIssue),
       priorityName      = priorityName(filteredIssue),
-      optAssignee       = assignee(filteredIssue),
-//      customFields = issue.issueFields.flatMap(customField),
+      optAssignee       = assignee(mappingCollectDatabase, filteredIssue),
+      customFields      = filteredIssue.issueFields.flatMap(f => customField(fields, f, filteredIssue.changeLogs)),
       attachments       = attachmentNames(filteredIssue),
+      optActualHours    = actualHours(filteredIssue),
       notifiedUsers     = Seq.empty[BacklogUser]
     )
   }
@@ -53,6 +65,14 @@ class IssueInitializer @Inject()(implicit val issueWrites: IssueWrites,
       case Some(detail) => BacklogIssueSummary(value = detail.fromDisplayString.getOrElse(""), original = issue.summary)
       case None         => BacklogIssueSummary(value = issue.summary, original = issue.summary)
     }
+  }
+
+  private def parentIssueId(issue: Issue): Option[Long] = {
+    val currentValues = issue.parent match {
+      case Some(parentIssue) => Seq(parentIssue.id.toString)
+      case _                 => Seq.empty[String]
+    }
+    ChangeLogsPlayer.reversePlay(ParentChangeLogItemField, currentValues, issue.changeLogs).headOption.map(_.toLong)
   }
 
   private def description(issue: Issue): String = {
@@ -66,32 +86,31 @@ class IssueInitializer @Inject()(implicit val issueWrites: IssueWrites,
   private def dueDate(issue: Issue): Option[String] = {
     val issueInitialValue = new IssueInitialValue(ChangeLogItem.FieldType.JIRA, DueDateFieldId)
     issueInitialValue.findChangeLogItem(issue.changeLogs) match {
-      case Some(detail) => detail.fromDisplayString
+      case Some(detail) => detail.from
       case None         => issue.dueDate.map(DateUtil.dateFormat)
     }
   }
 
   private def estimatedHours(issue: Issue): Option[Float] = {
-    val issueInitialValue = new IssueInitialValue(ChangeLogItem.FieldType.JIRA, TimeEstimateFieldId)
-    issueInitialValue.findChangeLogItem(issue.changeLogs) match {
-      case Some(detail) => detail.fromDisplayString.filter(_.nonEmpty).map(_.toFloat / 3600)
-      case None         => issue.timeTrack.flatMap(_.originalEstimateSeconds.map(_.toFloat / 3600))
+    val initialValues = issue.timeTrack.flatMap(t => t.originalEstimateSeconds) match {
+      case Some(second) => Seq(second.toString)
+      case _            => Seq.empty[String]
     }
+    val initializedEstimatedSeconds = ChangeLogsPlayer.reversePlay(TimeOriginalEstimateChangeLogItemField, initialValues, issue.changeLogs).headOption
+    initializedEstimatedSeconds.map(sec => secondsToHours(sec.toInt))
   }
 
-  private def issueTypeName(issue: Issue): Option[String] = {
-    val issueInitialValue = new IssueInitialValue(ChangeLogItem.FieldType.JIRA, IssueTypeFieldId)
-    issueInitialValue.findChangeLogItem(issue.changeLogs) match {
-      case Some(detail) => detail.fromDisplayString
-      case None         => Option(issue.issueType.name)
-    }
-  }
+  private def issueTypeName(issue: Issue): Option[String] =
+    ChangeLogsPlayer.reversePlay(IssueTypeChangeLogItemField, Seq(issue.issueType.name), issue.changeLogs).headOption
 
   private def categoryNames(issue: Issue): Seq[String] =
     ChangeLogsPlayer.reversePlay(ComponentChangeLogItemField, issue.components.map(_.name), issue.changeLogs)
 
-  private def milestoneNames(issue: Issue): Seq[String] =
+  private def versionNames(issue: Issue): Seq[String] =
     ChangeLogsPlayer.reversePlay(FixVersion, issue.fixVersions.map(_.name), issue.changeLogs)
+
+  private def milestoneNames(issue: Issue, milestones: Seq[Milestone]): Seq[String] =
+    ChangeLogsPlayer.reversePlay(SprintChangeLogItemField, milestones.map(_.name), issue.changeLogs)
 
   private def attachmentNames(issue: Issue): Seq[BacklogAttachment] = {
     val histories = ChangeLogsPlayer.reversePlay(AttachmentChangeLogItemField, issue.attachments.map(_.fileName), issue.changeLogs)
@@ -108,49 +127,52 @@ class IssueInitializer @Inject()(implicit val issueWrites: IssueWrites,
     }
   }
 
-  private def assignee(issue: Issue): Option[BacklogUser] = {
+  private def assignee(mappingCollectDatabase: MappingCollectDatabase, issue: Issue): Option[BacklogUser] = {
     val issueInitialValue = new IssueInitialValue(ChangeLogItem.FieldType.JIRA, AssigneeFieldId)
     issueInitialValue.findChangeLogItem(issue.changeLogs) match {
-      case Some(detail) => userService.optUserOfKey(detail.from).map(Convert.toBacklog(_))
-      case None         => issue.assignee.map(Convert.toBacklog(_))
+      case Some(detail) =>
+        if (mappingCollectDatabase.userExistsFromAllUsers(detail.from)) {
+          mappingCollectDatabase.findByName(detail.from).map(Convert.toBacklog(_))
+        } else {
+          val optUser = userService.optUserOfKey(detail.from) match {
+            case Some(u) => Some(mappingCollectDatabase.add(u))
+            case None    => mappingCollectDatabase.add(detail.from); None
+          }
+          optUser.map(Convert.toBacklog(_))
+        }
+      case None => issue.assignee.map(Convert.toBacklog(_))
     }
   }
 
-//  private def customField(customField: IssueField): Option[BacklogCustomField] = {
-//    val optCustomFieldDefinition = exportContext.propertyValue.customFieldDefinitionOfName(customField.getName)
-//    optCustomFieldDefinition match {
-//      case Some(customFieldDefinition) =>
-//        if (customFieldDefinition.isMultiple) multipleCustomField(customField, customFieldDefinition)
-//        else singleCustomField(customField, customFieldDefinition)
-//      case _ => None
-//    }
-//  }
-//
-//  private def multipleCustomField(issueField: IssueField, field: Field, changeLogs: Seq[ChangeLog]): Option[BacklogCustomField] = {
-//    val issueInitialValue = new IssueInitialValue(ChangeLogItem.FieldType.CUSTOM, field.id)
-//    val optDetails        = issueInitialValue.findJournalDetails(changeLogs)
-//    val initialValues     = optDetails match {
-//      case Some(details) => details.flatMap(detail => Convert.toBacklog((issueField.id, detail.from)))
-//      case _             => issueField.value.asInstanceOf[ArrayFieldValue].values
-//    }
-//    Convert.toBacklog(issueField) match {
-//      case Some(backlogCustomField) => Some(backlogCustomField.copy(values = initialValues))
-//      case _                        => None
-//    }
-//  }
-//
-//  private def singleCustomField(issueField: IssueField, field: Field, changeLogs: Seq[ChangeLog]): Option[BacklogCustomField] = {
-//    val issueInitialValue = new IssueInitialValue(ChangeLogItem.FieldType.CUSTOM, field.id)
-//    val initialValue: Option[String] =
-//      issueInitialValue.findJournalDetail(changeLogs) match {
-//        case Some(detail) => Convert.toBacklog((issueField.id, detail.from))
-//        case _            => Convert.toBacklog((issueField.id, Option(issueField.value.value)))
-//      }
-//    Convert.toBacklog(issueField) match {
-//      case Some(backlogCustomField) => Some(backlogCustomField.copy(optValue = initialValue))
-//      case _                        => None
-//    }
-//  }
+  private def actualHours(issue: Issue): Option[Float] = {
+    val initialValues = issue.timeTrack.flatMap(t => t.timeSpentSeconds) match {
+      case Some(second) => Seq(second.toString)
+      case _            => Seq.empty[String]
+    }
+    val initializedTimeSpentSeconds = ChangeLogsPlayer.reversePlay(TimeSpentChangeLogItemField, initialValues, issue.changeLogs).headOption
+    initializedTimeSpentSeconds.map(sec => secondsToHours(sec.toInt))
+  }
 
+  private def customField(fields: Seq[Field], issueField: IssueField, changeLogs: Seq[ChangeLog]): Option[BacklogCustomField] = {
+    val fieldDefinition = fields.find(_.id == issueField.id).get // TODO Fix get
+    val currentValues = issueField.value match {
+      case ArrayFieldValue(values) => values.map(_.value)
+      case value                   => fieldDefinition.schema match {
+        case Some(v) => v.schemaType match {
+          case DatetimeSchema => Seq(dateTimeStringToDateString(value.value))
+          case _              => Seq(value.value)
+        }
+        case None => Seq(value.value)
+      }
+    }
+
+    val initialValues = ChangeLogsPlayer.reversePlay(DefaultField(fieldDefinition.name), currentValues, changeLogs)
+    Convert.toBacklog(issueField).map { converted =>
+      issueField.value match {
+        case ArrayFieldValue(_) => converted.copy(values = initialValues)
+        case _                  => converted.copy(optValue = initialValues.headOption)
+      }
+    }
+  }
 }
 
