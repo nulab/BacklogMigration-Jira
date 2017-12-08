@@ -1,6 +1,7 @@
 package com.nulabinc.backlog.j2b.cli
 
 import com.google.inject.{Guice, Injector}
+import com.nulabinc.backlog.j2b.NextCommand
 import com.nulabinc.backlog.j2b.conf.{AppConfigValidator, AppConfiguration, ConfigValidateFailure}
 import com.nulabinc.backlog.j2b.exporter.Exporter
 import com.nulabinc.backlog.j2b.jira.conf.{JiraApiConfiguration, JiraBacklogPaths}
@@ -17,7 +18,6 @@ import com.nulabinc.backlog.migration.common.service.{ProjectService, SpaceServi
 import com.nulabinc.backlog.migration.common.utils.{ConsoleOut, Logging}
 import com.nulabinc.backlog.migration.importer.core.Boot
 import com.nulabinc.jira.client.JiraRestClient
-import com.nulabinc.jira.client.domain.User
 import com.osinka.i18n.Messages
 
 import scala.util.{Failure, Success, Try}
@@ -32,7 +32,7 @@ object J2BCli extends BacklogConfiguration
     with InteractiveConfirm
     with Tracker {
 
-  def export(config: AppConfiguration): Unit = {
+  def export(config: AppConfiguration, nextCommand: NextCommand): Unit = {
 
     def createJiraExportingInjector(config: AppConfiguration): Option[Injector] =
       Try(Guice.createInjector(new ExportModule(config))) match {
@@ -80,7 +80,7 @@ object J2BCli extends BacklogConfiguration
         }
       }
 
-      finishExportMessage()
+      finishExportMessage(nextCommand)
     }
 
   }
