@@ -8,6 +8,12 @@ Migrate your projects from JIRA to [Backlog].
 * Backlog
     * [https://backlog.com](https://backlog.com/)
 
+
+## DEMO
+
+![Demo](https://www.backlog.jp/backlog-migration/backlog-jira-migration.gif)
+
+
 ## Requirements
 * **Java 8**
 * The Backlog Space's **administrator** roles.
