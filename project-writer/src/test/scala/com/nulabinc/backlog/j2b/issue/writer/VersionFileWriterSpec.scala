@@ -1,5 +1,6 @@
 package com.nulabinc.backlog.j2b.issue.writer
 
+import com.nulabinc.backlog.j2b.jira.domain.export.Milestone
 import com.nulabinc.backlog.migration.common.convert.BacklogUnmarshaller
 import com.nulabinc.jira.client.domain.Version
 import org.joda.time.DateTime
@@ -16,7 +17,7 @@ class VersionFileWriterSpec extends Specification with FileWriterTestHelper {
     )
 
     // Output to file
-    new VersionFileWriter().write(versions)
+    new VersionFileWriter().write(versions, Seq.empty[Milestone])
 
     val actual = BacklogUnmarshaller.versions(paths)
 
