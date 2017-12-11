@@ -54,6 +54,7 @@ cli.help.projectKey=移行したいJIRAプロジェクトのプロジェクト�
 cli.confirm_recreate={0}マッピングファイルが既にあります。上書きしますか？ (y/n [n]):
 cli.backlog_project_already_exist=プロジェクト[{0}]はBacklog内に既に存在します。\nプロジェクト[{0}]に課題とWikiをインポートしますか？（追加インポートの仕様については、詳細READMEを参照ください) (y/n [n]):
 cli.error.unknown=予期しないエラーが発生しました。
+cli.error.args=不正な引数です。以下をご確認下さい。
 cli.cancel=インポートを中止しました。
 cli.invalid_setup=エクスポートが不十分です。サブコマンド[export]を使用し再度エクスポートしてください。[export]コマンドについて知るには、[--help]オプションをつけて実行してください。
 cli.warn.not.latest=最新バージョン[{0}]がリリースされています。現在のバージョンは[{1}]です。
