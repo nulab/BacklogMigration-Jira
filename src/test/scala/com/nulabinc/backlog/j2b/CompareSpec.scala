@@ -270,7 +270,7 @@ class CompareSpec extends FlatSpec
             jiraCommentService.issueComments(jiraIssue).filterNot { jiraComment =>
               attachmentCommentPattern.findFirstIn(jiraComment.body).isDefined
             }.map { jiraComment =>
-              val backlogComment = backlogAllComments.find(_.getContent == jiraComment.body)
+              val backlogComment = backlogAllComments.find(_.getContent == jiraComment.body.trim)
               backlogComment should not be empty
               assertUser(jiraComment.author, backlogComment.get.getCreatedUser)
               timestampToString(jiraComment.createdAt.toDate) should be(timestampToString(backlogComment.get.getCreated))
