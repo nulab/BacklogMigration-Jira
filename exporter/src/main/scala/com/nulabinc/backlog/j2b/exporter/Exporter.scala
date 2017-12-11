@@ -155,7 +155,9 @@ class Exporter @Inject()(projectKey: JiraProjectKey,
           // export issue comments
           val categoryPlayedChangeLogs  = ChangeLogsPlayer.play(ComponentChangeLogItemField, initializedBacklogIssue.categoryNames, issueWithFilteredChangeLogs.changeLogs)
           val versionPlayedChangeLogs   = ChangeLogsPlayer.play(FixVersion, initializedBacklogIssue.versionNames, categoryPlayedChangeLogs)
-          val changeLogs                = ChangeLogStatusConverter.convert(versionPlayedChangeLogs, statuses)
+          val statusPlayedChangeLogs    = ChangeLogStatusConverter.convert(versionPlayedChangeLogs, statuses)
+          val changeLogs                = ChangeLogIssueLinkConverter.convert(statusPlayedChangeLogs, initializedBacklogIssue)
+
           commentWriter.write(initializedBacklogIssue, comments, changeLogs, issue.attachments)
 
           console(i + index.toInt, total.toInt)
