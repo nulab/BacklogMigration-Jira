@@ -12,6 +12,8 @@ import com.osinka.i18n.Messages
 import org.fusesource.jansi.AnsiConsole
 import org.rogach.scallop.{ScallopConf, Subcommand}
 
+import scala.util.{Failure, Success, Try}
+
 class CommandLineInterface(arguments: Seq[String]) extends ScallopConf(arguments) with BacklogConfiguration with Logging {
 
   banner(
@@ -105,15 +107,22 @@ object J2B extends BacklogConfiguration with Logging {
     // Run
     try {
       val cli         = new CommandLineInterface(args)
-      val config      = getConfiguration(cli)
       val nextCommand = new NextCommand(args)
 
-      cli.subcommand match {
-        case Some(cli.importCommand)  => J2BCli.`import`(config)
-        case Some(cli.exportCommand)  => J2BCli.export(config, nextCommand)
-        case _                        => J2BCli.help()
+      getConfiguration(cli) match {
+        case Success(config) =>
+          cli.subcommand match {
+            case Some(cli.importCommand) => J2BCli.`import`(config)
+            case Some(cli.exportCommand) => J2BCli.export(config, nextCommand)
+            case _                       => J2BCli.help()
+          }
+          exit(0)
+        case Failure(failure) =>
+          ConsoleOut.error(s"${Messages("cli.error.args")}")
+          logger.error(failure.getMessage)
+          J2BCli.help()
+          exit(1)
       }
-      exit(0)
     } catch {
       case e: Throwable =>
         logger.error(e.getMessage, e)
@@ -122,7 +131,7 @@ object J2B extends BacklogConfiguration with Logging {
     }
   }
 
-  private[this] def getConfiguration(cli: CommandLineInterface) = {
+  private[this] def getConfiguration(cli: CommandLineInterface) = Try {
     val keys: Array[String] = cli.importCommand.projectKey().split(":")
     val jira: String        = keys(0)
     val backlog: String     = if (keys.length == 2) keys(1) else keys(0).toUpperCase.replaceAll("-", "_")
