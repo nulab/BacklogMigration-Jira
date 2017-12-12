@@ -1,6 +1,6 @@
 import sbt.Keys._
 
-lazy val projectVersion = "0.1.0b2"
+lazy val projectVersion = "0.1.0b3-SNAPSHOT"
 
 lazy val commonSettings = Seq(
   organization := "com.nulabinc",
