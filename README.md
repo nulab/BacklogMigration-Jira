@@ -8,6 +8,12 @@ Migrate your projects from JIRA to [Backlog].
 * Backlog
     * [https://backlog.com](https://backlog.com/)
 
+
+## DEMO
+
+![Demo](https://www.backlog.jp/backlog-migration/backlog-jira-migration.gif)
+
+
 ## Requirements
 * **Java 8**
 * The Backlog Space's **administrator** roles.
@@ -19,7 +25,7 @@ Download
 
 Please download the jar file from this link, and run from the command line as follows.
 
-https://github.com/nulab/BacklogMigration-Jira/releases/download/0.1.0b1/backlog-migration-jira-0.1.0b1.jar
+https://github.com/nulab/BacklogMigration-Jira/releases/download/0.1.0b2/backlog-migration-jira-0.1.0b2.jar
 
     java -jar backlog-migration-jira-[latest version].jar
 
@@ -227,7 +233,7 @@ https://github.com/nulab/BacklogMigration-Jira/releases
 
 こちらのリンクからjarファイルをダウンロードし、以下のようにコマンドラインから実行します。
 
-https://github.com/nulab/BacklogMigration-Jira/releases/download/0.1.0b1/backlog-migration-jira-0.1.0b1.jar
+https://github.com/nulab/BacklogMigration-Jira/releases/download/0.1.0b2/backlog-migration-jira-0.1.0b2.jar
 
     java -jar backlog-migration-jira-[最新バージョン].jar
 

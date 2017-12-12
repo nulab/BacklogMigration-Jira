@@ -12,17 +12,23 @@ trait Tracker extends BacklogConfiguration {
   def tracking(config: AppConfiguration, spaceService: SpaceService, userService: UserService) = {
     Try {
       val environment = spaceService.environment()
-      val data = TrackingData(product = mixpanelProduct,
-        envname = environment.name,
-        spaceId = environment.spaceId,
-        userId = userService.myself().id,
-        srcUrl = config.jiraConfig.url,
-        dstUrl = config.backlogConfig.url,
-        srcProjectKey = config.jiraConfig.projectKey,
-        dstProjectKey = config.backlogConfig.projectKey,
+      val data = TrackingData(
+        product         = mixpanelProduct,
+        envname         = environment.name,
+        spaceId         = environment.spaceId,
+        userId          = userService.myself().id,
+        srcUrl          = config.jiraConfig.url,
+        dstUrl          = config.backlogConfig.url,
+        srcProjectKey   = config.jiraConfig.projectKey,
+        dstProjectKey   = config.backlogConfig.projectKey,
         srcSpaceCreated = "",
         dstSpaceCreated = spaceService.space().created)
-      MixpanelUtil.track(token = mixpanelToken, data = data)
+      val backlogToolEnvNames = Seq(
+        "backlogtool",
+        "us-6"
+      )
+      val token = if (backlogToolEnvNames.contains(environment.name)) mixpanelBacklogtoolToken else mixpanelToken
+      MixpanelUtil.track(token = token, data = data)
     }
   }
 }

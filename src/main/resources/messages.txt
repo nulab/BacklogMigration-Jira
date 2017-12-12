@@ -53,6 +53,7 @@ cli.help.projectKey=Your JIRA project identifier.(required) Example:--projectKey
 cli.confirm_recreate=The mapping file {0} already exists. Do you want to overwrite it? (y/n [n]):
 cli.backlog_project_already_exist=Project "{0}" already exists. Do you want to import issues and wikis to project "{0}"? (Check the README file for details.)  (y/n [n]):
 cli.error.unknown=Unknown error
+cli.error.args=Invalid arguments. Please check the following.
 cli.cancel=Import has been canceled.
 cli.invalid_setup=Setup is incomplete. Please complete the set up with the sub-command "export". Add "--help" option to know about the "export" command.
 cli.warn.not.latest=The latest version [{0}] has been released. The current version is [{1}].
@@ -168,6 +169,8 @@ import.error.failed.comment=Could not register comment on issue [{0}]. : {1}
 export.start=Start export.
 export.finish=Export completed. Next step \n\n1. Edit mapping files.\n2. Execute the following command to import (replace with your JIRA password).\n\n--------------------------------------\n\n{0}\n\n--------------------------------------
 export.attachment.empty=Attachment: {0} -> {1}
+export.remaining_time=[Remaining time:{0}]
+export.date.execute={2} {1} about {0}.
 
 # -----------------------------------------------------------------------------
 # Convert

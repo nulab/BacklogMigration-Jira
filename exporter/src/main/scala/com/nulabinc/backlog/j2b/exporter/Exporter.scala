@@ -2,6 +2,7 @@ package com.nulabinc.backlog.j2b.exporter
 
 import javax.inject.Inject
 
+import com.nulabinc.backlog.j2b.exporter.console.RemainingTimeCalculator
 import com.nulabinc.backlog.j2b.jira.conf.JiraBacklogPaths
 import com.nulabinc.backlog.j2b.jira.domain.mapping.MappingCollectDatabase
 import com.nulabinc.backlog.j2b.jira.domain.{CollectData, JiraProjectKey}
@@ -65,7 +66,8 @@ class Exporter @Inject()(projectKey: JiraProjectKey,
     val statuses  = statusService.all()
     val total     = issueService.count()
     val fields    = fieldService.all()
-    fetchIssue(statuses, categories, versions, fields, 1, total, 0, 100)
+    val calculator = new RemainingTimeCalculator(total)
+    fetchIssue(calculator, statuses, categories, versions, fields, 1, total, 0, 100)
 
     // version & milestone
     versionsWriter.write(versions, mappingCollectDatabase.milestones)
@@ -86,7 +88,8 @@ class Exporter @Inject()(projectKey: JiraProjectKey,
     collectedData
   }
 
-  private def fetchIssue(statuses: Seq[Status],
+  private def fetchIssue(calculator: RemainingTimeCalculator,
+                         statuses: Seq[Status],
                          components: Seq[Component],
                          versions: Seq[Version],
                          fields: Seq[Field],
@@ -155,10 +158,14 @@ class Exporter @Inject()(projectKey: JiraProjectKey,
           // export issue comments
           val categoryPlayedChangeLogs  = ChangeLogsPlayer.play(ComponentChangeLogItemField, initializedBacklogIssue.categoryNames, issueWithFilteredChangeLogs.changeLogs)
           val versionPlayedChangeLogs   = ChangeLogsPlayer.play(FixVersion, initializedBacklogIssue.versionNames, categoryPlayedChangeLogs)
-          val changeLogs                = ChangeLogStatusConverter.convert(versionPlayedChangeLogs, statuses)
+          val statusPlayedChangeLogs    = ChangeLogStatusConverter.convert(versionPlayedChangeLogs, statuses)
+          val changeLogs                = ChangeLogIssueLinkConverter.convert(statusPlayedChangeLogs, initializedBacklogIssue)
+
           commentWriter.write(initializedBacklogIssue, comments, changeLogs, issue.attachments)
 
-          console(i + index.toInt, total.toInt)
+//          console(i + index.toInt, total.toInt)
+
+          calculator.progress(i + index.toInt, total.toInt, issue.summary)
 
           val changeLogUsers     = changeLogs.map(u => Some(u.author.name))
           val changeLogItemUsers = changeLogs.flatMap { changeLog =>
@@ -194,7 +201,7 @@ class Exporter @Inject()(projectKey: JiraProjectKey,
           }
         }
       }
-      fetchIssue(statuses, components, versions, fields, index + issues.length , total, startAt + maxResults, maxResults)
+      fetchIssue(calculator, statuses, components, versions, fields, index + issues.length , total, startAt + maxResults, maxResults)
     }
   }
 

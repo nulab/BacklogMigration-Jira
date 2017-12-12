@@ -9,6 +9,7 @@ import com.nulabinc.backlog.migration.common.convert.writes.UserWrites
 import com.nulabinc.backlog4j.{CustomFieldSetting, IssueComment, ResponseList}
 import com.nulabinc.backlog4j.api.option.{GetIssuesParams, QueryParams}
 import com.nulabinc.backlog4j.internal.json.customFields._
+import com.nulabinc.jira.client.domain.changeLog.LinkChangeLogItemField
 import com.nulabinc.jira.client.domain.field._
 import com.nulabinc.jira.client.domain.issue._
 import org.scalatest.{DiagrammedAssertions, FlatSpec, Matchers}
@@ -131,9 +132,6 @@ class CompareSpec extends FlatSpec
           }
 
           maybeBacklogIssue.map { backlogIssue =>
-
-            // description
-            jiraIssue.description.getOrElse("") should equal(backlogIssue.getDescription)
 
             // issue type
             jiraIssue.issueType.name should equal(backlogIssue.getIssueType.getName)
@@ -270,7 +268,7 @@ class CompareSpec extends FlatSpec
             jiraCommentService.issueComments(jiraIssue).filterNot { jiraComment =>
               attachmentCommentPattern.findFirstIn(jiraComment.body).isDefined
             }.map { jiraComment =>
-              val backlogComment = backlogAllComments.find(_.getContent == jiraComment.body)
+              val backlogComment = backlogAllComments.find(_.getContent == jiraComment.body.trim)
               backlogComment should not be empty
               assertUser(jiraComment.author, backlogComment.get.getCreatedUser)
               timestampToString(jiraComment.createdAt.toDate) should be(timestampToString(backlogComment.get.getCreated))
@@ -280,13 +278,20 @@ class CompareSpec extends FlatSpec
             // Test
             //   - creator is same
             //   - created at is same
-            jiraIssueService.changeLogs(jiraIssue).map { jiraChangeLog =>
+            val jiraChangeLogs = jiraIssueService.changeLogs(jiraIssue)
+            jiraChangeLogs.map { jiraChangeLog =>
               val backlogChangelog = backlogAllComments.find { backlogComment =>
                 timestampToString(backlogComment.getCreated) == timestampToString(jiraChangeLog.createdAt.toDate)
               }
               backlogChangelog should not be empty
               assertUser(jiraChangeLog.author, backlogChangelog.get.getCreatedUser)
             }
+
+            // description
+            val links = jiraChangeLogs.flatMap(_.items.filter(_.field == LinkChangeLogItemField).flatMap(_.toDisplayString))
+            val linksReplace = "\n\n" + links.mkString("\n")
+            val backlogDescription = backlogIssue.getDescription.replace(linksReplace, "")
+            jiraIssue.description.getOrElse("") should equal(backlogDescription)
 
           }
 
