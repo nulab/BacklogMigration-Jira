@@ -169,6 +169,8 @@ import.error.failed.comment=Could not register comment on issue [{0}]. : {1}
 export.start=Start export.
 export.finish=Export completed. Next step \n\n1. Edit mapping files.\n2. Execute the following command to import (replace with your JIRA password).\n\n--------------------------------------\n\n{0}\n\n--------------------------------------
 export.attachment.empty=Attachment: {0} -> {1}
+export.remaining_time=[Remaining time:{0}]
+export.date.execute={2} {1} about {0}.
 
 # -----------------------------------------------------------------------------
 # Convert
