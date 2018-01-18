@@ -17,7 +17,6 @@ class CommentWrites @Inject()(implicit val userWrites: UserWrites)
       optContent = StringUtil.notEmpty(comment.body),
       changeLogs =  Seq.empty[BacklogChangeLog],
       notifications = Seq.empty[BacklogNotification],
-      isCreateIssue = false,
       optCreatedUser = Some(Convert.toBacklog(comment.author)),
       optCreated = Some(DateUtil.isoFormat(comment.createdAt.toDate))
     )
