@@ -132,12 +132,11 @@ class Exporter @Inject()(projectKey: JiraProjectKey,
           issueWithFilteredChangeLogs.issueFields.foreach(v => saveIssueFieldValue(v.id, v.value))
 
           // collect custom fields
-          val sprintDefinition = fields.find(_.name == "Sprint").get
           issueWithFilteredChangeLogs.changeLogs.foreach { changeLog =>
             changeLog.items.foreach { changeLogItem =>
-              changeLogItem.fieldId match {
-                case Some(CustomFieldFieldId(id)) if sprintDefinition.id == id => ()
-                case Some(CustomFieldFieldId(id)) =>
+              (changeLogItem.fieldId, fields.find(_.name == "Sprint")) match {
+                case (Some(CustomFieldFieldId(id)), Some(sprintDefinition)) if sprintDefinition.id == id => ()
+                case (Some(CustomFieldFieldId(id)), _) =>
                   mappingCollectDatabase.addCustomField(id, changeLogItem.fromDisplayString)
                   mappingCollectDatabase.addCustomField(id, changeLogItem.toDisplayString)
                 case _ => ()
