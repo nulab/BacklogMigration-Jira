@@ -28,6 +28,7 @@ object FieldSchemaType {
       case "progress"           => ProjectSchema
       case "comments-page"      => CommentsPageSchema
       case "votes"              => VotesSchema
+      case "version"            => VersionSchema
       case s => deserializationError("Cannot deserialize FieldSchemaType: invalid input. Raw input: " + s)
     }
 }
@@ -53,3 +54,4 @@ case object SecurityLevelSchema extends FieldSchemaType
 case object ProgressSchema extends FieldSchemaType
 case object CommentsPageSchema extends FieldSchemaType
 case object VotesSchema extends FieldSchemaType
+case object VersionSchema extends FieldSchemaType
