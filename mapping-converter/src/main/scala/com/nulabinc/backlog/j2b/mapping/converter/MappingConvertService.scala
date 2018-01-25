@@ -65,12 +65,11 @@ class MappingConvertService @Inject()(implicit val issueWrites: IssueWrites,
             case _ => changeLog
           }
         }
-        IOUtil.output(
-          backlogPaths.issueJson(path),
-          Convert.toBacklog(
-            comment.copy(changeLogs = convertedChangeLogs)
-          ).toJson.prettyPrint
+        val convertedComment = comment.copy(
+          changeLogs = convertedChangeLogs,
+          optCreatedUser = comment.optCreatedUser.map(userConverter.convert(database, userMaps, _))
         )
+        IOUtil.output(backlogPaths.issueJson(path), Convert.toBacklog(convertedComment).toJson.prettyPrint)
       }
       case _ => throw new RuntimeException(s"Issue file not found.:${backlogPaths.issueJson(path).path}")
     }
