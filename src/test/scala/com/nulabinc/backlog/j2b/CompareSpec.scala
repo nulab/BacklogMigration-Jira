@@ -118,7 +118,7 @@ class CompareSpec extends FlatSpec
 
     def fetchIssues(startAt: Long, maxResults: Long): Unit = {
       val issues = jiraIssueService.issues(startAt, maxResults)
-      val sprintCustomField = jiraCustomFieldDefinitions.find(_.name == "Sprint").get
+      val maybeSprintCustomField = jiraCustomFieldDefinitions.find(_.name == "Sprint")
 
       issues.foreach { jiraIssue =>
         "Issue" should s"match: ${jiraIssue.id} - ${jiraIssue.summary}" in {
@@ -147,12 +147,17 @@ class CompareSpec extends FlatSpec
             }
 
             // milestone
-            jiraIssue.issueFields.filter(_.id == sprintCustomField.id).map { sprint =>
-              val backlogMilestones = backlogIssue.getMilestone.asScala
-              sprint.value.asInstanceOf[ArrayFieldValue].values.map { jiraMilestone =>
-                backlogMilestones.find(m => jiraMilestone.value.contains(m.getName)) should not be empty
+            for {
+              sprintCustomField <- maybeSprintCustomField
+            } yield {
+              jiraIssue.issueFields.filter(_.id == sprintCustomField.id).map { sprint =>
+                val backlogMilestones = backlogIssue.getMilestone.asScala
+                sprint.value.asInstanceOf[ArrayFieldValue].values.map { jiraMilestone =>
+                  backlogMilestones.find(m => jiraMilestone.value.contains(m.getName)) should not be empty
+                }
               }
             }
+
 
             // parent issue
             if (jiraIssue.parent.isDefined) backlogIssue.getParentIssueId should not be 0
@@ -186,7 +191,7 @@ class CompareSpec extends FlatSpec
             jiraHours should equal(backlogHours)
 
             // created user
-            convertUser(jiraIssue.creator.key) should equal(backlogIssue.getCreatedUser.getUserId)
+            convertUser(jiraIssue.creator.identifyKey) should equal(backlogIssue.getCreatedUser.getUserId)
 
             // created
             timestampToString(jiraIssue.createdAt.toDate) should equal(timestampToString(backlogIssue.getCreated))
@@ -196,7 +201,7 @@ class CompareSpec extends FlatSpec
                         |JIRA:   ${timestampToString(jiraIssue.updatedAt.toDate)}
                         |backlog:${timestampToString(backlogUpdated(backlogIssue))}
             """.stripMargin) {
-              timestampToString(jiraIssue.updatedAt.toDate) should be(timestampToString(backlogUpdated(backlogIssue)))
+              timestampToString(jiraIssue.updatedAt.toDate) should be(timestampToString(backlogIssue.getUpdated))
             }
 
             // attachment file
@@ -208,10 +213,10 @@ class CompareSpec extends FlatSpec
 
             // custom field
             val backlogCustomFields = backlogIssue.getCustomFields.asScala
-            val rankCustomField = jiraCustomFieldDefinitions.find(_.name == "Rank").get
+            val maybeRankCustomField = jiraCustomFieldDefinitions.find(_.name == "Rank")
             jiraIssue.issueFields
-              .filterNot(_.id == sprintCustomField.id)
-              .filterNot(_.id == rankCustomField.id)
+              .filterNot { field => maybeSprintCustomField.map(_.id).contains(field.id) }
+              .filterNot { field => maybeRankCustomField.map(_.id).contains(field.id) }
               .map { jiraCustomField =>
               val jiraDefinition = jiraCustomFieldDefinitions.find(_.id == jiraCustomField.id).get
               val backlogDefinition = backlogCustomFieldDefinitions.find(_.getName == jiraDefinition.name).get
@@ -226,7 +231,7 @@ class CompareSpec extends FlatSpec
                 case BacklogConstantValue.CustomField.Text =>
                   val backlogValue = backlogCustomField.asInstanceOf[TextCustomField]
                   jiraCustomField.value match {
-                    case UserFieldValue(v)   => v.key should equal(backlogValue.getValue)
+                    case UserFieldValue(v)   => v.identifyKey should equal(backlogValue.getValue)
                     case StringFieldValue(v) => v should equal(backlogValue.getValue)
                   }
                 case BacklogConstantValue.CustomField.TextArea =>

@@ -11,5 +11,5 @@ case class Comment(
 
 case class CommentResult(startAt: Long, total: Long, comments: Seq[Comment]) {
 
-  def hasPage: Boolean = startAt < total
+  def hasPage(currentComments: Long): Boolean = currentComments < total
 }

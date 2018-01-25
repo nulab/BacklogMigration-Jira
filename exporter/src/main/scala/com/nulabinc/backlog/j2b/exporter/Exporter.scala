@@ -126,7 +126,7 @@ class Exporter @Inject()(projectKey: JiraProjectKey,
             case ArrayFieldValue(values) => values.map(v => mappingCollectDatabase.addCustomField(id, Some(v.value)))
             case OptionFieldValue(value) => saveIssueFieldValue(id, value.value)
             case AnyFieldValue(value)    => mappingCollectDatabase.addCustomField(id, Some(value))
-            case UserFieldValue(user)    => mappingCollectDatabase.addCustomField(id, Some(user.key))
+            case UserFieldValue(user)    => mappingCollectDatabase.addCustomField(id, Some(user.identifyKey))
           }
 
           issueWithFilteredChangeLogs.issueFields.foreach(v => saveIssueFieldValue(v.id, v.value))
@@ -176,18 +176,27 @@ class Exporter @Inject()(projectKey: JiraProjectKey,
             }
           }
 
-          Set(
-            Some(issue.creator.key),
-            issue.assignee.map(_.key)
-          ).foreach { maybeKey =>
-            if (!mappingCollectDatabase.userExistsFromAllUsers(maybeKey)) {
-              userService.optUserOfKey(maybeKey) match {
-                case Some(u) if maybeKey.contains(u.name)  => mappingCollectDatabase.add(u)
-                case Some(_)                               => mappingCollectDatabase.add(maybeKey)
-                case None                                  => mappingCollectDatabase.addIgnoreUser(maybeKey)
+          def assignToDB(user: User): Unit = {
+            if (!mappingCollectDatabase.userExistsFromAllUsers(Some(user.identifyKey))) {
+              (user.key, user.name) match {
+                case (Some(key), _) =>
+                  userService.optUserOfKey(Some(key)) match {
+                    case Some(u) if Some(key).contains(u.name) => mappingCollectDatabase.add(u)
+                    case Some(_)                               => mappingCollectDatabase.add(Some(key))
+                    case None                                  => mappingCollectDatabase.addIgnoreUser(Some(key))
+                  }
+                case (None, name) =>
+                  userService.optUserOfName(Some(name)) match {
+                    case Some(u) if Some(name).contains(u.name) => mappingCollectDatabase.add(u)
+                    case Some(_)                               => mappingCollectDatabase.add(Some(name))
+                    case None                                  => mappingCollectDatabase.addIgnoreUser(Some(name))
+                  }
               }
             }
           }
+
+          assignToDB(issue.creator)
+          issue.assignee.foreach(assignToDB)
 
           (changeLogUsers ++ changeLogItemUsers).foreach { maybeUserName =>
             if (!mappingCollectDatabase.userExistsFromAllUsers(maybeUserName)) {
