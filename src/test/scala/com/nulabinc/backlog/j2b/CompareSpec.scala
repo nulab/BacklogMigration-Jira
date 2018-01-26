@@ -76,7 +76,7 @@ class CompareSpec extends FlatSpec
           backlogVersion <- optBacklogVersion
         } yield {
           assert(jiraVersion.name == backlogVersion.getName)
-          assert(jiraVersion.description.get == backlogVersion.getDescription)
+          assert(jiraVersion.description.orNull == backlogVersion.getDescription)
         }
       }
     }
