@@ -7,7 +7,6 @@ import com.nulabinc.backlog.migration.common.conf.BacklogConstantValue
 import com.nulabinc.backlog.migration.common.convert.Writes
 import com.nulabinc.backlog.migration.common.domain._
 import com.nulabinc.backlog.migration.common.utils.FileUtil
-import com.nulabinc.backlog4j.CustomField.FieldType
 import com.nulabinc.jira.client.domain.field._
 import com.nulabinc.jira.client.domain.changeLog._
 
@@ -26,10 +25,8 @@ class ChangelogItemWrites @Inject()(fields: Seq[Field])
         case Some(TimeSpentFieldId)             => changeLogItem.from.map( sec => secondsToHours(sec.toInt).toString)
         case Some(CustomFieldFieldId(id))       =>
           fields.find(_.id == id) match {
-            case Some(field) if field.schema.isDefined =>
-              if(field.schema.get.schemaType == UserSchema) changeLogItem.from
-              else changeLogItem.fromDisplayString
-            case None => changeLogItem.fromDisplayString
+            case Some(field) if field.schema == FieldType.User => changeLogItem.from
+            case _ => changeLogItem.fromDisplayString
           }
         case None if changeLogItem.field == ParentChangeLogItemField => changeLogItem.from
         case _                                  => changeLogItem.fromDisplayString
@@ -42,13 +39,11 @@ class ChangelogItemWrites @Inject()(fields: Seq[Field])
         case Some(TimeSpentFieldId)             => changeLogItem.to.map( sec => secondsToHours(sec.toInt).toString)
         case Some(CustomFieldFieldId(id))       =>
           fields.find(_.id == id) match {
-            case Some(field) if field.schema.isDefined =>
-              if(field.schema.get.schemaType == UserSchema) changeLogItem.to
-              else changeLogItem.toDisplayString
-            case None => changeLogItem.toDisplayString
+            case Some(field) if field.schema == FieldType.User => changeLogItem.to
+            case _ => changeLogItem.toDisplayString
           }
         case None if changeLogItem.field == ParentChangeLogItemField => changeLogItem.to
-        case _                                  => changeLogItem.toDisplayString
+        case _ => changeLogItem.toDisplayString
       },
       optAttachmentInfo   = attachmentInfo(changeLogItem),
       optAttributeInfo    = attributeInfo(changeLogItem),

@@ -13,17 +13,17 @@ object FieldMappingJsonProtocol extends DefaultJsonProtocol {
 
       val schemaType = jsObject.getFields("type") match {
         case Seq(JsString(name)) => Some(name)
-        case _                       => None
+        case _                   => None
       }
 
       val schemaSystem = jsObject.getFields("system") match {
         case Seq(JsString(name)) => Some(name)
-        case _                       => None
+        case _                   => None
       }
 
       val schemaItems = jsObject.getFields("items") match {
         case Seq(JsString(name)) => Some(name)
-        case _                       => None
+        case _                   => None
       }
 
 //      val customId = jsObject.getFields("customId") match {
@@ -31,12 +31,12 @@ object FieldMappingJsonProtocol extends DefaultJsonProtocol {
 //        case _ => None
 //      }
 //
-//      val customType = jsObject.getFields("custom") match {
-//        case Seq(JsString(id)) => FieldCustomType.convert(id)
-//        case _ => None
-//      }
+      val schemaCustom = jsObject.getFields("custom") match {
+        case Seq(JsString(name)) => Some(name)
+        case _                   => None
+      }
 
-      FieldType(schemaType = schemaType, schemaSystem = schemaSystem, schemaItems = schemaItems)
+      FieldType(schemaType = schemaType, schemaSystem = schemaSystem, schemaItems = schemaItems, schemaCustom = schemaCustom)
     }
 
 
