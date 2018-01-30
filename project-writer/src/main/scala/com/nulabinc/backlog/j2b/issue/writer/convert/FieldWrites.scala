@@ -1,30 +1,30 @@
 package com.nulabinc.backlog.j2b.issue.writer.convert
 
-import com.nulabinc.backlog.j2b.jira.domain.FieldDefinition
+import com.nulabinc.backlog.j2b.jira.domain.FieldDefinitions
 import com.nulabinc.backlog.j2b.jira.domain.mapping.CustomFieldRow
 import com.nulabinc.backlog.migration.common.conf.BacklogConstantValue
 import com.nulabinc.backlog.migration.common.convert.Writes
 import com.nulabinc.backlog.migration.common.domain._
 import com.nulabinc.backlog.migration.common.utils.Logging
-import com.nulabinc.backlog4j.CustomField.FieldType
 import com.nulabinc.jira.client.domain.field._
 
-class FieldWrites extends Writes[FieldDefinition, Seq[BacklogCustomFieldSetting]] with Logging {
+import com.nulabinc.backlog4j.CustomField.{FieldType => BacklogFieldType}
 
-  override def writes(fieldDefinition: FieldDefinition) = {
+class FieldWrites extends Writes[FieldDefinitions, Seq[BacklogCustomFieldSetting]] with Logging {
+
+  override def writes(fieldDefinition: FieldDefinitions) = {
     fieldDefinition.fields
-      .filter(_.schema.isDefined)
       .filter(_.id.startsWith("customfield_"))
       .map { field =>
         BacklogCustomFieldSetting(
           optId                 = Some(field.id.replace("customfield_", "").toLong),
           name                  = field.name,
           description           = "",
-          typeId                = typeId(field.schema.get),
+          typeId                = typeId(field.schema),
           required              = false,
           applicableIssueTypes  = Seq.empty[String],
           delete                = false,
-          property              = property(fieldDefinition.definitions, field.schema.get, field.id)
+          property              = property(fieldDefinition.definitions, field.schema, field.id)
         )
       }
   }
