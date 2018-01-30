@@ -2,12 +2,12 @@ package com.nulabinc.backlog.j2b.issue.writer.convert
 
 import javax.inject.Inject
 
+import com.nulabinc.backlog.j2b.jira.domain.export.Field
 import com.nulabinc.backlog.j2b.jira.utils.DatetimeToDateFormatter
 import com.nulabinc.backlog.migration.common.convert.Writes
 import com.nulabinc.backlog.migration.common.domain.BacklogCustomField
 import com.nulabinc.backlog.migration.common.utils.Logging
 import com.nulabinc.backlog4j.CustomField.FieldType
-import com.nulabinc.jira.client.domain.field._
 import com.nulabinc.jira.client.domain.issue._
 
 class IssueFieldWrites @Inject()(customFieldDefinitions: Seq[Field])

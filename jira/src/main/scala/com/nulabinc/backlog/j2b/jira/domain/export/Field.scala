@@ -1,5 +1,7 @@
 package com.nulabinc.backlog.j2b.jira.domain.export
 
+import com.nulabinc.backlog4j.CustomField.{FieldType => BacklogFieldType}
+
 case class Field(
   id: String,
   name: String,
@@ -8,40 +10,41 @@ case class Field(
 
 sealed abstract class FieldType(
   val value: String,
+  val backlogFieldType: BacklogFieldType,
   fieldValueType: FieldValueType = FieldValueType.Single
 )
 
 object FieldType {
 
   // Primitive types
-  case object String extends FieldType("string")
-  case object Number extends FieldType("number")
-  case object DateTime extends FieldType("datetime")
-  case object Date extends FieldType("date")
+  case object String extends FieldType("string", BacklogFieldType.Text)
+  case object Number extends FieldType("number", BacklogFieldType.Numeric)
+  case object DateTime extends FieldType("datetime", BacklogFieldType.Date)
+  case object Date extends FieldType("date", BacklogFieldType.Date)
 
   // JIRA specific types
-  case object IssueType extends FieldType("issuetype")
-  case object Project extends FieldType("project")
-  case object FixVersions extends FieldType("fixVersions", FieldValueType.Multi)
-  case object Resolution extends FieldType("resolution")
-  case object Watches extends FieldType("watches")
-  case object Priority extends FieldType("priority")
-  case object Labels extends FieldType("labels", FieldValueType.Multi)
-  case object Version extends FieldType("version")
-  case object Versions extends FieldType("versions", FieldValueType.Multi)
-  case object IssueLinks extends FieldType("issuelinks", FieldValueType.Multi)
-  case object User extends FieldType("user")
-  case object Users extends FieldType("users", FieldValueType.Multi)
-  case object Status extends FieldType("status")
-  case object Components extends FieldType("components", FieldValueType.Multi)
-  case object TimeTracking extends FieldType("timetracking")
-  case object Attachments extends FieldType("attachment", FieldValueType.Multi)
-  case object WorkLogs extends FieldType("worklog", FieldValueType.Multi)
-  case object Group extends FieldType("group")
-  case object Groups extends FieldType("group", FieldValueType.Multi)
+  case object IssueType extends FieldType("issuetype", BacklogFieldType.Text)
+  case object Project extends FieldType("project", BacklogFieldType.Text)
+  case object FixVersions extends FieldType("fixVersions", BacklogFieldType.MultipleList, FieldValueType.Multi)
+  case object Resolution extends FieldType("resolution", BacklogFieldType.Text)
+  case object Watches extends FieldType("watches", BacklogFieldType.Text)
+  case object Priority extends FieldType("priority", BacklogFieldType.Text)
+  case object Labels extends FieldType("labels", BacklogFieldType.MultipleList, FieldValueType.Multi)
+  case object Version extends FieldType("version", BacklogFieldType.Text)
+  case object Versions extends FieldType("versions", BacklogFieldType.MultipleList, FieldValueType.Multi)
+  case object IssueLinks extends FieldType("issuelinks", BacklogFieldType.MultipleList, FieldValueType.Multi)
+  case object User extends FieldType("user", BacklogFieldType.Text)
+  case object Users extends FieldType("users", BacklogFieldType.MultipleList, FieldValueType.Multi)
+  case object Status extends FieldType("status", BacklogFieldType.Text)
+  case object Components extends FieldType("components", BacklogFieldType.MultipleList, FieldValueType.Multi)
+  case object TimeTracking extends FieldType("timetracking", BacklogFieldType.Text)
+  case object Attachments extends FieldType("attachment", BacklogFieldType.MultipleList, FieldValueType.Multi)
+  case object WorkLogs extends FieldType("worklog", BacklogFieldType.MultipleList, FieldValueType.Multi)
+  case object Group extends FieldType("group", BacklogFieldType.Text)
+  case object Groups extends FieldType("group", BacklogFieldType.MultipleList, FieldValueType.Multi)
 
   // Customizable types
-  case object Checkbox extends FieldType("", FieldValueType.Multi)
+  case object Checkbox extends FieldType("", BacklogFieldType.CheckBox, FieldValueType.Multi)
 
   def fromString(value: String): FieldType = value match {
     case String.value => String

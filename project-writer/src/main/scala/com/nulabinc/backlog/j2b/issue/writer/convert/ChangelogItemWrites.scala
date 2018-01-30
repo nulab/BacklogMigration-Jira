@@ -2,12 +2,12 @@ package com.nulabinc.backlog.j2b.issue.writer.convert
 
 import javax.inject.Inject
 
+import com.nulabinc.backlog.j2b.jira.domain.export.{Field, FieldType}
 import com.nulabinc.backlog.j2b.jira.utils.SecondToHourFormatter
 import com.nulabinc.backlog.migration.common.conf.BacklogConstantValue
 import com.nulabinc.backlog.migration.common.convert.Writes
 import com.nulabinc.backlog.migration.common.domain._
 import com.nulabinc.backlog.migration.common.utils.FileUtil
-import com.nulabinc.jira.client.domain.field._
 import com.nulabinc.jira.client.domain.changeLog._
 
 class ChangelogItemWrites @Inject()(fields: Seq[Field])
@@ -90,25 +90,7 @@ class ChangelogItemWrites @Inject()(fields: Seq[Field])
     case Some(CustomFieldFieldId(id)) =>
       val optCustomFieldDefinition = fields.find(_.id == id)
       val optTypeId = optCustomFieldDefinition match {
-        case Some(field) =>
-          field.schema.map { schema =>
-            (schema.schemaType, schema.customType) match {
-              case (StatusSchema, Some(Textarea))         => FieldType.TextArea.getIntValue
-              case (StringSchema, Some(CustomLabel))      => FieldType.MultipleList.getIntValue
-              case (StringSchema, _)                      => FieldType.Text.getIntValue
-              case (NumberSchema, _)                      => FieldType.Numeric.getIntValue
-              case (DateSchema, _)                        => FieldType.Date.getIntValue
-              case (DatetimeSchema, _)                    => FieldType.Date.getIntValue
-              case (ArraySchema, _)                       => FieldType.MultipleList.getIntValue
-              case (UserSchema, _)                        => FieldType.Text.getIntValue
-              case (AnySchema, _)                         => FieldType.Text.getIntValue
-              case (OptionSchema, Some(Select))           => FieldType.SingleList.getIntValue
-              case (OptionSchema, Some(MultiCheckBoxes))  => FieldType.MultipleList.getIntValue
-              case (OptionSchema, Some(RadioButtons))     => FieldType.SingleList.getIntValue
-              case (OptionSchema, _)                      => FieldType.Text.getIntValue
-              case (OptionWithChildSchema, _)             => FieldType.MultipleList.getIntValue
-            }
-          }
+        case Some(field) => Some(field.schema.backlogFieldType.getIntValue)
         case _ => throw new RuntimeException(s"custom field id not found [${changeLogItem.field}]")
       }
       optTypeId.map(typeId => BacklogAttributeInfo(optId = None, typeId = typeId.toString))
