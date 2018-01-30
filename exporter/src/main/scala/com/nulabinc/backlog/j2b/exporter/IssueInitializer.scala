@@ -3,16 +3,16 @@ package com.nulabinc.backlog.j2b.exporter
 import javax.inject.Inject
 
 import com.nulabinc.backlog.j2b.issue.writer.convert._
-import com.nulabinc.backlog.j2b.jira.domain.export.Milestone
+import com.nulabinc.backlog.j2b.jira.domain.export.{Field, FieldType, Milestone}
 import com.nulabinc.backlog.j2b.jira.domain.mapping.MappingCollectDatabase
 import com.nulabinc.backlog.j2b.jira.service.{IssueService, UserService}
 import com.nulabinc.backlog.j2b.jira.utils._
 import com.nulabinc.backlog.migration.common.convert.Convert
 import com.nulabinc.backlog.migration.common.domain._
 import com.nulabinc.backlog.migration.common.utils._
-import com.nulabinc.jira.client.domain.{Comment, User}
+import com.nulabinc.jira.client.domain.Comment
 import com.nulabinc.jira.client.domain.changeLog._
-import com.nulabinc.jira.client.domain.field.{DatetimeSchema, Field}
+import com.nulabinc.jira.client.domain.field.DatetimeSchema
 import com.nulabinc.jira.client.domain.issue._
 
 class IssueInitializer @Inject()(implicit val issueWrites: IssueWrites,
@@ -157,12 +157,9 @@ class IssueInitializer @Inject()(implicit val issueWrites: IssueWrites,
     val fieldDefinition = fields.find(_.id == issueField.id).get // TODO Fix get
     val currentValues = issueField.value match {
       case ArrayFieldValue(values) => values.map(_.value)
-      case value                   => fieldDefinition.schema match {
-        case Some(v) => v.schemaType match {
-          case DatetimeSchema => Seq(dateTimeStringToDateString(value.value))
-          case _              => Seq(value.value)
-        }
-        case None => Seq(value.value)
+      case value => fieldDefinition.schema match {
+        case FieldType.DateTime => Seq(dateTimeStringToDateString(value.value))
+        case _ => Seq(value.value)
       }
     }
 

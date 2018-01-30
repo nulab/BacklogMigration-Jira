@@ -4,6 +4,7 @@ import javax.inject.Inject
 
 import com.nulabinc.backlog.j2b.exporter.console.RemainingTimeCalculator
 import com.nulabinc.backlog.j2b.jira.conf.JiraBacklogPaths
+import com.nulabinc.backlog.j2b.jira.domain.export.{Field, FieldType}
 import com.nulabinc.backlog.j2b.jira.domain.mapping.MappingCollectDatabase
 import com.nulabinc.backlog.j2b.jira.domain.{CollectData, JiraProjectKey}
 import com.nulabinc.backlog.j2b.jira.service._
@@ -12,7 +13,7 @@ import com.nulabinc.backlog.j2b.jira.writer._
 import com.nulabinc.backlog.migration.common.utils.{ConsoleOut, Logging, ProgressBar}
 import com.nulabinc.jira.client.domain._
 import com.nulabinc.jira.client.domain.changeLog.{AssigneeFieldId, ComponentChangeLogItemField, CustomFieldFieldId, FixVersion}
-import com.nulabinc.jira.client.domain.field.Field
+import com.nulabinc.jira.client.domain.field.FieldSchema
 import com.nulabinc.jira.client.domain.issue._
 import com.osinka.i18n.Messages
 
@@ -63,10 +64,25 @@ class Exporter @Inject()(projectKey: JiraProjectKey,
     ConsoleOut.boldln(Messages("message.executed", Messages("common.issue_type"), Messages("message.exported")), 1)
 
     // issue
-    val statuses  = statusService.all()
-    val total     = issueService.count()
-    val fields    = fieldService.all()
+    val statuses = statusService.all()
+    val total = issueService.count()
     val calculator = new RemainingTimeCalculator(total)
+    val fields = for {
+      field  <- fieldService.all()
+      schema <- field.schema
+    } yield {
+      Field(
+        id = field.id,
+        name = field.name,
+        schema = FieldType(
+          schemaType = schema.`type`,
+          schemaSystem = schema.system,
+          schemaItems = schema.items,
+          schemaCustom = schema.custom
+        )
+      )
+    }
+
     fetchIssue(calculator, statuses, categories, versions, fields, 1, total, 0, 100)
 
     // version & milestone
@@ -86,6 +102,7 @@ class Exporter @Inject()(projectKey: JiraProjectKey,
     collectedData.outputJiraStatusesToFile(backlogPaths.jiraStatusesJson)
 
     collectedData
+
   }
 
   private def fetchIssue(calculator: RemainingTimeCalculator,

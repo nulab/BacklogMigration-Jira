@@ -16,26 +16,22 @@ class IssueFieldWrites @Inject()(customFieldDefinitions: Seq[Field])
     with DatetimeToDateFormatter {
 
   override def writes(issueField: IssueField) = {
-    customFieldDefinitions.find(_.id == issueField.id) match {
-      case Some(field) =>
-        field.schema.map { schema =>
-          (schema.schemaType, schema.customType) match {
-            case (StatusSchema, Some(Textarea))         => toTextAreaCustomField(field, issueField.value.asInstanceOf[StringFieldValue])
-            case (OptionSchema, Some(Select))           => toSingleListCustomField(field, issueField.value.asInstanceOf[OptionFieldValue])
-            case (ArraySchema, Some(MultiCheckBoxes))   => toCheckBoxCustomField(field, issueField.value.asInstanceOf[ArrayFieldValue])
-            case (OptionSchema, Some(RadioButtons))     => toRadioCustomField(field, issueField.value.asInstanceOf[OptionFieldValue])
-            case (StringSchema, _)                      => toTextCustomField(field, issueField.value.asInstanceOf[StringFieldValue])
-            case (NumberSchema, _)                      => toNumberCustomField(field, issueField.value.asInstanceOf[NumberFieldValue])
-            case (DateSchema, _)                        => toDateCustomField(field, issueField.value.asInstanceOf[StringFieldValue])
-            case (DatetimeSchema, _)                    => toDateTimeCustomField(field, issueField.value.asInstanceOf[StringFieldValue])
-            case (ArraySchema, _)                       => toMultipleListCustomField(field, issueField.value.asInstanceOf[ArrayFieldValue])
-            case (UserSchema, _)                        => toUserCustomField(field, issueField.value.asInstanceOf[UserFieldValue])
-            case (AnySchema, _)                         => toTextCustomField(field, issueField.value.asInstanceOf[StringFieldValue])
-            case (OptionSchema, _)                      => toTextCustomField(field, issueField.value.asInstanceOf[StringFieldValue])
-            case (OptionWithChildSchema, _)             => toMultipleListCustomField(field, issueField.value.asInstanceOf[ArrayFieldValue])
-          }
-        }
-      case _ => None
+    customFieldDefinitions.find(_.id == issueField.id).map { field =>
+      field.schema.backlogFieldType match {
+        case FieldType.TextArea     => toTextAreaCustomField(field, issueField.value.asInstanceOf[StringFieldValue])
+        case FieldType.SingleList   => toSingleListCustomField(field, issueField.value.asInstanceOf[OptionFieldValue])
+        case FieldType.CheckBox     => toCheckBoxCustomField(field, issueField.value.asInstanceOf[ArrayFieldValue])
+        case FieldType.Radio        => toRadioCustomField(field, issueField.value.asInstanceOf[OptionFieldValue])
+        case FieldType.Text         => toTextCustomField(field, issueField.value.asInstanceOf[StringFieldValue])
+        case FieldType.Numeric      => toNumberCustomField(field, issueField.value.asInstanceOf[NumberFieldValue])
+        case FieldType.Date         => toDateCustomField(field, issueField.value.asInstanceOf[StringFieldValue])
+        //          case (DatetimeSchema, _)                    => toDateTimeCustomField(field, issueField.value.asInstanceOf[StringFieldValue])
+        //          case (ArraySchema, _)                       => toMultipleListCustomField(field, issueField.value.asInstanceOf[ArrayFieldValue])
+        //          case (UserSchema, _)                        => toUserCustomField(field, issueField.value.asInstanceOf[UserFieldValue])
+        //          case (AnySchema, _)                         => toTextCustomField(field, issueField.value.asInstanceOf[StringFieldValue])
+        //          case (OptionSchema, _)                      => toTextCustomField(field, issueField.value.asInstanceOf[StringFieldValue])
+        //          case (OptionWithChildSchema, _)             => toMultipleListCustomField(field, issueField.value.asInstanceOf[ArrayFieldValue])
+      }
     }
   }
 

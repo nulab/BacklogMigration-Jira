@@ -2,6 +2,7 @@ package com.nulabinc.backlog.j2b
 
 import com.nulabinc.backlog.j2b.helper._
 import com.nulabinc.backlog.j2b.jira.conf.JiraApiConfiguration
+import com.nulabinc.backlog.j2b.jira.domain.export.{Field, FieldType}
 import com.nulabinc.backlog.j2b.matchers.{DateMatcher, UserMatcher}
 import com.nulabinc.backlog.migration.common.conf.{BacklogApiConfiguration, BacklogConstantValue}
 import com.nulabinc.backlog.migration.common.convert.Convert
@@ -10,7 +11,6 @@ import com.nulabinc.backlog4j.{CustomFieldSetting, IssueComment, ResponseList}
 import com.nulabinc.backlog4j.api.option.{GetIssuesParams, QueryParams}
 import com.nulabinc.backlog4j.internal.json.customFields._
 import com.nulabinc.jira.client.domain.changeLog.LinkChangeLogItemField
-import com.nulabinc.jira.client.domain.field._
 import com.nulabinc.jira.client.domain.issue._
 import org.scalatest.{DiagrammedAssertions, FlatSpec, Matchers}
 
@@ -25,7 +25,21 @@ class CompareSpec extends FlatSpec
     with UserMatcher
     with DateMatcher {
 
-  val jiraCustomFieldDefinitions: Seq[Field] = jiraRestApi.fieldAPI.all().right.get
+  val jiraCustomFieldDefinitions: Seq[Field] = for {
+    field  <- jiraRestApi.fieldAPI.all().right.get
+    schema <- field.schema
+  } yield {
+    Field(
+      id = field.id,
+      name = field.name,
+      schema = FieldType(
+        schemaType = schema.`type`,
+        schemaSystem = schema.system,
+        schemaItems = schema.items,
+        schemaCustom = schema.custom
+      )
+    )
+  }
   val backlogCustomFieldDefinitions: mutable.Seq[CustomFieldSetting] = backlogApi.getCustomFields(appConfig.backlogConfig.projectKey).asScala
 
   // --------------------------------------------------------------------------
@@ -243,10 +257,10 @@ class CompareSpec extends FlatSpec
                 case BacklogConstantValue.CustomField.Date =>
                   val backlogValue = backlogCustomField.asInstanceOf[DateCustomField].getValue
                   val jiraValue    = jiraCustomField.value.asInstanceOf[StringFieldValue]
-                  jiraDefinition.schema.get.schemaType match {
-                    case DatetimeSchema => assertDate(jiraValue.value, backlogValue)
-                    case DateSchema     => assertDateTime(jiraValue.value, backlogValue)
-                    case _              => fail("Custom field type does not match date or datetime")
+                  jiraDefinition.schema match {
+                    case FieldType.DateTime => assertDate(jiraValue.value, backlogValue)
+                    case FieldType.Date     => assertDateTime(jiraValue.value, backlogValue)
+                    case _                  => fail("Custom field type does not match date or datetime")
                   }
                 case BacklogConstantValue.CustomField.SingleList =>
                   val backlogValue = backlogCustomField.asInstanceOf[SingleListCustomField].getValue

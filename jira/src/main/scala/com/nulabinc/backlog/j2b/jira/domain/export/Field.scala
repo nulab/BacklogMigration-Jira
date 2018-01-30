@@ -45,6 +45,7 @@ object FieldType {
 
   // Customizable types
   case object Checkbox extends FieldType("", BacklogFieldType.CheckBox, FieldValueType.Multi)
+  case object CustomLabels extends FieldType("", BacklogFieldType.MultipleList, FieldValueType.Multi)
 
   def fromString(value: String): FieldType = value match {
     case String.value => String
@@ -67,6 +68,7 @@ object FieldType {
       case (Some(FieldValueType.Multi.value), Some(name),           _, _) => fromString(name)
       // Check customizable
       case (Some(String.value), None, None, Some(custom)) if custom.contains("checkbox") => Checkbox
+      case (Some(String.value), None, None, Some(custom)) if custom.contains("labels") => CustomLabels
       // Check single
       case (Some(name), _, _, _) => fromString(name)
       case (None, _, _, _)       => String
