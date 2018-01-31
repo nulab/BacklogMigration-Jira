@@ -2,6 +2,7 @@ package com.nulabinc.backlog.j2b
 
 import com.nulabinc.backlog.j2b.helper._
 import com.nulabinc.backlog.j2b.jira.conf.JiraApiConfiguration
+import com.nulabinc.backlog.j2b.jira.domain.FieldConverter
 import com.nulabinc.backlog.j2b.jira.domain.export.{Field, FieldType}
 import com.nulabinc.backlog.j2b.matchers.{DateMatcher, UserMatcher}
 import com.nulabinc.backlog.migration.common.conf.{BacklogApiConfiguration, BacklogConstantValue}
@@ -25,21 +26,7 @@ class CompareSpec extends FlatSpec
     with UserMatcher
     with DateMatcher {
 
-  val jiraCustomFieldDefinitions: Seq[Field] = for {
-    field  <- jiraRestApi.fieldAPI.all().right.get
-    schema <- field.schema
-  } yield {
-    Field(
-      id = field.id,
-      name = field.name,
-      schema = FieldType(
-        schemaType = schema.`type`,
-        schemaSystem = schema.system,
-        schemaItems = schema.items,
-        schemaCustom = schema.custom
-      )
-    )
-  }
+  val jiraCustomFieldDefinitions: Seq[Field] = FieldConverter.toExportField(jiraRestApi.fieldAPI.all().right.get)
   val backlogCustomFieldDefinitions: mutable.Seq[CustomFieldSetting] = backlogApi.getCustomFields(appConfig.backlogConfig.projectKey).asScala
 
   // --------------------------------------------------------------------------

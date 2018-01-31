@@ -4,7 +4,7 @@ import com.google.inject.AbstractModule
 import com.nulabinc.backlog.j2b.conf.AppConfiguration
 import com.nulabinc.backlog.j2b.issue.writer.convert._
 import com.nulabinc.backlog.j2b.jira.conf.JiraApiConfiguration
-import com.nulabinc.backlog.j2b.jira.domain.JiraProjectKey
+import com.nulabinc.backlog.j2b.jira.domain.{FieldConverter, JiraProjectKey}
 import com.nulabinc.backlog.j2b.jira.domain.export.{Field, FieldType}
 import com.nulabinc.backlog.j2b.jira.domain.mapping.MappingCollectDatabase
 import com.nulabinc.backlog.j2b.jira.service._
@@ -40,21 +40,7 @@ class DefaultModule(config: AppConfiguration) extends AbstractModule {
     bind(classOf[MappingFileService]).to(classOf[MappingFileServiceImpl])
 
     // Data
-    val fields = for {
-      field  <- jira.fieldAPI.all().right.get
-      schema <- field.schema
-    } yield {
-      Field(
-        id = field.id,
-        name = field.name,
-        schema = FieldType(
-          schemaType = schema.`type`,
-          schemaSystem = schema.system,
-          schemaItems = schema.items,
-          schemaCustom = schema.custom
-        )
-      )
-    }
+    val fields = FieldConverter.toExportField(jira.fieldAPI.all().right.get)
 
     // Pre fetched data
     bind(classOf[Seq[Field]]).toInstance(fields)

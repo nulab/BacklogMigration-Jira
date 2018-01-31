@@ -35,7 +35,6 @@ object FieldType {
   case object Status extends FieldType("status", BacklogFieldType.Text)
   case object Components extends FieldType("components", BacklogFieldType.MultipleList)
   case object TimeTracking extends FieldType("timetracking", BacklogFieldType.Text)
-  case object Attachments extends FieldType("attachment", BacklogFieldType.MultipleList)
   case object WorkLogs extends FieldType("worklog", BacklogFieldType.MultipleList)
   case object Group extends FieldType("group", BacklogFieldType.Text)
   case object Groups extends FieldType("group", BacklogFieldType.MultipleList)
@@ -43,7 +42,6 @@ object FieldType {
   case object OptionWithChild extends FieldType("option-with-child", BacklogFieldType.SingleList)
   case object SubTasks extends FieldType("subtasks", BacklogFieldType.MultipleList)
   case object Progress extends FieldType("progress", BacklogFieldType.Text)
-  case object Any extends FieldType("any", BacklogFieldType.Text)
   case object Unknown extends FieldType("", BacklogFieldType.Text)
 
   // Customizable types
@@ -71,7 +69,6 @@ object FieldType {
     case Status.value => Status
     case Components.value => Components
     case TimeTracking.value => TimeTracking
-    case Attachments.value => Attachments
     case SubTasks.value => SubTasks
     case Progress.value => Progress
     case WorkLogs.value => WorkLogs
