@@ -2,12 +2,12 @@ package com.nulabinc.backlog.j2b.issue.writer.convert
 
 import javax.inject.Inject
 
-import com.nulabinc.backlog.j2b.jira.domain.export.Field
+import com.nulabinc.backlog.j2b.jira.domain.export.{Field, FieldType}
 import com.nulabinc.backlog.j2b.jira.utils.DatetimeToDateFormatter
 import com.nulabinc.backlog.migration.common.convert.Writes
 import com.nulabinc.backlog.migration.common.domain.BacklogCustomField
 import com.nulabinc.backlog.migration.common.utils.Logging
-import com.nulabinc.backlog4j.CustomField.FieldType
+import com.nulabinc.backlog4j.CustomField.{FieldType => BacklogFieldType}
 import com.nulabinc.jira.client.domain.issue._
 
 class IssueFieldWrites @Inject()(customFieldDefinitions: Seq[Field])
@@ -15,30 +15,32 @@ class IssueFieldWrites @Inject()(customFieldDefinitions: Seq[Field])
     with Logging
     with DatetimeToDateFormatter {
 
-  override def writes(issueField: IssueField) = {
+  override def writes(issueField: IssueField) =
     customFieldDefinitions.find(_.id == issueField.id).map { field =>
-      field.schema.backlogFieldType match {
-        case FieldType.TextArea     => toTextAreaCustomField(field, issueField.value.asInstanceOf[StringFieldValue])
-        case FieldType.SingleList   => toSingleListCustomField(field, issueField.value.asInstanceOf[OptionFieldValue])
-        case FieldType.CheckBox     => toCheckBoxCustomField(field, issueField.value.asInstanceOf[ArrayFieldValue])
-        case FieldType.Radio        => toRadioCustomField(field, issueField.value.asInstanceOf[OptionFieldValue])
-        case FieldType.Text         => toTextCustomField(field, issueField.value.asInstanceOf[StringFieldValue])
-        case FieldType.Numeric      => toNumberCustomField(field, issueField.value.asInstanceOf[NumberFieldValue])
-        case FieldType.Date         => toDateCustomField(field, issueField.value.asInstanceOf[StringFieldValue])
-        //          case (DatetimeSchema, _)                    => toDateTimeCustomField(field, issueField.value.asInstanceOf[StringFieldValue])
-        //          case (ArraySchema, _)                       => toMultipleListCustomField(field, issueField.value.asInstanceOf[ArrayFieldValue])
-        //          case (UserSchema, _)                        => toUserCustomField(field, issueField.value.asInstanceOf[UserFieldValue])
+      field.schema match {
+        case FieldType.TextArea         => toTextAreaCustomField(field, issueField.value.asInstanceOf[StringFieldValue])
+        case FieldType.Number           => toNumberCustomField(field, issueField.value.asInstanceOf[NumberFieldValue])
+        case FieldType.Date             => toDateCustomField(field, issueField.value.asInstanceOf[StringFieldValue])
+        case FieldType.DateTime         => toDateTimeCustomField(field, issueField.value.asInstanceOf[StringFieldValue])
+        case FieldType.Checkbox         => toCheckBoxCustomField(field, issueField.value.asInstanceOf[ArrayFieldValue])
+        case FieldType.Radio            => toRadioCustomField(field, issueField.value.asInstanceOf[OptionFieldValue])
+        case FieldType.SingleSelect     => toSingleListCustomField(field, issueField.value.asInstanceOf[OptionFieldValue])
+        case FieldType.MultiSelect      => toMultipleListCustomField(field, issueField.value.asInstanceOf[ArrayFieldValue])
+        case FieldType.CustomLabels     => toMultipleListCustomField(field, issueField.value.asInstanceOf[ArrayFieldValue])
+        case FieldType.OptionWithChild  => toMultipleListCustomField(field, issueField.value.asInstanceOf[ArrayFieldValue])
+//        case FieldType.Components       =>
+        case FieldType.User             => toUserCustomField(field, issueField.value.asInstanceOf[UserFieldValue])
         //          case (AnySchema, _)                         => toTextCustomField(field, issueField.value.asInstanceOf[StringFieldValue])
         //          case (OptionSchema, _)                      => toTextCustomField(field, issueField.value.asInstanceOf[StringFieldValue])
         //          case (OptionWithChildSchema, _)             => toMultipleListCustomField(field, issueField.value.asInstanceOf[ArrayFieldValue])
+        case FieldType.String           => toTextCustomField(field, issueField.value.asInstanceOf[StringFieldValue])
       }
     }
-  }
 
   private def toTextCustomField(field: Field, issueField: StringFieldValue) =
     BacklogCustomField(
       name = field.name,
-      fieldTypeId = FieldType.Text.getIntValue,
+      fieldTypeId = BacklogFieldType.Text.getIntValue,
       optValue = Some(issueField.value),
       values = Seq.empty[String]
     )
@@ -46,7 +48,7 @@ class IssueFieldWrites @Inject()(customFieldDefinitions: Seq[Field])
   private def toTextAreaCustomField(field: Field, issueField: StringFieldValue) =
     BacklogCustomField(
       name = field.name,
-      fieldTypeId = FieldType.TextArea.getIntValue,
+      fieldTypeId = BacklogFieldType.TextArea.getIntValue,
       optValue = Option(issueField.value),
       values = Seq.empty[String]
     )
@@ -54,7 +56,7 @@ class IssueFieldWrites @Inject()(customFieldDefinitions: Seq[Field])
   private def toNumberCustomField(field: Field, issueField: NumberFieldValue) =
     BacklogCustomField(
       name = field.name,
-      fieldTypeId = FieldType.Numeric.getIntValue,
+      fieldTypeId = BacklogFieldType.Numeric.getIntValue,
       optValue = Some(issueField.value.toString),
       values = Seq.empty[String]
     )
@@ -62,7 +64,7 @@ class IssueFieldWrites @Inject()(customFieldDefinitions: Seq[Field])
   private def toDateCustomField(field: Field, issueField: StringFieldValue) =
     BacklogCustomField(
       name = field.name,
-      fieldTypeId = FieldType.Date.getIntValue,
+      fieldTypeId = BacklogFieldType.Date.getIntValue,
       optValue = Option(issueField.value),
       values = Seq.empty[String]
     )
@@ -70,7 +72,7 @@ class IssueFieldWrites @Inject()(customFieldDefinitions: Seq[Field])
   private def toDateTimeCustomField(field: Field, issueField: StringFieldValue) =
     BacklogCustomField(
       name = field.name,
-      fieldTypeId = FieldType.Date.getIntValue,
+      fieldTypeId = BacklogFieldType.Date.getIntValue,
       optValue = Option(dateTimeStringToDateString(issueField.value)),
       values = Seq.empty[String]
     )
@@ -79,7 +81,7 @@ class IssueFieldWrites @Inject()(customFieldDefinitions: Seq[Field])
   private def toMultipleListCustomField(field: Field, issueField: ArrayFieldValue) =
     BacklogCustomField(
       name = field.name,
-      fieldTypeId = FieldType.MultipleList.getIntValue,
+      fieldTypeId = BacklogFieldType.MultipleList.getIntValue,
       optValue = None,
       values = issueField.values.map(_.value)
     )
@@ -87,7 +89,7 @@ class IssueFieldWrites @Inject()(customFieldDefinitions: Seq[Field])
   private def toCheckBoxCustomField(field: Field, issueField: ArrayFieldValue) =
     BacklogCustomField(
       name = field.name,
-      fieldTypeId = FieldType.CheckBox.getIntValue,
+      fieldTypeId = BacklogFieldType.CheckBox.getIntValue,
       optValue = None,
       values = issueField.values.map(_.value)
     )
@@ -95,7 +97,7 @@ class IssueFieldWrites @Inject()(customFieldDefinitions: Seq[Field])
   private def toSingleListCustomField(field: Field, issueField: OptionFieldValue) =
     BacklogCustomField(
       name = field.name,
-      fieldTypeId = FieldType.SingleList.getIntValue,
+      fieldTypeId = BacklogFieldType.SingleList.getIntValue,
       optValue = Option(issueField.value),
       values = Seq.empty[String]
     )
@@ -103,7 +105,7 @@ class IssueFieldWrites @Inject()(customFieldDefinitions: Seq[Field])
   private def toRadioCustomField(field: Field, issueField: OptionFieldValue) =
     BacklogCustomField(
       name = field.name,
-      fieldTypeId = FieldType.Radio.getIntValue,
+      fieldTypeId = BacklogFieldType.Radio.getIntValue,
       optValue = Option(issueField.value),
       values = Seq.empty[String]
     )
@@ -111,7 +113,7 @@ class IssueFieldWrites @Inject()(customFieldDefinitions: Seq[Field])
   private def toUserCustomField(field: Field, issueField: UserFieldValue) =
     BacklogCustomField(
       name = field.name,
-      fieldTypeId = FieldType.SingleList.getIntValue,
+      fieldTypeId = BacklogFieldType.SingleList.getIntValue,
       optValue = Option(issueField.value),
       values = Seq.empty[String]
     )

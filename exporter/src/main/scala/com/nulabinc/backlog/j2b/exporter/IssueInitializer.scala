@@ -12,7 +12,6 @@ import com.nulabinc.backlog.migration.common.domain._
 import com.nulabinc.backlog.migration.common.utils._
 import com.nulabinc.jira.client.domain.Comment
 import com.nulabinc.jira.client.domain.changeLog._
-import com.nulabinc.jira.client.domain.field.DatetimeSchema
 import com.nulabinc.jira.client.domain.issue._
 
 class IssueInitializer @Inject()(implicit val issueWrites: IssueWrites,

@@ -10,8 +10,7 @@ case class Field(
 
 sealed abstract class FieldType(
   val value: String,
-  val backlogFieldType: BacklogFieldType,
-  fieldValueType: FieldValueType = FieldValueType.Single
+  val backlogFieldType: BacklogFieldType
 )
 
 object FieldType {
@@ -25,27 +24,35 @@ object FieldType {
   // JIRA specific types
   case object IssueType extends FieldType("issuetype", BacklogFieldType.Text)
   case object Project extends FieldType("project", BacklogFieldType.Text)
-  case object FixVersions extends FieldType("fixVersions", BacklogFieldType.MultipleList, FieldValueType.Multi)
+  case object FixVersions extends FieldType("fixVersions", BacklogFieldType.MultipleList)
   case object Resolution extends FieldType("resolution", BacklogFieldType.Text)
-  case object Watches extends FieldType("watches", BacklogFieldType.Text)
   case object Priority extends FieldType("priority", BacklogFieldType.Text)
-  case object Labels extends FieldType("labels", BacklogFieldType.MultipleList, FieldValueType.Multi)
-  case object Version extends FieldType("version", BacklogFieldType.Text)
-  case object Versions extends FieldType("versions", BacklogFieldType.MultipleList, FieldValueType.Multi)
-  case object IssueLinks extends FieldType("issuelinks", BacklogFieldType.MultipleList, FieldValueType.Multi)
+  case object Labels extends FieldType("labels", BacklogFieldType.MultipleList)
+  case object Versions extends FieldType("versions", BacklogFieldType.MultipleList)
+  case object IssueLinks extends FieldType("issuelinks", BacklogFieldType.MultipleList)
   case object User extends FieldType("user", BacklogFieldType.Text)
-  case object Users extends FieldType("users", BacklogFieldType.MultipleList, FieldValueType.Multi)
+  case object Users extends FieldType("users", BacklogFieldType.MultipleList)
   case object Status extends FieldType("status", BacklogFieldType.Text)
-  case object Components extends FieldType("components", BacklogFieldType.MultipleList, FieldValueType.Multi)
+  case object Components extends FieldType("components", BacklogFieldType.MultipleList)
   case object TimeTracking extends FieldType("timetracking", BacklogFieldType.Text)
-  case object Attachments extends FieldType("attachment", BacklogFieldType.MultipleList, FieldValueType.Multi)
-  case object WorkLogs extends FieldType("worklog", BacklogFieldType.MultipleList, FieldValueType.Multi)
+  case object Attachments extends FieldType("attachment", BacklogFieldType.MultipleList)
+  case object WorkLogs extends FieldType("worklog", BacklogFieldType.MultipleList)
   case object Group extends FieldType("group", BacklogFieldType.Text)
-  case object Groups extends FieldType("group", BacklogFieldType.MultipleList, FieldValueType.Multi)
+  case object Groups extends FieldType("group", BacklogFieldType.MultipleList)
+  case object Option extends FieldType("option", BacklogFieldType.SingleList)
+  case object OptionWithChild extends FieldType("option-with-child", BacklogFieldType.SingleList)
+  case object SubTasks extends FieldType("subtasks", BacklogFieldType.MultipleList)
+  case object Progress extends FieldType("progress", BacklogFieldType.Text)
+  case object Any extends FieldType("any", BacklogFieldType.Text)
+  case object Unknown extends FieldType("", BacklogFieldType.Text)
 
   // Customizable types
-  case object Checkbox extends FieldType("", BacklogFieldType.CheckBox, FieldValueType.Multi)
-  case object CustomLabels extends FieldType("", BacklogFieldType.MultipleList, FieldValueType.Multi)
+  case object Radio extends FieldType("radio", BacklogFieldType.Radio)
+  case object Checkbox extends FieldType("checkbox", BacklogFieldType.CheckBox)
+  case object CustomLabels extends FieldType("labels", BacklogFieldType.MultipleList)
+  case object MultiSelect extends FieldType("multiselect", BacklogFieldType.MultipleList)
+  case object SingleSelect extends FieldType("select", BacklogFieldType.SingleList)
+  case object TextArea extends FieldType("textarea", BacklogFieldType.TextArea)
 
   def fromString(value: String): FieldType = value match {
     case String.value => String
@@ -56,19 +63,36 @@ object FieldType {
     case Project.value => Project
     case FixVersions.value => FixVersions
     case Resolution.value => Resolution
-    case Watches.value => Watches
+    case Priority.value => Priority
+    case Labels.value => Labels
+    case Versions.value => Versions
+    case IssueLinks.value => IssueLinks
+    case User.value => User
+    case Status.value => Status
+    case Components.value => Components
+    case TimeTracking.value => TimeTracking
+    case Attachments.value => Attachments
+    case SubTasks.value => SubTasks
+    case Progress.value => Progress
+    case WorkLogs.value => WorkLogs
+    case OptionWithChild.value => OptionWithChild
   }
 
   def apply(schemaType: Option[String], schemaSystem: Option[String], schemaItems: Option[String], schemaCustom: Option[String]): FieldType =
     (schemaType, schemaSystem, schemaItems, schemaCustom) match {
       // Check array
       case (Some(FieldValueType.Multi.value), Some(User.value),     _, _) => Users
-      case (Some(FieldValueType.Multi.value), Some(Version.value),  _, _) => Versions
       case (Some(FieldValueType.Multi.value), Some(Group.value),    _, _) => Groups
+      case (Some(FieldValueType.Multi.value), Some(Option.value),   _, _) => Checkbox
       case (Some(FieldValueType.Multi.value), Some(name),           _, _) => fromString(name)
+      case (Some(FieldValueType.Multi.value), None,                 _, _) => String
       // Check customizable
-      case (Some(String.value), None, None, Some(custom)) if custom.contains("checkbox") => Checkbox
-      case (Some(String.value), None, None, Some(custom)) if custom.contains("labels") => CustomLabels
+      case (Some(String.value), None, None, Some(custom)) if custom.contains(Radio.value)        => Radio
+      case (Some(String.value), None, None, Some(custom)) if custom.contains(Checkbox.value)     => Checkbox
+      case (Some(String.value), None, None, Some(custom)) if custom.contains(CustomLabels.value) => CustomLabels
+      case (Some(String.value), None, None, Some(custom)) if custom.contains(MultiSelect.value)  => MultiSelect
+      case (Some(String.value), None, None, Some(custom)) if custom.contains(SingleSelect.value) => SingleSelect
+      case (Some(String.value), None, None, Some(custom)) if custom.contains(TextArea.value)     => TextArea
       // Check single
       case (Some(name), _, _, _) => fromString(name)
       case (None, _, _, _)       => String
