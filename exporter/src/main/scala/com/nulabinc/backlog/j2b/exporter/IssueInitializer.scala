@@ -3,7 +3,7 @@ package com.nulabinc.backlog.j2b.exporter
 import javax.inject.Inject
 
 import com.nulabinc.backlog.j2b.issue.writer.convert._
-import com.nulabinc.backlog.j2b.jira.domain.export.{Field, FieldType, Milestone}
+import com.nulabinc.backlog.j2b.jira.domain.export._
 import com.nulabinc.backlog.j2b.jira.domain.mapping.MappingCollectDatabase
 import com.nulabinc.backlog.j2b.jira.service.{IssueService, UserService}
 import com.nulabinc.backlog.j2b.jira.utils._
@@ -12,7 +12,7 @@ import com.nulabinc.backlog.migration.common.domain._
 import com.nulabinc.backlog.migration.common.utils._
 import com.nulabinc.jira.client.domain.Comment
 import com.nulabinc.jira.client.domain.changeLog._
-import com.nulabinc.jira.client.domain.issue._
+import com.nulabinc.jira.client.domain.issue.Issue
 
 class IssueInitializer @Inject()(implicit val issueWrites: IssueWrites,
                                  implicit val attachmentWrites: AttachmentWrites,
@@ -29,6 +29,7 @@ class IssueInitializer @Inject()(implicit val issueWrites: IssueWrites,
                  fields: Seq[Field],
                  milestones: Seq[Milestone],
                  issue: Issue,
+                 issueFields: Seq[IssueField],
                  comments: Seq[Comment]): BacklogIssue = {
     //attachments
 //    val attachmentFilter    = new AttachmentFilter(issue.changeLogs)
@@ -36,7 +37,7 @@ class IssueInitializer @Inject()(implicit val issueWrites: IssueWrites,
 
     val filteredIssue = AttachmentFilter.filteredIssue(issue, comments)
 
-    val backlogIssue = Convert.toBacklog(filteredIssue)
+    val backlogIssue = Convert.toBacklog((filteredIssue, issueFields))
 
     backlogIssue.copy(
       summary           = summary(filteredIssue),
@@ -51,7 +52,7 @@ class IssueInitializer @Inject()(implicit val issueWrites: IssueWrites,
       versionNames      = versionNames(filteredIssue),
       priorityName      = priorityName(filteredIssue),
       optAssignee       = assignee(mappingCollectDatabase, filteredIssue),
-      customFields      = filteredIssue.issueFields.flatMap(f => customField(fields, f, filteredIssue.changeLogs)),
+      customFields      = issueFields.flatMap(f => customField(fields, f, filteredIssue.changeLogs)),
       attachments       = attachmentNames(filteredIssue),
       optActualHours    = actualHours(filteredIssue),
       notifiedUsers     = Seq.empty[BacklogUser]

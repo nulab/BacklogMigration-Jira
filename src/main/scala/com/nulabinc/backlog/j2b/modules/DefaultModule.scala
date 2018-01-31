@@ -5,7 +5,7 @@ import com.nulabinc.backlog.j2b.conf.AppConfiguration
 import com.nulabinc.backlog.j2b.issue.writer.convert._
 import com.nulabinc.backlog.j2b.jira.conf.JiraApiConfiguration
 import com.nulabinc.backlog.j2b.jira.domain.{FieldConverter, JiraProjectKey}
-import com.nulabinc.backlog.j2b.jira.domain.export.{Field, FieldType}
+import com.nulabinc.backlog.j2b.jira.domain.export.Field
 import com.nulabinc.backlog.j2b.jira.domain.mapping.MappingCollectDatabase
 import com.nulabinc.backlog.j2b.jira.service._
 import com.nulabinc.backlog.j2b.mapping.collector.MappingCollectDatabaseInMemory

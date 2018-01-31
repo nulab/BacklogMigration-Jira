@@ -1,7 +1,6 @@
 package com.nulabinc.backlog.j2b.exporter
 
-import com.nulabinc.backlog.j2b.jira.domain.export.Field
-import com.nulabinc.jira.client.domain.issue.IssueField
+import com.nulabinc.backlog.j2b.jira.domain.export.{Field, IssueField}
 
 object IssueFieldFilter {
 

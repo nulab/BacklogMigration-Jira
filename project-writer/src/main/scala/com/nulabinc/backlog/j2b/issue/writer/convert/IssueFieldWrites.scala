@@ -2,13 +2,12 @@ package com.nulabinc.backlog.j2b.issue.writer.convert
 
 import javax.inject.Inject
 
-import com.nulabinc.backlog.j2b.jira.domain.export.{Field, FieldType}
+import com.nulabinc.backlog.j2b.jira.domain.export._
 import com.nulabinc.backlog.j2b.jira.utils.DatetimeToDateFormatter
 import com.nulabinc.backlog.migration.common.convert.Writes
 import com.nulabinc.backlog.migration.common.domain.BacklogCustomField
 import com.nulabinc.backlog.migration.common.utils.Logging
 import com.nulabinc.backlog4j.CustomField.{FieldType => BacklogFieldType}
-import com.nulabinc.jira.client.domain.issue._
 
 class IssueFieldWrites @Inject()(customFieldDefinitions: Seq[Field])
     extends Writes[IssueField, Option[BacklogCustomField]]
@@ -29,6 +28,7 @@ class IssueFieldWrites @Inject()(customFieldDefinitions: Seq[Field])
         case FieldType.CustomLabels     => toMultipleListCustomField(field, issueField.value.asInstanceOf[ArrayFieldValue])
         case FieldType.OptionWithChild  => toMultipleListCustomField(field, issueField.value.asInstanceOf[ArrayFieldValue])
 //        case FieldType.Components       =>
+        case FieldType.IssueType        => toIssueTypeCustomField(field, issueField.value.asInstanceOf[IssueTypeFieldValue])
         case FieldType.User             => toUserCustomField(field, issueField.value.asInstanceOf[UserFieldValue])
         //          case (AnySchema, _)                         => toTextCustomField(field, issueField.value.asInstanceOf[StringFieldValue])
         //          case (OptionSchema, _)                      => toTextCustomField(field, issueField.value.asInstanceOf[StringFieldValue])
@@ -111,6 +111,14 @@ class IssueFieldWrites @Inject()(customFieldDefinitions: Seq[Field])
     )
 
   private def toUserCustomField(field: Field, issueField: UserFieldValue) =
+    BacklogCustomField(
+      name = field.name,
+      fieldTypeId = BacklogFieldType.SingleList.getIntValue,
+      optValue = Option(issueField.value),
+      values = Seq.empty[String]
+    )
+
+  private def toIssueTypeCustomField(field: Field, issueField: IssueTypeFieldValue) =
     BacklogCustomField(
       name = field.name,
       fieldTypeId = BacklogFieldType.SingleList.getIntValue,
