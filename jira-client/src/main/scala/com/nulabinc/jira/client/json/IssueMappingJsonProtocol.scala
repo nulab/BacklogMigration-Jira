@@ -62,12 +62,7 @@ object IssueMappingJsonProtocol extends DefaultJsonProtocol {
           val issueFields = fieldMap
             .filter(_._1.startsWith("customfield_"))
             .filterNot { map => map._2 == JsNull }
-            .map { item =>
-              item._2 match {
-                case JsString(str) => IssueField(item._1, str)
-                case other         => IssueField(item._1, other.toString)
-              }
-            }
+            .map { item => IssueField(item._1, item._2.toString)}
             .toSeq
 
           Issue(

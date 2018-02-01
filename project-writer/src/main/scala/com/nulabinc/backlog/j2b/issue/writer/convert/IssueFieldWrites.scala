@@ -15,27 +15,34 @@ class IssueFieldWrites @Inject()(customFieldDefinitions: Seq[Field])
     with DatetimeToDateFormatter {
 
   override def writes(issueField: IssueField) =
-    customFieldDefinitions.find(_.id == issueField.id).map { field =>
-      field.schema match {
-        case FieldType.TextArea         => toTextAreaCustomField(field, issueField.value.asInstanceOf[StringFieldValue])
-        case FieldType.Number           => toNumberCustomField(field, issueField.value.asInstanceOf[NumberFieldValue])
-        case FieldType.Date             => toDateCustomField(field, issueField.value.asInstanceOf[StringFieldValue])
-        case FieldType.DateTime         => toDateTimeCustomField(field, issueField.value.asInstanceOf[StringFieldValue])
-        case FieldType.Checkbox         => toCheckBoxCustomField(field, issueField.value.asInstanceOf[ArrayFieldValue])
-        case FieldType.Radio            => toRadioCustomField(field, issueField.value.asInstanceOf[OptionFieldValue])
-        case FieldType.SingleSelect     => toSingleListCustomField(field, issueField.value.asInstanceOf[OptionFieldValue])
-        case FieldType.MultiSelect      => toMultipleListCustomField(field, issueField.value.asInstanceOf[ArrayFieldValue])
-        case FieldType.CustomLabels     => toMultipleListCustomField(field, issueField.value.asInstanceOf[ArrayFieldValue])
-        case FieldType.OptionWithChild  => toMultipleListCustomField(field, issueField.value.asInstanceOf[ArrayFieldValue])
-//        case FieldType.Components       =>
-        case FieldType.IssueType        => toIssueTypeCustomField(field, issueField.value.asInstanceOf[IssueTypeFieldValue])
-        case FieldType.User             => toUserCustomField(field, issueField.value.asInstanceOf[UserFieldValue])
-        //          case (AnySchema, _)                         => toTextCustomField(field, issueField.value.asInstanceOf[StringFieldValue])
-        //          case (OptionSchema, _)                      => toTextCustomField(field, issueField.value.asInstanceOf[StringFieldValue])
-        //          case (OptionWithChildSchema, _)             => toMultipleListCustomField(field, issueField.value.asInstanceOf[ArrayFieldValue])
-        case FieldType.String           => toTextCustomField(field, issueField.value.asInstanceOf[StringFieldValue])
+    try {
+      customFieldDefinitions.find(_.id == issueField.id).map { field =>
+        field.schema match {
+          case FieldType.TextArea         => toTextAreaCustomField(field, issueField.value.asInstanceOf[StringFieldValue])
+          case FieldType.Number           => toNumberCustomField(field, issueField.value.asInstanceOf[NumberFieldValue])
+          case FieldType.Date             => toDateCustomField(field, issueField.value.asInstanceOf[StringFieldValue])
+          case FieldType.DateTime         => toDateTimeCustomField(field, issueField.value.asInstanceOf[StringFieldValue])
+          case FieldType.Checkbox         => toCheckBoxCustomField(field, issueField.value.asInstanceOf[ArrayFieldValue])
+          case FieldType.Radio            => toRadioCustomField(field, issueField.value.asInstanceOf[OptionFieldValue])
+          case FieldType.SingleSelect     => toSingleListCustomField(field, issueField.value.asInstanceOf[OptionFieldValue])
+          case FieldType.MultiSelect      => toMultipleListCustomField(field, issueField.value.asInstanceOf[ArrayFieldValue])
+          case FieldType.CustomLabels     => toMultipleListCustomField(field, issueField.value.asInstanceOf[ArrayFieldValue])
+          case FieldType.Option           => toSingleListCustomField(field, issueField.value.asInstanceOf[OptionFieldValue])
+          case FieldType.OptionWithChild  => toMultipleListCustomField(field, issueField.value.asInstanceOf[ArrayFieldValue])
+          //        case FieldType.Components       =>
+          case FieldType.IssueType        => toIssueTypeCustomField(field, issueField.value.asInstanceOf[IssueTypeFieldValue])
+          case FieldType.User             => toUserCustomField(field, issueField.value.asInstanceOf[UserFieldValue])
+          case FieldType.Strings          => toMultipleListCustomField(field, issueField.value.asInstanceOf[ArrayFieldValue])
+          case FieldType.String           => toTextCustomField(field, issueField.value.asInstanceOf[StringFieldValue])
+          case FieldType.Unknown          => toTextCustomField(field, issueField.value.asInstanceOf[StringFieldValue])
+        }
       }
+    } catch {
+      case e: Throwable =>
+        logger.error(e.getMessage + " Value: " + issueField.value.toString)
+        throw e
     }
+
 
   private def toTextCustomField(field: Field, issueField: StringFieldValue) =
     BacklogCustomField(

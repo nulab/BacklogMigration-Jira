@@ -21,6 +21,8 @@ object FieldType {
   case object DateTime extends FieldType("datetime", BacklogFieldType.Date)
   case object Date extends FieldType("date", BacklogFieldType.Date)
 
+  case object Strings extends FieldType("string", BacklogFieldType.MultipleList)
+
   // JIRA specific types
   case object IssueType extends FieldType("issuetype", BacklogFieldType.Text)
   case object Project extends FieldType("project", BacklogFieldType.Text)
@@ -72,27 +74,30 @@ object FieldType {
     case SubTasks.value => SubTasks
     case Progress.value => Progress
     case WorkLogs.value => WorkLogs
+    case Option.value => Option
     case OptionWithChild.value => OptionWithChild
+    case _ => Unknown
   }
 
   def apply(schemaType: Option[String], schemaSystem: Option[String], schemaItems: Option[String], schemaCustom: Option[String]): FieldType =
     (schemaType, schemaSystem, schemaItems, schemaCustom) match {
       // Check array
-      case (Some(FieldValueType.Multi.value), Some(User.value),     _, _) => Users
-      case (Some(FieldValueType.Multi.value), Some(Group.value),    _, _) => Groups
-      case (Some(FieldValueType.Multi.value), Some(Option.value),   _, _) => Checkbox
-      case (Some(FieldValueType.Multi.value), Some(name),           _, _) => fromString(name)
-      case (Some(FieldValueType.Multi.value), None,                 _, _) => String
+      case (Some(FieldValueType.Multi.value), Some(User.value),   _,                  _) => Users
+      case (Some(FieldValueType.Multi.value), Some(Group.value),  _,                  _) => Groups
+      case (Some(FieldValueType.Multi.value), _,                  Some(Option.value), _) => Checkbox
+      case (Some(FieldValueType.Multi.value), _,                  Some(String.value), _) => Strings
+      case (Some(FieldValueType.Multi.value), Some(name),         _,                  _) => fromString(name)
+      case (Some(FieldValueType.Multi.value), None,               _,                  _) => String
       // Check customizable
-      case (Some(String.value), None, None, Some(custom)) if custom.contains(Radio.value)        => Radio
-      case (Some(String.value), None, None, Some(custom)) if custom.contains(Checkbox.value)     => Checkbox
-      case (Some(String.value), None, None, Some(custom)) if custom.contains(CustomLabels.value) => CustomLabels
-      case (Some(String.value), None, None, Some(custom)) if custom.contains(MultiSelect.value)  => MultiSelect
-      case (Some(String.value), None, None, Some(custom)) if custom.contains(SingleSelect.value) => SingleSelect
-      case (Some(String.value), None, None, Some(custom)) if custom.contains(TextArea.value)     => TextArea
+      case (Some(String.value),               None,               None, Some(custom)) if custom.contains(Radio.value)        => Radio
+      case (Some(String.value),               None,               None, Some(custom)) if custom.contains(Checkbox.value)     => Checkbox
+      case (Some(String.value),               None,               None, Some(custom)) if custom.contains(CustomLabels.value) => CustomLabels
+      case (Some(String.value),               None,               None, Some(custom)) if custom.contains(MultiSelect.value)  => MultiSelect
+      case (Some(String.value),               None,               None, Some(custom)) if custom.contains(SingleSelect.value) => SingleSelect
+      case (Some(String.value),               None,               None, Some(custom)) if custom.contains(TextArea.value)     => TextArea
       // Check single
-      case (Some(name), _, _, _) => fromString(name)
-      case (None, _, _, _)       => String
+      case (Some(name),                       _,                  _,    _)        => fromString(name)
+      case (None,                             _,                  _,    _)       => String
     }
 }
 
