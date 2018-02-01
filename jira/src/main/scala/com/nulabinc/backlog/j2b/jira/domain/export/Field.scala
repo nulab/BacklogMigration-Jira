@@ -85,7 +85,7 @@ object FieldType {
       case (Some(FieldValueType.Multi.value), Some(User.value),   _,                  _) => Users
       case (Some(FieldValueType.Multi.value), Some(Group.value),  _,                  _) => Groups
       case (Some(FieldValueType.Multi.value), _,                  Some(Option.value), _) => Checkbox
-      case (Some(FieldValueType.Multi.value), _,                  Some(String.value), _) => Strings
+      case (Some(FieldValueType.Multi.value), _,                  Some(String.value), Some(custom)) if custom.contains(CustomLabels.value) => CustomLabels
       case (Some(FieldValueType.Multi.value), Some(name),         _,                  _) => fromString(name)
       case (Some(FieldValueType.Multi.value), None,               _,                  _) => String
       // Check customizable
