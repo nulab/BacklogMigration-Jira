@@ -15,7 +15,7 @@ class JiraClientCommentService @Inject()(jira: JiraRestClient) extends CommentSe
     jira.commentAPI.issueComments(issue.id, startAt, maxResults) match {
       case Right(result) =>
         val appendedComments = comments ++ result.comments
-        if (result.hasPage) fetch(issue, startAt + maxResults, maxResults, appendedComments)
+        if (result.hasPage(appendedComments.length)) fetch(issue, startAt + maxResults, maxResults, appendedComments)
         else appendedComments
       case Left(error) =>
         throw new RuntimeException(s"Cannot get issue comments: ${error.message}")
