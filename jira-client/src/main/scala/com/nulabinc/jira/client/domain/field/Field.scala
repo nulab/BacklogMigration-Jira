@@ -5,3 +5,10 @@ case class Field(
   name: String,
   schema: Option[FieldSchema]
 )
+
+case class FieldSchema(
+  `type`: Option[String],
+  system: Option[String],
+  items: Option[String],
+  custom: Option[String]
+)

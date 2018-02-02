@@ -2,7 +2,7 @@ package com.nulabinc.jira.client.apis
 
 import com.netaporter.uri.dsl._
 import com.nulabinc.jira.client._
-import com.nulabinc.jira.client.domain.changeLog.ChangeLogResult
+import com.nulabinc.jira.client.domain.changeLog.{ChangeLog, ChangeLogResult}
 import com.nulabinc.jira.client.domain.issue.Issue
 import spray.json._
 
@@ -32,7 +32,7 @@ class IssueRestClientImpl(httpClient: HttpClient) extends Pageable {
   def changeLogs(issueIdOrKey: String, startAt: Long, maxResults: Long): Either[JiraRestClientError, ChangeLogResult] =
     httpClient.get(s"/issue/$issueIdOrKey/changelog") match {
       case Right(json)               => Right(JsonParser(json).convertTo[ChangeLogResult])
-      case Left(_: ApiNotFoundError) => Left(ResourceNotFoundError("Issue.changeLogs", issueIdOrKey))
+      case Left(_: ApiNotFoundError) => Right(ChangeLogResult(0, true, Seq.empty[ChangeLog]))
       case Left(error)               => Left(HttpError(error))
     }
 

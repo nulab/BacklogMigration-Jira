@@ -1,8 +1,6 @@
 package com.nulabinc.backlog.j2b.exporter
 
-import com.nulabinc.backlog.j2b.jira.domain.export.Milestone
-import com.nulabinc.jira.client.domain.field.Field
-import com.nulabinc.jira.client.domain.issue.{ArrayFieldValue, IssueField}
+import com.nulabinc.backlog.j2b.jira.domain.export.{ArrayFieldValue, Field, IssueField, Milestone}
 
 object MilestoneExtractor {
 

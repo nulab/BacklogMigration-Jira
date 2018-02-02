@@ -14,7 +14,6 @@ import scala.util.Try
 object IssueMappingJsonProtocol extends DefaultJsonProtocol {
 
   import UserMappingJsonProtocol._
-  import IssueFieldMappingJsonProtocol._
   import TimeTrackMappingJsonProtocol._
   import IssueTypeMappingJsonProtocol._
   import ComponentMappingJsonProtocol._
@@ -63,12 +62,7 @@ object IssueMappingJsonProtocol extends DefaultJsonProtocol {
           val issueFields = fieldMap
             .filter(_._1.startsWith("customfield_"))
             .filterNot { map => map._2 == JsNull }
-            .map { item =>
-              IssueField(
-                id    = item._1,
-                value = item._2.convertTo[FieldValue]
-              )
-            }
+            .map { item => IssueField(item._1, item._2.toString)}
             .toSeq
 
           Issue(

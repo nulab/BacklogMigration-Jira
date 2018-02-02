@@ -8,7 +8,7 @@ import org.scalatest.{Assertion, Matchers}
 trait UserMatcher extends TestHelper with Matchers {
 
   def assertUser(jiraUser: JiraUser, backlogUser: BacklogUser): Assertion =
-    convertUser(jiraUser.key) should equal(backlogUser.getUserId)
+    convertUser(jiraUser.identifyKey) should equal(backlogUser.getUserId)
 
   def assertUser(jiraUserKey: String, backlogUserId: String): Assertion =
     convertUser(jiraUserKey) should equal(backlogUserId)

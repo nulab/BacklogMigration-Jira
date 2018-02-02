@@ -25,7 +25,7 @@ Download
 
 Please download the jar file from this link, and run from the command line as follows.
 
-https://github.com/nulab/BacklogMigration-Jira/releases/download/0.1.0b2/backlog-migration-jira-0.1.0b2.jar
+https://github.com/nulab/BacklogMigration-Jira/releases/download/0.1.0b3/backlog-migration-jira-0.1.0b3.jar
 
     java -jar backlog-migration-jira-[latest version].jar
 
@@ -135,7 +135,16 @@ Sample commands:
 ## Limitation
 
 ### Supported JIRA version
-JIRA **SaaS and JIRA REST API v2** is supported.
+#### Cloud version
+We support.
+
+#### Server version(Limited)
+We support the following versions.
+
+- 6.3.4
+
+Can not migrate the change logs.  
+Can not migrate the status. It always be **Open**.
 
 ### Backlog's user roles
 This program is for the users with the Space's **administrator** roles.
@@ -233,7 +242,7 @@ https://github.com/nulab/BacklogMigration-Jira/releases
 
 こちらのリンクからjarファイルをダウンロードし、以下のようにコマンドラインから実行します。
 
-https://github.com/nulab/BacklogMigration-Jira/releases/download/0.1.0b2/backlog-migration-jira-0.1.0b2.jar
+https://github.com/nulab/BacklogMigration-Jira/releases/download/0.1.0b3/backlog-migration-jira-0.1.0b3.jar
 
     java -jar backlog-migration-jira-[最新バージョン].jar
 
@@ -343,7 +352,15 @@ descriptionにある項目を使い、空白を埋める必要が有ります。
 ## 制限事項
 
 ### JIRAの対応バージョン
-JIRAの対応バージョンは **SaaS版かつJIRA REST API v2** になります。
+#### クラウド版
+対応しております。
+
+#### Server版(一部機能のみ)
+以下のバージョンで確認しております。
+- 6.3.4
+
+変更履歴は移行できません。  
+状態は移行できません。状態は常に **未対応** となります。
 
 ### 実行できるユーザー
 Backlogの **管理者権限** が必要になります。
@@ -416,6 +433,6 @@ MIT License
 
 お問い合わせは下記サイトからご連絡ください。
 
-https://www.backlog.jp/contact/
+https://backlog.com/ja/contact/
 
-[Backlog]: https://www.backlog.jp/
+[Backlog]: https://backlog.com/ja/

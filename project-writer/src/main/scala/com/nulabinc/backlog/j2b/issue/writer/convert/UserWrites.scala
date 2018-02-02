@@ -10,7 +10,7 @@ class UserWrites extends Writes[User, BacklogUser] {
   override def writes(user: User) =
     BacklogUser(
       optId = None,
-      optUserId = Some(user.key),
+      optUserId = Some(user.identifyKey), // TODO: check impl. user.key?
       optPassword = None,
       name = user.name,
       optMailAddress = Some(user.emailAddress),
