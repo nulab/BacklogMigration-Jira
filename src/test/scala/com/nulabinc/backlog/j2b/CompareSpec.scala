@@ -255,8 +255,11 @@ class CompareSpec extends FlatSpec
                   jiraValue.value should equal(backlogValue.getName)
                 case BacklogConstantValue.CustomField.CheckBox =>
                   val backlogValues = backlogCustomField.asInstanceOf[CheckBoxCustomField].getValue.asScala
-                  jiraCustomField.value.asInstanceOf[ArrayFieldValue].values.map { jiraValue =>
-                    backlogValues.find(_.getName == jiraValue.value) should not be empty
+                  jiraCustomField.value match {
+                    case v: ArrayFieldValue => v.values.map { jiraValue =>
+                      backlogValues.find(_.getName == jiraValue.value) should not be empty
+                    }
+                    case v: StringFieldValue => backlogValues.find(_.getName == v.value) should not be empty
                   }
                 case BacklogConstantValue.CustomField.Radio =>
                   val backlogValue = backlogCustomField.asInstanceOf[RadioCustomField]

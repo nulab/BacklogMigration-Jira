@@ -22,7 +22,7 @@ class IssueFieldWrites @Inject()(customFieldDefinitions: Seq[Field])
           case FieldType.Number           => toNumberCustomField(field, issueField.value.asInstanceOf[NumberFieldValue])
           case FieldType.Date             => toDateCustomField(field, issueField.value.asInstanceOf[StringFieldValue])
           case FieldType.DateTime         => toDateTimeCustomField(field, issueField.value.asInstanceOf[StringFieldValue])
-          case FieldType.Checkbox         => toCheckBoxCustomField(field, issueField.value.asInstanceOf[ArrayFieldValue])
+          case FieldType.Checkbox         => toCheckBoxCustomField(field, issueField.value)
           case FieldType.Radio            => toRadioCustomField(field, issueField.value.asInstanceOf[OptionFieldValue])
           case FieldType.SingleSelect     => toSingleListCustomField(field, issueField.value.asInstanceOf[OptionFieldValue])
           case FieldType.MultiSelect      => toMultipleListCustomField(field, issueField.value.asInstanceOf[ArrayFieldValue])
@@ -93,13 +93,18 @@ class IssueFieldWrites @Inject()(customFieldDefinitions: Seq[Field])
       values = issueField.values.map(_.value)
     )
 
-  private def toCheckBoxCustomField(field: Field, issueField: ArrayFieldValue) =
+  private def toCheckBoxCustomField(field: Field, issueFieldValue: FieldValue) = {
+    val values = issueFieldValue match {
+      case value: ArrayFieldValue => value.values.map(_.value)
+      case value: StringFieldValue => Seq(value.value)
+    }
     BacklogCustomField(
       name = field.name,
       fieldTypeId = BacklogFieldType.CheckBox.getIntValue,
       optValue = None,
-      values = issueField.values.map(_.value)
+      values = values
     )
+  }
 
   private def toSingleListCustomField(field: Field, issueField: OptionFieldValue) =
     BacklogCustomField(

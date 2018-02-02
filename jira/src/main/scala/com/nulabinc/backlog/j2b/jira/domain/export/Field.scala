@@ -38,8 +38,6 @@ object FieldType {
   case object Components extends FieldType("components", BacklogFieldType.MultipleList)
   case object TimeTracking extends FieldType("timetracking", BacklogFieldType.Text)
   case object WorkLogs extends FieldType("worklog", BacklogFieldType.MultipleList)
-  case object Group extends FieldType("group", BacklogFieldType.Text)
-  case object Groups extends FieldType("group", BacklogFieldType.MultipleList)
   case object Option extends FieldType("option", BacklogFieldType.SingleList)
   case object OptionWithChild extends FieldType("option-with-child", BacklogFieldType.SingleList)
   case object SubTasks extends FieldType("subtasks", BacklogFieldType.MultipleList)
@@ -83,11 +81,10 @@ object FieldType {
     (schemaType, schemaSystem, schemaItems, schemaCustom) match {
       // Check array
       case (Some(FieldValueType.Multi.value), Some(User.value),   _,                  _) => Users
-      case (Some(FieldValueType.Multi.value), Some(Group.value),  _,                  _) => Groups
       case (Some(FieldValueType.Multi.value), _,                  Some(Option.value), _) => Checkbox
       case (Some(FieldValueType.Multi.value), _,                  Some(String.value), Some(custom)) if custom.contains(CustomLabels.value) => CustomLabels
       case (Some(FieldValueType.Multi.value), Some(name),         _,                  _) => fromString(name)
-      case (Some(FieldValueType.Multi.value), None,               _,                  _) => String
+      case (Some(FieldValueType.Multi.value), None,               _,                  _) => Strings
       // Check customizable
       case (Some(String.value),               None,               None, Some(custom)) if custom.contains(Radio.value)        => Radio
       case (Some(String.value),               None,               None, Some(custom)) if custom.contains(Checkbox.value)     => Checkbox
@@ -100,8 +97,6 @@ object FieldType {
       case (None,                             _,                  _,    _)       => String
     }
 }
-
-
 
 /*
   Whether a single value or multiple values
