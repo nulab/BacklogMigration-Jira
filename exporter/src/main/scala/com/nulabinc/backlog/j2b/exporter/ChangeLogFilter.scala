@@ -1,8 +1,9 @@
 package com.nulabinc.backlog.j2b.exporter
 
+import com.nulabinc.backlog.j2b.jira.domain.export.Field
+import com.nulabinc.backlog.j2b.jira.domain.export.FieldType.CustomLabels
 import com.nulabinc.jira.client.domain.{Component, Version}
 import com.nulabinc.jira.client.domain.changeLog._
-import com.nulabinc.jira.client.domain.field.{CustomLabel, Field}
 
 object ChangeLogFilter {
 
@@ -33,13 +34,11 @@ object ChangeLogFilter {
           case LinkChangeLogItemField => item.copy(field = DefaultField("link_issue"), fieldId = None)
           case _ => item.field match {
             case DefaultField(fieldId) => definitions.find(_.name == fieldId) match {
-              case Some(definition) if definition.schema.isDefined =>
-                if (definition.schema.get.customType.contains(CustomLabel))
-                  item.copy(
-                    fromDisplayString = item.fromDisplayString.map(_.replace(" ", ",")),
-                    toDisplayString = item.toDisplayString.map(_.replace(" ", ","))
-                  )
-                else item
+              case Some(definition) if definition.schema == CustomLabels =>
+                item.copy(
+                  fromDisplayString = item.fromDisplayString.map(_.replace(" ", ",")),
+                  toDisplayString = item.toDisplayString.map(_.replace(" ", ","))
+                )
               case _ => item
             }
             case _ => item

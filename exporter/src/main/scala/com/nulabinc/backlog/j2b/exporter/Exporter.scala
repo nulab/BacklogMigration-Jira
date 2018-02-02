@@ -4,15 +4,15 @@ import javax.inject.Inject
 
 import com.nulabinc.backlog.j2b.exporter.console.RemainingTimeCalculator
 import com.nulabinc.backlog.j2b.jira.conf.JiraBacklogPaths
+import com.nulabinc.backlog.j2b.jira.domain.export._
 import com.nulabinc.backlog.j2b.jira.domain.mapping.MappingCollectDatabase
-import com.nulabinc.backlog.j2b.jira.domain.{CollectData, JiraProjectKey}
+import com.nulabinc.backlog.j2b.jira.domain.{CollectData, FieldConverter, IssueFieldConverter, JiraProjectKey}
 import com.nulabinc.backlog.j2b.jira.service._
 import com.nulabinc.backlog.j2b.jira.utils.DateChangeLogConverter
 import com.nulabinc.backlog.j2b.jira.writer._
 import com.nulabinc.backlog.migration.common.utils.{ConsoleOut, Logging, ProgressBar}
 import com.nulabinc.jira.client.domain._
 import com.nulabinc.jira.client.domain.changeLog.{AssigneeFieldId, ComponentChangeLogItemField, CustomFieldFieldId, FixVersion}
-import com.nulabinc.jira.client.domain.field.Field
 import com.nulabinc.jira.client.domain.issue._
 import com.osinka.i18n.Messages
 
@@ -39,7 +39,7 @@ class Exporter @Inject()(projectKey: JiraProjectKey,
     extends Logging
     with DateChangeLogConverter {
 
-  private val console            = (ProgressBar.progress _)(Messages("common.issues"), Messages("message.exporting"), Messages("message.exported"))
+//  private val console            = (ProgressBar.progress _)(Messages("common.issues"), Messages("message.exporting"), Messages("message.exported"))
 //  private val issuesInfoProgress = (ProgressBar.progress _)(Messages("common.issues_info"), Messages("message.collecting"), Messages("message.collected"))
 
   def export(backlogPaths: JiraBacklogPaths): CollectData = {
@@ -63,10 +63,11 @@ class Exporter @Inject()(projectKey: JiraProjectKey,
     ConsoleOut.boldln(Messages("message.executed", Messages("common.issue_type"), Messages("message.exported")), 1)
 
     // issue
-    val statuses  = statusService.all()
-    val total     = issueService.count()
-    val fields    = fieldService.all()
+    val statuses = statusService.all()
+    val total = issueService.count()
     val calculator = new RemainingTimeCalculator(total)
+    val fields = FieldConverter.toExportField(fieldService.all())
+
     fetchIssue(calculator, statuses, categories, versions, fields, 1, total, 0, 100)
 
     // version & milestone
@@ -86,6 +87,7 @@ class Exporter @Inject()(projectKey: JiraProjectKey,
     collectedData.outputJiraStatusesToFile(backlogPaths.jiraStatusesJson)
 
     collectedData
+
   }
 
   private def fetchIssue(calculator: RemainingTimeCalculator,
@@ -101,6 +103,9 @@ class Exporter @Inject()(projectKey: JiraProjectKey,
       issues.zipWithIndex.foreach {
         case (issue, i) => {
 
+          // Issue fields
+          val issueFields = IssueFieldConverter.toExportIssueFields(issue.issueFields)
+
           // Change logs
           val issueChangeLogs = issueService.changeLogs(issue) // API Call
 
@@ -108,16 +113,16 @@ class Exporter @Inject()(projectKey: JiraProjectKey,
           val comments = commentService.issueComments(issue)
 
           // milestone
-          val milestones = MilestoneExtractor.extract(fields, issue.issueFields)
+          val milestones = MilestoneExtractor.extract(fields, issueFields)
           milestones.foreach(m => mappingCollectDatabase.addMilestone(m))
 
           // filter change logs and custom fields
+          val filteredIssueFields = IssueFieldFilter.filterMilestone(fields, issueFields)
           val issueWithFilteredChangeLogs: Issue = issue.copy(
             changeLogs = {
               val filtered = ChangeLogFilter.filter(fields, components, versions, issueChangeLogs)
               convertDateChangeLogs(filtered, fields)
-            },
-            issueFields = IssueFieldFilter.filterMilestone(fields, issue.issueFields)
+            }
           )
 
           def saveIssueFieldValue(id: String, fieldValue: FieldValue): Unit = fieldValue match {
@@ -125,11 +130,10 @@ class Exporter @Inject()(projectKey: JiraProjectKey,
             case NumberFieldValue(value) => mappingCollectDatabase.addCustomField(id, Some(value.toString))
             case ArrayFieldValue(values) => values.map(v => mappingCollectDatabase.addCustomField(id, Some(v.value)))
             case OptionFieldValue(value) => saveIssueFieldValue(id, value.value)
-            case AnyFieldValue(value)    => mappingCollectDatabase.addCustomField(id, Some(value))
             case UserFieldValue(user)    => mappingCollectDatabase.addCustomField(id, Some(user.identifyKey))
+            case other                   => mappingCollectDatabase.addCustomField(id, Some(other.value))
           }
-
-          issueWithFilteredChangeLogs.issueFields.foreach(v => saveIssueFieldValue(v.id, v.value))
+          filteredIssueFields.foreach(v => saveIssueFieldValue(v.id, v.value))
 
           // collect custom fields
           issueWithFilteredChangeLogs.changeLogs.foreach { changeLog =>
@@ -150,6 +154,7 @@ class Exporter @Inject()(projectKey: JiraProjectKey,
             fields                  = fields,
             milestones              = milestones,
             issue                   = issueWithFilteredChangeLogs,
+            issueFields             = filteredIssueFields,
             comments                = comments
           )
           issueWriter.write(initializedBacklogIssue, issue.createdAt.toDate)
