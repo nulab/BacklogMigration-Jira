@@ -433,6 +433,6 @@ MIT License
 
 お問い合わせは下記サイトからご連絡ください。
 
-https://www.backlog.jp/contact/
+https://backlog.com/ja/contact/
 
-[Backlog]: https://www.backlog.jp/
+[Backlog]: https://backlog.com/ja/
