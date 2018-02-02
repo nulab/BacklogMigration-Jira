@@ -135,7 +135,16 @@ Sample commands:
 ## Limitation
 
 ### Supported JIRA version
-JIRA **SaaS and JIRA REST API v2** is supported.
+#### Cloud version
+We support.
+
+#### Server version(Limited)
+We support the following versions.
+
+- 6.3.4
+
+Can not migrate the change logs.  
+Can not migrate the status. It always be **Open**.
 
 ### Backlog's user roles
 This program is for the users with the Space's **administrator** roles.
@@ -343,7 +352,15 @@ descriptionにある項目を使い、空白を埋める必要が有ります。
 ## 制限事項
 
 ### JIRAの対応バージョン
-JIRAの対応バージョンは **SaaS版かつJIRA REST API v2** になります。
+#### クラウド版
+対応しております。
+
+#### Server版(一部機能のみ)
+以下のバージョンで確認しております。
+- 6.3.4
+
+変更履歴は移行できません。  
+状態は移行できません。状態は常に **未対応** となります。
 
 ### 実行できるユーザー
 Backlogの **管理者権限** が必要になります。
