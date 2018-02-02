@@ -47,8 +47,8 @@ object JsonFormatters extends DefaultJsonProtocol {
 
     implicit val stringFormat = jsonFormat1(StringFieldValue)
     implicit val numberFormat = jsonFormat1(NumberFieldValue)
-    implicit val arrayFormat  = jsonFormat1(ArrayFieldValue)
-    implicit val optionFormat = jsonFormat1(OptionFieldValue)
+//    implicit val arrayFormat  = jsonFormat1(ArrayFieldValue)
+//    implicit val optionFormat = jsonFormat1(OptionFieldValue)
     implicit val userFormat   = jsonFormat1(UserFieldValue)
 
 }
