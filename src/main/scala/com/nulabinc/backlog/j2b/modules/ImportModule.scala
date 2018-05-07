@@ -3,11 +3,9 @@ package com.nulabinc.backlog.j2b.modules
 import com.nulabinc.backlog.j2b.conf.AppConfiguration
 import com.nulabinc.backlog.j2b.issue.writer.ProjectUserFileWriter
 import com.nulabinc.backlog.j2b.jira.converter._
-import com.nulabinc.backlog.j2b.jira.service.MappingFileService
 import com.nulabinc.backlog.j2b.jira.writer.ProjectUserWriter
 import com.nulabinc.backlog.j2b.mapping.converter._
 import com.nulabinc.backlog.j2b.mapping.converter.writes.UserWrites
-import com.nulabinc.backlog.j2b.mapping.file.MappingFileServiceImpl
 
 class ImportModule(config: AppConfiguration) extends DefaultModule(config) {
 

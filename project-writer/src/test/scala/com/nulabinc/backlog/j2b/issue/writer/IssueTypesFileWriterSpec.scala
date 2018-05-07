@@ -6,6 +6,8 @@ import org.specs2.mutable.Specification
 
 class IssueTypesFileWriterSpec extends Specification with FileWriterTestHelper {
 
+  if (paths.issueTypesJson.exists) paths.issueTypesJson.delete()
+
   "should write issue types to file" >> {
 
     val issueTypes = Seq[IssueType](

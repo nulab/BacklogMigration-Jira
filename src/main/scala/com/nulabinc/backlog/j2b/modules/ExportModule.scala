@@ -4,10 +4,8 @@ import com.nulabinc.backlog.j2b.conf.AppConfiguration
 import com.nulabinc.backlog.j2b.exporter.{CommentFileWriter, IssueFileWriter}
 import com.nulabinc.backlog.j2b.exporter.service._
 import com.nulabinc.backlog.j2b.issue.writer._
-import com.nulabinc.backlog.j2b.jira.domain.mapping.MappingCollectDatabase
 import com.nulabinc.backlog.j2b.jira.service._
 import com.nulabinc.backlog.j2b.jira.writer._
-import com.nulabinc.backlog.j2b.mapping.collector.MappingCollectDatabaseInMemory
 
 class ExportModule(config: AppConfiguration) extends DefaultModule(config) {
 
