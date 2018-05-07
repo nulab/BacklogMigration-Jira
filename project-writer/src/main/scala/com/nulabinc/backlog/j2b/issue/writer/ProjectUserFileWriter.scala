@@ -5,10 +5,8 @@ import javax.inject.Inject
 import com.nulabinc.backlog.j2b.issue.writer.convert.UserWrites
 import com.nulabinc.backlog.j2b.jira.writer.ProjectUserWriter
 import com.nulabinc.backlog.migration.common.conf.BacklogPaths
-import com.nulabinc.backlog.migration.common.convert.Convert
 import com.nulabinc.backlog.migration.common.domain.{BacklogProjectUsersWrapper, BacklogUser}
 import com.nulabinc.backlog.migration.common.utils.IOUtil
-import com.nulabinc.jira.client.domain.User
 import spray.json._
 
 class ProjectUserFileWriter @Inject()(implicit val userWrites: UserWrites,

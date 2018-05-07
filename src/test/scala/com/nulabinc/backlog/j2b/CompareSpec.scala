@@ -8,7 +8,7 @@ import com.nulabinc.backlog.j2b.matchers.{DateMatcher, UserMatcher}
 import com.nulabinc.backlog.migration.common.conf.{BacklogApiConfiguration, BacklogConstantValue}
 import com.nulabinc.backlog.migration.common.convert.Convert
 import com.nulabinc.backlog.migration.common.convert.writes.UserWrites
-import com.nulabinc.backlog4j.{CustomFieldSetting, IssueComment, ResponseList}
+import com.nulabinc.backlog4j.{CustomFieldSetting, IssueComment}
 import com.nulabinc.backlog4j.api.option.{GetIssuesParams, QueryParams}
 import com.nulabinc.backlog4j.internal.json.customFields._
 import com.nulabinc.jira.client.domain.changeLog.LinkChangeLogItemField

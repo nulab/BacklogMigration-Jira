@@ -10,7 +10,7 @@ import com.nulabinc.backlog.j2b.jira.domain.{CollectData, FieldConverter, IssueF
 import com.nulabinc.backlog.j2b.jira.service._
 import com.nulabinc.backlog.j2b.jira.utils.DateChangeLogConverter
 import com.nulabinc.backlog.j2b.jira.writer._
-import com.nulabinc.backlog.migration.common.utils.{ConsoleOut, Logging, ProgressBar}
+import com.nulabinc.backlog.migration.common.utils.{ConsoleOut, Logging}
 import com.nulabinc.jira.client.domain._
 import com.nulabinc.jira.client.domain.changeLog.{AssigneeFieldId, ComponentChangeLogItemField, CustomFieldFieldId, FixVersion}
 import com.nulabinc.jira.client.domain.issue._
