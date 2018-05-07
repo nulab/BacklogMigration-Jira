@@ -24,8 +24,16 @@ class MappingConvertService @Inject()(implicit val issueWrites: IssueWrites,
 
     val paths: Seq[Path] = IOUtil.directoryPaths(backlogPaths.issueDirectoryPath)
     paths.zipWithIndex.foreach {
-      case (path, index) =>
-        convertIssue(database, path, index, paths.size, userMaps, priorityMaps, statusMaps)
+      case (path, _) =>
+        loadDateDirectory(path, database, userMaps, priorityMaps, statusMaps)
+    }
+  }
+
+  private def loadDateDirectory(path: Path, database: MappingCollectDatabase, userMaps: Seq[Mapping], priorityMaps: Seq[Mapping], statusMaps: Seq[Mapping]) = {
+    val jsonDirs = path.list.filter(_.isDirectory).toSeq
+    jsonDirs.zipWithIndex.foreach {
+      case (jsonDir, index) =>
+        convertIssue(database, jsonDir, index, jsonDirs.size, userMaps, priorityMaps, statusMaps)
     }
   }
 
