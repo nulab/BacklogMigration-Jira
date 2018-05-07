@@ -1,12 +1,12 @@
 package com.nulabinc.jira.client.domain
 
-import org.joda.time.DateTime
+import java.util.Date
 
 case class Attachment(
   id: Long,
   fileName: String,
   author: User,
-  createdAt: DateTime,
+  createdAt: Date,
   size: Long,
   mimeType: String,
   content: String

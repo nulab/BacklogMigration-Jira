@@ -2,8 +2,8 @@ package com.nulabinc.backlog.j2b.issue.writer
 
 import com.nulabinc.backlog.j2b.jira.domain.export.Milestone
 import com.nulabinc.backlog.migration.common.convert.BacklogUnmarshaller
+import com.nulabinc.backlog.migration.common.utils.DateUtil
 import com.nulabinc.jira.client.domain.Version
-import org.joda.time.DateTime
 import org.specs2.mutable.Specification
 
 
@@ -12,7 +12,7 @@ class VersionFileWriterSpec extends Specification with FileWriterTestHelper {
   "should write versions to file" >> {
 
     val versions = Seq[Version](
-      Version(id = None, name = "v1", description = Some("some version1"), archived = true, released = true, releaseDate = Some(DateTime.parse("1988-04-16"))),
+      Version(id = None, name = "v1", description = Some("some version1"), archived = true, released = true, releaseDate = Some(DateUtil.yyyymmddParse("1988-04-16"))),
       Version(id = Some(124), name = "v2", description = Some("some version2"), archived = false, released = false, releaseDate = None)
     )
 

@@ -10,7 +10,6 @@ import com.nulabinc.backlog.migration.common.convert.Convert
 import com.nulabinc.backlog.migration.common.domain.BacklogVersionsWrapper
 import com.nulabinc.backlog.migration.common.utils.IOUtil
 import com.nulabinc.jira.client.domain.Version
-import org.joda.time.DateTime
 import spray.json._
 
 class VersionFileWriter @Inject()(implicit val versionsWrites: VersionWrites,
@@ -26,7 +25,7 @@ class VersionFileWriter @Inject()(implicit val versionsWrites: VersionWrites,
         description = milestone.goal,
         archived = false,
         released = false,
-        releaseDate = milestone.endDate.map(new DateTime(_))
+        releaseDate = milestone.endDate
       )
     }
     val backlogVersions = Convert.toBacklog(versions ++ convertedMilestones)

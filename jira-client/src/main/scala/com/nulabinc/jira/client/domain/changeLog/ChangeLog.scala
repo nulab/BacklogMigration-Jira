@@ -1,12 +1,13 @@
 package com.nulabinc.jira.client.domain.changeLog
 
+import java.util.Date
+
 import com.nulabinc.jira.client.domain._
-import org.joda.time.DateTime
 
 case class ChangeLog(
   id: Long,
   author: User,
-  createdAt: DateTime,
+  createdAt: Date,
   items: Seq[ChangeLogItem]
 )
 

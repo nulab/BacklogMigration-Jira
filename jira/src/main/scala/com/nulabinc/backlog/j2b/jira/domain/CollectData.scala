@@ -1,9 +1,9 @@
 package com.nulabinc.backlog.j2b.jira.domain
 
+import better.files.{File => Path}
+
 import com.nulabinc.backlog.migration.common.utils.IOUtil
 import com.nulabinc.jira.client.domain.{Priority, Status, User}
-
-import scalax.file.Path
 
 case class CollectData(
   users: Set[User],

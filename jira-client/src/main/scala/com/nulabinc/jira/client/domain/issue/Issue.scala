@@ -4,7 +4,6 @@ import java.util.Date
 
 import com.nulabinc.jira.client.domain._
 import com.nulabinc.jira.client.domain.changeLog.ChangeLog
-import org.joda.time.DateTime
 
 case class Issue(
   id: Long,
@@ -22,8 +21,8 @@ case class Issue(
   status: Status,
   priority: Priority,
   creator: User,
-  createdAt: DateTime,
-  updatedAt: DateTime,
+  createdAt: Date,
+  updatedAt: Date,
   changeLogs: Seq[ChangeLog],
   attachments: Seq[Attachment]
 ) {

@@ -1,10 +1,9 @@
 package com.nulabinc.backlog.j2b.jira.service
 
+import better.files.{File => Path}
 import com.nulabinc.jira.client.DownloadResult
 import com.nulabinc.jira.client.domain.changeLog.ChangeLog
 import com.nulabinc.jira.client.domain.issue.Issue
-
-import scalax.file.Path
 
 trait IssueService {
 

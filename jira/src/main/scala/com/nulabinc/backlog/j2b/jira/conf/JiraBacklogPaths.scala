@@ -1,15 +1,14 @@
 package com.nulabinc.backlog.j2b.jira.conf
 
 import com.nulabinc.backlog.migration.common.conf.BacklogPaths
-
-import scalax.file.Path
+import better.files.{File => BetterFile}
 
 class JiraBacklogPaths(backlogProjectKey: String) extends BacklogPaths(backlogProjectKey) {
 
-  def jiraUsersJson: Path = outputPath / "project" / backlogProjectKey / "jiraUsers.json"
+  def jiraUsersJson: BetterFile = outputPath / "project" / backlogProjectKey / "jiraUsers.json"
 
-  def jiraStatusesJson: Path = outputPath / "project" / backlogProjectKey / "jiraStatuses.json"
+  def jiraStatusesJson: BetterFile = outputPath / "project" / backlogProjectKey / "jiraStatuses.json"
 
-  def jiraPrioritiesJson: Path = outputPath / "project" / backlogProjectKey / "jiraPriorities.json"
+  def jiraPrioritiesJson: BetterFile = outputPath / "project" / backlogProjectKey / "jiraPriorities.json"
 
 }

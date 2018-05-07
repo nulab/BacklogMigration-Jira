@@ -1,7 +1,8 @@
 package com.nulabinc.backlog.j2b.mapping.file
 
-import javax.inject.Inject
+import better.files.{File => Path}
 
+import javax.inject.Inject
 import com.nulabinc.jira.client.domain.{Priority => JiraPriority, Status => JiraStatus, User => JiraUser}
 import com.nulabinc.backlog.j2b.jira.conf.JiraApiConfiguration
 import com.nulabinc.backlog.j2b.jira.domain.mapping.MappingFile
@@ -11,9 +12,7 @@ import com.nulabinc.backlog.migration.common.service.{PriorityService => Backlog
 import com.nulabinc.backlog.migration.common.conf.BacklogApiConfiguration
 import com.nulabinc.backlog.migration.common.domain.BacklogUser
 import com.nulabinc.backlog.migration.common.utils.IOUtil
-import com.nulabinc.backlog4j.{Status => BacklogStatus, Priority => BacklogPriority}
-
-import scalax.file.Path
+import com.nulabinc.backlog4j.{Priority => BacklogPriority, Status => BacklogStatus}
 import spray.json._
 
 class MappingFileServiceImpl @Inject()(jiraApiConfig: JiraApiConfiguration,

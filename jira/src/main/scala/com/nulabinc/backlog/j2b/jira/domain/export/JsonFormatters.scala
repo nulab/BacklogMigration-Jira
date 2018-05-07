@@ -3,7 +3,7 @@ package com.nulabinc.backlog.j2b.jira.domain.export
 import com.nulabinc.jira.client.domain.User
 import spray.json._
 
-import scala.util.{Success, Try}
+import scala.util.Try
 
 object JsonFormatters extends DefaultJsonProtocol {
 

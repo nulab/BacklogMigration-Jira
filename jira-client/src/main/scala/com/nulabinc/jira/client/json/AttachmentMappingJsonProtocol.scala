@@ -1,7 +1,8 @@
 package com.nulabinc.jira.client.json
 
+import java.util.Date
+
 import com.nulabinc.jira.client.domain.{Attachment, User}
-import org.joda.time.DateTime
 import spray.json._
 
 object AttachmentMappingJsonProtocol extends DefaultJsonProtocol {
@@ -19,7 +20,7 @@ object AttachmentMappingJsonProtocol extends DefaultJsonProtocol {
             id = id.toLong,
             fileName = fileName,
             author = author.convertTo[User],
-            createdAt = createdAt.convertTo[DateTime],
+            createdAt = createdAt.convertTo[Date],
             size = size.toLong,
             mimeType = mineType,
             content = content

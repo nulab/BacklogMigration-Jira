@@ -1,10 +1,10 @@
 package com.nulabinc.backlog.j2b.issue.writer
 
+import better.files.{File => Path}
 import com.nulabinc.backlog.j2b.issue.writer.convert._
 import com.nulabinc.backlog.migration.common.conf.BacklogPaths
 import com.nulabinc.backlog.migration.common.domain.BacklogProjectKey
 
-import scalax.file.Path
 
 trait FileWriterTestHelper {
 
@@ -16,16 +16,16 @@ trait FileWriterTestHelper {
   implicit val versionsWrites         = new VersionWrites
 
   implicit val paths                  = new BacklogPaths(projectKey.value) {
-    override def projectJson          = Path.fromString("project-writer/target/project.json")
-    override def issueCategoriesJson  = Path.fromString("project-writer/target/categories.json")
-    override def issueTypesJson       = Path.fromString("project-writer/target/issueTypes.json")
-    override def versionsJson         = Path.fromString("project-writer/target/versions.json")
+    override def projectJson          = Path("project-writer/target/project.json")
+    override def issueCategoriesJson  = Path("project-writer/target/categories.json")
+    override def issueTypesJson       = Path("project-writer/target/issueTypes.json")
+    override def versionsJson         = Path("project-writer/target/versions.json")
   }
 
   // Delete all previous test results
-  paths.projectJson.jfile.delete()
-  paths.issueCategoriesJson.jfile.delete()
-  paths.issueTypesJson.jfile.delete()
-  paths.versionsJson.jfile.delete()
+  paths.projectJson.delete()
+  paths.issueCategoriesJson.delete()
+  paths.issueTypesJson.delete()
+  paths.versionsJson.delete()
 
 }

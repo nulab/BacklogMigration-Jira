@@ -1,9 +1,10 @@
 package com.nulabinc.backlog.j2b.exporter
 
+import java.util.Date
+
 import com.nulabinc.jira.client.domain._
 import com.nulabinc.jira.client.domain.changeLog.ChangeLog
 import com.nulabinc.jira.client.domain.issue._
-import org.joda.time.DateTime
 import org.specs2.mutable.Specification
 
 class AttachmentFilterSpec extends Specification {
@@ -31,15 +32,15 @@ class AttachmentFilterSpec extends Specification {
       status = Status("1", "status"),
       priority = Priority("priority"),
       creator = User(Some("key"), "name", "display", "mail"),
-      createdAt =  DateTime.now,
-      updatedAt =  DateTime.now,
+      createdAt =  new Date(),
+      updatedAt =  new Date(),
       changeLogs = Seq.empty[ChangeLog],
       attachments = Seq(
         Attachment(
           id = 1,
           fileName = "file1.txt",
           author = User(Some("key1"), "user1", "user1", "mail1"),
-          createdAt = DateTime.now,
+          createdAt = new Date(),
           size = 100,
           mimeType = "mine",
           content = "data"
@@ -48,7 +49,7 @@ class AttachmentFilterSpec extends Specification {
           id = 2,
           fileName = "file2.txt",
           author = User(Some("key2"), "user2", "user2", "mail2"),
-          createdAt = DateTime.now,
+          createdAt = new Date(),
           size = 200,
           mimeType = "mine",
           content = "data"
@@ -57,7 +58,7 @@ class AttachmentFilterSpec extends Specification {
           id = 3,
           fileName = "file3.txt",
           author = User(Some("key3") ,"user3", "user3", "mail3"),
-          createdAt = DateTime.now,
+          createdAt = new Date(),
           size = 300,
           mimeType = "mine",
           content = "data"
@@ -70,7 +71,7 @@ class AttachmentFilterSpec extends Specification {
         id = 1,
         body = "test1 body [^file2.txt] ",
         author = User(Some("aaa"), "aaa", "aaa", "mmm"),
-        createdAt = DateTime.now
+        createdAt = new Date()
       )
     )
 
