@@ -10,7 +10,7 @@ import com.nulabinc.backlog.j2b.jira.domain.{CollectData, FieldConverter, IssueF
 import com.nulabinc.backlog.j2b.jira.service._
 import com.nulabinc.backlog.j2b.jira.utils.DateChangeLogConverter
 import com.nulabinc.backlog.j2b.jira.writer._
-import com.nulabinc.backlog.migration.common.utils.{ConsoleOut, Logging, ProgressBar}
+import com.nulabinc.backlog.migration.common.utils.{ConsoleOut, Logging}
 import com.nulabinc.jira.client.domain._
 import com.nulabinc.jira.client.domain.changeLog.{AssigneeFieldId, ComponentChangeLogItemField, CustomFieldFieldId, FixVersion}
 import com.nulabinc.jira.client.domain.issue._
@@ -157,7 +157,7 @@ class Exporter @Inject()(projectKey: JiraProjectKey,
             issueFields             = filteredIssueFields,
             comments                = comments
           )
-          issueWriter.write(initializedBacklogIssue, issue.createdAt.toDate)
+          issueWriter.write(initializedBacklogIssue, issue.createdAt)
 
           // export issue comments
           val categoryPlayedChangeLogs  = ChangeLogsPlayer.play(ComponentChangeLogItemField, initializedBacklogIssue.categoryNames, issueWithFilteredChangeLogs.changeLogs)

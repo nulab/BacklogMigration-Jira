@@ -1,14 +1,13 @@
 package com.nulabinc.backlog.j2b.jira.domain.mapping
 
 import java.util.Locale
-
+import better.files.File
 import com.nulabinc.backlog.j2b.jira.domain.mapping.MappingJsonProtocol._
 import com.nulabinc.backlog.migration.common.utils.{IOUtil, Logging}
 import com.osinka.i18n.{Lang, Messages}
 import spray.json._
 
 import scala.collection.mutable.ArrayBuffer
-import scalax.file.Path
 
 trait MappingFile extends Logging {
 
@@ -28,13 +27,16 @@ trait MappingFile extends Logging {
 
   def isValid: Boolean = errors.isEmpty
 
-  def isExists: Boolean = Path.fromString(filePath).exists
+  def isExists: Boolean = {
+    val path: File = File(filePath).path.toAbsolutePath
+    !path.isDirectory && path.exists
+  }
 
   def isParsed: Boolean = unMarshal().isDefined
 
   def create(): MappingFile = {
     val wrapper = MappingsWrapper(description, jiras.map(convert))
-    IOUtil.output(Path.fromString(filePath), wrapper.toJson.prettyPrint)
+    IOUtil.output(File(filePath).path.toAbsolutePath, wrapper.toJson.prettyPrint)
     this
   }
 
@@ -52,7 +54,7 @@ trait MappingFile extends Logging {
               addedList += convert(jiraItem)
           }
         }
-        IOUtil.output(Path.fromString(filePath), MappingsWrapper(description, mergeList).toJson.prettyPrint)
+        IOUtil.output(File(filePath).path.toAbsolutePath, MappingsWrapper(description, mergeList).toJson.prettyPrint)
         addedList
       case _ =>
         Seq.empty[Mapping]
@@ -60,8 +62,8 @@ trait MappingFile extends Logging {
   }
 
   def unMarshal(): Option[Seq[Mapping]] = {
-    val path: Path = Path.fromString(filePath)
-    val json       = path.lines().mkString
+    val path = File(filePath).path.toAbsolutePath
+    val json = IOUtil.input(path).getOrElse("")
     try {
       val wrapper: MappingsWrapper = JsonParser(json).convertTo[MappingsWrapper]
       Some(wrapper.mappings)
@@ -73,8 +75,8 @@ trait MappingFile extends Logging {
   }
 
   def tryUnMarshal(): Seq[Mapping] = {
-    val path = Path.fromString(filePath)
-    val json = path.lines().mkString
+    val path = File(filePath).path.toAbsolutePath
+    val json = IOUtil.input(path).getOrElse("")
     JsonParser(json).convertTo[MappingsWrapper].mappings
   }
 
@@ -85,7 +87,7 @@ trait MappingFile extends Logging {
 //  }
 
   def errors: Seq[String] = {
-    val fileName  = Path.fromString(filePath).name
+    val fileName  = File(filePath).path.toAbsolutePath.getFileName.toString
     val validator = new MappingValidator(jiras, backlogs, itemName, fileName)
     validator.validate(unMarshal())
   }

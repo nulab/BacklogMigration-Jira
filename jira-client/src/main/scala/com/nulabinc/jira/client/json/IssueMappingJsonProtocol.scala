@@ -6,7 +6,6 @@ import java.util.Date
 import com.nulabinc.jira.client.domain._
 import com.nulabinc.jira.client.domain.changeLog.ChangeLog
 import com.nulabinc.jira.client.domain.issue._
-import org.joda.time._
 import spray.json._
 
 import scala.util.Try
@@ -19,7 +18,6 @@ object IssueMappingJsonProtocol extends DefaultJsonProtocol {
   import ComponentMappingJsonProtocol._
   import StatusMappingJsonProtocol._
   import PriorityMappingJsonProtocol._
-  import DateTimeMappingJsonProtocol._
   import VersionMappingJsonProtocol._
   import AttachmentMappingJsonProtocol._
 
@@ -81,8 +79,8 @@ object IssueMappingJsonProtocol extends DefaultJsonProtocol {
             status      = fieldMap.find(_._1 == "status").map(_._2.convertTo[Status]).get,
             priority    = fieldMap.find(_._1 == "priority").map(_._2.convertTo[Priority]).get,
             creator     = fieldMap.find(_._1 == "creator").map(_._2.convertTo[User]).get,
-            createdAt   = fieldMap.find(_._1 == "created").map(_._2.convertTo[DateTime]).get,
-            updatedAt   = fieldMap.find(_._1 == "updated").map(_._2.convertTo[DateTime]).get,
+            createdAt   = fieldMap.find(_._1 == "created").map(_._2.convertTo[Date]).get,
+            updatedAt   = fieldMap.find(_._1 == "updated").map(_._2.convertTo[Date]).get,
             changeLogs  = Seq.empty[ChangeLog],
             attachments = fieldMap.find(_._1 == "attachment").map(_._2.convertTo[Seq[Attachment]]).getOrElse(Seq.empty[Attachment])
           )

@@ -21,8 +21,8 @@ class CommentFileWriter @Inject()(implicit val commentWrites: CommentWrites,
                                   issueService: IssueService) extends CommentWriter {
 
   override def write(backlogIssue: BacklogIssue, comments: Seq[Comment], changeLogs: Seq[ChangeLog], attachments: Seq[Attachment]) = {
-    val backlogChangeLogsAsComment = changeLogs.map(c => (Convert.toBacklog(c), c.createdAt.toDate))
-    val backlogCommentsAsComment   = comments.map(c => (Convert.toBacklog(c), c.createdAt.toDate))
+    val backlogChangeLogsAsComment = changeLogs.map(c => (Convert.toBacklog(c), c.createdAt))
+    val backlogCommentsAsComment   = comments.map(c => (Convert.toBacklog(c), c.createdAt))
     val backlogComments            = backlogChangeLogsAsComment ++ backlogCommentsAsComment // TODO: sort?
     val reducedComments            = backlogComments.zipWithIndex.map {
       case (comment, index) =>

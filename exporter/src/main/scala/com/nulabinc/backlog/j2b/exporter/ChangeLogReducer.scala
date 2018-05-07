@@ -1,5 +1,6 @@
 package com.nulabinc.backlog.j2b.exporter
 
+import better.files.{File => Path}
 import com.nulabinc.backlog.j2b.jira.service.IssueService
 import com.nulabinc.backlog.migration.common.conf.{BacklogConstantValue, BacklogPaths}
 import com.nulabinc.backlog.migration.common.domain._
@@ -8,8 +9,6 @@ import com.nulabinc.jira.client._
 import com.nulabinc.jira.client.domain.Attachment
 import com.nulabinc.jira.client.domain.changeLog._
 import com.osinka.i18n.Messages
-
-import scalax.file.Path
 
 private [exporter] class ChangeLogReducer(issueDirPath: Path,
                                           backlogPaths: BacklogPaths,

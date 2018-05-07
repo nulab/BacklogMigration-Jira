@@ -1,6 +1,6 @@
 package com.nulabinc.jira.client.domain
 
-import org.joda.time.DateTime
+import java.util.Date
 
 case class Version(
   id: Option[Long],
@@ -8,5 +8,5 @@ case class Version(
   description: Option[String],
   archived: Boolean,
   released: Boolean,
-  releaseDate: Option[DateTime]
+  releaseDate: Option[Date]
 )

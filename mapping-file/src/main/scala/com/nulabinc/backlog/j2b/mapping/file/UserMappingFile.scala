@@ -1,16 +1,15 @@
 package com.nulabinc.backlog.j2b.mapping.file
 
+import better.files.File
 import com.nulabinc.backlog.migration.common.conf.{BacklogApiConfiguration, BacklogConfiguration}
 import com.nulabinc.backlog.migration.common.domain.BacklogUser
-import com.nulabinc.backlog.migration.common.utils.StringUtil
+import com.nulabinc.backlog.migration.common.utils.{IOUtil, StringUtil}
 import com.nulabinc.backlog.j2b.mapping.core.MappingDirectory
 import com.nulabinc.backlog.j2b.jira.domain.mapping.MappingJsonProtocol._
 import com.nulabinc.backlog.j2b.jira.domain.mapping.{Mapping, MappingFile, MappingItem, MappingsWrapper}
 import com.nulabinc.jira.client.domain.{User => JiraUser}
 import com.osinka.i18n.Messages
 import spray.json.JsonParser
-
-import scalax.file.Path
 
 class UserMappingFile(backlogApiConfig: BacklogApiConfiguration,
                       jiraUsers: Seq[JiraUser],
@@ -27,8 +26,8 @@ class UserMappingFile(backlogApiConfig: BacklogApiConfiguration,
   }
 
   override def tryUnMarshal(): Seq[Mapping] = {
-    val path    = Path.fromString(filePath)
-    val json    = path.lines().mkString
+    val path = File(filePath).path.toAbsolutePath
+    val json = IOUtil.input(path).getOrElse("")
     val convert = convertForNAI(backlogUsers) _
     JsonParser(json).convertTo[MappingsWrapper].mappings.map(convert)
   }

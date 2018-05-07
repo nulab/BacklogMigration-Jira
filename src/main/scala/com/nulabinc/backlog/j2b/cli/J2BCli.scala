@@ -58,7 +58,9 @@ object J2BCli extends BacklogConfiguration
       // Delete old exports
       val jiraBacklogPaths = new JiraBacklogPaths(config.backlogConfig.projectKey)
 
-      jiraBacklogPaths.outputPath.deleteRecursively(force = true, continueOnFailure = true)
+      if (jiraBacklogPaths.outputPath.exists) {
+        jiraBacklogPaths.outputPath.listRecursively.foreach(_.delete(false))
+      }
 
       // Export
       val exporter     = jiraInjector.getInstance(classOf[Exporter])

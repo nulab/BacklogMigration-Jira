@@ -1,6 +1,6 @@
 package com.nulabinc.backlog.j2b.mapping.converter
 
-import com.nulabinc.backlog.j2b.jira.converter.{MappingConverter, StatusConverter}
+import com.nulabinc.backlog.j2b.jira.converter.StatusConverter
 import com.nulabinc.backlog.j2b.jira.domain.mapping.Mapping
 
 class MappingStatusConverter extends StatusConverter {
