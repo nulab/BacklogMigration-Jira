@@ -97,7 +97,7 @@ object J2B extends BacklogConfiguration with Logging {
     }
 
     // DisableSSLCertificateCheckUtil.disableChecks() // TODO: ???
-    // checkRelease()                                 // TODO: Github repo does not exist
+     checkRelease()
 
     if ( ! ClassVersion.isValid()) {
       ConsoleOut.error(Messages("cli.require_java8", System.getProperty("java.specification.version")))
@@ -145,6 +145,10 @@ object J2B extends BacklogConfiguration with Logging {
          |${Messages("common.backlog")} ${Messages("common.access_key")}[${cli.importCommand.backlogKey()}]
          |${Messages("common.backlog")} ${Messages("common.project_key")}[${backlog}]
          |${Messages("common.optOut")}[${cli.importCommand.optOut.toOption.getOrElse(false)}]
+         |https.proxyHost[${Option(System.getProperty("https.proxyHost")).getOrElse("")}]
+         |https.proxyPort[${Option(System.getProperty("https.proxyPort")).getOrElse("")}]
+         |https.proxyUser[${Option(System.getProperty("https.proxyUser")).getOrElse("")}]
+         |https.proxyPassword[${Option(System.getProperty("https.proxyPassword")).getOrElse("")}]
          |--------------------------------------------------
      |""".stripMargin)
 
@@ -157,5 +161,61 @@ object J2B extends BacklogConfiguration with Logging {
   private[this] def exit(exitCode: Int): Unit = {
     AnsiConsole.systemUninstall()
     System.exit(exitCode)
+  }
+
+  private[this] def checkRelease(): Unit = {
+    import java.io._
+    import java.net._
+    import spray.json._
+    import spray.json.DefaultJsonProtocol._
+
+    val url = new URL("https://api.github.com/repos/nulab/BacklogMigration-Jira/releases")
+    val http = url.openConnection().asInstanceOf[HttpURLConnection]
+    val optProxyUser = Option(System.getProperty("https.proxyUser"))
+    val optProxyPass = Option(System.getProperty("https.proxyPassword"))
+
+    (optProxyUser, optProxyPass) match {
+      case (Some(proxyUser), Some(proxyPass)) =>
+        Authenticator.setDefault(new Authenticator() {
+          override def getPasswordAuthentication: PasswordAuthentication = {
+            new PasswordAuthentication(proxyUser, proxyPass.toCharArray)
+          }
+        })
+      case _ => ()
+    }
+
+    try {
+      http.setRequestMethod("GET")
+      http.connect()
+
+      val reader = new BufferedReader(new InputStreamReader(http.getInputStream))
+      val output = new StringBuilder()
+      var line = ""
+
+      while (line != null) {
+        line = reader.readLine()
+        if (line != null)
+          output.append(line)
+      }
+      reader.close()
+
+      val latest = output.toString().parseJson match {
+        case JsArray(releases) if releases.nonEmpty =>
+          releases(0).asJsObject.fields.apply("tag_name").convertTo[String].replace("v", "")
+        case _ => ""
+      }
+
+      if (latest != versionName) {
+        ConsoleOut.warning(
+          s"""
+             |--------------------------------------------------
+             |${Messages("cli.warn.not.latest", latest, versionName)}
+             |--------------------------------------------------
+        """.stripMargin)
+      }
+    } catch {
+      case ex: Throwable =>
+        logger.error(ex.getMessage, ex)
+    }
   }
 }

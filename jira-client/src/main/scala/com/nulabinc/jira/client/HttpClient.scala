@@ -6,8 +6,10 @@ import java.nio.charset.Charset
 
 import org.apache.commons.codec.binary.Base64
 import org.apache.http._
+import org.apache.http.auth.{AuthScope, UsernamePasswordCredentials}
+import org.apache.http.client.config.RequestConfig
 import org.apache.http.client.methods.{CloseableHttpResponse, HttpGet}
-import org.apache.http.impl.client.{CloseableHttpClient, HttpClientBuilder}
+import org.apache.http.impl.client.{BasicCredentialsProvider, CloseableHttpClient, HttpClientBuilder, HttpClients}
 import spray.json.{JsArray, JsonParser}
 
 import scala.io.Source
@@ -28,9 +30,27 @@ case object DownloadFailure extends DownloadResult
 
 class HttpClient(url: String, username: String, password: String) {
 
-  val auth: String              = username + ":" + password
-  val encodedAuth: Array[Byte]  = Base64.encodeBase64(auth.getBytes(Charset.forName("ISO-8859-1")))
-  val authHeader: String        = "Basic " + new String(encodedAuth)
+  private val auth: String              = username + ":" + password
+  private val encodedAuth: Array[Byte]  = Base64.encodeBase64(auth.getBytes(Charset.forName("ISO-8859-1")))
+  private val authHeader: String        = "Basic " + new String(encodedAuth)
+
+  private val optProxyConfig: Option[HttpHost] =
+    (Option(System.getProperty("https.proxyHost")), Option(System.getProperty("https.proxyPort"))) match {
+    case (Some(host), Some(port)) => Some(new HttpHost(host, port.toInt))
+    case _ => None
+  }
+
+  private val optCredentialsProvider: Option[BasicCredentialsProvider] =
+    (optProxyConfig, Option(System.getProperty("https.proxyUser")), Option(System.getProperty("https.proxyPassword"))) match {
+      case (Some(proxy), Some(user), Some(pass)) =>
+        val credsProvider = new BasicCredentialsProvider()
+          credsProvider.setCredentials(
+            new AuthScope(proxy),
+            new UsernamePasswordCredentials(user, pass))
+        Some(credsProvider)
+      case _ =>
+        None
+    }
 
   def get(path: String): Either[HttpClientError, String] = {
 
@@ -113,7 +133,20 @@ class HttpClient(url: String, username: String, password: String) {
   }
 
   private def createHttpClient(): CloseableHttpClient =
-    HttpClientBuilder.create().build()
+    (for {
+      proxyConfig <- optProxyConfig
+      credentialProvider <- optCredentialsProvider
+    } yield {
+      val config = RequestConfig.custom()
+        .setProxy(proxyConfig)
+        .build()
+
+      HttpClients
+        .custom()
+        .setDefaultCredentialsProvider(credentialProvider)
+        .setDefaultRequestConfig(config)
+        .build()
+    }).getOrElse(HttpClientBuilder.create().build())
 
   private def createHttpGetRequest(path: String): HttpGet =
     new HttpGet(path)
