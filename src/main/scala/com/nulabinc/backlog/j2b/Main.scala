@@ -54,13 +54,11 @@ class CommandLineInterface(arguments: Seq[String]) extends ScallopConf(arguments
 
 class NextCommand(args: Seq[String]) extends BacklogConfiguration {
 
-  import com.nulabinc.backlog.j2b.buildinfo.BuildInfo
-
   private val formattedArgs = args
     .filterNot(_ == "export")
     .grouped(2)
     .collect {
-      case Seq(k, v) if k.contains("password") => language match {
+      case Seq(k, _) if k.contains("password") => language match {
         case "ja" => s"    $k JIRAのパスワード"
         case "en" => s"    $k JIRA_PASSWORD"
         case _    => s"    $k JIRA_PASSWORD"
@@ -71,7 +69,7 @@ class NextCommand(args: Seq[String]) extends BacklogConfiguration {
   def command(): String = (
       Seq(
         "java -jar",
-        s"  ${BuildInfo.name}-${BuildInfo.version}.jar",
+        s"  ${Config.Application.fileName}",
         "  import"
      ) ++ formattedArgs
     ).mkString(" \\ \n")

@@ -169,7 +169,6 @@ lazy val client = (project in file("jira-client"))
   )
 
 lazy val root = (project in file("."))
-  .enablePlugins(BuildInfoPlugin)
   .settings(commonSettings: _*)
   .settings(
     name := "backlog-migration-jira",
@@ -186,8 +185,6 @@ lazy val root = (project in file("."))
     test in assembly := {},
     scapegoatVersion := "1.3.4",
     scapegoatDisabledInspections := Seq("NullParameter", "CatchThrowable", "NoOpOverride"),
-    buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion),
-    buildInfoPackage := "com.nulabinc.backlog.j2b.buildinfo"
   )
   .dependsOn(common % "test->test;compile->compile", importer, exporter, writer, client, jira, mappingFile, mappingConverter, mappingCollector)
   .aggregate(common, importer, exporter, writer, client, jira, mappingFile, mappingConverter)
