@@ -7,6 +7,8 @@ import org.specs2.mutable.Specification
 
 class ProjectFileWriterSpec extends Specification with FileWriterTestHelper with Mockito {
 
+  if (paths.projectJson.exists) paths.projectJson.delete()
+
   "should write a project to file" >> {
 
     val project = Project(

@@ -6,6 +6,8 @@ import org.specs2.mutable.Specification
 
 class ComponentFileWriterSpec extends Specification with FileWriterTestHelper {
 
+  if (paths.issueCategoriesJson.exists) paths.issueCategoriesJson.delete()
+
   "should write issue categories to file" >> {
 
     val components = Seq[Component](
