@@ -1,7 +1,8 @@
 package com.nulabinc.jira.client.json
 
+import java.util.Date
+
 import com.nulabinc.jira.client.domain._
-import org.joda.time.DateTime
 import spray.json._
 
 object CommentMappingJsonProtocol extends DefaultJsonProtocol {
@@ -19,7 +20,7 @@ object CommentMappingJsonProtocol extends DefaultJsonProtocol {
           id = id.toLong,
           body = body,
           author = author.convertTo[User],
-          createdAt = createdAt.convertTo[DateTime]
+          createdAt = createdAt.convertTo[Date]
         )
         case other => deserializationError("Cannot deserialize Comment: invalid input. Raw input: " + other)
       }

@@ -1,7 +1,7 @@
 package com.nulabinc.backlog.j2b.mapping.converter
 
+import better.files.{File => Path}
 import javax.inject.Inject
-
 import com.nulabinc.backlog.j2b.jira.converter._
 import com.nulabinc.backlog.j2b.jira.domain.mapping.{Mapping, MappingCollectDatabase}
 import com.nulabinc.backlog.j2b.mapping.converter.writes._
@@ -11,8 +11,6 @@ import com.nulabinc.backlog.migration.common.domain.{BacklogComment, BacklogIssu
 import com.nulabinc.backlog.migration.common.utils.IOUtil
 import com.nulabinc.backlog.migration.common.domain.BacklogJsonProtocol._
 import spray.json._
-
-import scalax.file.Path
 
 class MappingConvertService @Inject()(implicit val issueWrites: IssueWrites,
                                       implicit val commentWrites: CommentWrites,
@@ -25,7 +23,6 @@ class MappingConvertService @Inject()(implicit val issueWrites: IssueWrites,
   def convert(database: MappingCollectDatabase, userMaps: Seq[Mapping], priorityMaps: Seq[Mapping], statusMaps: Seq[Mapping]): Unit = {
 
     val paths: Seq[Path] = IOUtil.directoryPaths(backlogPaths.issueDirectoryPath)
-      .flatMap(_.toAbsolute.children().filter(_.isDirectory).toSeq)
     paths.zipWithIndex.foreach {
       case (path, index) =>
         convertIssue(database, path, index, paths.size, userMaps, priorityMaps, statusMaps)

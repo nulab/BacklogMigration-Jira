@@ -25,7 +25,7 @@ class IssueFileWriter @Inject()(implicit val issueWrites: IssueWrites,
       IOUtil.createDirectory(dir)
       val path = backlogPaths.issueAttachmentPath(dir, attachment.name)
       attachment.optId.map { id =>
-        issueService.downloadAttachments(id, path, attachment.name)
+        issueService.downloadAttachments(id, path.path, attachment.name)
       }
     }
 

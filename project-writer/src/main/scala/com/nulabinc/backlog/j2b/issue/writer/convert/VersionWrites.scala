@@ -18,7 +18,7 @@ private [writer] class VersionWrites @Inject()() extends Writes[Seq[Version], Se
       name              = version.name,
       description       = version.description.getOrElse(""),
       optStartDate      = None,
-      optReleaseDueDate = version.releaseDate.map(_.toDate).map(DateUtil.dateFormat),
+      optReleaseDueDate = version.releaseDate.map(DateUtil.dateFormat),
       delete            = false
     )
   }

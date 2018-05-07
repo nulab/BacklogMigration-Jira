@@ -157,7 +157,7 @@ class Exporter @Inject()(projectKey: JiraProjectKey,
             issueFields             = filteredIssueFields,
             comments                = comments
           )
-          issueWriter.write(initializedBacklogIssue, issue.createdAt.toDate)
+          issueWriter.write(initializedBacklogIssue, issue.createdAt)
 
           // export issue comments
           val categoryPlayedChangeLogs  = ChangeLogsPlayer.play(ComponentChangeLogItemField, initializedBacklogIssue.categoryNames, issueWithFilteredChangeLogs.changeLogs)

@@ -1,10 +1,13 @@
 package com.nulabinc.jira.client.json
 
+import java.text.SimpleDateFormat
+
 import com.nulabinc.jira.client.domain.Version
-import org.joda.time.DateTime
 import spray.json._
 
 object VersionMappingJsonProtocol extends DefaultJsonProtocol {
+
+  private val format = new SimpleDateFormat("yyyy-MM-dd")
 
   implicit object VersionMappingFormat extends RootJsonFormat[Version] {
     def write(obj: Version) = ???
@@ -18,7 +21,7 @@ object VersionMappingJsonProtocol extends DefaultJsonProtocol {
       }
 
       val releaseDate = jsObject.getFields("releaseDate") match {
-        case Seq(JsString(str)) => Option(str).map(DateTime.parse)
+        case Seq(JsString(str)) => Option(str).map(format.parse)
         case _                  => None
       }
 

@@ -19,7 +19,7 @@ class ChangeLogWrites @Inject()(implicit val userWrites: UserWrites,
       changeLogs      = changeLog.items.map(Convert.toBacklog(_)),
       notifications   = Seq.empty[BacklogNotification],
       optCreatedUser  = Some(Convert.toBacklog(changeLog.author)),
-      optCreated      = Some(DateUtil.isoFormat(changeLog.createdAt.toDate))
+      optCreated      = Some(DateUtil.isoFormat(changeLog.createdAt))
     )
 
 }

@@ -22,17 +22,22 @@ lazy val commonSettings = Seq(
   ),
   resolvers ++= Seq("snapshots", "releases").map(Resolver.sonatypeRepo),
   libraryDependencies ++= Seq(
-    "com.osinka.i18n"               %% "scala-i18n"        % "1.0.2",
-    "ch.qos.logback"                %  "logback-classic"   % "1.1.3",
-    "com.github.pathikrit"          %% "better-files"      % "3.4.0",
-    "com.typesafe.akka"             %% "akka-actor"        % "2.5.9",
-    "com.typesafe.akka"             %% "akka-slf4j"        % "2.5.9",
-    "io.spray"                      %% "spray-json"        % "1.3.3",
-    "com.typesafe"                  %  "config"            % "1.3.3",
-    "com.google.inject"             %  "guice"             % "4.1.0",
-    "com.netaporter"                %% "scala-uri"         % "0.4.16",
-    "org.fusesource.jansi"          %  "jansi"             % "1.11",
-    "com.mixpanel"                  %  "mixpanel-java"     % "1.4.4"
+    "com.osinka.i18n"       %% "scala-i18n"           % "1.0.2",
+    "ch.qos.logback"        %  "logback-classic"      % "1.1.3",
+    "com.github.pathikrit"  %% "better-files"         % "3.4.0",
+    "com.typesafe.akka"     %% "akka-actor"           % "2.5.9",
+    "com.typesafe.akka"     %% "akka-slf4j"           % "2.5.9",
+    "io.spray"              %% "spray-json"           % "1.3.3",
+    "com.typesafe"          %  "config"               % "1.3.3",
+    "com.google.inject"     %  "guice"                % "4.1.0",
+    "com.netaporter"        %% "scala-uri"            % "0.4.16",
+    "org.fusesource.jansi"  %  "jansi"                % "1.11",
+    "com.mixpanel"          %  "mixpanel-java"        % "1.4.4",
+    "org.scalatest"         %% "scalatest"            % "3.0.1"   % "test",
+    "org.specs2"            %% "specs2-core"          % "3.8.9"   % Test,
+    "org.specs2"            %% "specs2-matcher"       % "3.8.9"   % Test,
+    "org.specs2"            %% "specs2-matcher-extra" % "3.8.9"   % Test,
+    "org.specs2"            %% "specs2-mock"          % "3.8.9"   % Test
   ),
   javacOptions ++= Seq("-encoding", "UTF-8")
 )
@@ -169,8 +174,7 @@ lazy val root = (project in file("."))
   .settings(
     name := "backlog-migration-jira",
     libraryDependencies ++= Seq(
-      "org.rogach"    %% "scallop"    % "3.1.2",
-      "org.scalatest" %% "scalatest"  % "3.0.1"   % "test"
+      "org.rogach" %% "scallop" % "3.1.2"
     ),
     assemblyJarName in assembly := {
       s"${name.value}-${version.value}.jar"

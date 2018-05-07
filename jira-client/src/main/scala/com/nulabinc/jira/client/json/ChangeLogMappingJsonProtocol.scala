@@ -1,8 +1,9 @@
 package com.nulabinc.jira.client.json
 
+import java.util.Date
+
 import com.nulabinc.jira.client.domain.{changeLog, _}
 import com.nulabinc.jira.client.domain.changeLog._
-import org.joda.time.DateTime
 import spray.json.{JsNull, _}
 
 object ChangeLogMappingJsonProtocol extends DefaultJsonProtocol {
@@ -67,7 +68,7 @@ object ChangeLogMappingJsonProtocol extends DefaultJsonProtocol {
           changeLog.ChangeLog(
             id        = id.toLong,
             author    = author.convertTo[User],
-            createdAt = created.convertTo[DateTime],
+            createdAt = created.convertTo[Date],
             items     = items.convertTo[Seq[ChangeLogItem]]
           )
         case other => deserializationError("Cannot deserialize ChangeLog: invalid input. Raw input: " + other)

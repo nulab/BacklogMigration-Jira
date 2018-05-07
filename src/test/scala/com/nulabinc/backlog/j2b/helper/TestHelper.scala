@@ -18,7 +18,6 @@ import com.nulabinc.backlog.migration.common.service.{ProjectService, SpaceServi
 import com.nulabinc.backlog4j.{BacklogClient, BacklogClientFactory}
 import com.nulabinc.backlog4j.conf.{BacklogConfigure, BacklogPackageConfigure}
 import com.nulabinc.jira.client.JiraRestClient
-import org.joda.time.DateTime
 
 import scala.collection.JavaConverters._
 import scala.util.matching.Regex
@@ -96,9 +95,9 @@ trait TestHelper {
     if (comments.isEmpty) issue.getUpdated
     else {
       val comment = comments.asScala.sortWith((c1, c2) => {
-        val dt1 = new DateTime(c1.getUpdated)
-        val dt2 = new DateTime(c2.getUpdated)
-        dt1.isBefore(dt2)
+        val dt1 = c1.getUpdated
+        val dt2 = c2.getUpdated
+        dt1.before(dt2)
       })(comments.size() - 1)
       comment.getCreated
     }

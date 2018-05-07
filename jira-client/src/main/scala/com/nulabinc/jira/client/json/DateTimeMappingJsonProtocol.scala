@@ -1,16 +1,20 @@
 package com.nulabinc.jira.client.json
 
-import org.joda.time.{DateTime, DateTimeZone}
-import org.joda.time.format.ISODateTimeFormat
+import java.text.SimpleDateFormat
+import java.util.Date
+
 import spray.json._
 
 object DateTimeMappingJsonProtocol {
 
-  implicit object DateTimeJsonFormat extends RootJsonFormat[DateTime] {
-    private lazy val format = ISODateTimeFormat.dateTime()
-    def write(datetime: DateTime): JsValue = JsString(format.print(datetime.withZone(DateTimeZone.UTC)))
-    def read(json: JsValue): DateTime = json match {
-      case JsString(x) => format.parseDateTime(x)
+  private val format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ")
+
+  implicit object DateTimeJsonFormat extends RootJsonFormat[Date] {
+    def write(datetime: Date): JsValue =
+      JsString(datetime.formatted(format.toPattern))
+
+    def read(json: JsValue): Date = json match {
+      case JsString(x) => format.parse(x)
       case x           => deserializationError("Expected DateTime as JsString, but got " + x)
     }
   }

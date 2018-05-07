@@ -1,7 +1,7 @@
 package com.nulabinc.backlog.j2b.exporter.service
 
+import better.files.{File => Path}
 import javax.inject.Inject
-
 import com.nulabinc.backlog.j2b.jira.conf.JiraApiConfiguration
 import com.nulabinc.backlog.j2b.jira.domain.JiraProjectKey
 import com.nulabinc.backlog.j2b.jira.service.IssueService
@@ -10,8 +10,6 @@ import com.nulabinc.backlog.migration.common.utils.Logging
 import com.nulabinc.jira.client.domain.changeLog.ChangeLog
 import com.nulabinc.jira.client.{DownloadResult, JiraRestClient}
 import com.nulabinc.jira.client.domain.issue.Issue
-
-import scalax.file.Path
 
 class JiraClientIssueService @Inject()(apiConfig: JiraApiConfiguration,
                                        projectKey: JiraProjectKey,
@@ -55,7 +53,7 @@ class JiraClientIssueService @Inject()(apiConfig: JiraApiConfiguration,
 
   override def downloadAttachments(attachmentId: Long, saveDirectory: Path, fileName: String): DownloadResult = {
     // content = https://(workspace name).atlassian.net/secure/attachment/(attachment ID)/(file name)
-    jira.httpClient.download(jira.url + s"/secure/attachment/$attachmentId/$fileName", saveDirectory.path)
+    jira.httpClient.download(jira.url + s"/secure/attachment/$attachmentId/$fileName", saveDirectory.toString)
   }
 
 }

@@ -195,14 +195,14 @@ class CompareSpec extends FlatSpec
             convertUser(jiraIssue.creator.identifyKey) should equal(backlogIssue.getCreatedUser.getUserId)
 
             // created
-            timestampToString(jiraIssue.createdAt.toDate) should equal(timestampToString(backlogIssue.getCreated))
+            timestampToString(jiraIssue.createdAt) should equal(timestampToString(backlogIssue.getCreated))
 
             // updated user
             withClue(s"""
-                        |JIRA:   ${timestampToString(jiraIssue.updatedAt.toDate)}
+                        |JIRA:   ${timestampToString(jiraIssue.updatedAt)}
                         |backlog:${timestampToString(backlogUpdated(backlogIssue))}
             """.stripMargin) {
-              timestampToString(jiraIssue.updatedAt.toDate) should be(timestampToString(backlogIssue.getUpdated))
+              timestampToString(jiraIssue.updatedAt) should be(timestampToString(backlogIssue.getUpdated))
             }
 
             // attachment file
@@ -280,7 +280,7 @@ class CompareSpec extends FlatSpec
               val backlogComment = backlogAllComments.find(_.getContent == jiraComment.body.trim)
               backlogComment should not be empty
               assertUser(jiraComment.author, backlogComment.get.getCreatedUser)
-              timestampToString(jiraComment.createdAt.toDate) should be(timestampToString(backlogComment.get.getCreated))
+              timestampToString(jiraComment.createdAt) should be(timestampToString(backlogComment.get.getCreated))
             }
 
             // ----- Change log -----
@@ -290,7 +290,7 @@ class CompareSpec extends FlatSpec
             val jiraChangeLogs = jiraIssueService.changeLogs(jiraIssue)
             jiraChangeLogs.map { jiraChangeLog =>
               val backlogChangelog = backlogAllComments.find { backlogComment =>
-                timestampToString(backlogComment.getCreated) == timestampToString(jiraChangeLog.createdAt.toDate)
+                timestampToString(backlogComment.getCreated) == timestampToString(jiraChangeLog.createdAt)
               }
               backlogChangelog should not be empty
               assertUser(jiraChangeLog.author, backlogChangelog.get.getCreatedUser)
