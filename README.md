@@ -31,7 +31,7 @@ https://github.com/nulab/BacklogMigration-Jira/releases/download/0.2.0b1/backlog
 
 To use via proxy server, run from the command line as follows.
 
-    java -Dhttp.proxyHost=[proxy host name] -Dhttp.proxyPort=[proxy port] -jar backlog-migration-jira-[latest version].jar
+    java -Djdk.http.auth.tunneling.disabledSchemes= -Dhttps.proxyHost=[proxy host name] -Dhttps.proxyPort=[proxy port] -Dhttps.proxyUser=[proxy user] -Dhttps.proxyPassword=[proxy password] -jar backlog-migration-jira-[latest version].jar
 
 ## How to use
 ### Preparation
@@ -248,7 +248,7 @@ https://github.com/nulab/BacklogMigration-Jira/releases/download/0.2.0b1/backlog
 
 プロキシ経由で使用する場合は、以下のように実行します。
 
-    java -Dhttp.proxyHost=[プロキシサーバのホスト名] -Dhttp.proxyPort=[プロキシサーバのポート番号] -jar backlog-migration-jira-[最新バージョン].jar
+    java -Djdk.http.auth.tunneling.disabledSchemes= -Dhttps.proxyHost=[プロキシサーバのホスト名] -Dhttps.proxyPort=[プロキシサーバのポート番号] -Dhttps.proxyUser=[プロキシユーザー名] -Dhttps.proxyPassword=[プロキシパスワード] -jar backlog-migration-jira-[最新バージョン].jar
 
 ## 使い方
 ### 前準備
