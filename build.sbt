@@ -28,6 +28,8 @@ lazy val commonSettings = Seq(
     "org.specs2"    %% "specs2-matcher-extra" % "3.8.9"   % Test,
     "org.specs2"    %% "specs2-mock"          % "3.8.9"   % Test
   ),
+  scapegoatVersion := "1.3.4",
+  scapegoatDisabledInspections := Seq("NullParameter", "CatchThrowable", "NoOpOverride"),
   javacOptions ++= Seq("-encoding", "UTF-8")
 )
 
