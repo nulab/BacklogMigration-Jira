@@ -188,27 +188,6 @@ Importing to this project failed.  You are not a member of this project. Join th
 | Issues | Issues with matching subject, creator, creation date are not registered. |
 | Custom fields | The custom field will not be added when there is a custom field with same name. |
 
-## Third party tracking system
-
-In this application, we collect information such as source URL, destination URL, migration source project key, migration destination project key, by third party service (Mixpanel) in order to grasp usage situation.
-Please refer to Mixpanel's privacy policy for data to be tracked. Also, if you do not want your data to be used in Mixpanel, you can suspend (opt out) by the following methods.
-
-If you want to opt out, please use the optOut option.
-
-    java -jar backlog-migration-jira-[latest version].jar \
-      import \
-      --jira.username XXXXXXXXXXXXX \
-      --jira.password XXXXXXXXXXXXX \
-      --jira.url https://nulab.atlassian.net \
-      --backlog.key XXXXXXXXXXXXX \
-      --backlog.url https://nulab.backlog.jp \
-      --projectKey jira_project:BACKLOG_PROJECT
-      --optOut
-
-### Mixpanel
-
-[Mixpanel's Privacy Policy](https://mixpanel.com/privacy/ "Mixpanel's Privacy Policy")
-
 ## License
 
 MIT License
@@ -402,28 +381,7 @@ Backlog側にJIRAに対応するプロジェクトキーがある場合同一プ
 |課題|件名、作成者、作成日が一致する課題は登録されません。|
 |カスタム属性|同じ名前のカスタム属性がある場合登録しません。|  
 
-## 第三者のトラッキングシステム
-
-当アプリケーションでは、利用状況把握のために、サードパーティのサービス(Mixpanel)によって、移行元のURL、移行先のURL、移行元のプロジェクトキー、移行先のプロジェクトキーなどの情報を収集します。
-トラッキングするデータについてはMixpanelのプライバシーポリシーを参照してください。また、お客様のデータがMixpanelで使用されることを望まない場合は、以下に掲げる方法で使用停止（オプトアウト）することができます。
-
-次のようにoptOutオプションを使用することで使用停止（オプトアウト）することができます。
-
-    java -jar backlog-migration-jira-[最新バージョン].jar \
-      import \
-      --jira.username XXXXXXXXXXXXX \
-      --jira.password XXXXXXXXXXXXX \
-      --jira.url https://nulab.atlassian.net \
-      --backlog.key XXXXXXXXXXXXX \
-      --backlog.url https://nulab.backlog.jp \
-      --projectKey jira_project:BACKLOG_PROJECT
-      --optOut
-
-### Mixpanel
-
-[Mixpanelのプライバシーポリシー](https://mixpanel.com/privacy/ "Mixpanelのプライバシーポリシー")
-
-## License
+## ライセンス
 
 MIT License
 

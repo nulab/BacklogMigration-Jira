@@ -31,7 +31,6 @@ class CommandLineInterface(arguments: Seq[String]) extends ScallopConf(arguments
     val jiraUrl      = opt[String]("jira.url", descr = Messages("cli.help.jira.url"), required = true, noshort = true)
 
     val projectKey = opt[String]("projectKey", descr = Messages("cli.help.projectKey"), required = true)
-    val optOut     = opt[Boolean]("optOut", descr = Messages("cli.help.optOut"), required = false)
     val help       = opt[String]("help", descr = Messages("cli.help.show_help"))
   }
 
@@ -142,7 +141,6 @@ object J2B extends BacklogConfiguration with Logging {
          |${Messages("common.backlog")} ${Messages("common.url")}[${cli.importCommand.backlogUrl()}]
          |${Messages("common.backlog")} ${Messages("common.access_key")}[${cli.importCommand.backlogKey()}]
          |${Messages("common.backlog")} ${Messages("common.project_key")}[${backlog}]
-         |${Messages("common.optOut")}[${cli.importCommand.optOut.toOption.getOrElse(false)}]
          |https.proxyHost[${Option(System.getProperty("https.proxyHost")).getOrElse("")}]
          |https.proxyPort[${Option(System.getProperty("https.proxyPort")).getOrElse("")}]
          |https.proxyUser[${Option(System.getProperty("https.proxyUser")).getOrElse("")}]
@@ -152,8 +150,8 @@ object J2B extends BacklogConfiguration with Logging {
 
     new AppConfiguration(
       jiraConfig    = JiraApiConfiguration(username = cli.importCommand.jiraUsername(), password = cli.importCommand.jiraPassword(), cli.importCommand.jiraUrl(), projectKey = jira),
-      backlogConfig = BacklogApiConfiguration(url = cli.importCommand.backlogUrl(), key = cli.importCommand.backlogKey(), projectKey = backlog),
-      optOut        = cli.importCommand.optOut())
+      backlogConfig = BacklogApiConfiguration(url = cli.importCommand.backlogUrl(), key = cli.importCommand.backlogKey(), projectKey = backlog)
+    )
   }
 
   private[this] def exit(exitCode: Int): Unit = {
