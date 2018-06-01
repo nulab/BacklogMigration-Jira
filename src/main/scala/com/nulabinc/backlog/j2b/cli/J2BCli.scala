@@ -29,8 +29,7 @@ object J2BCli extends BacklogConfiguration
     with MappingValidator
     with MappingConsole
     with ProgressConsole
-    with InteractiveConfirm
-    with Tracker {
+    with InteractiveConfirm {
 
   def export(config: AppConfiguration, nextCommand: NextCommand): Unit = {
 
@@ -151,11 +150,6 @@ object J2BCli extends BacklogConfiguration
         // Import
         Boot.execute(config.backlogConfig, false)
 
-        // Tracking
-        if (!config.isOptOut) {
-          val userService = backlogInjector.getInstance(classOf[BacklogUserService])
-          tracking(config, spaceService, userService)
-        }
       }
     }
   }

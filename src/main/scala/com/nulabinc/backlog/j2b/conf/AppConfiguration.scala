@@ -4,8 +4,7 @@ import com.nulabinc.backlog.j2b.jira.conf.JiraApiConfiguration
 import com.nulabinc.backlog.migration.common.conf.BacklogApiConfiguration
 
 class AppConfiguration(val jiraConfig: JiraApiConfiguration,
-                       val backlogConfig: BacklogApiConfiguration,
-                       optOut: Boolean) {
+                       val backlogConfig: BacklogApiConfiguration) {
 
   val jiraKey = jiraConfig.projectKey
   val jiraUsername = jiraConfig.username
@@ -15,6 +14,4 @@ class AppConfiguration(val jiraConfig: JiraApiConfiguration,
   val backlogKey = backlogConfig.key
   val backlogProjectKey = backlogConfig.projectKey
   val backlogUrl = backlogConfig.url
-
-  val isOptOut = optOut
 }

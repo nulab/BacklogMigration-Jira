@@ -42,7 +42,6 @@ common.access_key=アクセスキー
 common.project_key=プロジェクトキー
 common.username=ユーザー名
 common.password=パスワード
-common.optOut=オプトアウト
 common.url=URL
 
 # -----------------------------------------------------------------------------
@@ -71,7 +70,6 @@ cli.help.backlog.url=BacklogのURLを指定します。(必須オプション)�
 cli.help.jira.username=JIRAのユーザー名を指定します。(必須オプション)例:--jira.username [JIRAのユーザー名]
 cli.help.jira.password=JIRAのパスワードを指定します。(必須オプション)例:--jira.password [JIRAのパスワード]
 cli.help.jira.url=JIRAのURLを指定します。(必須オプション)例:--jira.url [JIRAのURL]
-cli.help.optOut=このオプションを設定した場合、トラッキングを行いません。
 
 # -----------------------------------------------------------------------------
 # CLI Validate Param

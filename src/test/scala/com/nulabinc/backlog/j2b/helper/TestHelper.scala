@@ -132,8 +132,7 @@ trait TestHelper {
         url = backlogUrl,
         key = backlogKey,
         projectKey = backlog
-      ),
-      optOut = true
+      )
     )
   }
 }

@@ -2,7 +2,7 @@ import sbt.Keys._
 
 scapegoatVersion in ThisBuild := "1.3.3"
 
-lazy val projectVersion = "0.2.0b1"
+lazy val projectVersion = "0.3.0b1"
 
 lazy val commonSettings = Seq(
   organization := "com.nulabinc",
@@ -20,156 +20,58 @@ lazy val commonSettings = Seq(
     "-Ywarn-unused",
     "-Ywarn-unused-import"
   ),
-  resolvers ++= Seq("snapshots", "releases").map(Resolver.sonatypeRepo),
   libraryDependencies ++= Seq(
-    "com.osinka.i18n"       %% "scala-i18n"           % "1.0.2",
-    "ch.qos.logback"        %  "logback-classic"      % "1.1.3",
-    "com.github.pathikrit"  %% "better-files"         % "3.4.0",
-    "com.typesafe.akka"     %% "akka-actor"           % "2.5.9",
-    "com.typesafe.akka"     %% "akka-slf4j"           % "2.5.9",
-    "io.spray"              %% "spray-json"           % "1.3.3",
-    "com.typesafe"          %  "config"               % "1.3.3",
-    "com.google.inject"     %  "guice"                % "4.1.0",
-    "com.netaporter"        %% "scala-uri"            % "0.4.16",
-    "org.fusesource.jansi"  %  "jansi"                % "1.11",
-    "com.mixpanel"          %  "mixpanel-java"        % "1.4.4",
-    "org.scalatest"         %% "scalatest"            % "3.0.1"   % "test",
-    "org.specs2"            %% "specs2-core"          % "3.8.9"   % Test,
-    "org.specs2"            %% "specs2-matcher"       % "3.8.9"   % Test,
-    "org.specs2"            %% "specs2-matcher-extra" % "3.8.9"   % Test,
-    "org.specs2"            %% "specs2-mock"          % "3.8.9"   % Test
+    "org.scalatest" %% "scalatest"            % "3.0.5"   % "test",
+    "org.specs2"    %% "specs2-core"          % "3.8.9"   % Test,
+    "org.specs2"    %% "specs2-matcher"       % "3.8.9"   % Test,
+    "org.specs2"    %% "specs2-matcher-extra" % "3.8.9"   % Test,
+    "org.specs2"    %% "specs2-mock"          % "3.8.9"   % Test
   ),
+  scapegoatVersion := "1.3.4",
+  scapegoatDisabledInspections := Seq("NullParameter", "CatchThrowable", "NoOpOverride"),
   javacOptions ++= Seq("-encoding", "UTF-8")
 )
 
 lazy val common = (project in file("common"))
-  .settings(commonSettings: _*)
-  .settings(
-    name := "backlog-migration-common",
-    unmanagedBase := baseDirectory.value / "libs",
-    scapegoatVersion := "1.3.4",
-    scapegoatDisabledInspections := Seq("NullParameter", "CatchThrowable", "NoOpOverride")
-  )
+  .settings(commonSettings)
 
 lazy val importer = (project in file("importer"))
-  .settings(commonSettings: _*)
-  .settings(
-    name := "backlog-importer",
-    scapegoatVersion := "1.3.4",
-    scapegoatDisabledInspections := Seq("NullParameter", "CatchThrowable", "NoOpOverride")
-  )
-  .dependsOn(common % "test->test;compile->compile")
-  .aggregate(common)
+  .settings(commonSettings)
+  .dependsOn(common)
 
 lazy val exporter = (project in file("exporter"))
-  .settings(commonSettings: _*)
-  .settings(
-    name := "backlog-jira-exporter",
-    scapegoatVersion := "1.3.4",
-    scapegoatDisabledInspections := Seq(
-      "NullParameter",
-      "CatchThrowable",
-      "NoOpOverride"
-    )
-  )
+  .settings(commonSettings)
   .dependsOn(jira, client, writer)
 
 lazy val jira = (project in file("jira"))
-  .settings(commonSettings: _*)
-  .settings(
-    name := "jira",
-    scapegoatVersion := "1.3.4",
-    scapegoatDisabledInspections := Seq(
-      "NullParameter",
-      "CatchThrowable",
-      "NoOpOverride"
-    )
-  )
-  .dependsOn(common % "test->test;compile->compile", client)
-  .aggregate(common, client)
+  .settings(commonSettings)
+  .dependsOn(common, client)
 
 lazy val mappingBase = (project in file("mapping-base"))
-  .settings(commonSettings: _*)
-  .settings(
-    name := "backlog-jira-mapping-base",
-    scapegoatVersion := "1.3.4",
-    scapegoatDisabledInspections := Seq(
-      "NullParameter",
-      "CatchThrowable",
-      "NoOpOverride"
-    )
-  )
-  .dependsOn(common % "test->test;compile->compile", jira)
+  .settings(commonSettings)
+  .dependsOn(common, jira)
 
 lazy val mappingConverter = (project in file("mapping-converter"))
-  .settings(commonSettings: _*)
-  .settings(
-    name := "backlog-jira-mapping-converter",
-    scapegoatVersion := "1.3.4",
-    scapegoatDisabledInspections := Seq(
-      "NullParameter",
-      "CatchThrowable",
-      "NoOpOverride"
-    )
-  )
+  .settings(commonSettings)
   .dependsOn(mappingBase, mappingFile)
 
 lazy val mappingCollector = (project in file("mapping-collector"))
-  .settings(commonSettings: _*)
-  .settings(
-    name := "backlog-jira-mapping-collector",
-    scapegoatVersion := "1.3.4",
-    scapegoatDisabledInspections := Seq(
-      "NullParameter",
-      "CatchThrowable",
-      "NoOpOverride"
-    )
-  )
+  .settings(commonSettings)
   .dependsOn(jira, mappingBase)
 
 lazy val mappingFile = (project in file("mapping-file"))
-  .settings(commonSettings: _*)
-  .settings(
-    name := "backlog-jira-mapping-file",
-    scapegoatVersion := "1.3.4",
-    scapegoatDisabledInspections := Seq(
-      "NullParameter",
-      "CatchThrowable",
-      "NoOpOverride"
-    )
-  )
+  .settings(commonSettings)
   .dependsOn(jira, mappingBase, client)
 
 lazy val writer = (project in file("project-writer"))
-  .settings(commonSettings: _*)
-  .settings(
-    name := "backlog-jira-project-writer",
-    scapegoatVersion := "1.3.4",
-    scapegoatDisabledInspections := Seq(
-      "NullParameter",
-      "CatchThrowable",
-      "NoOpOverride"
-    )
-  )
+  .settings(commonSettings)
   .dependsOn(jira, client)
 
 lazy val client = (project in file("jira-client"))
-  .settings(commonSettings: _*)
-  .settings(
-    name := "backlog-jira-client",
-    libraryDependencies ++= Seq(
-      "org.apache.httpcomponents" % "httpclient" % "4.5.3"
-    ),
-    scapegoatVersion := "1.3.4",
-    scapegoatDisabledInspections := Seq(
-      "NullParameter",
-      "CatchThrowable",
-      "NoOpOverride"
-    )
-  )
+  .settings(commonSettings)
 
 lazy val root = (project in file("."))
-  .settings(commonSettings: _*)
+  .settings(commonSettings)
   .settings(
     name := "backlog-migration-jira",
     libraryDependencies ++= Seq(
@@ -182,9 +84,7 @@ lazy val root = (project in file("."))
       Tests.Argument(TestFrameworks.ScalaTest, "-u", "target/test-reports"),
       Tests.Argument(TestFrameworks.ScalaTest, "-f", "target/test-reports/output.txt")
     ),
-    test in assembly := {},
-    scapegoatVersion := "1.3.4",
-    scapegoatDisabledInspections := Seq("NullParameter", "CatchThrowable", "NoOpOverride"),
+    test in assembly := {}
   )
   .dependsOn(common % "test->test;compile->compile", importer, exporter, writer, client, jira, mappingFile, mappingConverter, mappingCollector)
   .aggregate(common, importer, exporter, writer, client, jira, mappingFile, mappingConverter)
