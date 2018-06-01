@@ -2,7 +2,7 @@ import sbt.Keys._
 
 scapegoatVersion in ThisBuild := "1.3.3"
 
-lazy val projectVersion = "0.2.0b2-SNAPSHOT"
+lazy val projectVersion = "0.3.0b1"
 
 lazy val commonSettings = Seq(
   organization := "com.nulabinc",
@@ -20,7 +20,6 @@ lazy val commonSettings = Seq(
     "-Ywarn-unused",
     "-Ywarn-unused-import"
   ),
-  resolvers ++= Seq("snapshots", "releases").map(Resolver.sonatypeRepo),
   libraryDependencies ++= Seq(
     "org.scalatest" %% "scalatest"            % "3.0.5"   % "test",
     "org.specs2"    %% "specs2-core"          % "3.8.9"   % Test,
