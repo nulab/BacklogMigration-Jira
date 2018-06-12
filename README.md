@@ -169,9 +169,6 @@ Single-byte **lowercase** character → Single-byte **uppercase** character
 ### About change logs
 * Worklog is not supported. Scheduled for next release.
 
-### About limitations in Backlog
-* Importing users will be terminated if the number of users will exceed the limit in Backlog.
-
 ## Re-importing
 
 When the project key in Backlog and JIRA matches, they will be considered as the same project and data will be imported as follows.
@@ -363,9 +360,6 @@ Backlogで **マックスプラン以上** のプランを契約している必�
 
 ### Change logについて
 * Worklogには対応していません。(次回リリースで対応予定)
-
-### Backlog側の制限について
-* Backlogで登録可能なユーザー数を超えた場合、インポートは中断されます。
 
 ## 再インポートの仕様
 
