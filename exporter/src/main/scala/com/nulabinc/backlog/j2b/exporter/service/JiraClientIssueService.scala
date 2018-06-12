@@ -2,19 +2,15 @@ package com.nulabinc.backlog.j2b.exporter.service
 
 import better.files.{File => Path}
 import javax.inject.Inject
-import com.nulabinc.backlog.j2b.jira.conf.JiraApiConfiguration
 import com.nulabinc.backlog.j2b.jira.domain.JiraProjectKey
 import com.nulabinc.backlog.j2b.jira.service.IssueService
-import com.nulabinc.backlog.migration.common.conf.BacklogPaths
 import com.nulabinc.backlog.migration.common.utils.Logging
 import com.nulabinc.jira.client.domain.changeLog.ChangeLog
 import com.nulabinc.jira.client.{DownloadResult, JiraRestClient}
 import com.nulabinc.jira.client.domain.issue.Issue
 
-class JiraClientIssueService @Inject()(apiConfig: JiraApiConfiguration,
-                                       projectKey: JiraProjectKey,
-                                       jira: JiraRestClient,
-                                       backlogPaths: BacklogPaths)
+class JiraClientIssueService @Inject()(projectKey: JiraProjectKey,
+                                       jira: JiraRestClient)
     extends IssueService with Logging {
 
   override def count(): Long = {
@@ -39,7 +35,7 @@ class JiraClientIssueService @Inject()(apiConfig: JiraApiConfiguration,
   override def changeLogs(issue: Issue): Seq[ChangeLog] = {
 
     def fetch(issue: Issue, startAt: Long, maxResults: Long, changeLogs: Seq[ChangeLog]): Seq[ChangeLog] =
-      jira.issueAPI.changeLogs(issue.id.toString, startAt, maxResults) match {
+      jira.issueAPI.changeLogs(issue.id.toString) match {
         case Right(result) =>
           val appendedChangeLogs = changeLogs ++ result.values
           if (result.hasPage) fetch(issue, startAt + maxResults, maxResults, appendedChangeLogs)

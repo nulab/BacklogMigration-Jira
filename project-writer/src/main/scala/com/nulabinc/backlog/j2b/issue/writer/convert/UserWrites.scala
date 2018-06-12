@@ -13,7 +13,7 @@ class UserWrites extends Writes[User, BacklogUser] {
       optUserId = Some(user.identifyKey), // TODO: check impl. user.key?
       optPassword = None,
       name = user.name,
-      optMailAddress = Some(user.emailAddress),
+      optMailAddress = user.emailAddress,
       roleType = BacklogConstantValue.USER_ROLE
     )
 }

@@ -35,7 +35,7 @@ class CompareSpec extends FlatSpec
   testIssueType(appConfig.backlogConfig)
   testCategory(appConfig.jiraConfig, appConfig.backlogConfig)
   testCustomFieldDefinitions(appConfig.backlogConfig)
-  testIssue(appConfig.jiraConfig, appConfig.backlogConfig)
+  testIssue(appConfig.backlogConfig)
 
   def testProject(jiraConfig: JiraApiConfiguration, backlogConfig: BacklogApiConfiguration): Unit = {
     "Project" should "match" in {
@@ -110,7 +110,7 @@ class CompareSpec extends FlatSpec
       }
     }
 
-  def testIssue(jiraConfig: JiraApiConfiguration, backlogConfig: BacklogApiConfiguration): Unit = {
+  def testIssue(backlogConfig: BacklogApiConfiguration): Unit = {
 
     val backlogProject = backlogApi.getProject(backlogConfig.projectKey)
     val params         = new GetIssuesParams(List(Long.box(backlogProject.getId)).asJava)

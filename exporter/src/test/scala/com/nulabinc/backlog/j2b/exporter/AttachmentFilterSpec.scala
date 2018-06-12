@@ -31,7 +31,7 @@ class AttachmentFilterSpec extends Specification {
       ),
       status = Status("1", "status"),
       priority = Priority("priority"),
-      creator = User(Some("key"), "name", "display", "mail"),
+      creator = User(Some("key"), "name", "display", Some("mail")),
       createdAt =  new Date(),
       updatedAt =  new Date(),
       changeLogs = Seq.empty[ChangeLog],
@@ -39,7 +39,7 @@ class AttachmentFilterSpec extends Specification {
         Attachment(
           id = 1,
           fileName = "file1.txt",
-          author = User(Some("key1"), "user1", "user1", "mail1"),
+          author = User(Some("key1"), "user1", "user1", Some("mail1")),
           createdAt = new Date(),
           size = 100,
           mimeType = "mine",
@@ -48,7 +48,7 @@ class AttachmentFilterSpec extends Specification {
         Attachment(
           id = 2,
           fileName = "file2.txt",
-          author = User(Some("key2"), "user2", "user2", "mail2"),
+          author = User(Some("key2"), "user2", "user2", Some("mail2")),
           createdAt = new Date(),
           size = 200,
           mimeType = "mine",
@@ -57,7 +57,7 @@ class AttachmentFilterSpec extends Specification {
         Attachment(
           id = 3,
           fileName = "file3.txt",
-          author = User(Some("key3") ,"user3", "user3", "mail3"),
+          author = User(Some("key3") ,"user3", "user3", Some("mail3")),
           createdAt = new Date(),
           size = 300,
           mimeType = "mine",
@@ -70,7 +70,7 @@ class AttachmentFilterSpec extends Specification {
       Comment(
         id = 1,
         body = "test1 body [^file2.txt] ",
-        author = User(Some("aaa"), "aaa", "aaa", "mmm"),
+        author = User(Some("aaa"), "aaa", "aaa", Some("mmm")),
         createdAt = new Date()
       )
     )

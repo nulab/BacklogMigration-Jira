@@ -25,7 +25,7 @@ Download
 
 Please download the jar file from this link, and run from the command line as follows.
 
-https://github.com/nulab/BacklogMigration-Jira/releases/download/0.3.0b1/backlog-migration-jira-0.3.0b1.jar
+https://github.com/nulab/BacklogMigration-Jira/releases/download/0.3.0b2/backlog-migration-jira-0.3.0b2.jar
 
     java -jar backlog-migration-jira-[latest version].jar
 
@@ -169,9 +169,6 @@ Single-byte **lowercase** character → Single-byte **uppercase** character
 ### About change logs
 * Worklog is not supported. Scheduled for next release.
 
-### About limitations in Backlog
-* Importing users will be terminated if the number of users will exceed the limit in Backlog.
-
 ## Re-importing
 
 When the project key in Backlog and JIRA matches, they will be considered as the same project and data will be imported as follows.
@@ -221,7 +218,7 @@ https://github.com/nulab/BacklogMigration-Jira/releases
 
 こちらのリンクからjarファイルをダウンロードし、以下のようにコマンドラインから実行します。
 
-https://github.com/nulab/BacklogMigration-Jira/releases/download/0.3.0b1/backlog-migration-jira-0.3.0b1.jar
+https://github.com/nulab/BacklogMigration-Jira/releases/download/0.3.0b2/backlog-migration-jira-0.3.0b2.jar
 
     java -jar backlog-migration-jira-[最新バージョン].jar
 
@@ -363,9 +360,6 @@ Backlogで **マックスプラン以上** のプランを契約している必�
 
 ### Change logについて
 * Worklogには対応していません。(次回リリースで対応予定)
-
-### Backlog側の制限について
-* Backlogで登録可能なユーザー数を超えた場合、インポートは中断されます。
 
 ## 再インポートの仕様
 

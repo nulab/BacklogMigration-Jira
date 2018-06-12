@@ -87,8 +87,7 @@ trait MappingFile extends Logging {
 //  }
 
   def errors: Seq[String] = {
-    val fileName  = File(filePath).path.toAbsolutePath.getFileName.toString
-    val validator = new MappingValidator(jiras, backlogs, itemName, fileName)
+    val validator = new MappingValidator(jiras, backlogs, itemName)
     validator.validate(unMarshal())
   }
 
@@ -111,8 +110,7 @@ trait MappingFile extends Logging {
 
   private class MappingValidator(jiraMappings: Seq[MappingItem],
                                  backlogMappings: Seq[MappingItem],
-                                 itemName: String,
-                                 fileName: String) {
+                                 itemName: String) {
 
     implicit val userLang = if (Locale.getDefault.equals(Locale.JAPAN)) Lang("ja") else Lang("en")
 

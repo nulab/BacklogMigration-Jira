@@ -5,7 +5,7 @@ import javax.inject.Inject
 import com.nulabinc.backlog.j2b.issue.writer.convert._
 import com.nulabinc.backlog.j2b.jira.domain.export._
 import com.nulabinc.backlog.j2b.jira.domain.mapping.MappingCollectDatabase
-import com.nulabinc.backlog.j2b.jira.service.{IssueService, UserService}
+import com.nulabinc.backlog.j2b.jira.service.UserService
 import com.nulabinc.backlog.j2b.jira.utils._
 import com.nulabinc.backlog.migration.common.convert.Convert
 import com.nulabinc.backlog.migration.common.domain._
@@ -19,8 +19,7 @@ class IssueInitializer @Inject()(implicit val issueWrites: IssueWrites,
                                  implicit val userWrites: UserWrites,
                                  implicit val customFieldWrites: FieldWrites,
                                  implicit val customFieldValueWrites: IssueFieldWrites,
-                                 userService: UserService,
-                                 issueService: IssueService)
+                                 userService: UserService)
     extends Logging
     with SecondToHourFormatter
     with DatetimeToDateFormatter {
@@ -47,7 +46,6 @@ class IssueInitializer @Inject()(implicit val issueWrites: IssueWrites,
       optEstimatedHours = estimatedHours(filteredIssue),
       optIssueTypeName  = issueTypeName(filteredIssue),
       categoryNames     = categoryNames(filteredIssue),
-//      milestoneNames    = milestoneNames(filteredIssue, milestones),
       milestoneNames    = milestones.map(_.name),
       versionNames      = versionNames(filteredIssue),
       priorityName      = priorityName(filteredIssue),
@@ -108,9 +106,6 @@ class IssueInitializer @Inject()(implicit val issueWrites: IssueWrites,
 
   private def versionNames(issue: Issue): Seq[String] =
     ChangeLogsPlayer.reversePlay(FixVersion, issue.fixVersions.map(_.name), issue.changeLogs)
-
-  private def milestoneNames(issue: Issue, milestones: Seq[Milestone]): Seq[String] =
-    ChangeLogsPlayer.reversePlay(SprintChangeLogItemField, milestones.map(_.name), issue.changeLogs)
 
   private def attachmentNames(issue: Issue): Seq[BacklogAttachment] = {
     val histories = ChangeLogsPlayer.reversePlay(AttachmentChangeLogItemField, issue.attachments.map(_.fileName), issue.changeLogs)

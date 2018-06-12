@@ -46,11 +46,11 @@ class MappingUserConverter @Inject()(implicit val userWrites: UserWrites)
       case Some(mapping) if mapping.dst.nonEmpty => Mapping(None, mapping.dst, mapping.dst)
       case _ => mappings.find(u => u.src.trim == userName.trim) match {
         case Some(mapping) if mapping.dst.nonEmpty => Mapping(None, mapping.dst, mapping.dst)
-        case _                                     => mappingOfInfoName(mappingCollectDatabase, mappings, userName)
+        case _                                     => mappingOfInfoName(mappingCollectDatabase, userName)
       }
     }
 
-  private def mappingOfInfoName(mappingCollectDatabase: MappingCollectDatabase, mappings: Seq[Mapping], userName: String): Mapping = {
+  private def mappingOfInfoName(mappingCollectDatabase: MappingCollectDatabase, userName: String): Mapping = {
     mappingCollectDatabase.findByName(Some(userName)) match {
       case Some(user) => Mapping(None, user.name, user.name)
       case _          => Mapping(None, userName, userName)

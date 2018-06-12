@@ -9,9 +9,6 @@ import org.fusesource.jansi.Ansi.ansi
 
 class RemainingTimeCalculator(totalSize: Long) extends Logging {
 
-  private var failed    = 0
-  private var date      = ""
-
   private case class RemainingTime(totalSize: Long, lastTime: Long = System.currentTimeMillis(), totalElapsedTime: Long = 0, count: Long = 0) {
 
     def action(): RemainingTime = {
@@ -35,7 +32,7 @@ class RemainingTimeCalculator(totalSize: Long) extends Logging {
   private[this] var newLine       = false
   private[this] var isMessageMode = false
 
-  def progress(indexOfDate: Int, totalOfDate: Int, summary: String): Unit = {
+  def progress(indexOfDate: Int): Unit = {
     newLine = indexOfDate == 1
     clear()
     remainingTime = remainingTime.action()

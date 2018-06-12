@@ -6,19 +6,15 @@ import com.nulabinc.backlog.migration.common.conf.{BacklogConstantValue, Backlog
 import com.nulabinc.backlog.migration.common.domain._
 import com.nulabinc.backlog.migration.common.utils.{IOUtil, Logging}
 import com.nulabinc.jira.client._
-import com.nulabinc.jira.client.domain.Attachment
 import com.nulabinc.jira.client.domain.changeLog._
 import com.osinka.i18n.Messages
 
 private [exporter] class ChangeLogReducer(issueDirPath: Path,
                                           backlogPaths: BacklogPaths,
-                                          issue: BacklogIssue,
-                                          comments: Seq[BacklogComment],
-                                          attachments: Seq[Attachment],
                                           issueService: IssueService)
   extends Logging {
 
-  def reduce(targetComment: BacklogComment, changeLog: BacklogChangeLog): (Option[BacklogChangeLog], String) = {
+  def reduce(changeLog: BacklogChangeLog): (Option[BacklogChangeLog], String) = {
     changeLog.field match {
       case BacklogConstantValue.ChangeLog.ATTACHMENT => attachment(changeLog)
       case "done_ratio" =>
@@ -60,7 +56,7 @@ private [exporter] class ChangeLogReducer(issueDirPath: Path,
         val message = Messages("common.change_comment", Messages("common.sprint"), getValue(changeLog.optOriginalValue), getValue(changeLog.optNewValue))
         (None, s"${message}\n")
       case _ =>
-        (Some(changeLog.copy(optNewValue = ValueReducer.reduce(targetComment, changeLog))), "")
+        (Some(changeLog.copy(optNewValue = ValueReducer.reduce(changeLog))), "")
     }
   }
 
@@ -126,7 +122,7 @@ private [exporter] class ChangeLogReducer(issueDirPath: Path,
   }
 
   object ValueReducer {
-    def reduce(targetComment: BacklogComment, changeLog: BacklogChangeLog): Option[String] = {
+    def reduce(changeLog: BacklogChangeLog): Option[String] = {
       changeLog.field match {
 //        case BacklogConstantValue.ChangeLog.VERSION | BacklogConstantValue.ChangeLog.MILESTONE =>
 //          findProperty(comments)(changeLog.field) match {

@@ -37,7 +37,7 @@ trait TestHelper {
 
   // Mapping file
   val jiraBacklogPaths   = new JiraBacklogPaths(appConfig.backlogConfig.projectKey)
-  val mappingFileService = new MappingFileServiceImpl(appConfig.jiraConfig, appConfig.backlogConfig)
+  val mappingFileService = new MappingFileServiceImpl(appConfig.backlogConfig)
   val statusMappingFile   = mappingFileService.createStatusesMappingFileFromJson(jiraBacklogPaths.jiraStatusesJson,  backlogStatusService.allStatuses())
   val priorityMappingFile = mappingFileService.createPrioritiesMappingFileFromJson(jiraBacklogPaths.jiraPrioritiesJson, backlogPriorityService.allPriorities())
   val userMappingFile     = mappingFileService.createUserMappingFileFromJson(jiraBacklogPaths.jiraUsersJson, backlogUserService.allUsers())
@@ -61,7 +61,7 @@ trait TestHelper {
 
   // JIRA client service
   val jiraCommentService = new JiraClientCommentService(jiraRestApi)
-  val jiraIssueService = new JiraClientIssueService(appConfig.jiraConfig, JiraProjectKey(appConfig.jiraKey), jiraRestApi, jiraBacklogPaths)
+  val jiraIssueService = new JiraClientIssueService(JiraProjectKey(appConfig.jiraKey), jiraRestApi)
 
   // Regex
   val attachmentCommentPattern: Regex = """\[\^.+?\]""".r
