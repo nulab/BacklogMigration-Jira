@@ -2,7 +2,7 @@ import sbt.Keys._
 
 scapegoatVersion in ThisBuild := "1.3.3"
 
-lazy val projectVersion = "0.3.0b2-SNAPSHOT"
+lazy val projectVersion = "0.3.0b2"
 
 lazy val commonSettings = Seq(
   organization := "com.nulabinc",
