@@ -24,7 +24,7 @@ object AttachmentFilter {
       fileNamePattern.findAllMatchIn(comment.body).map(m => m.group(1))
     }
 
-  private [exporter] def findComment(fileName: String, comments: Seq[Comment]): Seq[Comment] =
+  private [exporter] def findComment(comments: Seq[Comment]): Seq[Comment] =
     comments.filter { comment =>
       fileNamePattern.findAllMatchIn(comment.body).nonEmpty
     }

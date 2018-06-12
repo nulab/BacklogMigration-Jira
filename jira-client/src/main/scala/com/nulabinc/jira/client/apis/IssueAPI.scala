@@ -29,7 +29,7 @@ class IssueRestClientImpl(httpClient: HttpClient) extends Pageable {
     }
   }
 
-  def changeLogs(issueIdOrKey: String, startAt: Long, maxResults: Long): Either[JiraRestClientError, ChangeLogResult] =
+  def changeLogs(issueIdOrKey: String): Either[JiraRestClientError, ChangeLogResult] =
     httpClient.get(s"/issue/$issueIdOrKey/changelog") match {
       case Right(json)               => Right(JsonParser(json).convertTo[ChangeLogResult])
       case Left(_: ApiNotFoundError) => Right(ChangeLogResult(0, true, Seq.empty[ChangeLog]))

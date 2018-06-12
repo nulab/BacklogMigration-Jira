@@ -26,22 +26,20 @@ class CommentFileWriter @Inject()(implicit val commentWrites: CommentWrites,
     val backlogComments            = backlogChangeLogsAsComment ++ backlogCommentsAsComment // TODO: sort?
     val reducedComments            = backlogComments.zipWithIndex.map {
       case (comment, index) =>
-        exportComment(comment._1, backlogIssue, backlogComments.map(_._1), attachments, comment._2, index)
+        exportComment(comment._1, backlogIssue, comment._2, index)
     }
     Right(reducedComments)
   }
 
   private def exportComment(comment: BacklogComment,
                             issue: BacklogIssue,
-                            comments: Seq[BacklogComment],
-                            attachments: Seq[Attachment],
                             createdAt: Date,
                             index: Int) = {
 
     import com.nulabinc.backlog.migration.common.domain.BacklogJsonProtocol._
 
     val issueDirPath     = backlogPaths.issueDirectoryPath("comment", issue.id, createdAt, index)
-    val changeLogReducer = new ChangeLogReducer(issueDirPath, backlogPaths, issue, comments, attachments, issueService)
+    val changeLogReducer = new ChangeLogReducer(issueDirPath, backlogPaths, issueService)
     val commentReducer   = new CommentReducer(issue.id, changeLogReducer)
     val reduced          = commentReducer.reduce(comment)
 

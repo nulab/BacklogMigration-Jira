@@ -167,9 +167,7 @@ class Exporter @Inject()(projectKey: JiraProjectKey,
 
           commentWriter.write(initializedBacklogIssue, comments, changeLogs, issue.attachments)
 
-//          console(i + index.toInt, total.toInt)
-
-          calculator.progress(i + index.toInt, total.toInt, issue.summary)
+          calculator.progress(i + index.toInt)
 
           val changeLogUsers     = changeLogs.map(u => Some(u.author.name))
           val changeLogItemUsers = changeLogs.flatMap { changeLog =>
