@@ -39,14 +39,6 @@ lazy val importer = (project in file("importer"))
   .settings(commonSettings)
   .dependsOn(common)
 
-lazy val exporter = (project in file("exporter"))
-  .settings(commonSettings)
-  .dependsOn(jira, client)
-
-lazy val jira = (project in file("jira"))
-  .settings(commonSettings)
-  .dependsOn(common, client)
-
 lazy val client = (project in file("jira-client"))
   .settings(commonSettings)
 
@@ -66,5 +58,5 @@ lazy val root = (project in file("."))
     ),
     test in assembly := {}
   )
-  .dependsOn(common % "test->test;compile->compile", importer, exporter, client, jira)
-  .aggregate(common, importer, exporter, client, jira)
+  .dependsOn(common % "test->test;compile->compile", importer, client)
+  .aggregate(common, importer, client)
