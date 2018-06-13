@@ -41,31 +41,11 @@ lazy val importer = (project in file("importer"))
 
 lazy val exporter = (project in file("exporter"))
   .settings(commonSettings)
-  .dependsOn(jira, client, writer)
+  .dependsOn(jira, client)
 
 lazy val jira = (project in file("jira"))
   .settings(commonSettings)
   .dependsOn(common, client)
-
-lazy val mappingBase = (project in file("mapping-base"))
-  .settings(commonSettings)
-  .dependsOn(common, jira)
-
-lazy val mappingConverter = (project in file("mapping-converter"))
-  .settings(commonSettings)
-  .dependsOn(mappingBase, mappingFile)
-
-lazy val mappingCollector = (project in file("mapping-collector"))
-  .settings(commonSettings)
-  .dependsOn(jira, mappingBase)
-
-lazy val mappingFile = (project in file("mapping-file"))
-  .settings(commonSettings)
-  .dependsOn(jira, mappingBase, client)
-
-lazy val writer = (project in file("project-writer"))
-  .settings(commonSettings)
-  .dependsOn(jira, client)
 
 lazy val client = (project in file("jira-client"))
   .settings(commonSettings)
@@ -86,5 +66,5 @@ lazy val root = (project in file("."))
     ),
     test in assembly := {}
   )
-  .dependsOn(common % "test->test;compile->compile", importer, exporter, writer, client, jira, mappingFile, mappingConverter, mappingCollector)
-  .aggregate(common, importer, exporter, writer, client, jira, mappingFile, mappingConverter)
+  .dependsOn(common % "test->test;compile->compile", importer, exporter, client, jira)
+  .aggregate(common, importer, exporter, client, jira)
