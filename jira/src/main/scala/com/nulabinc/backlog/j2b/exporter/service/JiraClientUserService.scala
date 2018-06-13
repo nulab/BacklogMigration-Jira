@@ -1,11 +1,10 @@
 package com.nulabinc.backlog.j2b.exporter.service
 
-import javax.inject.Inject
-
 import com.nulabinc.backlog.j2b.jira.service.UserService
 import com.nulabinc.backlog.migration.common.utils.Logging
 import com.nulabinc.jira.client.JiraRestClient
 import com.nulabinc.jira.client.domain.User
+import javax.inject.Inject
 
 class JiraClientUserService @Inject()(jira: JiraRestClient) extends UserService with Logging {
 

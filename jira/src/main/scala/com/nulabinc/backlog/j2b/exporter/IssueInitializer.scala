@@ -1,7 +1,5 @@
 package com.nulabinc.backlog.j2b.exporter
 
-import javax.inject.Inject
-
 import com.nulabinc.backlog.j2b.issue.writer.convert._
 import com.nulabinc.backlog.j2b.jira.domain.export._
 import com.nulabinc.backlog.j2b.jira.domain.mapping.MappingCollectDatabase
@@ -13,6 +11,7 @@ import com.nulabinc.backlog.migration.common.utils._
 import com.nulabinc.jira.client.domain.Comment
 import com.nulabinc.jira.client.domain.changeLog._
 import com.nulabinc.jira.client.domain.issue.Issue
+import javax.inject.Inject
 
 class IssueInitializer @Inject()(implicit val issueWrites: IssueWrites,
                                  implicit val attachmentWrites: AttachmentWrites,

@@ -1,13 +1,13 @@
 package com.nulabinc.backlog.j2b.exporter.service
 
 import better.files.{File => Path}
-import javax.inject.Inject
 import com.nulabinc.backlog.j2b.jira.domain.JiraProjectKey
 import com.nulabinc.backlog.j2b.jira.service.IssueService
 import com.nulabinc.backlog.migration.common.utils.Logging
 import com.nulabinc.jira.client.domain.changeLog.ChangeLog
-import com.nulabinc.jira.client.{DownloadResult, JiraRestClient}
 import com.nulabinc.jira.client.domain.issue.Issue
+import com.nulabinc.jira.client.{DownloadResult, JiraRestClient}
+import javax.inject.Inject
 
 class JiraClientIssueService @Inject()(projectKey: JiraProjectKey,
                                        jira: JiraRestClient)

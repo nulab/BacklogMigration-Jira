@@ -1,7 +1,6 @@
 package com.nulabinc.backlog.j2b.exporter
 
 import java.util.Date
-import javax.inject.Inject
 
 import com.nulabinc.backlog.j2b.issue.writer.convert._
 import com.nulabinc.backlog.j2b.jira.service.IssueService
@@ -12,6 +11,7 @@ import com.nulabinc.backlog.migration.common.domain._
 import com.nulabinc.backlog.migration.common.utils.IOUtil
 import com.nulabinc.jira.client.domain._
 import com.nulabinc.jira.client.domain.changeLog.ChangeLog
+import javax.inject.Inject
 import spray.json._
 
 class CommentFileWriter @Inject()(implicit val commentWrites: CommentWrites,

@@ -2,8 +2,8 @@ package com.nulabinc.backlog.j2b.exporter
 
 import com.nulabinc.backlog.j2b.jira.domain.export.Field
 import com.nulabinc.backlog.j2b.jira.domain.export.FieldType.CustomLabels
-import com.nulabinc.jira.client.domain.{Component, Version}
 import com.nulabinc.jira.client.domain.changeLog._
+import com.nulabinc.jira.client.domain.{Component, Version}
 
 object ChangeLogFilter {
 

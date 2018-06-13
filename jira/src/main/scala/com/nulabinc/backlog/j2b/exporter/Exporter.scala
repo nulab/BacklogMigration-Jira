@@ -1,7 +1,5 @@
 package com.nulabinc.backlog.j2b.exporter
 
-import javax.inject.Inject
-
 import com.nulabinc.backlog.j2b.exporter.console.RemainingTimeCalculator
 import com.nulabinc.backlog.j2b.jira.conf.JiraBacklogPaths
 import com.nulabinc.backlog.j2b.jira.domain.export._
@@ -15,6 +13,7 @@ import com.nulabinc.jira.client.domain._
 import com.nulabinc.jira.client.domain.changeLog.{AssigneeFieldId, ComponentChangeLogItemField, CustomFieldFieldId, FixVersion}
 import com.nulabinc.jira.client.domain.issue._
 import com.osinka.i18n.Messages
+import javax.inject.Inject
 
 class Exporter @Inject()(projectKey: JiraProjectKey,
                          projectService: ProjectService,
