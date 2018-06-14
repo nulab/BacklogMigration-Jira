@@ -2,7 +2,7 @@ import sbt.Keys._
 
 scapegoatVersion in ThisBuild := "1.3.3"
 
-lazy val projectVersion = "0.3.0b2"
+lazy val projectVersion = "0.3.0b3"
 
 lazy val commonSettings = Seq(
   organization := "com.nulabinc",
@@ -39,34 +39,6 @@ lazy val importer = (project in file("importer"))
   .settings(commonSettings)
   .dependsOn(common)
 
-lazy val exporter = (project in file("exporter"))
-  .settings(commonSettings)
-  .dependsOn(jira, client, writer)
-
-lazy val jira = (project in file("jira"))
-  .settings(commonSettings)
-  .dependsOn(common, client)
-
-lazy val mappingBase = (project in file("mapping-base"))
-  .settings(commonSettings)
-  .dependsOn(common, jira)
-
-lazy val mappingConverter = (project in file("mapping-converter"))
-  .settings(commonSettings)
-  .dependsOn(mappingBase, mappingFile)
-
-lazy val mappingCollector = (project in file("mapping-collector"))
-  .settings(commonSettings)
-  .dependsOn(jira, mappingBase)
-
-lazy val mappingFile = (project in file("mapping-file"))
-  .settings(commonSettings)
-  .dependsOn(jira, mappingBase, client)
-
-lazy val writer = (project in file("project-writer"))
-  .settings(commonSettings)
-  .dependsOn(jira, client)
-
 lazy val client = (project in file("jira-client"))
   .settings(commonSettings)
 
@@ -86,5 +58,5 @@ lazy val root = (project in file("."))
     ),
     test in assembly := {}
   )
-  .dependsOn(common % "test->test;compile->compile", importer, exporter, writer, client, jira, mappingFile, mappingConverter, mappingCollector)
-  .aggregate(common, importer, exporter, writer, client, jira, mappingFile, mappingConverter)
+  .dependsOn(common % "test->test;compile->compile", importer, client)
+  .aggregate(common, importer, client)
