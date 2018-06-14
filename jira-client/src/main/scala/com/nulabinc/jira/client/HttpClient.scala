@@ -10,6 +10,7 @@ import org.apache.http.auth.{AuthScope, UsernamePasswordCredentials}
 import org.apache.http.client.config.RequestConfig
 import org.apache.http.client.methods.{CloseableHttpResponse, HttpGet}
 import org.apache.http.impl.client.{BasicCredentialsProvider, CloseableHttpClient, HttpClientBuilder, HttpClients}
+import org.slf4j.{Logger, LoggerFactory}
 import spray.json.{JsArray, JsonParser}
 
 import scala.io.Source
@@ -29,6 +30,8 @@ case object DownloadSuccess extends DownloadResult
 case object DownloadFailure extends DownloadResult
 
 class HttpClient(url: String, username: String, password: String) {
+
+  val logger: Logger = LoggerFactory.getLogger(getClass)
 
   private val auth: String              = username + ":" + password
   private val encodedAuth: Array[Byte]  = Base64.encodeBase64(auth.getBytes(Charset.forName("ISO-8859-1")))
@@ -148,8 +151,10 @@ class HttpClient(url: String, username: String, password: String) {
         .build()
     }).getOrElse(HttpClientBuilder.create().build())
 
-  private def createHttpGetRequest(path: String): HttpGet =
+  private def createHttpGetRequest(path: String): HttpGet = {
+    logger.info(s"Create HTTP request method: GET and uri: $path")
     new HttpGet(path)
+  }
 
   private def httpExecute(client: CloseableHttpClient, request: HttpGet): CloseableHttpResponse = {
     request.setHeader(HttpHeaders.AUTHORIZATION, authHeader)
