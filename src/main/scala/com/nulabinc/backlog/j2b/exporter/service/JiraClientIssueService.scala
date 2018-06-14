@@ -1,5 +1,7 @@
 package com.nulabinc.backlog.j2b.exporter.service
 
+import java.net.URLEncoder
+
 import better.files.{File => Path}
 import com.nulabinc.backlog.j2b.jira.domain.JiraProjectKey
 import com.nulabinc.backlog.j2b.jira.service.IssueService
@@ -49,7 +51,8 @@ class JiraClientIssueService @Inject()(projectKey: JiraProjectKey,
 
   override def downloadAttachments(attachmentId: Long, saveDirectory: Path, fileName: String): DownloadResult = {
     // content = https://(workspace name).atlassian.net/secure/attachment/(attachment ID)/(file name)
-    jira.httpClient.download(jira.url + s"/secure/attachment/$attachmentId/$fileName", saveDirectory.toString)
+    val encodedFileName = URLEncoder.encode(fileName, "UTF-8")
+    jira.httpClient.download(jira.url + s"/secure/attachment/$attachmentId/$encodedFileName", saveDirectory.toString)
   }
 
 }
