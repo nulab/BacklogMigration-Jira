@@ -63,6 +63,16 @@ object IssueMappingJsonProtocol extends DefaultJsonProtocol {
             .map { item => IssueField(item._1, item._2.toString)}
             .toSeq
 
+          def requireField[A](fields: Map[String, JsValue], fieldName: String)(implicit p: JsonReader[A]): A =
+            fields.find(_._1 == fieldName).map(_._2) match {
+              case Some(result) if result == JsNull =>
+                deserializationError(s"Cannot deserialize Issue. Field: $fieldName is required. Key: $key")
+              case Some(result) =>
+                result.convertTo[A]
+              case None =>
+                deserializationError(s"Cannot deserialize Issue. Field: $fieldName not found. Key: $key")
+            }
+
           Issue(
             id          = id.toLong,
             key         = key,
@@ -75,12 +85,12 @@ object IssueMappingJsonProtocol extends DefaultJsonProtocol {
             issueFields = issueFields,
             dueDate     = fieldMap.find(_._1 == "duedate").filterNot(_._2 == JsNull).map(_._2.convertTo[Date]),
             timeTrack   = fieldMap.find(_._1 == "timetracking").map(_._2.convertTo[TimeTrack]),
-            issueType   = fieldMap.find(_._1 == "issuetype").map(_._2.convertTo[IssueType]).get,
-            status      = fieldMap.find(_._1 == "status").map(_._2.convertTo[Status]).get,
-            priority    = fieldMap.find(_._1 == "priority").map(_._2.convertTo[Priority]).get,
-            creator     = fieldMap.find(_._1 == "creator").map(_._2.convertTo[User]).get,
-            createdAt   = fieldMap.find(_._1 == "created").map(_._2.convertTo[Date]).get,
-            updatedAt   = fieldMap.find(_._1 == "updated").map(_._2.convertTo[Date]).get,
+            issueType   = requireField[IssueType](fieldMap, "issuetype"),
+            status      = requireField[Status](fieldMap, "status"),
+            priority    = requireField[Priority](fieldMap, "priority"),
+            creator     = requireField[User](fieldMap, "creator"),
+            createdAt   = requireField[Date](fieldMap, "created"),
+            updatedAt   = requireField[Date](fieldMap, "updated"),
             changeLogs  = Seq.empty[ChangeLog],
             attachments = fieldMap.find(_._1 == "attachment").map(_._2.convertTo[Seq[Attachment]]).getOrElse(Seq.empty[Attachment])
           )
