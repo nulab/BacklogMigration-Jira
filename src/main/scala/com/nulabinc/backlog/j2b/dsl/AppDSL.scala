@@ -13,4 +13,10 @@ object AppDSL {
   def fromConsole[A](program: ConsoleProgram[A]): AppProgram[A] =
     Free.liftF(FromConsole(program))
 
+  def setLanguage(lang: String): AppProgram[Unit] =
+    Free.liftF(SetLanguage(lang))
+
+  def exit(statusCode: Int): AppProgram[Unit] =
+    Free.liftF(Exit(statusCode))
+
 }

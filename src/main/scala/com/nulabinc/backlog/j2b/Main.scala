@@ -1,9 +1,9 @@
 package com.nulabinc.backlog.j2b
 
-import java.util.Locale
-
 import com.nulabinc.backlog.j2b.cli.J2BCli
 import com.nulabinc.backlog.j2b.conf.AppConfiguration
+import com.nulabinc.backlog.j2b.dsl.{AppDSL, ConsoleDSL}
+import com.nulabinc.backlog.j2b.interpreters.{AsyncAppInterpreter, AsyncConsoleInterpreter}
 import com.nulabinc.backlog.j2b.jira.conf.JiraApiConfiguration
 import com.nulabinc.backlog.j2b.utils.ClassVersion
 import com.nulabinc.backlog.migration.common.conf.{BacklogApiConfiguration, BacklogConfiguration}
@@ -13,6 +13,7 @@ import org.fusesource.jansi.AnsiConsole
 import org.rogach.scallop.{ScallopConf, Subcommand}
 
 import scala.util.{Failure, Success, Try}
+import scala.concurrent.ExecutionContext.Implicits.global
 
 class CommandLineInterface(arguments: Seq[String]) extends ScallopConf(arguments) with BacklogConfiguration with Logging {
 
@@ -78,20 +79,15 @@ object J2B extends BacklogConfiguration with Logging {
 
   def main(args: Array[String]): Unit = {
 
-    ConsoleOut.println(
-      s"""|$applicationName
-          |--------------------------------------------------
-       """.stripMargin)
+    val interpreter = AsyncAppInterpreter(
+      consoleInterpreter = AsyncConsoleInterpreter()
+    )
 
-    // Console initialization
-    AnsiConsole.systemInstall()
-
-    // Set language
-    language match {
-      case "ja" => Locale.setDefault(Locale.JAPAN)
-      case "en" => Locale.setDefault(Locale.US)
-      case _    => Locale.setDefault(Locale.getDefault)
-    }
+    val program = for {
+      _ <- AppDSL.fromConsole(ConsoleDSL.print(startMessage(applicationName)))
+      _ <- AppDSL.pure(AnsiConsole.systemInstall()) // Console initialization
+      _ <- AppDSL.setLanguage(language)
+    } yield ()
 
     // DisableSSLCertificateCheckUtil.disableChecks() // TODO: ???
      checkRelease()
@@ -101,30 +97,32 @@ object J2B extends BacklogConfiguration with Logging {
       exit(1)
     }
 
-    // Run
-    try {
-      val cli         = new CommandLineInterface(args)
-      val nextCommand = new NextCommand(args)
+    interpreter.run(program).foreach { _ =>
+      // Run
+      try {
+        val cli         = new CommandLineInterface(args)
+        val nextCommand = new NextCommand(args)
 
-      getConfiguration(cli) match {
-        case Success(config) =>
-          cli.subcommand match {
-            case Some(cli.importCommand) => J2BCli.`import`(config)
-            case Some(cli.exportCommand) => J2BCli.export(config, nextCommand)
-            case _                       => J2BCli.help()
-          }
-          exit(0)
-        case Failure(failure) =>
-          ConsoleOut.error(s"${Messages("cli.error.args")}")
-          logger.error(failure.getMessage)
-          J2BCli.help()
+        getConfiguration(cli) match {
+          case Success(config) =>
+            cli.subcommand match {
+              case Some(cli.importCommand) => J2BCli.`import`(config)
+              case Some(cli.exportCommand) => J2BCli.export(config, nextCommand)
+              case _                       => J2BCli.help()
+            }
+            exit(0)
+          case Failure(failure) =>
+            ConsoleOut.error(s"${Messages("cli.error.args")}")
+            logger.error(failure.getMessage)
+            J2BCli.help()
+            exit(1)
+        }
+      } catch {
+        case e: Throwable =>
+          logger.error(e.getMessage, e)
+          ConsoleOut.error(s"${Messages("cli.error.unknown")}:${e.getMessage}")
           exit(1)
       }
-    } catch {
-      case e: Throwable =>
-        logger.error(e.getMessage, e)
-        ConsoleOut.error(s"${Messages("cli.error.unknown")}:${e.getMessage}")
-        exit(1)
     }
   }
 
@@ -214,4 +212,9 @@ object J2B extends BacklogConfiguration with Logging {
         logger.error(ex.getMessage, ex)
     }
   }
+
+  private def startMessage(appName: String): String =
+    s"""|$appName
+        |--------------------------------------------------
+       """.stripMargin
 }
