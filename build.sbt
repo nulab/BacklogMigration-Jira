@@ -20,13 +20,18 @@ lazy val commonSettings = Seq(
     "-Ywarn-unused",
     "-Ywarn-unused-import"
   ),
-  libraryDependencies ++= Seq(
-    "org.scalatest" %% "scalatest"            % "3.0.5"   % "test",
-    "org.specs2"    %% "specs2-core"          % "3.8.9"   % Test,
-    "org.specs2"    %% "specs2-matcher"       % "3.8.9"   % Test,
-    "org.specs2"    %% "specs2-matcher-extra" % "3.8.9"   % Test,
-    "org.specs2"    %% "specs2-mock"          % "3.8.9"   % Test
-  ),
+  libraryDependencies ++= {
+    val catsVersion = "1.3.1"
+    Seq(
+      "org.typelevel" %% "cats-core"            % catsVersion,
+      "org.typelevel" %% "cats-free"            % catsVersion,
+      "org.scalatest" %% "scalatest"            % "3.0.5"       % "test",
+      "org.specs2"    %% "specs2-core"          % "3.8.9"       % Test,
+      "org.specs2"    %% "specs2-matcher"       % "3.8.9"       % Test,
+      "org.specs2"    %% "specs2-matcher-extra" % "3.8.9"       % Test,
+      "org.specs2"    %% "specs2-mock"          % "3.8.9"       % Test
+    )
+  },
   scapegoatVersion := "1.3.4",
   scapegoatDisabledInspections := Seq("NullParameter", "CatchThrowable", "NoOpOverride"),
   javacOptions ++= Seq("-encoding", "UTF-8")
