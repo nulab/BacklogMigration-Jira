@@ -2,9 +2,10 @@ package com.nulabinc.backlog.j2b.interpreters
 
 import cats.~>
 import com.nulabinc.backlog.j2b.dsl.ConsoleDSL.ConsoleProgram
-import com.nulabinc.backlog.j2b.dsl.{ConsoleADT, Print}
+import com.nulabinc.backlog.j2b.dsl._
 import com.nulabinc.backlog.migration.common.utils.ConsoleOut
 import monix.eval.Task
+import org.fusesource.jansi.AnsiConsole
 
 import scala.language.higherKinds
 
@@ -14,20 +15,34 @@ trait ConsoleInterpreter[F[_]] extends (ConsoleADT ~> F) {
 
   def print(message: String): F[Unit]
 
-  override def apply[A](fa: ConsoleADT[A]): F[A] = fa match {
+  def error(message: String): F[Unit]
+
+  def terminate(): F[Unit]
+
+  def apply[A](fa: ConsoleADT[A]): F[A] = fa match {
     case Print(message) =>
       print(message)
+    case Error(message) =>
+      error(message)
   }
 
 }
 
 case class AsyncConsoleInterpreter() extends ConsoleInterpreter[Task] {
 
-  override def run[A](program: ConsoleProgram[A]): Task[A] =
+  def run[A](program: ConsoleProgram[A]): Task[A] =
     program.foldMap(this)
 
-  override def print(message: String): Task[Unit] = Task {
+  def print(message: String): Task[Unit] = Task {
     ConsoleOut.println(message)
+  }
+
+  def error(message: String): Task[Unit] = Task {
+    ConsoleOut.error(message)
+  }
+
+  def terminate(): Task[Unit] = Task {
+    AnsiConsole.systemUninstall()
   }
 
 }

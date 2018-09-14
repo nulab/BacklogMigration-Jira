@@ -34,6 +34,7 @@ trait AppInterpreter[F[_]] extends (AppADT ~> F) {
     case Exit(statusCode) =>
       exit(statusCode)
   }
+
 }
 
 case class AsyncAppInterpreter(consoleInterpreter: ConsoleInterpreter[Task]) extends AppInterpreter[Task] {
@@ -45,7 +46,7 @@ case class AsyncAppInterpreter(consoleInterpreter: ConsoleInterpreter[Task]) ext
     Task(a)
 
   def fromConsole[A](program: ConsoleProgram[A]): Task[A] =
-    program.foldMap(consoleInterpreter)
+    consoleInterpreter.run(program)
 
   def setLanguage(lang: String): Task[Unit] = Task {
     lang match {
@@ -56,10 +57,12 @@ case class AsyncAppInterpreter(consoleInterpreter: ConsoleInterpreter[Task]) ext
   }
 
   def exit(statusCode: Int): Task[Unit] =
-    sys.exit(statusCode)
+    terminate().map { _ =>
+      sys.exit(statusCode)
+    }
 
   def terminate(): Task[Unit] = Task {
-    ()
+    consoleInterpreter.terminate()
   }
 
 }

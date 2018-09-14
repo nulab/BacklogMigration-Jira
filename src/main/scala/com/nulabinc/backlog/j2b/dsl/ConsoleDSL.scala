@@ -9,4 +9,7 @@ object ConsoleDSL {
   def print(message: String): ConsoleProgram[Unit] =
     Free.liftF(Print(message))
 
+  def error(message: String): ConsoleProgram[Unit] =
+    Free.liftF(Error(message))
+
 }
