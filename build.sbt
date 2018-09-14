@@ -56,7 +56,7 @@ lazy val root = (project in file("."))
   .settings(
     name := "backlog-migration-jira",
     libraryDependencies ++= Seq(
-      "org.rogach" %% "scallop" % "3.1.2"
+      "com.github.scopt" %% "scopt" % "3.7.0"
     ),
     assemblyJarName in assembly := {
       s"${name.value}-${version.value}.jar"

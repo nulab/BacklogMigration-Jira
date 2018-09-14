@@ -1,6 +1,7 @@
 package com.nulabinc.backlog.j2b.dsl
 
 import cats.free.Free
+import com.nulabinc.backlog.j2b.conf.AppConfiguration
 import com.nulabinc.backlog.j2b.dsl.ConsoleDSL.ConsoleProgram
 
 object AppDSL {
@@ -18,5 +19,11 @@ object AppDSL {
 
   def exit(statusCode: Int): AppProgram[Unit] =
     Free.liftF(Exit(statusCode))
+
+  def export(config: AppConfiguration, nextCmd: String): AppProgram[Unit] =
+    Free.liftF(Export(config, nextCmd))
+
+  def `import`(config: AppConfiguration): AppProgram[Unit] =
+    Free.liftF(Import(config))
 
 }

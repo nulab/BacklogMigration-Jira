@@ -2,7 +2,7 @@ package com.nulabinc.backlog.j2b
 
 import com.nulabinc.backlog.j2b.cli.J2BCli
 import com.nulabinc.backlog.j2b.conf.AppConfiguration
-import com.nulabinc.backlog.j2b.core.{CommandLineInterface, GithubRelease}
+import com.nulabinc.backlog.j2b.core.{ConfigParser, GithubRelease, NextCommand}
 import com.nulabinc.backlog.j2b.dsl.{AppDSL, ConsoleDSL}
 import com.nulabinc.backlog.j2b.interpreters.{AsyncAppInterpreter, AsyncConsoleInterpreter}
 import com.nulabinc.backlog.j2b.jira.conf.JiraApiConfiguration
@@ -30,6 +30,15 @@ object App extends BacklogConfiguration with Logging {
       exit(1)
     }
 
+    val config = ConfigParser.parse(args) match {
+      case Some(c) => c.commandType match {
+        case Some(Config.ExportCommand) => c
+        case Some(Config.ImportCommand) => c
+        case None => throw new RuntimeException("No command found")
+      }
+      case None => sys.exit(1)
+    }
+
     implicit val exc: Scheduler = monix.execution.Scheduler.Implicits.global
 
     val interpreter = AsyncAppInterpreter(
@@ -40,18 +49,13 @@ object App extends BacklogConfiguration with Logging {
       _ <- AppDSL.fromConsole(ConsoleDSL.print(startMessage(applicationName)))
 //      _ <- AppDSL.pure(GithubRelease.checkRelease()) // TODO:
       _ <- AppDSL.setLanguage(language)
-      _ <- getConfiguration(new CommandLineInterface(args)) match {
-        case Success(config) =>
-          for {
-            _ <- AppDSL.fromConsole(ConsoleDSL.print(configurationMessage(config)))
-          } yield ()
-        case Failure(error) =>
-          logger.error(error.getMessage)
-          J2BCli.help()
-          for {
-            _ <- AppDSL.fromConsole(ConsoleDSL.error(s"${Messages("cli.error.args")}"))
-            _ <- AppDSL.exit(1)
-          } yield ()
+      _ <- config.commandType match {
+        case Some(Config.ExportCommand) =>
+          AppDSL.export(config.getAppConfiguration, NextCommand.command(args))
+        case Some(Config.ImportCommand) =>
+          AppDSL.`import`(config.getAppConfiguration)
+        case _ =>
+          AppDSL.pure(J2BCli.help())
       }
     } yield ()
 
@@ -69,31 +73,6 @@ object App extends BacklogConfiguration with Logging {
         }
       }
       .runAsync
-//      .foreach { _ =>
-//        // Run
-//
-//
-//        getConfiguration(cli) match {
-//          case Success(config) =>
-//            cli.subcommand match {
-//              case Some(cli.importCommand) => J2BCli.`import`(config)
-//              case Some(cli.exportCommand) => J2BCli.export(config, NextCommand.command(args))
-//              case _                       => J2BCli.help()
-//            }
-//            exit(0)
-//        }
-//      }
-  }
-
-  private[this] def getConfiguration(cli: CommandLineInterface) = Try {
-    val keys: Array[String] = cli.importCommand.projectKey().split(":")
-    val jira: String        = keys(0)
-    val backlog: String     = if (keys.length == 2) keys(1) else keys(0).toUpperCase.replaceAll("-", "_")
-
-    new AppConfiguration(
-      jiraConfig    = JiraApiConfiguration(username = cli.importCommand.jiraUsername(), password = cli.importCommand.jiraPassword(), cli.importCommand.jiraUrl(), projectKey = jira),
-      backlogConfig = BacklogApiConfiguration(url = cli.importCommand.backlogUrl(), key = cli.importCommand.backlogKey(), projectKey = backlog)
-    )
   }
 
   private def exit(exitCode: Int): Unit = {
