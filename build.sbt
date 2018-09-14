@@ -22,9 +22,13 @@ lazy val commonSettings = Seq(
   ),
   libraryDependencies ++= {
     val catsVersion = "1.3.1"
+    val monixVersion = "3.0.0-RC1"
     Seq(
       "org.typelevel" %% "cats-core"            % catsVersion,
       "org.typelevel" %% "cats-free"            % catsVersion,
+      "io.monix"      %% "monix"                % monixVersion,
+      "io.monix"      %% "monix-execution"      % monixVersion,
+      "io.monix"      %% "monix-eval"           % monixVersion,
       "org.scalatest" %% "scalatest"            % "3.0.5"       % "test",
       "org.specs2"    %% "specs2-core"          % "3.8.9"       % Test,
       "org.specs2"    %% "specs2-matcher"       % "3.8.9"       % Test,
