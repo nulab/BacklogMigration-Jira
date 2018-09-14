@@ -11,9 +11,9 @@ import com.nulabinc.backlog.migration.common.utils.{ConsoleOut, Logging}
 import com.osinka.i18n.Messages
 import org.fusesource.jansi.AnsiConsole
 import org.rogach.scallop.{ScallopConf, Subcommand}
+import monix.execution.Scheduler
 
 import scala.util.{Failure, Success, Try}
-import scala.concurrent.ExecutionContext.Implicits.global
 
 class CommandLineInterface(arguments: Seq[String]) extends ScallopConf(arguments) with BacklogConfiguration with Logging {
 
@@ -79,6 +79,8 @@ object J2B extends BacklogConfiguration with Logging {
 
   def main(args: Array[String]): Unit = {
 
+    implicit val exc: Scheduler = monix.execution.Scheduler.Implicits.global
+
     val interpreter = AsyncAppInterpreter(
       consoleInterpreter = AsyncConsoleInterpreter()
     )
@@ -87,43 +89,46 @@ object J2B extends BacklogConfiguration with Logging {
       _ <- AppDSL.fromConsole(ConsoleDSL.print(startMessage(applicationName)))
       _ <- AppDSL.pure(AnsiConsole.systemInstall()) // Console initialization
       _ <- AppDSL.setLanguage(language)
+      _ <- AppDSL.pure(checkRelease()) // TODO:
     } yield ()
 
     // DisableSSLCertificateCheckUtil.disableChecks() // TODO: ???
-     checkRelease()
 
     if ( ! ClassVersion.isValid()) {
       ConsoleOut.error(Messages("cli.require_java8", System.getProperty("java.specification.version")))
       exit(1)
     }
 
-    interpreter.run(program).foreach { _ =>
-      // Run
-      try {
-        val cli         = new CommandLineInterface(args)
-        val nextCommand = new NextCommand(args)
+    interpreter
+      .run(program)
+      .foreach { _ =>
+        // Run
+        try {
+          val cli         = new CommandLineInterface(args)
+          val nextCommand = new NextCommand(args)
 
-        getConfiguration(cli) match {
-          case Success(config) =>
-            cli.subcommand match {
-              case Some(cli.importCommand) => J2BCli.`import`(config)
-              case Some(cli.exportCommand) => J2BCli.export(config, nextCommand)
-              case _                       => J2BCli.help()
-            }
-            exit(0)
-          case Failure(failure) =>
-            ConsoleOut.error(s"${Messages("cli.error.args")}")
-            logger.error(failure.getMessage)
-            J2BCli.help()
+          getConfiguration(cli) match {
+            case Success(config) =>
+              cli.subcommand match {
+                case Some(cli.importCommand) => J2BCli.`import`(config)
+                case Some(cli.exportCommand) => J2BCli.export(config, nextCommand)
+                case _                       => J2BCli.help()
+              }
+              exit(0)
+            case Failure(failure) =>
+              ConsoleOut.error(s"${Messages("cli.error.args")}")
+              logger.error(failure.getMessage)
+              J2BCli.help()
+              exit(1)
+          }
+        } catch {
+          case e: Throwable =>
+            logger.error(e.getMessage, e)
+            ConsoleOut.error(s"${Messages("cli.error.unknown")}:${e.getMessage}")
             exit(1)
         }
-      } catch {
-        case e: Throwable =>
-          logger.error(e.getMessage, e)
-          ConsoleOut.error(s"${Messages("cli.error.unknown")}:${e.getMessage}")
-          exit(1)
       }
-    }
+
   }
 
   private[this] def getConfiguration(cli: CommandLineInterface) = Try {

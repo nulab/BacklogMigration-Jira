@@ -6,8 +6,8 @@ import cats.~>
 import com.nulabinc.backlog.j2b.dsl.AppDSL.AppProgram
 import com.nulabinc.backlog.j2b.dsl._
 import com.nulabinc.backlog.j2b.dsl.ConsoleDSL.ConsoleProgram
+import monix.eval.Task
 
-import scala.concurrent.{ExecutionContext, Future}
 import scala.language.higherKinds
 
 trait AppInterpreter[F[_]] extends (AppADT ~> F) {
@@ -34,20 +34,18 @@ trait AppInterpreter[F[_]] extends (AppADT ~> F) {
   }
 }
 
-case class AsyncAppInterpreter(consoleInterpreter: ConsoleInterpreter[Future])(implicit exc: ExecutionContext) extends AppInterpreter[Future] {
+case class AsyncAppInterpreter(consoleInterpreter: ConsoleInterpreter[Task]) extends AppInterpreter[Task] {
 
-  import cats.implicits._
-
-  override def run[A](program: AppProgram[A]): Future[A] =
+  override def run[A](program: AppProgram[A]): Task[A] =
     program.foldMap(this)
 
-  override def pure[A](a: A): Future[A] =
-    Future.successful(a)
+  override def pure[A](a: A): Task[A] =
+    Task(a)
 
-  override def fromConsole[A](program: ConsoleProgram[A]): Future[A] =
+  override def fromConsole[A](program: ConsoleProgram[A]): Task[A] =
     program.foldMap(consoleInterpreter)
 
-  override def setLanguage(lang: String): Future[Unit] = Future.successful {
+  override def setLanguage(lang: String): Task[Unit] = Task {
     lang match {
       case "ja" => Locale.setDefault(Locale.JAPAN)
       case "en" => Locale.setDefault(Locale.US)
@@ -55,7 +53,7 @@ case class AsyncAppInterpreter(consoleInterpreter: ConsoleInterpreter[Future])(i
     }
   }
 
-  override def exit(statusCode: Int): Future[Unit] =
+  override def exit(statusCode: Int): Task[Unit] =
     sys.exit(statusCode)
 
 }

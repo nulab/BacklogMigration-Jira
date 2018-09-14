@@ -4,8 +4,8 @@ import cats.~>
 import com.nulabinc.backlog.j2b.dsl.ConsoleDSL.ConsoleProgram
 import com.nulabinc.backlog.j2b.dsl.{ConsoleADT, Print}
 import com.nulabinc.backlog.migration.common.utils.ConsoleOut
+import monix.eval.Task
 
-import scala.concurrent.{ExecutionContext, Future}
 import scala.language.higherKinds
 
 trait ConsoleInterpreter[F[_]] extends (ConsoleADT ~> F) {
@@ -21,14 +21,12 @@ trait ConsoleInterpreter[F[_]] extends (ConsoleADT ~> F) {
 
 }
 
-case class AsyncConsoleInterpreter()(implicit exc: ExecutionContext) extends ConsoleInterpreter[Future] {
+case class AsyncConsoleInterpreter() extends ConsoleInterpreter[Task] {
 
-  import cats.implicits._
-
-  override def run[A](program: ConsoleProgram[A]): Future[A] =
+  override def run[A](program: ConsoleProgram[A]): Task[A] =
     program.foldMap(this)
 
-  override def print(message: String): Future[Unit] = Future.successful {
+  override def print(message: String): Task[Unit] = Task {
     ConsoleOut.println(message)
   }
 
