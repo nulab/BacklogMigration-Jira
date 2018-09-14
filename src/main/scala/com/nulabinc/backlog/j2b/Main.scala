@@ -2,6 +2,7 @@ package com.nulabinc.backlog.j2b
 
 import com.nulabinc.backlog.j2b.cli.J2BCli
 import com.nulabinc.backlog.j2b.conf.AppConfiguration
+import com.nulabinc.backlog.j2b.core.{CommandLineInterface, NextCommand}
 import com.nulabinc.backlog.j2b.dsl.{AppDSL, ConsoleDSL}
 import com.nulabinc.backlog.j2b.interpreters.{AsyncAppInterpreter, AsyncConsoleInterpreter}
 import com.nulabinc.backlog.j2b.jira.conf.JiraApiConfiguration
@@ -10,70 +11,10 @@ import com.nulabinc.backlog.migration.common.conf.{BacklogApiConfiguration, Back
 import com.nulabinc.backlog.migration.common.utils.{ConsoleOut, Logging}
 import com.osinka.i18n.Messages
 import org.fusesource.jansi.AnsiConsole
-import org.rogach.scallop.{ScallopConf, Subcommand}
 import monix.execution.Scheduler
 
 import scala.util.{Failure, Success, Try}
 
-class CommandLineInterface(arguments: Seq[String]) extends ScallopConf(arguments) with BacklogConfiguration with Logging {
-
-  banner(
-    """Usage: Backlog Migration for Jira [OPTION]....
-
-    """.stripMargin)
-
-  footer("\n " + Messages("cli.help"))
-
-  val importCommand = new Subcommand("import") {
-    val backlogKey   = opt[String]("backlog.key", descr = Messages("cli.help.backlog.key"), required = true, noshort = true)
-    val backlogUrl   = opt[String]("backlog.url", descr = Messages("cli.help.backlog.url"), required = true, noshort = true)
-    val jiraUsername = opt[String]("jira.username", descr = Messages("cli.help.jira.username"), required = true, noshort = true)
-    val jiraPassword = opt[String]("jira.password", descr = Messages("cli.help.jira.password"), required = true, noshort = true)
-    val jiraUrl      = opt[String]("jira.url", descr = Messages("cli.help.jira.url"), required = true, noshort = true)
-
-    val projectKey = opt[String]("projectKey", descr = Messages("cli.help.projectKey"), required = true)
-    val help       = opt[String]("help", descr = Messages("cli.help.show_help"))
-  }
-
-  val exportCommand = new Subcommand("export") {
-    val backlogKey   = opt[String]("backlog.key", descr = Messages("cli.help.backlog.key"), required = true, noshort = true)
-    val backlogUrl   = opt[String]("backlog.url", descr = Messages("cli.help.backlog.url"), required = true, noshort = true)
-    val jiraUsername = opt[String]("jira.username", descr = Messages("cli.help.jira.username"), required = true, noshort = true)
-    val jiraPassword = opt[String]("jira.password", descr = Messages("cli.help.jira.password"), required = true, noshort = true)
-    val jiraUrl      = opt[String]("jira.url", descr = Messages("cli.help.jira.url"), required = true, noshort = true)
-
-    val projectKey = opt[String]("projectKey", descr = Messages("cli.help.projectKey"), required = true)
-    val help       = opt[String]("help", descr = Messages("cli.help.show_help"))
-  }
-
-  addSubcommand(importCommand)
-  addSubcommand(exportCommand)
-
-  verify()
-}
-
-class NextCommand(args: Seq[String]) extends BacklogConfiguration {
-
-  private val formattedArgs = args
-    .filterNot(_ == "export")
-    .grouped(2)
-    .collect {
-      case Seq(k, _) if k.contains("password") => language match {
-        case "ja" => s"    $k JIRAのパスワード"
-        case "en" => s"    $k JIRA_PASSWORD"
-        case _    => s"    $k JIRA_PASSWORD"
-      }
-      case Seq(k, v) => s"    $k $v"
-    }.toSeq
-
-  def command(): String = (
-      Seq(
-        "java -jar",
-        s"  ${Config.Application.fileName}",
-        "  import"
-     ) ++ formattedArgs
-    ).mkString(" \\ \n")
-}
 
 object J2B extends BacklogConfiguration with Logging {
 
@@ -104,14 +45,13 @@ object J2B extends BacklogConfiguration with Logging {
       .foreach { _ =>
         // Run
         try {
-          val cli         = new CommandLineInterface(args)
-          val nextCommand = new NextCommand(args)
+          val cli = new CommandLineInterface(args)
 
           getConfiguration(cli) match {
             case Success(config) =>
               cli.subcommand match {
                 case Some(cli.importCommand) => J2BCli.`import`(config)
-                case Some(cli.exportCommand) => J2BCli.export(config, nextCommand)
+                case Some(cli.exportCommand) => J2BCli.export(config, NextCommand.command(args))
                 case _                       => J2BCli.help()
               }
               exit(0)

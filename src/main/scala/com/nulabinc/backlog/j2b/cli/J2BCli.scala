@@ -1,7 +1,6 @@
 package com.nulabinc.backlog.j2b.cli
 
 import com.google.inject.{Guice, Injector}
-import com.nulabinc.backlog.j2b.NextCommand
 import com.nulabinc.backlog.j2b.conf.{AppConfigValidator, AppConfiguration, ConfigValidateFailure}
 import com.nulabinc.backlog.j2b.exporter.Exporter
 import com.nulabinc.backlog.j2b.jira.conf.{JiraApiConfiguration, JiraBacklogPaths}
@@ -31,7 +30,7 @@ object J2BCli extends BacklogConfiguration
     with ProgressConsole
     with InteractiveConfirm {
 
-  def export(config: AppConfiguration, nextCommand: NextCommand): Unit = {
+  def export(config: AppConfiguration, nextCommandStr: String): Unit = {
 
     def createJiraExportingInjector(config: AppConfiguration): Option[Injector] =
       Try(Guice.createInjector(new ExportModule(config))) match {
@@ -81,7 +80,7 @@ object J2BCli extends BacklogConfiguration
         }
       }
 
-      finishExportMessage(nextCommand)
+      finishExportMessage(nextCommandStr)
     }
 
   }
