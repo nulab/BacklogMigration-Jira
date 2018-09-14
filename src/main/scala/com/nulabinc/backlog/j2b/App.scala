@@ -16,7 +16,7 @@ import monix.execution.Scheduler
 import scala.util.{Failure, Success, Try}
 
 
-object J2B extends BacklogConfiguration with Logging {
+object App extends BacklogConfiguration with Logging {
 
   def main(args: Array[String]): Unit = {
 
