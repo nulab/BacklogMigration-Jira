@@ -1,10 +1,10 @@
 package com.nulabinc.backlog.j2b.core
 
 import com.nulabinc.backlog.j2b.App.{logger, versionName}
-import com.nulabinc.backlog.migration.common.utils.ConsoleOut
+import com.nulabinc.backlog.migration.common.utils.{ConsoleOut, Logging}
 import com.osinka.i18n.Messages
 
-object GithubRelease {
+object GithubRelease extends Logging {
 
   def checkRelease(): Unit = {
     import java.io._

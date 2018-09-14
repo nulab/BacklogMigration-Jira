@@ -10,6 +10,7 @@ import com.nulabinc.backlog.j2b.utils.ClassVersion
 import com.nulabinc.backlog.migration.common.conf.{BacklogApiConfiguration, BacklogConfiguration}
 import com.nulabinc.backlog.migration.common.utils.{ConsoleOut, Logging}
 import com.osinka.i18n.Messages
+import monix.eval.Task
 import org.fusesource.jansi.AnsiConsole
 import monix.execution.Scheduler
 
@@ -34,38 +35,44 @@ object App extends BacklogConfiguration with Logging {
     )
 
     val program = for {
-      _ <- AppDSL.fromConsole(ConsoleDSL.print(startMessage(applicationName)))
       _ <- AppDSL.pure(AnsiConsole.systemInstall()) // Console initialization
+      _ <- AppDSL.fromConsole(ConsoleDSL.print(startMessage(applicationName)))
       _ <- AppDSL.setLanguage(language)
       _ <- AppDSL.pure(GithubRelease.checkRelease()) // TODO:
     } yield ()
 
+    val cleanup = interpreter.terminate().flatMap(_ =>
+      Task {
+        AnsiConsole.systemUninstall()
+      }
+    )
+
     interpreter
       .run(program)
+      .flatMap(_ => cleanup)
+      .onErrorHandleWith { ex =>
+        cleanup.map { _ =>
+          logger.error(ex.getMessage, ex)
+          exit(1, ex)
+        }
+      }
       .foreach { _ =>
         // Run
-        try {
-          val cli = new CommandLineInterface(args)
+        val cli = new CommandLineInterface(args)
 
-          getConfiguration(cli) match {
-            case Success(config) =>
-              ConsoleOut.println(configurationMessage(config))
-              cli.subcommand match {
-                case Some(cli.importCommand) => J2BCli.`import`(config)
-                case Some(cli.exportCommand) => J2BCli.export(config, NextCommand.command(args))
-                case _                       => J2BCli.help()
-              }
-              exit(0)
-            case Failure(failure) =>
-              ConsoleOut.error(s"${Messages("cli.error.args")}")
-              logger.error(failure.getMessage)
-              J2BCli.help()
-              exit(1)
-          }
-        } catch {
-          case e: Throwable =>
-            logger.error(e.getMessage, e)
-            ConsoleOut.error(s"${Messages("cli.error.unknown")}:${e.getMessage}")
+        getConfiguration(cli) match {
+          case Success(config) =>
+            ConsoleOut.println(configurationMessage(config))
+            cli.subcommand match {
+              case Some(cli.importCommand) => J2BCli.`import`(config)
+              case Some(cli.exportCommand) => J2BCli.export(config, NextCommand.command(args))
+              case _                       => J2BCli.help()
+            }
+            exit(0)
+          case Failure(failure) =>
+            ConsoleOut.error(s"${Messages("cli.error.args")}")
+            logger.error(failure.getMessage)
+            J2BCli.help()
             exit(1)
         }
       }
@@ -83,9 +90,13 @@ object App extends BacklogConfiguration with Logging {
     )
   }
 
-  private[this] def exit(exitCode: Int): Unit = {
-    AnsiConsole.systemUninstall()
+  private def exit(exitCode: Int): Unit = {
     System.exit(exitCode)
+  }
+
+  private def exit(exitCode: Int, error: Throwable): Unit = {
+    ConsoleOut.error("ERROR: " + error.getMessage + "\n" + error.printStackTrace())
+    exit(exitCode)
   }
 
   private def startMessage(appName: String): String =

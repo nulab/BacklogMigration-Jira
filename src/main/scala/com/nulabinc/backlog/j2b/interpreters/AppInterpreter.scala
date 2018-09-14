@@ -22,6 +22,8 @@ trait AppInterpreter[F[_]] extends (AppADT ~> F) {
 
   def exit(statusCode: Int): F[Unit]
 
+  def terminate(): F[Unit]
+
   override def apply[A](fa: AppADT[A]): F[A] = fa match {
     case Pure(a) =>
       pure(a)
@@ -36,16 +38,16 @@ trait AppInterpreter[F[_]] extends (AppADT ~> F) {
 
 case class AsyncAppInterpreter(consoleInterpreter: ConsoleInterpreter[Task]) extends AppInterpreter[Task] {
 
-  override def run[A](program: AppProgram[A]): Task[A] =
+  def run[A](program: AppProgram[A]): Task[A] =
     program.foldMap(this)
 
-  override def pure[A](a: A): Task[A] =
+  def pure[A](a: A): Task[A] =
     Task(a)
 
-  override def fromConsole[A](program: ConsoleProgram[A]): Task[A] =
+  def fromConsole[A](program: ConsoleProgram[A]): Task[A] =
     program.foldMap(consoleInterpreter)
 
-  override def setLanguage(lang: String): Task[Unit] = Task {
+  def setLanguage(lang: String): Task[Unit] = Task {
     lang match {
       case "ja" => Locale.setDefault(Locale.JAPAN)
       case "en" => Locale.setDefault(Locale.US)
@@ -53,7 +55,11 @@ case class AsyncAppInterpreter(consoleInterpreter: ConsoleInterpreter[Task]) ext
     }
   }
 
-  override def exit(statusCode: Int): Task[Unit] =
+  def exit(statusCode: Int): Task[Unit] =
     sys.exit(statusCode)
+
+  def terminate(): Task[Unit] = Task {
+    ()
+  }
 
 }
