@@ -2,6 +2,7 @@ package com.nulabinc.backlog.j2b.cli
 
 import com.google.inject.{Guice, Injector}
 import com.nulabinc.backlog.j2b.conf.{AppConfigValidator, AppConfiguration, ConfigValidateFailure}
+import com.nulabinc.backlog.j2b.core.Finalizer
 import com.nulabinc.backlog.j2b.exporter.Exporter
 import com.nulabinc.backlog.j2b.jira.conf.{JiraApiConfiguration, JiraBacklogPaths}
 import com.nulabinc.backlog.j2b.jira.converter.MappingConverter
@@ -148,6 +149,10 @@ object J2BCli extends BacklogConfiguration
         // Import
         Boot.execute(config.backlogConfig, false)
 
+        // Finalize
+        if (!versionName.contains("SNAPSHOT")) {
+          Finalizer.finalize(config)
+        }
       }
     }
   }

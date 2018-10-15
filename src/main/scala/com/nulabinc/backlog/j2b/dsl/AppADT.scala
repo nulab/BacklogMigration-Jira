@@ -13,4 +13,3 @@ case class Exit(statusCode: Int) extends AppADT[Unit]
 
 case class Export(config: AppConfiguration, nextCmd: String) extends AppADT[Unit]
 case class Import(config: AppConfiguration) extends AppADT[Unit]
-case class FinalizeImport(config: AppConfiguration) extends AppADT[Unit]
