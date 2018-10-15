@@ -32,4 +32,7 @@ object AppDSL {
   def `import`(config: AppConfiguration): AppProgram[Unit] =
     Free.liftF(Import(config))
 
+  def finalizeImport(config: AppConfiguration): AppProgram[Unit] =
+    Free.liftF(FinalizeImport(config))
+
 }

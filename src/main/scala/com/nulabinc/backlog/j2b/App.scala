@@ -50,7 +50,10 @@ object App extends BacklogConfiguration with Logging {
         case Some(Config.ExportCommand) =>
           AppDSL.export(config.getAppConfiguration, NextCommand.command(args))
         case Some(Config.ImportCommand) =>
-          AppDSL.`import`(config.getAppConfiguration)
+          for {
+            _ <- AppDSL.`import`(config.getAppConfiguration)
+            _ <- AppDSL.finalizeImport(config.getAppConfiguration)
+          } yield ()
         case _ =>
           AppDSL.pure(J2BCli.help())
       }
