@@ -31,7 +31,6 @@ object J2BCli extends BacklogConfiguration
     with InteractiveConfirm {
 
   def export(config: AppConfiguration, nextCommandStr: String): Unit = {
-
     def createJiraExportingInjector(config: AppConfiguration): Option[Injector] =
       Try(Guice.createInjector(new ExportModule(config))) match {
         case Success(jiraInjector) => Some(jiraInjector)

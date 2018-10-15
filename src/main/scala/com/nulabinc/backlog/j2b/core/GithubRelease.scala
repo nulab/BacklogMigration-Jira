@@ -1,12 +1,10 @@
 package com.nulabinc.backlog.j2b.core
 
-import com.nulabinc.backlog.j2b.App.{logger, versionName}
-import com.nulabinc.backlog.migration.common.utils.{ConsoleOut, Logging}
-import com.osinka.i18n.Messages
+import com.nulabinc.backlog.migration.common.utils.Logging
 
 object GithubRelease extends Logging {
 
-  def checkRelease(): Unit = {
+  def checkRelease(): String = {
     import java.io._
     import java.net._
     import spray.json._
@@ -42,23 +40,15 @@ object GithubRelease extends Logging {
       }
       reader.close()
 
-      val latest = output.toString().parseJson match {
+      output.toString().parseJson match {
         case JsArray(releases) if releases.nonEmpty =>
           releases(0).asJsObject.fields.apply("tag_name").convertTo[String].replace("v", "")
         case _ => ""
       }
-
-      if (latest != versionName) {
-        ConsoleOut.warning(
-          s"""
-             |--------------------------------------------------
-             |${Messages("cli.warn.not.latest", latest, versionName)}
-             |--------------------------------------------------
-        """.stripMargin)
-      }
     } catch {
       case ex: Throwable =>
         logger.error(ex.getMessage, ex)
+        ""
     }
   }
 }

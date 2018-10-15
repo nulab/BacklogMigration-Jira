@@ -8,6 +8,7 @@ sealed trait AppADT[A]
 case class Pure[A](a: A) extends AppADT[A]
 case class FromConsole[A](program: ConsoleProgram[A]) extends AppADT[A]
 case class SetLanguage(lang: String) extends AppADT[Unit]
+case object LatestRelease extends AppADT[String]
 case class Exit(statusCode: Int) extends AppADT[Unit]
 
 case class Export(config: AppConfiguration, nextCmd: String) extends AppADT[Unit]

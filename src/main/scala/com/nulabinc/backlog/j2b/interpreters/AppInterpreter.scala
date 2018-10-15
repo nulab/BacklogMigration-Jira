@@ -5,6 +5,7 @@ import java.util.Locale
 import cats.~>
 import com.nulabinc.backlog.j2b.cli.J2BCli
 import com.nulabinc.backlog.j2b.conf.AppConfiguration
+import com.nulabinc.backlog.j2b.core.GithubRelease
 import com.nulabinc.backlog.j2b.dsl.AppDSL.AppProgram
 import com.nulabinc.backlog.j2b.dsl._
 import com.nulabinc.backlog.j2b.dsl.ConsoleDSL.ConsoleProgram
@@ -22,6 +23,8 @@ trait AppInterpreter[F[_]] extends (AppADT ~> F) {
 
   def setLanguage(lang: String): F[Unit]
 
+  def latestRelease(): F[String]
+
   def exit(statusCode: Int): F[Unit]
 
   def terminate(): F[Unit]
@@ -37,6 +40,8 @@ trait AppInterpreter[F[_]] extends (AppADT ~> F) {
       fromConsole(program)
     case SetLanguage(lang) =>
       setLanguage(lang)
+    case LatestRelease =>
+      latestRelease()
     case Exit(statusCode) =>
       exit(statusCode)
     case Export(config, nextCmd) =>
@@ -64,6 +69,10 @@ case class AsyncAppInterpreter(consoleInterpreter: ConsoleInterpreter[Task]) ext
       case "en" => Locale.setDefault(Locale.US)
       case _    => Locale.setDefault(Locale.getDefault)
     }
+  }
+
+  def latestRelease(): Task[String] = Task {
+    GithubRelease.checkRelease()
   }
 
   def export(config: AppConfiguration, nextCmd: String): Task[Unit] = Task {
