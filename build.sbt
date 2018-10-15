@@ -1,6 +1,3 @@
-import sbt.Keys._
-
-scapegoatVersion in ThisBuild := "1.3.3"
 
 lazy val projectVersion = "0.3.0b5-SNAPSHOT"
 
@@ -8,23 +5,15 @@ lazy val commonSettings = Seq(
   organization := "com.nulabinc",
   version := projectVersion,
   scalaVersion := "2.12.6",
-  scalacOptions ++= Seq(
-    "-language:reflectiveCalls",
-    "-language:postfixOps",
-    "-deprecation",
-    "-feature",
-    "-unchecked",
-    "-Xlint",
-    "-Yrangepos",
-    "-Ywarn-dead-code",
-    "-Ywarn-unused",
-    "-Ywarn-unused-import"
-  ),
   libraryDependencies ++= {
     val catsVersion = "1.3.1"
+    val monixVersion = "3.0.0-RC1"
     Seq(
       "org.typelevel" %% "cats-core"            % catsVersion,
       "org.typelevel" %% "cats-free"            % catsVersion,
+      "io.monix"      %% "monix"                % monixVersion,
+      "io.monix"      %% "monix-execution"      % monixVersion,
+      "io.monix"      %% "monix-eval"           % monixVersion,
       "org.scalatest" %% "scalatest"            % "3.0.5"       % "test",
       "org.specs2"    %% "specs2-core"          % "3.8.9"       % Test,
       "org.specs2"    %% "specs2-matcher"       % "3.8.9"       % Test,
@@ -32,8 +21,6 @@ lazy val commonSettings = Seq(
       "org.specs2"    %% "specs2-mock"          % "3.8.9"       % Test
     )
   },
-  scapegoatVersion := "1.3.4",
-  scapegoatDisabledInspections := Seq("NullParameter", "CatchThrowable", "NoOpOverride"),
   javacOptions ++= Seq("-encoding", "UTF-8")
 )
 
@@ -52,7 +39,7 @@ lazy val root = (project in file("."))
   .settings(
     name := "backlog-migration-jira",
     libraryDependencies ++= Seq(
-      "org.rogach" %% "scallop" % "3.1.2"
+      "com.github.scopt" %% "scopt" % "3.7.0"
     ),
     assemblyJarName in assembly := {
       s"${name.value}-${version.value}.jar"

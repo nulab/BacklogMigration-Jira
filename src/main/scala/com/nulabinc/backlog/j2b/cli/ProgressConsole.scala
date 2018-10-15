@@ -1,6 +1,5 @@
 package com.nulabinc.backlog.j2b.cli
 
-import com.nulabinc.backlog.j2b.NextCommand
 import com.nulabinc.backlog.migration.common.utils.{ConsoleOut, Logging}
 import com.osinka.i18n.Messages
 
@@ -12,8 +11,8 @@ trait ProgressConsole extends Logging {
                           |--------------------------------------------------""".stripMargin)
   }
 
-  def finishExportMessage(nextCommand: NextCommand): Unit = {
+  def finishExportMessage(nextCommandStr: String): Unit = {
     ConsoleOut.println(s"""--------------------------------------------------
-                          |${Messages("export.finish", nextCommand.command())}""".stripMargin)
+                          |${Messages("export.finish", nextCommandStr)}""".stripMargin)
   }
 }
