@@ -5,7 +5,7 @@ import java.util.Locale
 import cats.~>
 import com.nulabinc.backlog.j2b.cli.J2BCli
 import com.nulabinc.backlog.j2b.conf.AppConfiguration
-import com.nulabinc.backlog.j2b.core.GithubRelease
+import com.nulabinc.backlog.j2b.core.{Finalizer, GithubRelease}
 import com.nulabinc.backlog.j2b.dsl.AppDSL.AppProgram
 import com.nulabinc.backlog.j2b.dsl._
 import com.nulabinc.backlog.j2b.dsl.ConsoleDSL.ConsoleProgram
