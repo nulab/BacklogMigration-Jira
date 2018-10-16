@@ -56,9 +56,7 @@ object App extends BacklogConfiguration with Logging {
       }
     } yield ()
 
-    val cleanup = interpreter.terminate().flatMap(_ =>
-      Task.unit
-    )
+    val cleanup = interpreter.terminate()
 
     val a = interpreter
       .run(program)
