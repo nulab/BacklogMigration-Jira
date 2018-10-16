@@ -30,7 +30,7 @@ object ChangeLogIssueLinkConverter {
               from = None,
               fromDisplayString = lastDescription,
               to = None,
-              toDisplayString = Some(lastDescription.getOrElse("") + backlogIssue.description + "\n\n" + displayStrings.mkString("\n"))
+              toDisplayString = Some(lastDescription.getOrElse(backlogIssue.description) + "\n\n" + displayStrings.mkString("\n"))
             )
           )
         )
