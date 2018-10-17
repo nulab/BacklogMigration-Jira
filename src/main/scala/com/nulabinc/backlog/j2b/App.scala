@@ -9,7 +9,6 @@ import com.nulabinc.backlog.j2b.utils.ClassVersion
 import com.nulabinc.backlog.migration.common.conf.BacklogConfiguration
 import com.nulabinc.backlog.migration.common.utils.{ConsoleOut, Logging}
 import com.osinka.i18n.Messages
-import monix.eval.Task
 import monix.execution.Scheduler
 
 import scala.concurrent.duration.Duration
@@ -58,7 +57,7 @@ object App extends BacklogConfiguration with Logging {
 
     val cleanup = interpreter.terminate()
 
-    val a = interpreter
+    val f = interpreter
       .run(program)
       .flatMap(_ => cleanup)
       .onErrorHandleWith { ex =>
@@ -69,7 +68,7 @@ object App extends BacklogConfiguration with Logging {
       }
       .runAsync
 
-    Await.result(a, Duration.Inf)
+    Await.result(f, Duration.Inf)
   }
 
   private def exit(exitCode: Int): Unit = {
