@@ -1,5 +1,5 @@
 
-lazy val projectVersion = "0.3.0b5-SNAPSHOT"
+lazy val projectVersion = "0.3.0b5"
 
 lazy val commonSettings = Seq(
   organization := "com.nulabinc",
