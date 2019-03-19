@@ -4,9 +4,9 @@ lazy val projectVersion = "0.3.0b6-SNAPSHOT"
 lazy val commonSettings = Seq(
   organization := "com.nulabinc",
   version := projectVersion,
-  scalaVersion := "2.12.7",
+  scalaVersion := "2.12.8",
   libraryDependencies ++= {
-    val catsVersion = "1.3.1"
+    val catsVersion = "1.6.0"
     val monixVersion = "3.0.0-RC1"
     Seq(
       "org.typelevel" %% "cats-core"            % catsVersion,
@@ -39,7 +39,7 @@ lazy val root = (project in file("."))
   .settings(
     name := "backlog-migration-jira",
     libraryDependencies ++= Seq(
-      "com.github.scopt" %% "scopt" % "3.7.0"
+      "com.github.scopt" %% "scopt" % "3.7.1"
     ),
     assemblyJarName in assembly := {
       s"${name.value}-${version.value}.jar"
