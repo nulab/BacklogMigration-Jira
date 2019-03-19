@@ -293,7 +293,7 @@ class CompareSpec extends FlatSpec
                 timestampToString(backlogComment.getCreated) == timestampToString(jiraChangeLog.createdAt)
               }
               backlogChangelog should not be empty
-              assertUser(jiraChangeLog.author, backlogChangelog.get.getCreatedUser)
+              assertUser(jiraChangeLog.optAuthor.get, backlogChangelog.get.getCreatedUser)
             }
 
             // description

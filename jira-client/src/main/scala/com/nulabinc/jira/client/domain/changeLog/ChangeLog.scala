@@ -6,7 +6,7 @@ import com.nulabinc.jira.client.domain._
 
 case class ChangeLog(
   id: Long,
-  author: User,
+  optAuthor: Option[User],
   createdAt: Date,
   items: Seq[ChangeLogItem]
 )

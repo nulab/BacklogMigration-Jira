@@ -20,7 +20,7 @@ object ChangeLogIssueLinkConverter {
       Seq(
         ChangeLog(
           id = 0,   // TODO: Check
-          author = changeLogs.last.author,
+          optAuthor = changeLogs.last.optAuthor,
           createdAt = changeLogs.last.createdAt,
           items = Seq(
             ChangeLogItem(
