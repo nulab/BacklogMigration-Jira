@@ -61,13 +61,18 @@ object ChangeLogMappingJsonProtocol extends DefaultJsonProtocol {
   implicit object ChangeLogMappingFormat extends RootJsonFormat[ChangeLog] {
     def write(obj: ChangeLog) = ???
 
-    def read(json: JsValue) = {
+    def read(json: JsValue): ChangeLog = {
       val jsObject = json.asJsObject
-      jsObject.getFields("id", "author", "created", "items") match {
-        case Seq(JsString(id), author, created, items) =>
+      val optAuthor = jsObject.getFields("author") match {
+        case Seq(author) => Some(author.convertTo[User])
+        case _ => None
+      }
+
+      jsObject.getFields("id", "created", "items") match {
+        case Seq(JsString(id), created, items) =>
           changeLog.ChangeLog(
             id        = id.toLong,
-            author    = author.convertTo[User],
+            optAuthor = optAuthor,
             createdAt = created.convertTo[Date],
             items     = items.convertTo[Seq[ChangeLogItem]]
           )
@@ -76,7 +81,7 @@ object ChangeLogMappingJsonProtocol extends DefaultJsonProtocol {
     }
   }
 
-  implicit val changeLogResultMappingFormat = jsonFormat3(ChangeLogResult)
+  implicit val changeLogResultMappingFormat: RootJsonFormat[ChangeLogResult] = jsonFormat3(ChangeLogResult)
 
 
 }

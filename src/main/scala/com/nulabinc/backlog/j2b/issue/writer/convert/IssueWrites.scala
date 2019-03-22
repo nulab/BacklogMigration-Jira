@@ -48,7 +48,7 @@ class IssueWrites @Inject()(implicit val userWrites: UserWrites,
     BacklogOperation(
       optCreatedUser  = Some(Convert.toBacklog(issue.creator)),
       optCreated      = Some(issue.createdAt).map(DateUtil.isoFormat),
-      optUpdatedUser  = issue.changeLogs.lastOption.map { u => Convert.toBacklog(u.author) },
+      optUpdatedUser  = issue.changeLogs.lastOption.flatMap(_.optAuthor.map(Convert.toBacklog(_))),
       optUpdated      = Some(issue.updatedAt).map(DateUtil.isoFormat)
     )
 

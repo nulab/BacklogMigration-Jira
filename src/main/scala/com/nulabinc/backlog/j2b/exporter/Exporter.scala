@@ -168,7 +168,7 @@ class Exporter @Inject()(projectKey: JiraProjectKey,
 
           calculator.progress(i + index.toInt)
 
-          val changeLogUsers     = changeLogs.map(u => Some(u.author.name))
+          val changeLogUsers     = changeLogs.map(_.optAuthor.map(_.name))
           val changeLogItemUsers = changeLogs.flatMap { changeLog =>
             changeLog.items.flatMap { changeLogItem =>
               changeLogItem.fieldId match {
