@@ -27,6 +27,7 @@ object Milestone {
         name = m.group(2),
         goal = m.group(3) match {
           case str if str.isEmpty => None
+          case "<null>" => None
           case str => Some(str)
         },
         startDate = m.group(4) match {
