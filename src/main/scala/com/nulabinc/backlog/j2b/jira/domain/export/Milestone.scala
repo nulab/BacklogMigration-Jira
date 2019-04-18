@@ -18,17 +18,16 @@ case class Milestone(
 
 object Milestone {
 
-  val pattern: Regex = """id=(\d+),.*?name=(.+?),.*?goal=(.+?),.*?startDate=(.+?),endDate=(.+?),""".r
+  val pattern: Regex = """id=(\d+),.*?name=(.+?),.*?goal=(.*?),.*?startDate=(.+?),endDate=(.+?),""".r
 
-  def apply(text: String): Milestone = {
-
+  def apply(text: String): Milestone =
     pattern.findFirstMatchIn(text) match {
       case Some(m) => new Milestone(
         id = m.group(1).toLong,
         name = m.group(2),
         goal = m.group(3) match {
-          case "<null>" => None
-          case string   => Some(string)
+          case str if str.isEmpty => None
+          case str => Some(str)
         },
         startDate = m.group(4) match {
           case "<null>" => None
@@ -41,5 +40,4 @@ object Milestone {
       )
       case None => throw new RuntimeException("Cannot parse milestone. input: " + text)
     }
-  }
 }
