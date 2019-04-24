@@ -39,7 +39,7 @@ class IssueFieldWrites @Inject()(customFieldDefinitions: Seq[Field])
               case v: StringFieldValue =>
                 toMultipleListCustomField(field, ArrayFieldValue(Seq(v)))
               case v =>
-                throw new RuntimeException("Unsupported FieldValue type. Raw input: " + v)
+                throw new RuntimeException(s"Unsupported FieldValue type. Field: $issueField Value: $v")
             }
           case FieldType.String =>
             toTextCustomField(field, issueField.value.asInstanceOf[StringFieldValue])
