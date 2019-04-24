@@ -14,7 +14,7 @@ class IssueFieldWrites @Inject()(customFieldDefinitions: Seq[Field])
     with Logging
     with DatetimeToDateFormatter {
 
-  override def writes(issueField: IssueField) =
+  override def writes(issueField: IssueField): Option[BacklogCustomField] =
     try {
       customFieldDefinitions.find(_.id == issueField.id).map { field =>
         field.schema match {
@@ -32,9 +32,19 @@ class IssueFieldWrites @Inject()(customFieldDefinitions: Seq[Field])
           //        case FieldType.Components       =>
           case FieldType.IssueType        => toIssueTypeCustomField(field, issueField.value.asInstanceOf[IssueTypeFieldValue])
           case FieldType.User             => toUserCustomField(field, issueField.value.asInstanceOf[UserFieldValue])
-          case FieldType.Strings          => toMultipleListCustomField(field, issueField.value.asInstanceOf[ArrayFieldValue])
-          case FieldType.String           => toTextCustomField(field, issueField.value.asInstanceOf[StringFieldValue])
-          case FieldType.Unknown          => toTextCustomField(field, issueField.value.asInstanceOf[StringFieldValue])
+          case FieldType.Strings =>
+            issueField.value match {
+              case v: ArrayFieldValue =>
+                toMultipleListCustomField(field, v)
+              case v: StringFieldValue =>
+                toMultipleListCustomField(field, ArrayFieldValue(Seq(v)))
+              case v =>
+                throw new RuntimeException("Unsupported FieldValue type. Raw input: " + v)
+            }
+          case FieldType.String =>
+            toTextCustomField(field, issueField.value.asInstanceOf[StringFieldValue])
+          case FieldType.Unknown =>
+            toTextCustomField(field, issueField.value.asInstanceOf[StringFieldValue])
         }
       }
     } catch {
