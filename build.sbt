@@ -21,7 +21,8 @@ lazy val commonSettings = Seq(
       "org.specs2"    %% "specs2-mock"          % "3.8.9"       % Test
     )
   },
-  javacOptions ++= Seq("-encoding", "UTF-8")
+  javacOptions ++= Seq("-encoding", "UTF-8"),
+  test in assembly := {}
 )
 
 lazy val common = (project in file("common"))
@@ -47,8 +48,7 @@ lazy val root = (project in file("."))
     testOptions in Test ++= Seq(
       Tests.Argument(TestFrameworks.ScalaTest, "-u", "target/test-reports"),
       Tests.Argument(TestFrameworks.ScalaTest, "-f", "target/test-reports/output.txt")
-    ),
-    test in assembly := {}
+    )
   )
   .dependsOn(common % "test->test;compile->compile", importer, client)
   .aggregate(common, importer, client)
