@@ -12,6 +12,9 @@ save-sbt-cache: &save-sbt-cache
     - "~/.m2"
   key: v1-dependencies--{{ checksum "build.sbt" }}
 
+orbs:
+  typetalk: nulab/typetalk@1.1.0
+
 commands:
   checkout-with-submodule:
     steps:
@@ -28,6 +31,19 @@ commands:
       - restore_cache: *restore-sbt-cache
       - run: cat /dev/null | sbt << parameters.args >>
       - save_cache: *save-sbt-cache
+
+  typetalk-status:
+    parameters:
+      fail-only:
+        type: string
+        default: "false"
+    steps:
+      - typetalk/status:
+          topic-id: "54145"
+          success-message: |-
+            :tada: A $CIRCLE_JOB job has succeeded! An artifact made in this build is [here]($CIRCLE_BUILD_URL#artifacts).
+            $CIRCLE_BUILD_URL
+          fail-only: << parameters.fail-only >>
 
 jobs:
   compile:
@@ -47,6 +63,9 @@ jobs:
             - common/target
             - importer/target
             - jira-client/target
+
+      - typetalk-status:
+          fail-only: "true"
 
   test:
     docker:
@@ -75,6 +94,9 @@ jobs:
       - store_artifacts:
           path: ~/test-results/junit
 
+      - typetalk-status:
+          fail-only: "true"
+
   dist:
     docker:
       - image: circleci/openjdk:8-jdk
@@ -92,6 +114,8 @@ jobs:
       - store_artifacts:
           path: target/dist
           destination: dist
+
+      - typetalk-status
 
 workflows:
   version: 2
