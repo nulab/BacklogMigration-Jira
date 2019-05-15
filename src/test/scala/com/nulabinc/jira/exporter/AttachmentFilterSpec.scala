@@ -1,4 +1,4 @@
-package unit.exporter
+package com.nulabinc.jira.exporter
 
 import java.util.Date
 

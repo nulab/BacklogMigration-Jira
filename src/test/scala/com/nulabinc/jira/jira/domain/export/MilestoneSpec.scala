@@ -1,4 +1,4 @@
-package unit.jira.domain.export
+package com.nulabinc.jira.jira.domain.export
 
 import com.nulabinc.backlog.j2b.jira.domain.export.Milestone
 import com.nulabinc.backlog.migration.common.utils.DateUtil

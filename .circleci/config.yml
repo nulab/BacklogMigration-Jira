@@ -79,7 +79,7 @@ jobs:
 
       - sbt:
           # args: test
-          args: "\"testOnly unit.*\""
+          args: "\"testOnly com.nulabinc.*\""
 
       - run:
           name: Save test results
