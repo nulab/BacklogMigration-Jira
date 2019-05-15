@@ -1,4 +1,4 @@
-package com.nulabinc.backlog.j2b.helper
+package integration.helper
 
 import java.text.SimpleDateFormat
 import java.util.Date

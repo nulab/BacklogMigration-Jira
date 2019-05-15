@@ -1,4 +1,4 @@
-package com.nulabinc.backlog.j2b.helper
+package integration.helper
 
 import java.io.{File, FileInputStream}
 import java.util.{Date, Properties}
@@ -12,11 +12,10 @@ import com.nulabinc.backlog.j2b.mapping.converter.writes.UserWrites
 import com.nulabinc.backlog.j2b.mapping.converter.{MappingPriorityConverter, MappingStatusConverter, MappingUserConverter}
 import com.nulabinc.backlog.j2b.mapping.file.MappingFileServiceImpl
 import com.nulabinc.backlog.migration.common.conf.BacklogApiConfiguration
-import com.nulabinc.backlog4j.{Issue => BacklogIssue}
 import com.nulabinc.backlog.migration.common.modules.{ServiceInjector => BacklogInjector}
 import com.nulabinc.backlog.migration.common.service.{PriorityService => BacklogPriorityService, StatusService => BacklogStatusService, UserService => BacklogUserService}
-import com.nulabinc.backlog4j.{BacklogClient, BacklogClientFactory}
 import com.nulabinc.backlog4j.conf.{BacklogConfigure, BacklogPackageConfigure}
+import com.nulabinc.backlog4j.{BacklogClient, BacklogClientFactory, Issue => BacklogIssue}
 import com.nulabinc.jira.client.JiraRestClient
 
 import scala.collection.JavaConverters._

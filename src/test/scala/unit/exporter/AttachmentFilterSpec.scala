@@ -1,7 +1,8 @@
-package com.nulabinc.backlog.j2b.exporter
+package unit.exporter
 
 import java.util.Date
 
+import com.nulabinc.backlog.j2b.exporter.AttachmentFilter
 import com.nulabinc.jira.client.domain._
 import com.nulabinc.jira.client.domain.changeLog.ChangeLog
 import com.nulabinc.jira.client.domain.issue._
