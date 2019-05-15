@@ -1,8 +1,8 @@
-package com.nulabinc.backlog.j2b.matchers
+package integration.matchers
 
-import com.nulabinc.backlog.j2b.helper.TestHelper
 import com.nulabinc.backlog4j.{User => BacklogUser}
 import com.nulabinc.jira.client.domain.{User => JiraUser}
+import integration.helper.TestHelper
 import org.scalatest.{Assertion, Matchers}
 
 trait UserMatcher extends TestHelper with Matchers {

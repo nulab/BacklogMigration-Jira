@@ -1,9 +1,9 @@
-package com.nulabinc.backlog.j2b.matchers
+package integration.matchers
 
 import java.util.Date
 
-import com.nulabinc.backlog.j2b.helper.{DateFormatter, TestHelper}
 import com.nulabinc.backlog.j2b.jira.utils.DatetimeToDateFormatter
+import integration.helper.{DateFormatter, TestHelper}
 import org.scalatest.{Assertion, Matchers}
 
 trait DateMatcher extends TestHelper

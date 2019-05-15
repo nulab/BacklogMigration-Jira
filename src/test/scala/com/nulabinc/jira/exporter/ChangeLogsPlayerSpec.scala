@@ -1,5 +1,6 @@
-package com.nulabinc.backlog.j2b.exporter
+package com.nulabinc.jira.exporter
 
+import com.nulabinc.backlog.j2b.exporter.{Calc, History, Result}
 import org.specs2.mutable.Specification
 
 class ChangeLogsPlayerSpec extends Specification {

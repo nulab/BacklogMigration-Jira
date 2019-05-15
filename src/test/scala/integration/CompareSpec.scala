@@ -1,17 +1,17 @@
-package com.nulabinc.backlog.j2b
+package integration
 
-import com.nulabinc.backlog.j2b.helper._
 import com.nulabinc.backlog.j2b.jira.conf.JiraApiConfiguration
-import com.nulabinc.backlog.j2b.jira.domain.{FieldConverter, IssueFieldConverter}
 import com.nulabinc.backlog.j2b.jira.domain.export._
-import com.nulabinc.backlog.j2b.matchers.{DateMatcher, UserMatcher}
+import com.nulabinc.backlog.j2b.jira.domain.{FieldConverter, IssueFieldConverter}
 import com.nulabinc.backlog.migration.common.conf.{BacklogApiConfiguration, BacklogConstantValue}
 import com.nulabinc.backlog.migration.common.convert.Convert
 import com.nulabinc.backlog.migration.common.convert.writes.UserWrites
-import com.nulabinc.backlog4j.{CustomFieldSetting, IssueComment}
 import com.nulabinc.backlog4j.api.option.{GetIssuesParams, QueryParams}
 import com.nulabinc.backlog4j.internal.json.customFields._
+import com.nulabinc.backlog4j.{CustomFieldSetting, IssueComment}
 import com.nulabinc.jira.client.domain.changeLog.LinkChangeLogItemField
+import integration.helper.{DateFormatter, TestHelper}
+import integration.matchers.{DateMatcher, UserMatcher}
 import org.scalatest.{DiagrammedAssertions, FlatSpec, Matchers}
 
 import scala.collection.JavaConverters._

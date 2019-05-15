@@ -1,5 +1,6 @@
-package com.nulabinc.backlog.j2b.conf
+package com.nulabinc.jira.conf
 
+import com.nulabinc.backlog.j2b.conf.{AppConfigValidator, ConfigValidateSuccess}
 import org.scalatest.{DiagrammedAssertions, FlatSpec}
 
 class AppConfigValidatorSpec extends FlatSpec with DiagrammedAssertions {
