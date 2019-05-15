@@ -78,8 +78,8 @@ jobs:
           at: .
 
       - sbt:
-          # args: test  # TODO: run test correctly
-          args: test || true
+          # args: test
+          args: "testOnly unit.*"
 
       - run:
           name: Save test results
