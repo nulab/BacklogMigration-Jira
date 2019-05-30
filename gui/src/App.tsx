@@ -1,5 +1,6 @@
 import React from "react";
 import "./App.css";
+import { Label } from "./components/atoms/Label";
 
 const App: React.FC = () => {
   return (
@@ -7,9 +8,7 @@ const App: React.FC = () => {
       <form id="myForm" onSubmit={() => {}}>
         <fieldset>
           <div className="row">
-            <label htmlFor="spaceID">
-              {/* <?= getMessage("label_spaceId") ?> */}
-            </label>
+            <Label htmlFor="spaceID">Space ID</Label>
             <div className="space-id-field">
               <input
                 id="spaceID"
