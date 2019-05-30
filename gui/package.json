@@ -5,6 +5,7 @@
   "main": "./electron-starter.js",
   "dependencies": {
     "@emotion/core": "^10.0.10",
+    "@lingui/react": "^2.8.3",
     "@types/jest": "24.0.13",
     "@types/node": "12.0.2",
     "@types/react": "16.8.18",
@@ -12,7 +13,7 @@
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
     "react-scripts": "3.0.1",
-    "typescript": "3.4.5"
+    "typescript": "3.5.1"
   },
   "scripts": {
     "start": "cross-env BROWSER=none nf start -p 3000",
@@ -21,7 +22,10 @@
     "eject": "react-scripts eject",
     "electron": "electron .",
     "electron-start": "node ./electron-wait-react",
-    "react-start": "react-scripts start"
+    "react-start": "react-scripts start",
+    "add-locale": "lingui add-locale",
+    "extract": "lingui extract",
+    "compile": "lingui compile"
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -39,6 +43,10 @@
     ]
   },
   "devDependencies": {
+    "@babel/core": "^7.4.5",
+    "@lingui/cli": "^2.8.3",
+    "@lingui/macro": "^2.8.3",
+    "babel-core": "^7.0.0-bridge.0",
     "cross-env": "^5.2.0",
     "electron": "^5.0.2",
     "foreman": "^3.0.1"
