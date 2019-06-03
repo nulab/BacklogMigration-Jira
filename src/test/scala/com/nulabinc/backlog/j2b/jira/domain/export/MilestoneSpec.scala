@@ -15,14 +15,15 @@ class MilestoneSpec extends Specification {
     actual1.startDate must beNone
     actual1.endDate must beSome(DateUtil.yyyymmddParse("2019-04-13T15:50:00.000Z"))
 
-    val text2 = "rapidViewId=3,state=CLOSED,name=Sixth Sprint,startDate=2015-01-20T13:14:42.960-08:00,endDate=2015-02-03T13:14:00.000-08:00,completeDate=2015-10-07T08:55:24.294-07:00,sequence=13,id=13"
+    // BLGMIGRATION-813
+    val text2 = "rapidViewId=1,state=CLOSED,name=Sixth Sprint,startDate=2012-11-20T13:14:42.960-08:00,endDate=2012-12-03T13:14:00.000-08:00,goal=test goal,completeDate=2015-10-07T08:55:24.294-07:00,sequence=22,id=22"
     val actual2 = Milestone(text2)
 
-    actual2.id must equalTo(10)
+    actual2.id must equalTo(22)
     actual2.name must equalTo("Sixth Sprint")
-    actual2.goal must beNone
-    actual2.startDate must beSome("2015-01-20T13:14:42.960-08:00")
-    actual2.endDate must beSome(DateUtil.yyyymmddParse("2019-04-13T15:50:00.000Z"))
+    actual2.goal must beSome("test goal")
+    actual2.startDate must beSome("2012-11-20T13:14:42.960-08:00")
+    actual2.endDate must beSome(DateUtil.yyyymmddParse("2012-12-03T05:14:00.000Z"))
   }
 
 }

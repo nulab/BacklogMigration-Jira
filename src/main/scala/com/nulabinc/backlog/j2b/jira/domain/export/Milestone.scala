@@ -4,8 +4,6 @@ import java.util.Date
 
 import com.nulabinc.backlog.migration.common.utils.DateUtil
 
-import scala.util.matching.Regex
-
 case class Milestone(
   id: Long,
   name: String,
@@ -14,31 +12,82 @@ case class Milestone(
   endDate: Option[Date]
 )
 
-// com.atlassian.greenhopper.service.sprint.Sprint@2e84f4e0[id=4,rapidViewId=2,state=FUTURE,name=default スプリント 2,goal=<null>,startDate=<null>,endDate=<null>,completeDate=<null>,sequence=4]
-
 object Milestone {
 
-  val pattern: Regex = """id=(\d+),.*?name=(.+?),.*?goal=(.*?),.*?startDate=(.+?),endDate=(.+?),""".r
+  implicit class EitherSeqOps[A, E](results: Seq[Either[E, A]]) {
+    def sequence: Either[E, Seq[A]] =
+      results.foldLeft(Right(Seq.empty[A]): Either[E, Seq[A]]) {
+        case (acc, Left(_)) => acc
+        case (acc, Right(item)) => acc.map(_ :+ item)
+      }
+  }
 
-  def apply(text: String): Milestone =
-    pattern.findFirstMatchIn(text) match {
-      case Some(m) => new Milestone(
-        id = m.group(1).toLong,
-        name = m.group(2),
-        goal = m.group(3) match {
-          case str if str.isEmpty => None
-          case "<null>" => None
-          case str => Some(str)
-        },
-        startDate = m.group(4) match {
-          case "<null>" => None
-          case string   => Some(string)
-        },
-        endDate = m.group(5) match {
-          case "<null>" => None
-          case string   => Some(DateUtil.yyyymmddParse(string))
+  sealed trait MilestoneError
+  case class ExtractError(rawInput: String) extends MilestoneError
+  case object IdNotFound extends MilestoneError
+  case object NameNotFound extends MilestoneError
+
+  type MileStoneParams = Map[String, String]
+
+  def apply(text: String): Milestone = {
+    val result = split(text)
+      .map(_.trim)
+      .map(extract)
+      .sequence
+      .map(_.toMap[String, String])
+      .flatMap { args =>
+        for {
+          id <- findId(args)
+          name <- findName(args)
+        } yield {
+          new Milestone(
+            id = id.toLong,
+            name = name,
+            goal = findValue(args, "goal"),
+            startDate = findValue(args, "startDate"),
+            endDate = findValue(args, "endDate").map(DateUtil.yyyymmddParse)
+          )
         }
-      )
-      case None => throw new RuntimeException("Cannot parse milestone. input: " + text)
+      }
+
+    result.fold(
+      error => {
+        val message = error match {
+          case err: ExtractError => s"'=' not found. Raw input: ${err.rawInput}"
+          case IdNotFound => s"Id not found"
+          case NameNotFound => s"Name not found"
+        }
+        throw new RuntimeException(s"Unable to parse milestone. Error: $message")
+      },
+      value => value
+    )
+  }
+
+  private def split(str: String): Seq[String] =
+    str.split(",")
+
+  private def extract(str: String): Either[MilestoneError, (String, String)] = {
+    val arr = str.split("=")
+    if (arr.length < 2) {
+      Left(ExtractError(str))
+    } else {
+      Right(arr(0) -> arr(1))
     }
+  }
+
+  private def findValue(params: MileStoneParams, key: String): Option[String] =
+    params.get(key).flatMap {
+      case "<null>" => None
+      case str if str.isEmpty => None
+      case str => Some(str)
+    }
+
+  private def mustFind[E <: MilestoneError](params: MileStoneParams, key: String, error: String => E): Either[E, String] =
+    params.get(key).map(Right(_)).getOrElse(Left(error(key)))
+
+  private def findId(params: MileStoneParams): Either[MilestoneError, String] =
+    mustFind(params, "id", _ => IdNotFound)
+
+  private def findName(params: MileStoneParams): Either[MilestoneError, String] =
+    mustFind(params, "name", _ => NameNotFound)
 }
