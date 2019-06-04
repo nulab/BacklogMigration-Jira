@@ -4,6 +4,8 @@ import java.util.Date
 
 import com.nulabinc.backlog.migration.common.utils.DateUtil
 
+import scala.util.matching.Regex
+
 case class Milestone(
   id: Long,
   name: String,
@@ -14,7 +16,7 @@ case class Milestone(
 
 object Milestone {
 
-  implicit class EitherSeqOps[A, E](results: Seq[Either[E, A]]) {
+  implicit class SeqEitherOps[A, E](results: Seq[Either[E, A]]) {
     def sequence: Either[E, Seq[A]] =
       results.foldLeft(Right(Seq.empty[A]): Either[E, Seq[A]]) {
         case (acc, Left(_)) => acc
@@ -29,38 +31,45 @@ object Milestone {
 
   type MileStoneParams = Map[String, String]
 
+  val pattern: Regex = """.*?\[(.+?)]$""".r
+
   def apply(text: String): Milestone = {
-    val result = split(text)
+
+    val value = pattern.findFirstMatchIn(text) match {
+      case Some(m) => m.group(1)
+      case _ => throw new RuntimeException("Unable to parse milestone. Raw input: " + text)
+    }
+
+    split(value)
       .map(_.trim)
       .map(extract)
       .sequence
       .map(_.toMap[String, String])
-      .flatMap { args =>
+      .flatMap { params =>
         for {
-          id <- findId(args)
-          name <- findName(args)
+          id <- findId(params)
+          name <- findName(params)
         } yield {
           new Milestone(
             id = id.toLong,
             name = name,
-            goal = findValue(args, "goal"),
-            startDate = findValue(args, "startDate"),
-            endDate = findValue(args, "endDate").map(DateUtil.yyyymmddParse)
+            goal = findValue(params, "goal"),
+            startDate = findValue(params, "startDate"),
+            endDate = findValue(params, "endDate").map(DateUtil.yyyymmddParse)
           )
         }
       }
-
-    result.fold(
-      error => {
-        val message = error match {
-          case err: ExtractError => s"'=' not found. Raw input: ${err.rawInput}"
-          case IdNotFound => s"Id not found"
-          case NameNotFound => s"Name not found"
-        }
-        throw new RuntimeException(s"Unable to parse milestone. Error: $message")
-      },
-      value => value
-    )
+      .fold(
+        error => {
+          val message = error match {
+            case err: ExtractError => s"'=' not found. Raw input: ${err.rawInput}"
+            case IdNotFound => s"Id not found"
+            case NameNotFound => s"Name not found"
+          }
+          throw new RuntimeException(s"Unable to parse milestone. Error: $message Raw input: $text")
+        },
+        value => value
+      )
   }
 
   private def split(str: String): Seq[String] =
