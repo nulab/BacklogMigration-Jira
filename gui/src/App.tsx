@@ -1,6 +1,6 @@
-import React from "react";
-import "./App.css";
-import { Label } from "./components/atoms/Label";
+import React from 'react';
+import './App.css';
+import { Label } from './components/atoms/Label';
 
 const App: React.FC = () => {
   return (
@@ -26,14 +26,14 @@ const App: React.FC = () => {
               >
                 {/* <? if (config.domain == ".com") { ?>
                  <option value=".com" selected>.com</option>
-               <? } else  { ?>
+                 <? } else  { ?>
                  <option value=".com">.com</option>
-               <? } ?>
-               <? if (config.domain == ".jp") { ?>
+                 <? } ?>
+                 <? if (config.domain == ".jp") { ?>
                  <option value=".jp" selected>.jp</option>
-               <? } else  { ?>
+                 <? } else  { ?>
                  <option value=".jp">.jp</option>
-               <? } ?> */}
+                 <? } ?> */}
               </select>
             </div>
           </div>

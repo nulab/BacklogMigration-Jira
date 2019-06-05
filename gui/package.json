@@ -6,13 +6,25 @@
   "dependencies": {
     "@emotion/core": "^10.0.10",
     "@lingui/react": "^2.8.3",
+    "formik": "^1.5.7",
+    "react": "^16.8.6",
+    "react-dom": "^16.8.6"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.4.5",
+    "@lingui/cli": "^2.8.3",
+    "@lingui/macro": "^2.8.3",
     "@types/jest": "24.0.13",
     "@types/node": "12.0.2",
     "@types/react": "16.8.18",
     "@types/react-dom": "16.8.4",
-    "formik": "^1.5.7",
-    "react": "^16.8.6",
-    "react-dom": "^16.8.6",
+    "babel-core": "^7.0.0-bridge.0",
+    "cross-env": "^5.2.0",
+    "electron": "^5.0.2",
+    "eslint-config-prettier": "^4.3.0",
+    "eslint-plugin-prettier": "^3.1.0",
+    "foreman": "^3.0.1",
+    "prettier": "1.17.1",
     "react-scripts": "3.0.1",
     "typescript": "3.5.1"
   },
@@ -39,18 +51,5 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
-  },
-  "devDependencies": {
-    "@babel/core": "^7.4.5",
-    "@lingui/cli": "^2.8.3",
-    "@lingui/macro": "^2.8.3",
-    "@typescript-eslint/eslint-plugin": "^1.9.0",
-    "babel-core": "^7.0.0-bridge.0",
-    "cross-env": "^5.2.0",
-    "electron": "^5.0.2",
-    "eslint-config-prettier": "^4.3.0",
-    "eslint-plugin-prettier": "^3.1.0",
-    "foreman": "^3.0.1",
-    "prettier": "1.17.1"
   }
 }
