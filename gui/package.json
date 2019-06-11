@@ -5,6 +5,7 @@
   "main": "./electron-starter.js",
   "dependencies": {
     "@emotion/core": "^10.0.10",
+    "@emotion/styled": "^10.0.12",
     "@lingui/react": "^2.8.3",
     "formik": "^1.5.7",
     "react": "^16.8.6",
