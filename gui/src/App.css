@@ -53,22 +53,3 @@ input[type='text']:focus {
 .space-id-field__id {
   flex: auto 1 1;
 }
-.space-id-field__name {
-  flex: auto 0 0;
-  padding: 0 10px;
-}
-.space-id-field__domain {
-  flex: auto 0 0;
-}
-select {
-  outline: none;
-  border: solid 1px #ccc;
-  border-radius: 4px;
-  padding: 8px 15px;
-  font-size: 1rem;
-  height: 2.2rem;
-  cursor: pointer;
-}
-select:focus {
-  border-color: #4d90fe;
-}
