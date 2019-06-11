@@ -2,13 +2,16 @@ import React from 'react';
 import './App.css';
 import { Label } from './components/atoms/Label';
 import { Input } from './components/atoms/Input';
+import { FieldSet } from './components/atoms/FieldSet';
+import { Row } from './components/atoms/Row';
+import { Option } from './components/atoms/Option';
 
 const App: React.FC = () => {
   return (
     <div className='App'>
       <form id='myForm' onSubmit={() => {}}>
-        <fieldset>
-          <div className='row'>
+        <FieldSet>
+          <Row>
             <Label htmlFor='backlogUrl'>Backlog URL</Label>
             <div className='space-id-field'>
               <span className='space-id-field__name'>https://</span>
@@ -24,20 +27,20 @@ const App: React.FC = () => {
                 tabIndex={2}
                 className='space-id-field__domain'
               >
-                <option value='.backlog.com'>.backlog.com</option>
-                <option value='.backlog.jp'>.backlog.jp</option>
-                <option value='.backlogtool.com'>.backlogtool.com</option>
+                <Option value='.backlog.com' />
+                <Option value='.backlog.jp' />
+                <Option value='.backlogtool.com' />
               </select>
             </div>
-          </div>
-          <div className='row'>
+          </Row>
+          <Row>
             <Label htmlFor='apiKey'>API Key</Label>
             <Input id='apiKey' name='apiKey' value='' tabIndex={3} />
-          </div>
-          <div className='row'>
+          </Row>
+          <Row>
             <Label htmlFor='projectKey'>Project Key</Label>
             <Input id='projectKey' name='projectKey' value='' tabIndex={4} />
-          </div>
+          </Row>
           <div className='button-area'>
             <input
               type='submit'
@@ -46,7 +49,7 @@ const App: React.FC = () => {
               tabIndex={5}
             />
           </div>
-        </fieldset>
+        </FieldSet>
       </form>
     </div>
   );
