@@ -31,11 +31,7 @@ const InputField = styled.div(`
 
 export const ParameterForm = () => (
   <Formik
-    initialValues={{
-      firstName: '',
-      lastName: '',
-      email: '',
-    }}
+    initialValues={Parameters('', '', '', '')}
     onSubmit={(
       values: Parameters,
       { setSubmitting }: FormikActions<Parameters>
