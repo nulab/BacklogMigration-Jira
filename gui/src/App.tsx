@@ -1,6 +1,6 @@
 import React from 'react';
 import { injectGlobal } from 'emotion';
-import { Form } from './components/organisms/Form';
+import { ParameterForm } from './components/organisms/ParameterForm';
 
 injectGlobal`
 * {
@@ -13,7 +13,7 @@ body {
 `;
 
 const App: React.FC = () => {
-  return <Form />;
+  return <ParameterForm />;
 };
 
 export default App;
