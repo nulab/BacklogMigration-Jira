@@ -31,12 +31,13 @@ const ButtonStyled = styled.button(`
 `);
 
 interface Props {
+  type: 'button' | 'submit';
   value: string;
   tabIndex: number;
 }
 
-export const Button: React.FC<Props> = ({ value, tabIndex }) => (
-  <ButtonStyled type='button' tabIndex={tabIndex}>
+export const Button: React.FC<Props> = ({ type, value, tabIndex }) => (
+  <ButtonStyled type={type} tabIndex={tabIndex}>
     {value}
   </ButtonStyled>
 );

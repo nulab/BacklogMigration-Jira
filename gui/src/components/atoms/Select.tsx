@@ -1,6 +1,14 @@
 import React from 'react';
 import styled from '@emotion/styled';
 
+interface OptionProps {
+  value: string;
+}
+
+export const Option: React.FC<OptionProps> = ({ value }) => (
+  <option value={value}>{value}</option>
+);
+
 const SelectStyled = styled.select(`
   outline: none;
   border: solid 1px #ccc;
@@ -15,12 +23,12 @@ const SelectStyled = styled.select(`
   }
 `);
 
-interface Props {
+interface SelectProps {
   name: string;
   tabIndex: number;
 }
 
-export const Select: React.FC<Props> = ({ name, tabIndex, children }) => (
+export const Select: React.FC<SelectProps> = ({ name, tabIndex, children }) => (
   <SelectStyled name={name} tabIndex={tabIndex}>
     {children}
   </SelectStyled>

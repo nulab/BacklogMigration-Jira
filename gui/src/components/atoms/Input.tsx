@@ -1,5 +1,7 @@
 import React from 'react';
 import styled from '@emotion/styled';
+import { Field, FieldProps } from 'formik';
+import { Parameters } from '../../models/Prameter';
 
 const InputStyled = styled.input(`
   outline: none;
@@ -18,10 +20,26 @@ interface Props {
   id: string;
   name: string;
   value: string;
+  placeholder: string;
   tabIndex: number;
-  className?: string;
 }
 
-export const Input: React.FC<Props> = props => (
-  <InputStyled type='text' {...props} />
+export const TextInput: React.FC<Props> = ({
+  id,
+  name,
+  value,
+  placeholder,
+  tabIndex,
+}) => (
+  <Field
+    type='text'
+    id={id}
+    name={name}
+    value={value}
+    placeholder={placeholder}
+    tabIndex={tabIndex}
+    render={({ field, form }: FieldProps<Parameters>) => (
+      <InputStyled {...field} />
+    )}
+  />
 );

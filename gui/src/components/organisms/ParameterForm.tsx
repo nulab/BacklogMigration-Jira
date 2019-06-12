@@ -4,9 +4,9 @@ import { FieldSet } from '../atoms/FieldSet';
 import { Button } from '../atoms/Button';
 import { Row } from '../atoms/Row';
 import { Label } from '../atoms/Label';
-import { Input } from '../atoms/Input';
-import { Select } from '../atoms/Select';
-import { Option } from '../atoms/Option';
+import { TextInput } from '../atoms/Input';
+import { Select, Option } from '../atoms/Select';
+import { Parameters } from '../../models/Prameter';
 
 import { Formik, Field, Form, FormikActions } from 'formik';
 
@@ -30,33 +30,69 @@ const InputField = styled.div(`
 `);
 
 export const ParameterForm = () => (
-  <form id='myForm' onSubmit={() => {}}>
-    <FieldSet>
-      <Row>
-        <Label htmlFor='backlogUrl'>Backlog URL</Label>
-        <BacklogUrlFieldStyled>
-          <SpanStyled>https://</SpanStyled>
-          <InputField>
-            <Input id='backlogUrl' name='spaceId' value='' tabIndex={1} />
-          </InputField>
-          <Select name='domain' tabIndex={2}>
-            <Option value='.backlog.com' />
-            <Option value='.backlog.jp' />
-            <Option value='.backlogtool.com' />
-          </Select>
-        </BacklogUrlFieldStyled>
-      </Row>
-      <Row>
-        <Label htmlFor='apiKey'>API Key</Label>
-        <Input id='apiKey' name='apiKey' value='' tabIndex={3} />
-      </Row>
-      <Row>
-        <Label htmlFor='projectKey'>Project Key</Label>
-        <Input id='projectKey' name='projectKey' value='' tabIndex={4} />
-      </Row>
-      <ButtonArea>
-        <Button value='Execute' tabIndex={5} />
-      </ButtonArea>
-    </FieldSet>
-  </form>
+  <Formik
+    initialValues={{
+      firstName: '',
+      lastName: '',
+      email: '',
+    }}
+    onSubmit={(
+      values: Parameters,
+      { setSubmitting }: FormikActions<Parameters>
+    ) => {
+      setTimeout(() => {
+        alert(JSON.stringify(values, null, 2));
+        setSubmitting(false);
+      }, 500);
+    }}
+    render={() => (
+      <Form>
+        <FieldSet>
+          <Row>
+            <Label htmlFor='backlogUrl'>Backlog URL</Label>
+            <BacklogUrlFieldStyled>
+              <SpanStyled>https://</SpanStyled>
+              <InputField>
+                <TextInput
+                  id='backlogUrl'
+                  name='spaceId'
+                  value=''
+                  placeholder='YOUR SPACE ID'
+                  tabIndex={1}
+                />
+              </InputField>
+              <Select name='domain' tabIndex={2}>
+                <Option value='.backlog.com' />
+                <Option value='.backlog.jp' />
+                <Option value='.backlogtool.com' />
+              </Select>
+            </BacklogUrlFieldStyled>
+          </Row>
+          <Row>
+            <Label htmlFor='apiKey'>API Key</Label>
+            <TextInput
+              id='apiKey'
+              name='apiKey'
+              value=''
+              placeholder='INPUT YOUR API KEY'
+              tabIndex={3}
+            />
+          </Row>
+          <Row>
+            <Label htmlFor='projectKey'>Project Key</Label>
+            <TextInput
+              id='projectKey'
+              name='projectKey'
+              value=''
+              placeholder='INPUT YOUR PROJECT KEY'
+              tabIndex={4}
+            />
+          </Row>
+          <ButtonArea>
+            <Button type='submit' value='Execute' tabIndex={5} />
+          </ButtonArea>
+        </FieldSet>
+      </Form>
+    )}
+  />
 );
