@@ -1,12 +1,13 @@
 import React from 'react';
+import styled from '@emotion/styled';
+import { jsx } from '@emotion/core';
 import { Row } from '../atoms/Row';
 import { Label } from '../atoms/Label';
 import { Input } from '../atoms/Input';
 import { Select } from '../atoms/Select';
 import { Option } from '../atoms/Option';
-import styled from '@emotion/styled';
 
-const BacklogUrlField = styled.div(`
+const BacklogUrlFieldStyled = styled.div(`
   display: flex;
   align-items: center;
 `);
@@ -20,21 +21,21 @@ export const BasicForm = () => (
   <>
     <Row>
       <Label htmlFor='backlogUrl'>Backlog URL</Label>
-      <BacklogUrlField>
+      <BacklogUrlFieldStyled>
         <SpanStyled>https://</SpanStyled>
         <Input
           id='backlogUrl'
-          name='space'
+          name='spaceId'
           value=''
           tabIndex={1}
-          className='space-id-field__id'
+          css={{ flex: 'auto 1 1' }}
         />
         <Select name='domain' tabIndex={2}>
           <Option value='.backlog.com' />
           <Option value='.backlog.jp' />
           <Option value='.backlogtool.com' />
         </Select>
-      </BacklogUrlField>
+      </BacklogUrlFieldStyled>
     </Row>
     <Row>
       <Label htmlFor='apiKey'>API Key</Label>
