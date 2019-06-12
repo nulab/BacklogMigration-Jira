@@ -1,3 +1,4 @@
+/** @jsx jsx */
 import React from 'react';
 import styled from '@emotion/styled';
 import { jsx } from '@emotion/core';
@@ -17,7 +18,7 @@ const SpanStyled = styled.span(`
   padding: 0 10px;
 `);
 
-export const BasicForm = () => (
+export const BasicForm: React.FC = () => (
   <>
     <Row>
       <Label htmlFor='backlogUrl'>Backlog URL</Label>
