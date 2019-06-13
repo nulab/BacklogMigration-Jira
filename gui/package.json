@@ -40,7 +40,7 @@
     "build": "react-scripts build",
     "preelectron-pack": "yarn build",
     "postinstall": "electron-builder install-app-deps",
-    "dist": "electron-builder -m ",
+    "dist": "yarn build && electron-builder -m ",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "electron": "electron .",
