@@ -66,7 +66,7 @@ object App extends BacklogConfiguration with Logging {
           exit(1, ex)
         }
       }
-      .runAsync
+      .runToFuture
 
     Await.result(f, Duration.Inf)
   }
