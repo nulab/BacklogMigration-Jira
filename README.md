@@ -49,7 +49,7 @@ Run the [**export**] command to export issues and mapping files.
     java -jar backlog-migration-jira-[latest version].jar \
       export \
       --jira.username [JIRA user name] \
-      --jira.password [JIRA user password] \
+      --jira.apiKey   [JIRA of API key] \
       --jira.url      [URL of JIRA] \
       --backlog.key   [Backlog of API key] \
       --backlog.url   [URL of Backlog] \
@@ -60,7 +60,7 @@ Sample commands:
     java -jar backlog-migration-jira-[latest version].jar \
       export \
       --jira.username XXXXXXXXXXXXX \
-      --jira.password XXXXXXXXXXXXX \
+      --jira.apiKey   XXXXXXXXXXXXX \
       --jira.url https://nulab.atlassian.net \
       --backlog.key XXXXXXXXXXXXX \
       --backlog.url https://nulab.backlog.jp \
@@ -115,7 +115,7 @@ Run the [**import**] command to import data.
     java -jar backlog-migration-jira-[latest version].jar \
       import \
       --jira.username [JIRA user name] \
-      --jira.password [JIRA user password] \
+      --jira.apiKey   [JIRA of API key] \
       --jira.url      [URL of JIRA] \
       --backlog.key   [Backlog of API key] \
       --backlog.url   [URL of Backlog] \
@@ -126,7 +126,7 @@ Sample commands:
     java -jar backlog-migration-jira-[latest version].jar \
       import \
       --jira.username XXXXXXXXXXXXX \
-      --jira.password XXXXXXXXXXXXX \
+      --jira.apiKey   XXXXXXXXXXXXX \
       --jira.url https://nulab.atlassian.net \
       --backlog.key XXXXXXXXXXXXX \
       --backlog.url https://nulab.backlog.jp \
@@ -242,7 +242,7 @@ https://github.com/nulab/BacklogMigration-Jira/releases/download/0.3.0b9-SNAPSHO
     java -jar backlog-migration-jira-[最新バージョン].jar \
       export \
       --jira.username [JIRAのユーザー名] \
-      --jira.password [JIRAのパスワード] \
+      --jira.apiKey   [JIRAのAPIキー] \
       --jira.url      [JIRAのURL] \
       --backlog.key   [BacklogのAPIキー] \
       --backlog.url   [BacklogのURL] \
@@ -253,7 +253,7 @@ https://github.com/nulab/BacklogMigration-Jira/releases/download/0.3.0b9-SNAPSHO
     java -jar backlog-migration-jira-[最新バージョン].jar \
       export \
       --jira.username XXXXXXXXXXXXX \
-      --jira.password XXXXXXXXXXXXX \
+      --jira.apiKey   XXXXXXXXXXXXX \
       --jira.url https://nulab.atlassian.net \
       --backlog.key XXXXXXXXXXXXX \
       --backlog.url https://nulab.backlog.jp \
@@ -308,7 +308,7 @@ descriptionにある項目を使い、空白を埋める必要が有ります。
     java -jar backlog-migration-jira-[最新バージョン].jar \
       import \
       --jira.username [JIRAのユーザー名] \
-      --jira.password [JIRAのパスワード] \
+      --jira.apiKey   [JIRAのAPIキー] \
       --jira.url      [JIRAのURL] \
       --backlog.key   [BacklogのAPIキー] \
       --backlog.url   [BacklogのURL] \
@@ -319,7 +319,7 @@ descriptionにある項目を使い、空白を埋める必要が有ります。
     java -jar backlog-migration-jira-[最新バージョン].jar \
       import \
       --jira.username XXXXXXXXXXXXX \
-      --jira.password XXXXXXXXXXXXX \
+      --jira.apiKey   XXXXXXXXXXXXX \
       --jira.url https://nulab.atlassian.net \
       --backlog.key XXXXXXXXXXXXX \
       --backlog.url https://nulab.backlog.jp \

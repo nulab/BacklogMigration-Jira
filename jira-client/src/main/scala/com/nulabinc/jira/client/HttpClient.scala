@@ -29,11 +29,11 @@ sealed trait DownloadResult
 case object DownloadSuccess extends DownloadResult
 case object DownloadFailure extends DownloadResult
 
-class HttpClient(url: String, username: String, password: String) {
+class HttpClient(url: String, username: String, apiKey: String) {
 
   val logger: Logger = LoggerFactory.getLogger(getClass)
 
-  private val auth: String              = username + ":" + password
+  private val auth: String              = username + ":" + apiKey
   private val encodedAuth: Array[Byte]  = Base64.encodeBase64(auth.getBytes(Charset.forName("ISO-8859-1")))
   private val authHeader: String        = "Basic " + new String(encodedAuth)
 

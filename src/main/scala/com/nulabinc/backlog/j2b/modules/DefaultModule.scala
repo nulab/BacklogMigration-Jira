@@ -19,7 +19,7 @@ class DefaultModule(config: AppConfiguration) extends AbstractModule {
   val jira = JiraRestClient(
     config.jiraUrl,
     config.jiraUsername,
-    config.jiraPassword
+    config.jiraApiKey
   )
 
   override def configure() = {

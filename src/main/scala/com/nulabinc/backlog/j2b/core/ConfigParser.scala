@@ -27,8 +27,8 @@ object ConfigParser extends Logging {
       opt[String]("jira.username").required().action( (x, c) =>
         c.copy(jiraUsername = x) ).text(Messages("cli.help.jira.username"))
 
-      opt[String]("jira.password").required().action( (x, c) =>
-        c.copy(jiraPassword = x) ).text(Messages("cli.help.jira.password"))
+      opt[String]("jira.apiKey").required().action((x, c) =>
+        c.copy(jiraApiKey = x) ).text(Messages("cli.help.jira.apiKey"))
 
       opt[String]("jira.url").required().action( (x, c) =>
         c.copy(jiraUrl = x) ).text(Messages("cli.help.jira.url"))

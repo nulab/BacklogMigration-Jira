@@ -68,7 +68,7 @@ trait TestHelper {
   def createJiraRestApi(config: JiraApiConfiguration) = new JiraRestClient(
     url = config.url,
     username = config.username,
-    password = config.password
+    apiKey = config.apiKey
   )
 
   def createBacklogApi(config: BacklogApiConfiguration): BacklogClient = {
@@ -110,7 +110,7 @@ trait TestHelper {
     val prop: Properties = new Properties()
     prop.load(new FileInputStream(file))
     val jiraUsername: String = prop.getProperty("jira.username")
-    val jiraPassword: String = prop.getProperty("jira.password")
+    val jiraApiKey: String = prop.getProperty("jira.apiKey")
     val jiraUrl: String      = prop.getProperty("jira.url")
     val backlogKey: String   = prop.getProperty("backlog.key")
     val backlogUrl: String   = prop.getProperty("backlog.url")
@@ -123,7 +123,7 @@ trait TestHelper {
     new AppConfiguration(
       jiraConfig = JiraApiConfiguration(
         username = jiraUsername,
-        password = jiraPassword,
+        apiKey = jiraApiKey,
         url = jiraUrl,
         projectKey = jira
       ),
