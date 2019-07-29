@@ -6,19 +6,21 @@ lazy val commonSettings = Seq(
   version := projectVersion,
   scalaVersion := "2.12.8",
   libraryDependencies ++= {
-    val catsVersion = "1.6.0"
-    val monixVersion = "3.0.0-RC1"
+    val catsVersion = "1.6.1"
+    val monixVersion = "3.0.0-RC3"
+    val spec2Version = "3.10.0"
     Seq(
-      "org.typelevel" %% "cats-core"            % catsVersion,
-      "org.typelevel" %% "cats-free"            % catsVersion,
-      "io.monix"      %% "monix"                % monixVersion,
-      "io.monix"      %% "monix-execution"      % monixVersion,
-      "io.monix"      %% "monix-eval"           % monixVersion,
-      "org.scalatest" %% "scalatest"            % "3.0.5"       % "test",
-      "org.specs2"    %% "specs2-core"          % "3.8.9"       % Test,
-      "org.specs2"    %% "specs2-matcher"       % "3.8.9"       % Test,
-      "org.specs2"    %% "specs2-matcher-extra" % "3.8.9"       % Test,
-      "org.specs2"    %% "specs2-mock"          % "3.8.9"       % Test
+      "org.typelevel" %% "cats-core"        % catsVersion,
+      "org.typelevel" %% "cats-free"        % catsVersion,
+      "io.monix"      %% "monix"            % monixVersion,
+      "io.monix"      %% "monix-execution"  % monixVersion,
+      "io.monix"      %% "monix-eval"       % monixVersion,
+      // test
+      "org.scalatest" %% "scalatest"            % "3.0.8"      % "test",
+      "org.specs2"    %% "specs2-core"          % spec2Version % Test,
+      "org.specs2"    %% "specs2-matcher"       % spec2Version % Test,
+      "org.specs2"    %% "specs2-matcher-extra" % spec2Version % Test,
+      "org.specs2"    %% "specs2-mock"          % spec2Version % Test
     )
   },
   javacOptions ++= Seq("-encoding", "UTF-8"),
