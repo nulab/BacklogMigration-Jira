@@ -159,7 +159,7 @@ object J2BCli extends BacklogConfiguration
 
   private def checkJiraApiAccessible(config: JiraApiConfiguration): Option[Unit] = {
     // Check JIRA configuration is correct. Before creating injector.
-    val jiraClient = JiraRestClient(config.url, config.username, config.password)
+    val jiraClient = JiraRestClient(config.url, config.username, config.apiKey)
     AppConfigValidator.validateConfigJira(jiraClient) match {
       case ConfigValidateFailure(failure) =>
         ConsoleOut.println(Messages("cli.param.error.disable.access.jira", Messages("common.jira")))

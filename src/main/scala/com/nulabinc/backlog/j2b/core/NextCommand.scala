@@ -19,10 +19,10 @@ object NextCommand extends BacklogConfiguration {
     .filterNot(_ == "export")
     .grouped(2)
     .collect {
-      case Seq(k, _) if k.contains("password") => language match {
-        case "ja" => s"    $k JIRAのパスワード"
-        case "en" => s"    $k JIRA_PASSWORD"
-        case _    => s"    $k JIRA_PASSWORD"
+      case Seq(k, _) if k.contains("apiKey") => language match {
+        case "ja" => s"    $k JIRAのAPIキー"
+        case "en" => s"    $k JIRA_API_KEY"
+        case _    => s"    $k JIRA_API_KEY"
       }
       case Seq(k, v) => s"    $k $v"
     }.toSeq

@@ -8,7 +8,7 @@ class AppConfiguration(val jiraConfig: JiraApiConfiguration,
 
   val jiraKey = jiraConfig.projectKey
   val jiraUsername = jiraConfig.username
-  val jiraPassword = jiraConfig.password
+  val jiraApiKey = jiraConfig.apiKey
   val jiraUrl      = jiraConfig.url
 
   val backlogKey = backlogConfig.key

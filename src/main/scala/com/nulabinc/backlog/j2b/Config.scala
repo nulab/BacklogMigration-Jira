@@ -10,7 +10,7 @@ case class Config(
   backlogKey: String = "",
   backlogUrl: String = "",
   jiraUsername: String = "",
-  jiraPassword: String = "",
+  jiraApiKey: String = "",
   jiraUrl: String = "",
   projectKey: String = "",
   commandType: Option[CommandType] = None
@@ -24,7 +24,7 @@ case class Config(
     new AppConfiguration(
       jiraConfig = JiraApiConfiguration(
         username = jiraUsername,
-        password = jiraPassword,
+        apiKey = jiraApiKey,
         url = jiraUrl,
         projectKey = jira
       ),
@@ -36,19 +36,6 @@ case class Config(
     )
   }
 }
-
-  /*
-    private[this] def getConfiguration(cli: CommandLineInterface) = Try {
-    val keys: Array[String] = cli.importCommand.projectKey().split(":")
-    val jira: String        = keys(0)
-    val backlog: String     = if (keys.length == 2) keys(1) else keys(0).toUpperCase.replaceAll("-", "_")
-
-    new AppConfiguration(
-      jiraConfig    = JiraApiConfiguration(username = cli.importCommand.jiraUsername(), password = cli.importCommand.jiraPassword(), cli.importCommand.jiraUrl(), projectKey = jira),
-      backlogConfig = BacklogApiConfiguration(url = cli.importCommand.backlogUrl(), key = cli.importCommand.backlogKey(), projectKey = backlog)
-    )
-  }
-   */
 
 object Config {
 

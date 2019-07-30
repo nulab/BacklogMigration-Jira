@@ -40,7 +40,6 @@ common.link=Link
 common.access_key=Access Key
 common.project_key=Project Key
 common.username=Username
-common.password=Password
 common.url=URL
 
 # -----------------------------------------------------------------------------
@@ -61,13 +60,13 @@ cli.warn.not.latest=The latest version [{0}] has been released. The current vers
 # CLI Help
 # -----------------------------------------------------------------------------
 cli.help=help=Run `java -jar backlog-migration-jira-[latest version].jar --help` command for help
-cli.help.sample_command=\nSample command:\n\nExport:The "export" command create a mapping file and export issues.\n\njava -jar backlog-migration-jira-[latest version].jar export \\\n--jira.username [your Jira user name] \\\n--jira.password [your Jira user password] \\\n--backlog.url [your Backlog URL] \\\n--backlog.key [your Backlog API access key] \\\n--projectKey [your project identifier]\n\nImport:The "import" command execute migration.\n\njava -jar backlog-migration-jira-[latest version].jar import \\\n--jira.username [your Jira user name] \\\n--jira.password [your Jira user password] \\\n--backlog.url [your backlog url] \\\n--backlog.key [your backlog api access key] \\\n--projectKey [your project identifier]\n
+cli.help.sample_command=\nSample command:\n\nExport:The "export" command create a mapping file and export issues.\n\njava -jar backlog-migration-jira-[latest version].jar export \\\n--jira.username [your Jira user name] \\\n--jira.apiKey [your Jira user API key] \\\n--backlog.url [your Backlog URL] \\\n--backlog.key [your Backlog API access key] \\\n--projectKey [your project identifier]\n\nImport:The "import" command execute migration.\n\njava -jar backlog-migration-jira-[latest version].jar import \\\n--jira.username [your Jira user name] \\\n--jira.apiKey [your Jira user API key] \\\n--backlog.url [your backlog url] \\\n--backlog.key [your backlog api access key] \\\n--projectKey [your project identifier]\n
 cli.help.show_help=Show help message
 cli.help.show_version=Show version of this program
 cli.help.backlog.key=Your Backlog api access key (required) Example:--backlog.key [your backlog API access key]
 cli.help.backlog.url=Your Backlog url (required) Example:--backlog.url [your backlog url]
 cli.help.jira.username=Your Jira user name (required) Example:--jira.username [your jira username]
-cli.help.jira.password=Your Jira user password (required) Example:--jira.password [your jira password]
+cli.help.jira.apiKey=Your Jira API key (required) Example:--jira.apiKey [your jira API key]
 cli.help.jira.url=Your Jira url (required) Example:--jira.url [your jira url]
 
 # -----------------------------------------------------------------------------
@@ -84,7 +83,7 @@ cli.param.error.auth=Accessing {0} failed due to an authorization error.\n  Plea
 cli.param.error.auth.backlog=Backlog API key is not administrator authority. Please use API key of administrator authority.
 cli.param.error.disable.project=The project [{0}] could not be loaded.
 cli.param.error.disable.access.backlog=The accessing {0} failed. Please check the url or api access key.
-cli.param.error.disable.access.jira=The accessing {0} failed. Please check the url or username/password.
+cli.param.error.disable.access.jira=The accessing {0} failed. Please check the url or username and API key.
 cli.param.error.disable.host=The accessing {0} failed. [{1}] is unknown host.
 cli.param.error.project_key=The project key [{0}] is incorrect.(Uppercase letters (A-Z), numbers (0-9) and underscore (_) can be used.)
 cli.param.error.client.unknown=Unknown JIRA rest client error.:[{0}]
@@ -165,7 +164,7 @@ import.error.failed.comment=Could not register comment on issue [{0}]. : {1}
 # Export
 # -----------------------------------------------------------------------------
 export.start=Start export.
-export.finish=Export completed. Next step \n\n1. Edit mapping files.\n2. Execute the following command to import (replace with your JIRA password).\n\n--------------------------------------\n\n{0}\n\n--------------------------------------
+export.finish=Export completed. Next step \n\n1. Edit mapping files.\n2. Execute the following command to import (replace with your JIRA API key).\n\n--------------------------------------\n\n{0}\n\n--------------------------------------
 export.attachment.empty=Attachment: {0} -> {1}
 export.remaining_time=[Remaining time:{0}]
 export.date.execute={2} {1} about {0}.

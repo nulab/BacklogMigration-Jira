@@ -4,9 +4,9 @@ import com.nulabinc.jira.client.apis._
 import com.nulabinc.jira.client.domain.User
 import spray.json._
 
-class JiraRestClient(val url: String, username: String, password: String) {
+class JiraRestClient(val url: String, username: String, apiKey: String) {
 
-  val httpClient = new HttpClient(url, username, password)
+  val httpClient = new HttpClient(url, username, apiKey)
 
   lazy val projectAPI    = new ProjectAPI(httpClient)
   lazy val userAPI       = new UserAPI(httpClient)
@@ -27,13 +27,13 @@ class JiraRestClient(val url: String, username: String, password: String) {
 
     httpClient.get(s"/myself") match {
       case Right(json)               => Right(JsonParser(json).convertTo[User])
-      case Left(_: ApiNotFoundError) => Left(ResourceNotFoundError("myself", s"$username:$password"))
+      case Left(_: ApiNotFoundError) => Left(ResourceNotFoundError("myself", s"$username:$apiKey"))
       case Left(error)               => Left(HttpError(error))
     }
   }
 }
 
 object JiraRestClient {
-  def apply(url: String, username: String, password: String): JiraRestClient =
-    new JiraRestClient(url, username, password)
+  def apply(url: String, username: String, apiKey: String): JiraRestClient =
+    new JiraRestClient(url, username, apiKey)
 }
