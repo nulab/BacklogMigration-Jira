@@ -27,10 +27,10 @@ lazy val commonSettings = Seq(
   test in assembly := {}
 )
 
-lazy val common = (project in file("common"))
+lazy val common = (project in file("common/core"))
   .settings(commonSettings)
 
-lazy val importer = (project in file("importer"))
+lazy val importer = (project in file("common/importer"))
   .settings(commonSettings)
   .dependsOn(common)
 
