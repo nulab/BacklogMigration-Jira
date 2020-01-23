@@ -1,6 +1,6 @@
 package com.nulabinc.jira.client.apis
 
-import com.netaporter.uri.dsl._
+import io.lemonlabs.uri.dsl._
 import com.nulabinc.jira.client._
 import com.nulabinc.jira.client.domain.SearchResult
 import spray.json.JsonParser

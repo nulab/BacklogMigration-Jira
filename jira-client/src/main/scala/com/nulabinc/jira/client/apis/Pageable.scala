@@ -1,7 +1,7 @@
 package com.nulabinc.jira.client.apis
 
-import com.netaporter.uri.Uri
-import com.netaporter.uri.dsl._
+import io.lemonlabs.uri.Uri
+import io.lemonlabs.uri.dsl._
 
 trait Pageable {
 
