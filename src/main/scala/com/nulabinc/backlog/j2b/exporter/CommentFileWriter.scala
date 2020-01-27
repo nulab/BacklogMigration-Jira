@@ -36,7 +36,7 @@ class CommentFileWriter @Inject()(implicit val commentWrites: CommentWrites,
                             createdAt: Date,
                             index: Int) = {
 
-    import com.nulabinc.backlog.migration.common.domain.BacklogJsonProtocol._
+    import com.nulabinc.backlog.migration.common.formatters.BacklogJsonProtocol._
 
     val issueDirPath     = backlogPaths.issueDirectoryPath("comment", issue.id, createdAt, index)
     val changeLogReducer = new ChangeLogReducer(issueDirPath, backlogPaths, issueService)

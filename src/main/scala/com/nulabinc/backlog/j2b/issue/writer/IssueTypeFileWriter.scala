@@ -13,7 +13,7 @@ import spray.json._
 class IssueTypeFileWriter @Inject()(implicit val issueTypesWrites: IssueTypeWrites,
                                     backlogPaths: BacklogPaths) extends IssueTypeWriter {
 
-  import com.nulabinc.backlog.migration.common.domain.BacklogJsonProtocol.BacklogIssueTypesWrapperFormat
+  import com.nulabinc.backlog.migration.common.formatters.BacklogJsonProtocol.BacklogIssueTypesWrapperFormat
 
   override def write(issueTypes: Seq[IssueType]) = {
     val backlogIssueTypes = Convert.toBacklog(issueTypes)
