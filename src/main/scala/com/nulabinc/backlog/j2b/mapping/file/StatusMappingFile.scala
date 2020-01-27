@@ -2,11 +2,11 @@ package com.nulabinc.backlog.j2b.mapping.file
 
 import com.nulabinc.backlog.j2b.jira.domain.mapping.{MappingFile, MappingItem}
 import com.nulabinc.backlog.j2b.mapping.core.MappingDirectory
-import com.nulabinc.backlog4j.{Status => BacklogStatus}
+import com.nulabinc.backlog.migration.common.domain.BacklogStatuses
 import com.nulabinc.jira.client.domain.{Status => JiraStatus}
 import com.osinka.i18n.{Lang, Messages}
 
-class StatusMappingFile(jiraStatuses: Seq[JiraStatus], backlogStatuses: Seq[BacklogStatus]) extends MappingFile {
+class StatusMappingFile(jiraStatuses: Seq[JiraStatus], backlogStatuses: BacklogStatuses) extends MappingFile {
 
   private[this] object Backlog {
     val OPEN_JA: String        = Messages("mapping.status.backlog.open")(Lang("ja"))
@@ -55,7 +55,7 @@ class StatusMappingFile(jiraStatuses: Seq[JiraStatus], backlogStatuses: Seq[Back
     jiraStatuses.map(status => MappingItem(status.name, status.name))
 
   override def backlogs: Seq[MappingItem] =
-    backlogStatuses.map(status => MappingItem(status.getName, status.getName))
+    backlogStatuses.map(status => MappingItem(status.name.trimmed, status.name.trimmed))
 
   override def filePath: String = MappingDirectory.STATUS_MAPPING_FILE
 
