@@ -49,7 +49,6 @@ trait TestHelper {
   // Mapping converter
   implicit val userWrites = new UserWrites
   val priorityMappingConverter = new MappingPriorityConverter
-  val statusMappingConverter   = new MappingStatusConverter
   val userMappingConverter     = new MappingUserConverter()
 
   // Mapping database
@@ -82,7 +81,7 @@ trait TestHelper {
   }
 
   def convertStatus(target: String): String = {
-    statusMappingConverter.convert(statusMappings, target)
+    MappingStatusConverter.convert(statusMappings, target).name.trimmed
   }
 
   def convertPriority(target: String): String = {
