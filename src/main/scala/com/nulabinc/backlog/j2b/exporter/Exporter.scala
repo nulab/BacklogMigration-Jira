@@ -8,15 +8,17 @@ import com.nulabinc.backlog.j2b.jira.domain.{CollectData, FieldConverter, IssueF
 import com.nulabinc.backlog.j2b.jira.service._
 import com.nulabinc.backlog.j2b.jira.utils.DateChangeLogConverter
 import com.nulabinc.backlog.j2b.jira.writer._
+import com.nulabinc.backlog.migration.common.interpreters.JansiConsoleDSL
 import com.nulabinc.backlog.migration.common.utils.{ConsoleOut, Logging}
 import com.nulabinc.jira.client.domain._
 import com.nulabinc.jira.client.domain.changeLog.{AssigneeFieldId, ComponentChangeLogItemField, CustomFieldFieldId, FixVersion}
 import com.nulabinc.jira.client.domain.issue._
 import com.osinka.i18n.Messages
 import javax.inject.Inject
+import monix.eval.Task
 
 class Exporter @Inject()(projectKey: JiraProjectKey,
-                         projectService: ProjectService,
+                         projectService: ProjectService[Task],
                          projectWriter: ProjectWriter,
                          categoryService: CategoryService,
                          categoryWriter: ComponentWriter,
@@ -41,52 +43,52 @@ class Exporter @Inject()(projectKey: JiraProjectKey,
 //  private val console            = (ProgressBar.progress _)(Messages("common.issues"), Messages("message.exporting"), Messages("message.exported"))
 //  private val issuesInfoProgress = (ProgressBar.progress _)(Messages("common.issues_info"), Messages("message.collecting"), Messages("message.collected"))
 
-  def export(backlogPaths: JiraBacklogPaths): CollectData = {
+  def export(backlogPaths: JiraBacklogPaths): Task[CollectData] = {
 
-    // project
-    val project = projectService.getProjectByKey(projectKey)
-    projectWriter.write(project)
-    ConsoleOut.boldln(Messages("message.executed", Messages("common.project"), Messages("message.exported")), 1)
+    val console = new JansiConsoleDSL()
 
-    // category
-    val categories = categoryService.all()
-    categoryWriter.write(categories)
-    ConsoleOut.boldln(Messages("message.executed", Messages("common.category"), Messages("message.exported")), 1)
+    for {
+      // project
+      project <- projectService.getProjectByKey(projectKey)
+      _ = projectWriter.write(project)
+      _ <- console.boldln(Messages("message.executed", Messages("common.project"), Messages("message.exported")), 1)
+      // category
+      categories = categoryService.all()
+      _ = categoryWriter.write(categories)
+      _ <- console.boldln(Messages("message.executed", Messages("common.category"), Messages("message.exported")), 1)
+      // version
+      versions = versionService.all()
+      // issue type
+      issueTypes = issueTypeService.all()
+      _ = issueTypesWriter.write(issueTypes)
+      _ <- console.boldln(Messages("message.executed", Messages("common.issue_type"), Messages("message.exported")), 1)
+    } yield {
+      // issue
+      val statuses = statusService.all()
+      val total = issueService.count()
+      val calculator = new RemainingTimeCalculator(total)
+      val fields = FieldConverter.toExportField(fieldService.all())
 
-    // version
-    val versions = versionService.all()
+      fetchIssue(calculator, statuses, categories, versions, fields, 1, total, 0, 100)
 
-    // issue type
-    val issueTypes = issueTypeService.all()
-    issueTypesWriter.write(issueTypes)
-    ConsoleOut.boldln(Messages("message.executed", Messages("common.issue_type"), Messages("message.exported")), 1)
+      // version & milestone
+      versionsWriter.write(versions, mappingCollectDatabase.milestones)
+      ConsoleOut.boldln(Messages("message.executed", Messages("common.version"), Messages("message.exported")), 1)
 
-    // issue
-    val statuses = statusService.all()
-    val total = issueService.count()
-    val calculator = new RemainingTimeCalculator(total)
-    val fields = FieldConverter.toExportField(fieldService.all())
+      // custom field
+      fieldWriter.write(mappingCollectDatabase, fields)
+      ConsoleOut.boldln(Messages("message.executed", Messages("common.custom_field"), Messages("message.exported")), 1)
 
-    fetchIssue(calculator, statuses, categories, versions, fields, 1, total, 0, 100)
+      // Output Jira data
+      val priorities    = priorityService.allPriorities()
+      val collectedData = CollectData(mappingCollectDatabase.existUsers, statuses, priorities)
 
-    // version & milestone
-    versionsWriter.write(versions, mappingCollectDatabase.milestones)
-    ConsoleOut.boldln(Messages("message.executed", Messages("common.version"), Messages("message.exported")), 1)
+      collectedData.outputJiraUsersToFile(backlogPaths.jiraUsersJson)
+      collectedData.outputJiraPrioritiesToFile(backlogPaths.jiraPrioritiesJson)
+      collectedData.outputJiraStatusesToFile(backlogPaths.jiraStatusesJson)
 
-    // custom field
-    fieldWriter.write(mappingCollectDatabase, fields)
-    ConsoleOut.boldln(Messages("message.executed", Messages("common.custom_field"), Messages("message.exported")), 1)
-
-    // Output Jira data
-    val priorities    = priorityService.allPriorities()
-    val collectedData = CollectData(mappingCollectDatabase.existUsers, statuses, priorities)
-
-    collectedData.outputJiraUsersToFile(backlogPaths.jiraUsersJson)
-    collectedData.outputJiraPrioritiesToFile(backlogPaths.jiraPrioritiesJson)
-    collectedData.outputJiraStatusesToFile(backlogPaths.jiraStatusesJson)
-
-    collectedData
-
+      collectedData
+    }
   }
 
   private def fetchIssue(calculator: RemainingTimeCalculator,

@@ -2,7 +2,6 @@ package com.nulabinc.backlog.j2b.exporter
 
 import java.util.Date
 
-import com.nulabinc.backlog.j2b.issue.writer.convert.IssueWrites
 import com.nulabinc.backlog.j2b.jira.service.IssueService
 import com.nulabinc.backlog.j2b.jira.writer.IssueWriter
 import com.nulabinc.backlog.migration.common.conf.BacklogPaths
@@ -12,8 +11,7 @@ import com.nulabinc.backlog.migration.common.utils.IOUtil
 import javax.inject.Inject
 import spray.json._
 
-class IssueFileWriter @Inject()(implicit val issueWrites: IssueWrites,
-                                backlogPaths: BacklogPaths,
+class IssueFileWriter @Inject()(backlogPaths: BacklogPaths,
                                 issueService: IssueService) extends IssueWriter {
 
   override def write(backlogIssue: BacklogIssue, issueCreatedAt: Date) = {

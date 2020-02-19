@@ -13,12 +13,13 @@ import com.nulabinc.backlog.j2b.mapping.converter.writes.MappingUserWrites
 import com.nulabinc.backlog.j2b.modules._
 import com.nulabinc.backlog.migration.common.conf.BacklogConfiguration
 import com.nulabinc.backlog.migration.common.convert.Convert
+import com.nulabinc.backlog.migration.common.interpreters.SQLiteStoreDSL
 import com.nulabinc.backlog.migration.common.modules.{ServiceInjector => BacklogInjector}
 import com.nulabinc.backlog.migration.common.service.{ProjectService, SpaceService, PriorityService => BacklogPriorityService, StatusService => BacklogStatusService, UserService => BacklogUserService}
 import com.nulabinc.backlog.migration.common.utils.{ConsoleOut, Logging}
-import com.nulabinc.backlog.migration.importer.core.Boot
 import com.nulabinc.jira.client.JiraRestClient
 import com.osinka.i18n.Messages
+import monix.execution.Scheduler
 
 import scala.util.{Failure, Success, Try}
 
@@ -31,46 +32,38 @@ object J2BCli extends BacklogConfiguration
     with ProgressConsole
     with InteractiveConfirm {
 
-  def export(config: AppConfiguration, nextCommandStr: String): Unit = {
-    def createJiraExportingInjector(config: AppConfiguration): Option[Injector] =
-      Try(Guice.createInjector(new ExportModule(config))) match {
-        case Success(jiraInjector) => Some(jiraInjector)
-        case Failure(error)        =>
-          logger.error(error.getMessage)
-          None
-      }
-
-    val backlogInjector = BacklogInjector.createInjector(config.backlogConfig)
+  def export(config: AppConfiguration, nextCommandStr: String)(implicit s: Scheduler): Option[Unit] = {
+    val backlogInjector         = BacklogInjector.createInjector(config.backlogConfig)
+    val backlogUserService      = backlogInjector.getInstance(classOf[BacklogUserService])
+    val backlogPriorityService  = backlogInjector.getInstance(classOf[BacklogPriorityService])
+    val backlogStatusService    = backlogInjector.getInstance(classOf[BacklogStatusService])
+    val jiraInjector            = Guice.createInjector(new ExportModule(config))
+    val jiraBacklogPaths        = new JiraBacklogPaths(config.backlogConfig.projectKey)
+    val storeDSL                = SQLiteStoreDSL(jiraBacklogPaths.dbPath)
+    val exporter                = jiraInjector.getInstance(classOf[Exporter])
 
     for {
-      _            <- checkJiraApiAccessible(config.jiraConfig)
-      jiraInjector <- createJiraExportingInjector(config)
-      _            <- validateConfig(config, jiraInjector.getInstance(classOf[JiraRestClient]), backlogInjector.getInstance(classOf[SpaceService]))
+      _ <- checkJiraApiAccessible(config.jiraConfig)
+      _ <- validateConfig(config, jiraInjector.getInstance(classOf[JiraRestClient]), backlogInjector.getInstance(classOf[SpaceService]))
     } yield {
       startExportMessage()
 
-      val backlogUserService      = backlogInjector.getInstance(classOf[BacklogUserService])
-      val backlogPriorityService  = backlogInjector.getInstance(classOf[BacklogPriorityService])
-      val backlogStatusService    = backlogInjector.getInstance(classOf[BacklogStatusService])
-
       // Delete old exports
-      val jiraBacklogPaths = new JiraBacklogPaths(config.backlogConfig.projectKey)
-
       if (jiraBacklogPaths.outputPath.exists) {
         jiraBacklogPaths.outputPath.listRecursively.foreach(_.delete(false))
       }
 
       // Export
-      val exporter     = jiraInjector.getInstance(classOf[Exporter])
-      val collectData  = exporter.export(jiraBacklogPaths)
+      val collectDataTask = exporter.export(jiraBacklogPaths)
+      val collectedData   = collectDataTask.runSyncUnsafe() // TODO
 
       // Mapping file
       val mappingFileService  = jiraInjector.getInstance(classOf[MappingFileService])
 
       List(
-        mappingFileService.createUserMappingFile(collectData.users, backlogUserService.allUsers()),
-        mappingFileService.createPriorityMappingFile(collectData.priorities, backlogPriorityService.allPriorities()),
-        mappingFileService.createStatusMappingFile(collectData.statuses, backlogStatusService.allStatuses())
+        mappingFileService.createUserMappingFile(collectedData.users, backlogUserService.allUsers()),
+        mappingFileService.createPriorityMappingFile(collectedData.priorities, backlogPriorityService.allPriorities()),
+        mappingFileService.createStatusMappingFile(collectedData.statuses, backlogStatusService.allStatuses())
       ).foreach { mappingFile =>
         if (mappingFile.isExists) {
           displayMergedMappingFileMessageToConsole(mappingFile)
@@ -82,7 +75,6 @@ object J2BCli extends BacklogConfiguration
 
       finishExportMessage(nextCommandStr)
     }
-
   }
 
   def `import`(config: AppConfiguration): Unit = {
@@ -115,14 +107,14 @@ object J2BCli extends BacklogConfiguration
       val userMappingFile     = mappingFileService.createUserMappingFileFromJson(jiraBacklogPaths.jiraUsersJson, backlogUserService.allUsers())
 
       for {
-        _           <- mappingFileExists(statusMappingFile).right
-        _           <- mappingFileExists(priorityMappingFile).right
-        _           <- mappingFileExists(userMappingFile).right
-        _           <- validateMapping(statusMappingFile).right
-        _           <- validateMapping(priorityMappingFile).right
-        _           <- validateMapping(userMappingFile).right
-        projectKeys <- confirmProject(config, backlogInjector.getInstance(classOf[ProjectService])).right
-        _           <- finalConfirm(projectKeys, statusMappingFile, priorityMappingFile, userMappingFile).right
+        _           <- mappingFileExists(statusMappingFile)
+        _           <- mappingFileExists(priorityMappingFile)
+        _           <- mappingFileExists(userMappingFile)
+        _           <- validateMapping(statusMappingFile)
+        _           <- validateMapping(priorityMappingFile)
+        _           <- validateMapping(userMappingFile)
+        projectKeys <- confirmProject(config, backlogInjector.getInstance(classOf[ProjectService]))
+        _           <- finalConfirm(projectKeys, statusMappingFile, priorityMappingFile, userMappingFile)
       } yield {
 
         // Collect database
@@ -137,7 +129,7 @@ object J2BCli extends BacklogConfiguration
           database      = database,
           userMaps      = userMappingFile.tryUnMarshal(),
           priorityMaps  = priorityMappingFile.tryUnMarshal(),
-          statusMaps    = statusMappingFile.tryUnMarshal()
+          statusMaps    = ??? // TODO statusMappingFile.tryUnMarshal()
         )
 
         // Project users mapping
@@ -147,7 +139,7 @@ object J2BCli extends BacklogConfiguration
         projectUserWriter.write(projectUsers)
 
         // Import
-        Boot.execute(config.backlogConfig, false)
+//        Boot.execute(config.backlogConfig, false) // TODO: comment out
 
         // Finalize
         if (!versionName.contains("SNAPSHOT")) {

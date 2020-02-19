@@ -10,6 +10,7 @@ import com.nulabinc.backlog.j2b.dsl.AppDSL.AppProgram
 import com.nulabinc.backlog.j2b.dsl._
 import com.nulabinc.backlog.j2b.dsl.ConsoleDSL.ConsoleProgram
 import monix.eval.Task
+import monix.execution.Scheduler
 
 import scala.language.higherKinds
 
@@ -52,7 +53,7 @@ trait AppInterpreter[F[_]] extends (AppADT ~> F) {
 
 }
 
-case class AsyncAppInterpreter(consoleInterpreter: ConsoleInterpreter[Task]) extends AppInterpreter[Task] {
+case class AsyncAppInterpreter(consoleInterpreter: ConsoleInterpreter[Task])(implicit sc: Scheduler) extends AppInterpreter[Task] {
 
   def run[A](program: AppProgram[A]): Task[A] =
     program.foldMap(this)
@@ -75,7 +76,7 @@ case class AsyncAppInterpreter(consoleInterpreter: ConsoleInterpreter[Task]) ext
     GithubRelease.checkRelease()
   }
 
-  def export(config: AppConfiguration, nextCmd: String): Task[Unit] = Task {
+  def export(config: AppConfiguration, nextCmd: String): Task[Unit] = Task.eval {
     J2BCli.export(config, nextCmd)
   }
 
