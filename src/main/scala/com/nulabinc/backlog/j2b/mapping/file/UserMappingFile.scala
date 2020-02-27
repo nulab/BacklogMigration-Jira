@@ -45,11 +45,11 @@ class UserMappingFile(backlogApiConfig: BacklogApiConfiguration,
     }
 
     def condition(user: JiraUser): Boolean = {
-      StringUtil.notEmpty(user.name).nonEmpty
+      StringUtil.notEmpty(user.emailAddress.getOrElse("")).nonEmpty
     }
 
     def createItem(user: JiraUser): MappingItem = {
-      MappingItem(user.name, user.displayName)
+      MappingItem(user.name.getOrElse(""), user.displayName)
     }
 
     jiraUsers.flatMap(resolve).filter(condition).map(createItem)

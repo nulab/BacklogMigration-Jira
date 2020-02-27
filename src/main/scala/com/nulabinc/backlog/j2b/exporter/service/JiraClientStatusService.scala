@@ -8,8 +8,8 @@ import javax.inject.Inject
 
 class JiraClientStatusService @Inject()(jira: JiraRestClient) extends StatusService with Logging {
 
-  override def all(): Seq[Status] =
-    jira.statusAPI.statuses match {
+  override def all(projectIdOrKey: String): Seq[Status] =
+    jira.statusAPI.statuses(projectIdOrKey) match {
       case Right(statuses) => statuses
       case Left(error) => {
         logger.error(error.message)

@@ -51,7 +51,7 @@ class MappingUserConverter @Inject()(implicit val userWrites: UserWrites)
 
   private def mappingOfInfoName(mappingCollectDatabase: MappingCollectDatabase, userName: String): Mapping = {
     mappingCollectDatabase.findByName(Some(userName)) match {
-      case Some(user) => Mapping(None, user.name, user.name)
+      case Some(user) => Mapping(None, user.name.getOrElse(""), user.name.getOrElse(""))
       case _          => Mapping(None, userName, userName)
     }
   }

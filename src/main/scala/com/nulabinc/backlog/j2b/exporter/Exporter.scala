@@ -64,7 +64,7 @@ class Exporter @Inject()(projectKey: JiraProjectKey,
       _ <- console.boldln(Messages("message.executed", Messages("common.issue_type"), Messages("message.exported")), 1)
     } yield {
       // issue
-      val statuses = statusService.all()
+      val statuses = statusService.all(project.key)
       val total = issueService.count()
       val calculator = new RemainingTimeCalculator(total)
       val fields = FieldConverter.toExportField(fieldService.all())
@@ -170,7 +170,7 @@ class Exporter @Inject()(projectKey: JiraProjectKey,
 
           calculator.progress(i + index.toInt)
 
-          val changeLogUsers     = changeLogs.map(_.optAuthor.map(_.name))
+          val changeLogUsers     = changeLogs.flatMap(_.optAuthor.map(_.name))
           val changeLogItemUsers = changeLogs.flatMap { changeLog =>
             changeLog.items.flatMap { changeLogItem =>
               changeLogItem.fieldId match {
@@ -190,10 +190,10 @@ class Exporter @Inject()(projectKey: JiraProjectKey,
                     case None                                  => mappingCollectDatabase.addIgnoreUser(Some(key))
                   }
                 case (None, name) =>
-                  userService.optUserOfName(Some(name)) match {
+                  userService.optUserOfName(name) match {
                     case Some(u) if Some(name).contains(u.name) => mappingCollectDatabase.add(u)
-                    case Some(_)                               => mappingCollectDatabase.add(Some(name))
-                    case None                                  => mappingCollectDatabase.addIgnoreUser(Some(name))
+                    case Some(_)                               => mappingCollectDatabase.add(name)
+                    case None                                  => mappingCollectDatabase.addIgnoreUser(name)
                   }
               }
             }

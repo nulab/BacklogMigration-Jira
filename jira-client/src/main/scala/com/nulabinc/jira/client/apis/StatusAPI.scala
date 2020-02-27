@@ -8,8 +8,8 @@ class StatusAPI(httpClient: HttpClient) {
 
   import com.nulabinc.jira.client.json.StatusMappingJsonProtocol._
 
-  def statuses: Either[JiraRestClientError, Seq[Status]] = {
-    httpClient.get(s"/status") match {
+  def statuses(projectIdOrKey: String): Either[JiraRestClientError, Seq[Status]] = {
+    httpClient.get(s"/project/$projectIdOrKey/statuses") match {
       case Right(json)               => Right(JsonParser(json).convertTo[Seq[Status]])
       case Left(_: ApiNotFoundError) => Left(ResourceNotFoundError("status", ""))
       case Left(error)               => Left(HttpError(error))
