@@ -1,24 +1,29 @@
 package com.nulabinc.backlog.j2b.cli
 
+import java.io.File
+
 import com.google.inject.{Guice, Injector}
 import com.nulabinc.backlog.j2b.conf.{AppConfigValidator, AppConfiguration, ConfigValidateFailure}
 import com.nulabinc.backlog.j2b.core.Finalizer
 import com.nulabinc.backlog.j2b.exporter.Exporter
 import com.nulabinc.backlog.j2b.jira.conf.{JiraApiConfiguration, JiraBacklogPaths}
 import com.nulabinc.backlog.j2b.jira.converter.MappingConverter
-import com.nulabinc.backlog.j2b.jira.domain.mapping.MappingCollectDatabase
+import com.nulabinc.backlog.j2b.jira.domain.mapping.{JiraStatusMappingItem, MappingCollectDatabase}
 import com.nulabinc.backlog.j2b.jira.service._
 import com.nulabinc.backlog.j2b.jira.writer.ProjectUserWriter
 import com.nulabinc.backlog.j2b.mapping.converter.writes.MappingUserWrites
+import com.nulabinc.backlog.j2b.mapping.core.MappingDirectory
 import com.nulabinc.backlog.j2b.modules._
 import com.nulabinc.backlog.migration.common.conf.BacklogConfiguration
 import com.nulabinc.backlog.migration.common.convert.Convert
-import com.nulabinc.backlog.migration.common.interpreters.SQLiteStoreDSL
+import com.nulabinc.backlog.migration.common.dsl.{ConsoleDSL, StorageDSL}
+import com.nulabinc.backlog.migration.common.interpreters.{JansiConsoleDSL, LocalStorageDSL}
 import com.nulabinc.backlog.migration.common.modules.{ServiceInjector => BacklogInjector}
-import com.nulabinc.backlog.migration.common.service.{ProjectService, SpaceService, PriorityService => BacklogPriorityService, StatusService => BacklogStatusService, UserService => BacklogUserService}
+import com.nulabinc.backlog.migration.common.service.{ProjectService, SpaceService, StatusMappingFileService, PriorityService => BacklogPriorityService, StatusService => BacklogStatusService, UserService => BacklogUserService}
 import com.nulabinc.backlog.migration.common.utils.{ConsoleOut, Logging}
 import com.nulabinc.jira.client.JiraRestClient
 import com.osinka.i18n.Messages
+import monix.eval.Task
 import monix.execution.Scheduler
 
 import scala.util.{Failure, Success, Try}
@@ -32,6 +37,9 @@ object J2BCli extends BacklogConfiguration
     with ProgressConsole
     with InteractiveConfirm {
 
+  private implicit val storageDSL: StorageDSL[Task] = LocalStorageDSL()
+  private implicit val consoleDSL: ConsoleDSL[Task] = JansiConsoleDSL()
+
   def export(config: AppConfiguration, nextCommandStr: String)(implicit s: Scheduler): Option[Unit] = {
     val backlogInjector         = BacklogInjector.createInjector(config.backlogConfig)
     val backlogUserService      = backlogInjector.getInstance(classOf[BacklogUserService])
@@ -39,7 +47,7 @@ object J2BCli extends BacklogConfiguration
     val backlogStatusService    = backlogInjector.getInstance(classOf[BacklogStatusService])
     val jiraInjector            = Guice.createInjector(new ExportModule(config))
     val jiraBacklogPaths        = new JiraBacklogPaths(config.backlogConfig.projectKey)
-    val storeDSL                = SQLiteStoreDSL(jiraBacklogPaths.dbPath)
+//    val storeDSL                = SQLiteStoreDSL(jiraBacklogPaths.dbPath)
     val exporter                = jiraInjector.getInstance(classOf[Exporter])
 
     for {
@@ -55,15 +63,29 @@ object J2BCli extends BacklogConfiguration
 
       // Export
       val collectDataTask = exporter.export(jiraBacklogPaths)
-      val collectedData   = collectDataTask.runSyncUnsafe() // TODO
 
       // Mapping file
       val mappingFileService  = jiraInjector.getInstance(classOf[MappingFileService])
 
+      import com.nulabinc.backlog.j2b.deserializers.JiraMappingDeserializer._
+      import com.nulabinc.backlog.j2b.formatters.JiraFormatter._
+      import com.nulabinc.backlog.j2b.serializers.JiraMappingSerializer._
+
+      val collectedData = collectDataTask.runSyncUnsafe()
+      val statusMappingItems = collectedData.statuses.map { status =>
+        JiraStatusMappingItem(status.name, status.name)
+      }
+
+      StatusMappingFileService.init[JiraStatusMappingItem, Task](
+        new File(MappingDirectory.STATUS_MAPPING_FILE).getAbsoluteFile.toPath,
+        statusMappingItems,
+        backlogStatusService.allStatuses()
+      ).runSyncUnsafe()
+
       List(
         mappingFileService.createUserMappingFile(collectedData.users, backlogUserService.allUsers()),
         mappingFileService.createPriorityMappingFile(collectedData.priorities, backlogPriorityService.allPriorities()),
-        mappingFileService.createStatusMappingFile(collectedData.statuses, backlogStatusService.allStatuses())
+//        mappingFileService.createStatusMappingFile(collectedData.statuses, backlogStatusService.allStatuses())
       ).foreach { mappingFile =>
         if (mappingFile.isExists) {
           displayMergedMappingFileMessageToConsole(mappingFile)

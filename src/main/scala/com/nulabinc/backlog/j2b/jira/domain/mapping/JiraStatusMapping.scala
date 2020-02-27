@@ -5,6 +5,6 @@ import com.nulabinc.backlog.migration.common.domain.mappings.{BacklogStatusMappi
 case class JiraStatusMappingItem(value: String, display: String)
 
 case class JiraStatusMapping(
-  optSrc: Option[JiraStatusMappingItem],
+  src: JiraStatusMappingItem,
   optDst: Option[BacklogStatusMappingItem]
 ) extends StatusMapping[JiraStatusMappingItem]
