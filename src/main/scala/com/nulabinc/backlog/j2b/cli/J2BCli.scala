@@ -72,7 +72,7 @@ object J2BCli extends BacklogConfiguration
       val collectedData = collectDataTask.runSyncUnsafe()
       val statusMappingItems = collectedData.statuses.map(status => JiraStatusMappingItem(status.name, status.name))
       val priorityMappingItems = collectedData.priorities.map(priority => JiraPriorityMappingItem(priority.name))
-      val userMappingItems = collectedData.users.map(user => JiraUserMappingItem(user.displayName)).toSeq // TODO: display more info
+      val userMappingItems = collectedData.getUsers.map(JiraUserMappingItem.from)
 
       StatusMappingFileService.init[JiraStatusMappingItem, Task](
         new File(MappingDirectory.STATUS_MAPPING_FILE).getAbsoluteFile.toPath,

@@ -19,11 +19,11 @@ object JiraMappingDeserializer {
 
   implicit val userDeserializer: Deserializer[CSVRecord, UserMapping[JiraUserMappingItem]] =
     (record: CSVRecord) => new UserMapping[JiraUserMappingItem] {
-      override val src: JiraUserMappingItem = JiraUserMappingItem(record.get(0))
+      override val src: JiraUserMappingItem = JiraUserMappingItem(record.get(0), record.get(1))
       override val optDst: Option[BacklogUserMappingItem] =
         for {
-          value <- Option(record.get(1))
-          mappingType <- Option(record.get(2))
+          value <- Option(record.get(2))
+          mappingType <- Option(record.get(3))
           item <- mappingType match {
             case "id" => Some(BacklogUserIdMappingItem(value))
             case "mail" => Some(BacklogUserMailMappingItem(value))
