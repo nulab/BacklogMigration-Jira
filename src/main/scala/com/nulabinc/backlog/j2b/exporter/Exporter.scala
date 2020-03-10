@@ -83,7 +83,7 @@ class Exporter @Inject()(projectKey: JiraProjectKey,
       val priorities    = priorityService.allPriorities()
       val collectedData = CollectData(mappingCollectDatabase.existUsers, statuses, priorities)
 
-      collectedData.outputJiraUsersToFile(backlogPaths.jiraUsersJson)
+//      collectedData.outputJiraUsersToFile(backlogPaths.jiraUsersJson)
       collectedData.outputJiraPrioritiesToFile(backlogPaths.jiraPrioritiesJson)
       collectedData.outputJiraStatusesToFile(backlogPaths.jiraStatusesJson)
 
@@ -170,47 +170,28 @@ class Exporter @Inject()(projectKey: JiraProjectKey,
 
           calculator.progress(i + index.toInt)
 
-          val changeLogUsers     = changeLogs.flatMap(_.optAuthor.map(_.name))
-          val changeLogItemUsers = changeLogs.flatMap { changeLog =>
-            changeLog.items.flatMap { changeLogItem =>
-              changeLogItem.fieldId match {
-                case Some(AssigneeFieldId) => Set(changeLogItem.from, changeLogItem.to)
-                case _                     => Set.empty[Option[String]]
-              }
+          // changelog author
+          for {
+            changelog <- changeLogs
+            author <- changelog.optAuthor
+          } yield mappingCollectDatabase.addUser(ExistingMappingUser(author.accountId, author.displayName, author.emailAddress))
+
+          // changelog value
+          for {
+            changelog <- changeLogs
+            changelogItem <- changelog.items
+          } yield {
+            changelogItem.fieldId match {
+              case Some(AssigneeFieldId) =>
+                changelogItem.from.foreach(str => ChangeLogMappingUser(str, changelogItem.fromDisplayString.getOrElse("")))
+                changelogItem.to.foreach(str => ChangeLogMappingUser(str, changelogItem.toDisplayString.getOrElse("")))
+              case _ =>
+                ()
             }
           }
 
-          def assignToDB(user: User): Unit = {
-            if (!mappingCollectDatabase.userExistsFromAllUsers(Some(user.identifyKey))) {
-              (user.key, user.name) match {
-                case (Some(key), _) =>
-                  userService.optUserOfKey(Some(key)) match {
-                    case Some(u) if Some(key).contains(u.name) => mappingCollectDatabase.add(u)
-                    case Some(_)                               => mappingCollectDatabase.add(Some(key))
-                    case None                                  => mappingCollectDatabase.addIgnoreUser(Some(key))
-                  }
-                case (None, name) =>
-                  userService.optUserOfName(name) match {
-                    case Some(u) if Some(name).contains(u.name) => mappingCollectDatabase.add(u)
-                    case Some(_)                               => mappingCollectDatabase.add(name)
-                    case None                                  => mappingCollectDatabase.addIgnoreUser(name)
-                  }
-              }
-            }
-          }
-
-          assignToDB(issue.creator)
-          issue.assignee.foreach(assignToDB)
-
-          (changeLogUsers ++ changeLogItemUsers).foreach { maybeUserName =>
-            if (!mappingCollectDatabase.userExistsFromAllUsers(maybeUserName)) {
-              userService.optUserOfName(maybeUserName) match {
-                case Some(u) if maybeUserName.contains(u.name)  => mappingCollectDatabase.add(u)
-                case Some(_)                                    => mappingCollectDatabase.add(maybeUserName)
-                case None                                       => mappingCollectDatabase.add(maybeUserName)
-              }
-            }
-          }
+          mappingCollectDatabase.addUser(ExistingMappingUser(issue.creator.accountId, issue.creator.displayName, issue.creator.emailAddress))
+          issue.assignee.foreach(user => mappingCollectDatabase.addUser(ExistingMappingUser(user.accountId, user.displayName, issue.creator.emailAddress)))
         }
       }
       fetchIssue(calculator, statuses, components, versions, fields, index + issues.length , total, startAt + maxResults, maxResults)

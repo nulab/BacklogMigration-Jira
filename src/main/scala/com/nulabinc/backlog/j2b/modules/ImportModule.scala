@@ -16,7 +16,6 @@ class ImportModule(config: AppConfiguration) extends DefaultModule(config) {
     bind(classOf[UserWrites]).toInstance(new UserWrites)
 
     // Converter
-    bind(classOf[UserConverter]).to(classOf[MappingUserConverter])
     bind(classOf[PriorityConverter]).to(classOf[MappingPriorityConverter])
 
     // Mapping-converter

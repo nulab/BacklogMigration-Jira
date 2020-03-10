@@ -1,22 +1,22 @@
 package com.nulabinc.backlog.j2b.jira.domain
 
 import better.files.{File => Path}
-
+import com.nulabinc.backlog.j2b.jira.domain.`export`.MappingUser
 import com.nulabinc.backlog.migration.common.utils.IOUtil
-import com.nulabinc.jira.client.domain.{Priority, Status, User}
+import com.nulabinc.jira.client.domain.{Priority, Status}
 
 case class CollectData(
-  users: Set[User],
+  users: Set[MappingUser],
   statuses: Seq[Status],
   priorities: Seq[Priority]
 ) {
 
   import spray.json._
 
-  def outputJiraUsersToFile(filePath: Path): Unit = {
-    import com.nulabinc.jira.client.json.UserMappingJsonProtocol._
-    IOUtil.output(filePath, users.toJson.prettyPrint)
-  }
+//  def outputJiraUsersToFile(filePath: Path): Unit = {
+//    import com.nulabinc.jira.client.json.UserMappingJsonProtocol._
+//    IOUtil.output(filePath, users.toJson.prettyPrint)
+//  }
 
   def outputJiraStatusesToFile(filePath: Path): Unit = {
     import com.nulabinc.jira.client.json.StatusMappingJsonProtocol._

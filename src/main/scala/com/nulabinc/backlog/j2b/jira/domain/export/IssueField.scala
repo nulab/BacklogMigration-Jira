@@ -15,6 +15,6 @@ case class OptionFieldValue(v: IssueFieldOption) extends FieldValue(v.value.valu
 
 // JIRA model
 case class IssueTypeFieldValue(v: IssueType) extends FieldValue(v.name.toString)
-case class UserFieldValue(v: User) extends FieldValue(v.name.toString)
+case class UserFieldValue(v: User) extends FieldValue(v.displayName)
 
 

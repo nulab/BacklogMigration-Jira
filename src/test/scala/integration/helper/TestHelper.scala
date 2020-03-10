@@ -9,7 +9,7 @@ import com.nulabinc.backlog.j2b.jira.conf.{JiraApiConfiguration, JiraBacklogPath
 import com.nulabinc.backlog.j2b.jira.domain.JiraProjectKey
 import com.nulabinc.backlog.j2b.mapping.collector.MappingCollectDatabaseInMemory
 import com.nulabinc.backlog.j2b.mapping.converter.writes.UserWrites
-import com.nulabinc.backlog.j2b.mapping.converter.{MappingPriorityConverter, MappingStatusConverter, MappingUserConverter}
+import com.nulabinc.backlog.j2b.mapping.converter.{MappingPriorityConverter, MappingStatusConverter} //, MappingUserConverter}
 import com.nulabinc.backlog.j2b.mapping.file.MappingFileServiceImpl
 import com.nulabinc.backlog.migration.common.conf.BacklogApiConfiguration
 import com.nulabinc.backlog.migration.common.modules.{ServiceInjector => BacklogInjector}
@@ -49,13 +49,13 @@ trait TestHelper {
   // Mapping converter
   implicit val userWrites = new UserWrites
   val priorityMappingConverter = new MappingPriorityConverter
-  val userMappingConverter     = new MappingUserConverter()
+//  val userMappingConverter     = new MappingUserConverter()
 
   // Mapping database
   val database = new MappingCollectDatabaseInMemory
-  mappingFileService.usersFromJson(jiraBacklogPaths.jiraUsersJson).foreach { user =>
-    database.add(user)
-  }
+//  mappingFileService.usersFromJson(jiraBacklogPaths.jiraUsersJson).foreach { user =>
+//    database.add(user)
+//  }
 
   // JIRA client service
   val jiraCommentService = new JiraClientCommentService(jiraRestApi)
@@ -77,7 +77,8 @@ trait TestHelper {
   }
 
   def convertUser(target: String): String = {
-    userMappingConverter.convert(database, userMappings, target)
+//    userMappingConverter.convert(database, userMappings, target)
+    ???
   }
 
   def convertStatus(target: String): String = {

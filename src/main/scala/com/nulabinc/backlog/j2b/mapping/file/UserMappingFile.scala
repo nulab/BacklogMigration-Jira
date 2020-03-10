@@ -6,7 +6,7 @@ import com.nulabinc.backlog.j2b.jira.domain.mapping.{Mapping, MappingFile, Mappi
 import com.nulabinc.backlog.j2b.mapping.core.MappingDirectory
 import com.nulabinc.backlog.migration.common.conf.{BacklogApiConfiguration, BacklogConfiguration}
 import com.nulabinc.backlog.migration.common.domain.BacklogUser
-import com.nulabinc.backlog.migration.common.utils.{IOUtil, StringUtil}
+import com.nulabinc.backlog.migration.common.utils.IOUtil
 import com.nulabinc.jira.client.domain.{User => JiraUser}
 import com.osinka.i18n.Messages
 import spray.json.JsonParser
@@ -36,23 +36,23 @@ class UserMappingFile(backlogApiConfig: BacklogApiConfiguration,
     backlogs.map(_.name).find(_ == jira.name).getOrElse("")
 
   override def jiras: Seq[MappingItem] = {
-
-    def resolve(user: JiraUser): Option[JiraUser] = {
-      (Option(user.name), Option(user.displayName)) match {
-        case (Some(_), Some(_)) => Some(user)
-        case _                  => None
-      }
-    }
-
-    def condition(user: JiraUser): Boolean = {
-      StringUtil.notEmpty(user.emailAddress.getOrElse("")).nonEmpty
-    }
-
-    def createItem(user: JiraUser): MappingItem = {
-      MappingItem(user.name.getOrElse(""), user.displayName)
-    }
-
-    jiraUsers.flatMap(resolve).filter(condition).map(createItem)
+    Seq()
+//    def resolve(user: JiraUser): Option[JiraUser] = {
+//      (Option(user.name), Option(user.displayName)) match {
+//        case (Some(_), Some(_)) => Some(user)
+//        case _                  => None
+//      }
+//    }
+//
+//    def condition(user: JiraUser): Boolean = {
+//      StringUtil.notEmpty(user.emailAddress.getOrElse("")).nonEmpty
+//    }
+//
+//    def createItem(user: JiraUser): MappingItem = {
+//      MappingItem(user.name.getOrElse(""), user.displayName)
+//    }
+//
+//    jiraUsers.flatMap(resolve).filter(condition).map(createItem)
   }
 
   override def backlogs: Seq[MappingItem] = {

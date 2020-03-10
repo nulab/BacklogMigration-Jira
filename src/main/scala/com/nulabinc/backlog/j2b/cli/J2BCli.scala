@@ -8,7 +8,7 @@ import com.nulabinc.backlog.j2b.core.Finalizer
 import com.nulabinc.backlog.j2b.exporter.Exporter
 import com.nulabinc.backlog.j2b.jira.conf.{JiraApiConfiguration, JiraBacklogPaths}
 import com.nulabinc.backlog.j2b.jira.converter.MappingConverter
-import com.nulabinc.backlog.j2b.jira.domain.mapping.{JiraStatusMappingItem, MappingCollectDatabase}
+import com.nulabinc.backlog.j2b.jira.domain.mapping.{JiraPriorityMappingItem, JiraStatusMappingItem, JiraUserMappingItem, MappingCollectDatabase}
 import com.nulabinc.backlog.j2b.jira.service._
 import com.nulabinc.backlog.j2b.jira.writer.ProjectUserWriter
 import com.nulabinc.backlog.j2b.mapping.converter.writes.MappingUserWrites
@@ -19,7 +19,7 @@ import com.nulabinc.backlog.migration.common.convert.Convert
 import com.nulabinc.backlog.migration.common.dsl.{ConsoleDSL, StorageDSL}
 import com.nulabinc.backlog.migration.common.interpreters.{JansiConsoleDSL, LocalStorageDSL}
 import com.nulabinc.backlog.migration.common.modules.{ServiceInjector => BacklogInjector}
-import com.nulabinc.backlog.migration.common.service.{ProjectService, SpaceService, StatusMappingFileService, PriorityService => BacklogPriorityService, StatusService => BacklogStatusService, UserService => BacklogUserService}
+import com.nulabinc.backlog.migration.common.service.{PriorityMappingFileService, ProjectService, SpaceService, StatusMappingFileService, UserMappingFileService, PriorityService => BacklogPriorityService, StatusService => BacklogStatusService, UserService => BacklogUserService}
 import com.nulabinc.backlog.migration.common.utils.{ConsoleOut, Logging}
 import com.nulabinc.jira.client.JiraRestClient
 import com.osinka.i18n.Messages
@@ -65,16 +65,14 @@ object J2BCli extends BacklogConfiguration
       val collectDataTask = exporter.export(jiraBacklogPaths)
 
       // Mapping file
-      val mappingFileService  = jiraInjector.getInstance(classOf[MappingFileService])
-
-      import com.nulabinc.backlog.j2b.deserializers.JiraMappingDeserializer._
       import com.nulabinc.backlog.j2b.formatters.JiraFormatter._
       import com.nulabinc.backlog.j2b.serializers.JiraMappingSerializer._
+      import com.nulabinc.backlog.j2b.deserializers.JiraMappingDeserializer._
 
       val collectedData = collectDataTask.runSyncUnsafe()
-      val statusMappingItems = collectedData.statuses.map { status =>
-        JiraStatusMappingItem(status.name, status.name)
-      }
+      val statusMappingItems = collectedData.statuses.map(status => JiraStatusMappingItem(status.name, status.name))
+      val priorityMappingItems = collectedData.priorities.map(priority => JiraPriorityMappingItem(priority.name))
+      val userMappingItems = collectedData.users.map(user => JiraUserMappingItem(user.displayName)).toSeq // TODO: display more info
 
       StatusMappingFileService.init[JiraStatusMappingItem, Task](
         new File(MappingDirectory.STATUS_MAPPING_FILE).getAbsoluteFile.toPath,
@@ -82,18 +80,17 @@ object J2BCli extends BacklogConfiguration
         backlogStatusService.allStatuses()
       ).runSyncUnsafe()
 
-      List(
-        mappingFileService.createUserMappingFile(collectedData.users, backlogUserService.allUsers()),
-        mappingFileService.createPriorityMappingFile(collectedData.priorities, backlogPriorityService.allPriorities()),
-//        mappingFileService.createStatusMappingFile(collectedData.statuses, backlogStatusService.allStatuses())
-      ).foreach { mappingFile =>
-        if (mappingFile.isExists) {
-          displayMergedMappingFileMessageToConsole(mappingFile)
-        } else {
-          mappingFile.create()
-          displayCreateMappingFileMessageToConsole(mappingFile)
-        }
-      }
+      PriorityMappingFileService.init[JiraPriorityMappingItem, Task](
+        new File(MappingDirectory.PRIORITY_MAPPING_FILE).getAbsoluteFile.toPath,
+        priorityMappingItems,
+        backlogPriorityService.allPriorities()
+      ).runSyncUnsafe()
+
+      UserMappingFileService.init[JiraUserMappingItem, Task](
+        new File(MappingDirectory.USER_MAPPING_FILE).getAbsoluteFile.toPath,
+        userMappingItems,
+        backlogUserService.allUsers()
+      ).runSyncUnsafe()
 
       finishExportMessage(nextCommandStr)
     }
@@ -141,9 +138,9 @@ object J2BCli extends BacklogConfiguration
 
         // Collect database
         val database = jiraInjector.getInstance(classOf[MappingCollectDatabase])
-        mappingFileService.usersFromJson(jiraBacklogPaths.jiraUsersJson).foreach { user =>
-          database.add(user)
-        }
+//        mappingFileService.usersFromJson(jiraBacklogPaths.jiraUsersJson).foreach { user =>
+//          database.add(user)
+//        } // TODO users from db
 
         // Convert
         val converter = jiraInjector.getInstance(classOf[MappingConverter])

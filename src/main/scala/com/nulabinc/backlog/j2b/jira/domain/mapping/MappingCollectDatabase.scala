@@ -1,7 +1,7 @@
 package com.nulabinc.backlog.j2b.jira.domain.mapping
 
+import com.nulabinc.backlog.j2b.jira.domain.`export`.{ChangeLogMappingUser, ExistingMappingUser, MappingUser}
 import com.nulabinc.backlog.j2b.jira.domain.export.Milestone
-import com.nulabinc.jira.client.domain.User
 
 import scala.collection.mutable
 
@@ -9,21 +9,13 @@ case class CustomFieldRow(fieldId: String, values: mutable.Set[String])
 
 trait MappingCollectDatabase {
 
-  def add(user: Option[User]): Boolean
+  def addUser(user: ExistingMappingUser): ExistingMappingUser
 
-  def add(user: User): User
+  def addChangeLogUser(user: ChangeLogMappingUser): ChangeLogMappingUser
 
-  def add(name: Option[String]): Option[User]
+  def findUser(accountId: String): Option[MappingUser]
 
-  def addIgnoreUser(name: Option[String]): Unit
-
-  def existUsers: Set[User]
-
-  def userExistsFromAllUsers(name: Option[String]): Boolean
-
-  def existsByName(name: Option[String]): Boolean
-
-  def findByName(name: Option[String]): Option[User]
+  def existUsers: Set[MappingUser]
 
   def addCustomField(fieldId: String, value: Option[String]): Option[String]
 
