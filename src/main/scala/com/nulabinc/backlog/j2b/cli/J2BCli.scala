@@ -66,6 +66,7 @@ object J2BCli extends BacklogConfiguration
 
       // Mapping file
       import com.nulabinc.backlog.j2b.formatters.JiraFormatter._
+      import com.nulabinc.backlog.j2b.mapping.JiraMappingHeader._
       import com.nulabinc.backlog.j2b.serializers.JiraMappingSerializer._
       import com.nulabinc.backlog.j2b.deserializers.JiraMappingDeserializer._
 
