@@ -90,7 +90,8 @@ object J2BCli extends BacklogConfiguration
       UserMappingFileService.init[JiraUserMappingItem, Task](
         new File(MappingDirectory.USER_MAPPING_FILE).getAbsoluteFile.toPath,
         userMappingItems,
-        backlogUserService.allUsers()
+        backlogUserService.allUsers(),
+        config.backlogConfig
       ).runSyncUnsafe()
 
       finishExportMessage(nextCommandStr)

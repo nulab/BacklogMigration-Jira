@@ -20,15 +20,15 @@ object JiraMappingDeserializer {
   implicit val userDeserializer: Deserializer[CSVRecord, UserMapping[JiraUserMappingItem]] =
     (record: CSVRecord) => new UserMapping[JiraUserMappingItem] {
       override val src: JiraUserMappingItem = JiraUserMappingItem(record.get(0), record.get(1))
-      override val optDst: Option[BacklogUserMappingItem] =
-        for {
-          value <- Option(record.get(2))
-          mappingType <- Option(record.get(3))
-          item <- mappingType match {
-            case "id" => Some(BacklogUserIdMappingItem(value))
-            case "mail" => Some(BacklogUserMailMappingItem(value))
-            case _ => None
-          }
-        } yield item
+      override val dst: BacklogUserMappingItem = {
+        val optValue = Option(record.get(2))
+        val mappingType = record.get(3)
+
+        mappingType match {
+          case "id" => BacklogUserIdMappingItem(optValue)
+          case "mail" => BacklogUserMailMappingItem(optValue)
+          case others => throw new RuntimeException(s"Invalid user mapping type. Input: $others")
+        }
+      }
     }
 }

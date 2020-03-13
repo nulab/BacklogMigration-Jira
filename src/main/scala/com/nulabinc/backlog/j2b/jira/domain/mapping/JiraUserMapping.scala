@@ -12,5 +12,5 @@ object JiraUserMappingItem {
 
 case class JiraUserMapping(
   src: JiraUserMappingItem,
-  optDst: Option[BacklogUserMappingItem]
+  dst: BacklogUserMappingItem
 ) extends UserMapping[JiraUserMappingItem]

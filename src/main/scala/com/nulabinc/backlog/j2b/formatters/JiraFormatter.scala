@@ -17,7 +17,7 @@ object JiraFormatter {
 
   implicit object UserFormatter extends Formatter[UserMapping[JiraUserMappingItem]] {
     def format(value: UserMapping[JiraUserMappingItem]): (String, String) =
-      (value.src.displayName, value.optDst.map(_.value).getOrElse(""))
+      (value.src.displayName, value.dst.optValue.getOrElse(""))
   }
 
 }

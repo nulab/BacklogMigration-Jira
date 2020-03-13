@@ -15,10 +15,10 @@ object JiraMappingSerializer {
   implicit val userSerializer: Serializer[UserMapping[JiraUserMappingItem], Seq[String]] =
     (mapping: UserMapping[JiraUserMappingItem]) =>
       Seq(
-        mapping.src.accountId,                          // 0
-        mapping.src.displayName,                        // 1
-        mapping.optDst.map(_.value).getOrElse(""),      // 2
-        mapping.optDst.map(_.mappingType).getOrElse("") // 3
+        mapping.src.accountId,                // 0
+        mapping.src.displayName,              // 1
+        mapping.dst.optValue.getOrElse(""),   // 2
+        mapping.dst.mappingType               // 3
       )
 
 }

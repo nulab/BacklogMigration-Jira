@@ -13,6 +13,6 @@ object JiraMappingHeader {
   }
 
   implicit object UserMappingHeader extends MappingHeader[UserMapping[_]] {
-    val headers: Seq[String] = Seq("A", "B", "C", "D")
+    val headers: Seq[String] = Seq("JIRA Account ID", "JIRA display name", "Backlog user name", "Backlog mapping type")
   }
 }
