@@ -76,22 +76,25 @@ object J2BCli extends BacklogConfiguration
       val userMappingItems = collectedData.getUsers.map(JiraUserMappingItem.from)
 
       StatusMappingFileService.init[JiraStatusMappingItem, Task](
-        new File(MappingDirectory.STATUS_MAPPING_FILE).getAbsoluteFile.toPath,
-        statusMappingItems,
-        backlogStatusService.allStatuses()
+        mappingFilePath = new File(MappingDirectory.STATUS_MAPPING_FILE).getAbsoluteFile.toPath,
+        mappingListPath = new File(MappingDirectory.STATUS_MAPPING_LIST_FILE).getAbsoluteFile.toPath,
+        srcItems = statusMappingItems,
+        dstItems = backlogStatusService.allStatuses()
       ).runSyncUnsafe()
 
       PriorityMappingFileService.init[JiraPriorityMappingItem, Task](
-        new File(MappingDirectory.PRIORITY_MAPPING_FILE).getAbsoluteFile.toPath,
-        priorityMappingItems,
-        backlogPriorityService.allPriorities()
+        mappingFilePath = new File(MappingDirectory.PRIORITY_MAPPING_FILE).getAbsoluteFile.toPath,
+        mappingListPath = new File(MappingDirectory.PRIORITY_MAPPING_LIST_FILE).getAbsoluteFile.toPath,
+        srcItems = priorityMappingItems,
+        dstItems = backlogPriorityService.allPriorities()
       ).runSyncUnsafe()
 
       UserMappingFileService.init[JiraUserMappingItem, Task](
-        new File(MappingDirectory.USER_MAPPING_FILE).getAbsoluteFile.toPath,
-        userMappingItems,
-        backlogUserService.allUsers(),
-        config.backlogConfig
+        mappingFilePath = new File(MappingDirectory.USER_MAPPING_FILE).getAbsoluteFile.toPath,
+        mappingListPath = new File(MappingDirectory.USER_MAPPING_LIST_FILE).getAbsoluteFile.toPath,
+        srcItems = userMappingItems,
+        dstItems = backlogUserService.allUsers(),
+        dstApiConfiguration = config.backlogConfig
       ).runSyncUnsafe()
 
       finishExportMessage(nextCommandStr)
