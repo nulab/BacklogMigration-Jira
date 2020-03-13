@@ -1,6 +1,7 @@
 package com.nulabinc.backlog.j2b.deserializers
 
 import com.nulabinc.backlog.j2b.jira.domain.mapping._
+import com.nulabinc.backlog.migration.common.deserializers.Deserializer
 import com.nulabinc.backlog.migration.common.domain.mappings._
 import org.apache.commons.csv.CSVRecord
 

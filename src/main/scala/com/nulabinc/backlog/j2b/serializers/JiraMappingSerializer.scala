@@ -2,6 +2,7 @@ package com.nulabinc.backlog.j2b.serializers
 
 import com.nulabinc.backlog.j2b.jira.domain.mapping._
 import com.nulabinc.backlog.migration.common.domain.mappings._
+import com.nulabinc.backlog.migration.common.serializers.Serializer
 
 object JiraMappingSerializer {
   implicit val statusSerializer: Serializer[StatusMapping[JiraStatusMappingItem], Seq[String]] =

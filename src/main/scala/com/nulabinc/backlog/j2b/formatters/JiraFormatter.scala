@@ -2,6 +2,7 @@ package com.nulabinc.backlog.j2b.formatters
 
 import com.nulabinc.backlog.j2b.jira.domain.mapping._
 import com.nulabinc.backlog.migration.common.domain.mappings._
+import com.nulabinc.backlog.migration.common.formatters.Formatter
 
 object JiraFormatter {
 
