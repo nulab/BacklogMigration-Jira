@@ -110,7 +110,7 @@ jobs:
       - sbt:
           args: assembly
 
-      - run: mkdir -p target/dist && mv target/scala-2.12/*.jar target/dist
+      - run: mkdir -p target/dist && mv target/scala-2.13/*.jar target/dist
       - store_artifacts:
           path: target/dist
           destination: dist
