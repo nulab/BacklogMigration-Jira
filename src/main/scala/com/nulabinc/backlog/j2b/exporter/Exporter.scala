@@ -83,7 +83,7 @@ class Exporter @Inject()(projectKey: JiraProjectKey,
       val priorities    = priorityService.allPriorities()
       val collectedData = CollectData(mappingCollectDatabase.existUsers, statuses, priorities)
 
-//      collectedData.outputJiraUsersToFile(backlogPaths.jiraUsersJson)
+      collectedData.outputJiraUsersToFile(backlogPaths.jiraUsersJson)
       collectedData.outputJiraPrioritiesToFile(backlogPaths.jiraPrioritiesJson)
       collectedData.outputJiraStatusesToFile(backlogPaths.jiraStatusesJson)
 

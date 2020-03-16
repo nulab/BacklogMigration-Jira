@@ -80,7 +80,7 @@ case class AsyncAppInterpreter(consoleInterpreter: ConsoleInterpreter[Task])(imp
     J2BCli.export(config, nextCmd)
   }
 
-  def `import`(config: AppConfiguration): Task[Unit] = Task {
+  def `import`(config: AppConfiguration): Task[Unit] = Task.eval {
     J2BCli.`import`(config)
   }
 

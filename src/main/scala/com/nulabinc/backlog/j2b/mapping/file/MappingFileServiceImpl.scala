@@ -1,12 +1,13 @@
 package com.nulabinc.backlog.j2b.mapping.file
 
 import better.files.{File => Path}
+import com.nulabinc.backlog.j2b.jira.domain.`export`.MappingUser
 import com.nulabinc.backlog.j2b.jira.domain.mapping.MappingFile
 import com.nulabinc.backlog.j2b.jira.service.MappingFileService
 import com.nulabinc.backlog.migration.common.conf.BacklogApiConfiguration
 import com.nulabinc.backlog.migration.common.domain.{BacklogStatuses, BacklogUser}
 import com.nulabinc.backlog.migration.common.utils.IOUtil
-import com.nulabinc.backlog4j.{Priority => BacklogPriority, Status => BacklogStatus}
+import com.nulabinc.backlog4j.{Priority => BacklogPriority}
 import com.nulabinc.jira.client.domain.{Priority => JiraPriority, Status => JiraStatus, User => JiraUser}
 import javax.inject.Inject
 import spray.json._
@@ -23,8 +24,8 @@ class MappingFileServiceImpl @Inject()(backlogApiConfig: BacklogApiConfiguration
   override def createStatusMappingFile(jiraStatuses: Seq[JiraStatus], backlogStatuses: BacklogStatuses): MappingFile =
     new StatusMappingFile(jiraStatuses, backlogStatuses)
 
-  override def createUserMappingFileFromJson(jiraUsersFilePath: Path, backlogUsers: Seq[BacklogUser]): MappingFile =
-    new UserMappingFile(backlogApiConfig, usersFromJson(jiraUsersFilePath), backlogUsers)
+  override def createUserMappingFileFromJson(jiraUsersFilePath: Path, backlogUsers: Seq[BacklogUser]): MappingFile = ???
+//    new UserMappingFile(backlogApiConfig, usersFromJson(jiraUsersFilePath), backlogUsers)
 
   override def createPrioritiesMappingFileFromJson(jiraPrioritiesFilePath: Path, backlogPriorities: Seq[BacklogPriority]): PriorityMappingFile = {
     import com.nulabinc.jira.client.json.PriorityMappingJsonProtocol._
@@ -40,8 +41,8 @@ class MappingFileServiceImpl @Inject()(backlogApiConfig: BacklogApiConfiguration
     new StatusMappingFile(jiraStatuses, backlogStatuses)
   }
 
-  override def usersFromJson(jiraUsersFilePath: Path): Seq[JiraUser] = {
-    import com.nulabinc.jira.client.json.UserMappingJsonProtocol._
-    JsonParser(IOUtil.input(jiraUsersFilePath).get).convertTo[Seq[JiraUser]]
+  override def usersFromJson(jiraUsersFilePath: Path): Seq[MappingUser] = {
+    import com.nulabinc.backlog.j2b.formatters.SprayJsonFormats._
+    JsonParser(IOUtil.input(jiraUsersFilePath).get).convertTo[Seq[MappingUser]]
   }
 }

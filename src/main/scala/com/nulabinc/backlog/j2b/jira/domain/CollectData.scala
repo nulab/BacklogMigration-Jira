@@ -13,10 +13,10 @@ case class CollectData(
 
   import spray.json._
 
-//  def outputJiraUsersToFile(filePath: Path): Unit = {
-//    import com.nulabinc.jira.client.json.UserMappingJsonProtocol._
-//    IOUtil.output(filePath, users.toJson.prettyPrint)
-//  }
+  def outputJiraUsersToFile(filePath: Path): Unit = {
+    import com.nulabinc.backlog.j2b.formatters.SprayJsonFormats._
+    IOUtil.output(filePath, getUsers.toJson.prettyPrint)
+  }
 
   def getUsers: Seq[MappingUser] = {
     val existingUsers = users.flatMap {

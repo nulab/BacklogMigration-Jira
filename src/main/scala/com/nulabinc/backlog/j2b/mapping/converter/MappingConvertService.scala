@@ -14,10 +14,11 @@ import spray.json._
 
 class MappingConvertService @Inject()(implicit val issueWrites: IssueWrites,
                                       implicit val commentWrites: CommentWrites,
-                                      userConverter: UserConverter,
+                                      implicit val userWrites: UserWrites,
                                       priorityConverter: PriorityConverter,
                                       backlogPaths: BacklogPaths) extends MappingConverter {
 
+  private val userConverter = new MappingUserConverter()
 
   def convert(database: MappingCollectDatabase, userMaps: Seq[Mapping], priorityMaps: Seq[Mapping], statusMaps: Seq[Mapping]): Unit = {
 
