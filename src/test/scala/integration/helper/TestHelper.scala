@@ -8,8 +8,8 @@ import com.nulabinc.backlog.j2b.exporter.service.{JiraClientCommentService, Jira
 import com.nulabinc.backlog.j2b.jira.conf.{JiraApiConfiguration, JiraBacklogPaths}
 import com.nulabinc.backlog.j2b.jira.domain.JiraProjectKey
 import com.nulabinc.backlog.j2b.mapping.collector.MappingCollectDatabaseInMemory
+import com.nulabinc.backlog.j2b.mapping.converter.MappingPriorityConverter
 import com.nulabinc.backlog.j2b.mapping.converter.writes.UserWrites
-import com.nulabinc.backlog.j2b.mapping.converter.{MappingPriorityConverter, MappingStatusConverter} //, MappingUserConverter}
 import com.nulabinc.backlog.j2b.mapping.file.MappingFileServiceImpl
 import com.nulabinc.backlog.migration.common.conf.BacklogApiConfiguration
 import com.nulabinc.backlog.migration.common.modules.{ServiceInjector => BacklogInjector}
@@ -82,7 +82,8 @@ trait TestHelper {
   }
 
   def convertStatus(target: String): String = {
-    MappingStatusConverter.convert(statusMappings, target).name.trimmed
+//    MappingStatusConverter.convert(statusMappings, target).name.trimmed
+    ???
   }
 
   def convertPriority(target: String): String = {

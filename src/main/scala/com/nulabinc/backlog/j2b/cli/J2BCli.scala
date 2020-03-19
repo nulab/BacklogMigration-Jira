@@ -8,7 +8,7 @@ import com.nulabinc.backlog.j2b.core.Finalizer
 import com.nulabinc.backlog.j2b.exporter.Exporter
 import com.nulabinc.backlog.j2b.jira.conf.{JiraApiConfiguration, JiraBacklogPaths}
 import com.nulabinc.backlog.j2b.jira.converter.MappingConverter
-import com.nulabinc.backlog.j2b.jira.domain.mapping.{JiraPriorityMappingItem, JiraStatusMappingItem, JiraUserMappingItem, MappingCollectDatabase}
+import com.nulabinc.backlog.j2b.jira.domain.mapping._
 import com.nulabinc.backlog.j2b.jira.service._
 import com.nulabinc.backlog.j2b.jira.writer.ProjectUserWriter
 import com.nulabinc.backlog.j2b.mapping.converter.writes.MappingUserWrites
@@ -18,7 +18,8 @@ import com.nulabinc.backlog.migration.common.conf.BacklogConfiguration
 import com.nulabinc.backlog.migration.common.dsl.{AppDSL, ConsoleDSL, StorageDSL}
 import com.nulabinc.backlog.migration.common.interpreters.{JansiConsoleDSL, LocalStorageDSL, TaskAppDSL}
 import com.nulabinc.backlog.migration.common.modules.{ServiceInjector => BacklogInjector}
-import com.nulabinc.backlog.migration.common.service.{PriorityMappingFileService, ProjectService, SpaceService, StatusMappingFileService, UserMappingFileService, PriorityService => BacklogPriorityService, StatusService => BacklogStatusService, UserService => BacklogUserService}
+import com.nulabinc.backlog.migration.common.service.{ProjectService, SpaceService, PriorityService => BacklogPriorityService, StatusService => BacklogStatusService, UserService => BacklogUserService}
+import com.nulabinc.backlog.migration.common.services.{PriorityMappingFileService, StatusMappingFileService, UserMappingFileService}
 import com.nulabinc.backlog.migration.common.utils.{ConsoleOut, Logging}
 import com.nulabinc.jira.client.JiraRestClient
 import com.osinka.i18n.Messages
@@ -101,6 +102,7 @@ object J2BCli extends BacklogConfiguration
   }
 
   def `import`(config: AppConfiguration)(implicit s: Scheduler): Unit = {
+    import com.nulabinc.backlog.migration.common.shared.syntax._
 
     def createJiraImportingInjector(config: AppConfiguration): Option[Injector] =
       Try(Guice.createInjector(new ImportModule(config))) match {
@@ -125,13 +127,50 @@ object J2BCli extends BacklogConfiguration
       // Mapping file
       val jiraBacklogPaths    = new JiraBacklogPaths(config.backlogConfig.projectKey)
       val mappingFileService  = jiraInjector.getInstance(classOf[MappingFileService])
-      val statusMappingFile   = mappingFileService.createStatusesMappingFileFromJson(jiraBacklogPaths.jiraStatusesJson, backlogStatusService.allStatuses())
-      val priorityMappingFile = mappingFileService.createPrioritiesMappingFileFromJson(jiraBacklogPaths.jiraPrioritiesJson, backlogPriorityService.allPriorities())
+//      val statusMappingFile   = mappingFileService.createStatusesMappingFileFromJson(jiraBacklogPaths.jiraStatusesJson, backlogStatusService.allStatuses())
+//      val priorityMappingFile = mappingFileService.createPrioritiesMappingFileFromJson(jiraBacklogPaths.jiraPrioritiesJson, backlogPriorityService.allPriorities())
 //      val userMappingFile     = mappingFileService.createUserMappingFileFromJson(jiraBacklogPaths.jiraUsersJson, backlogUserService.allUsers())
 
-      StatusMappingFileService.execute[JiraStatusMappingItem, Task](
-        path = new File(MappingDirectory.STATUS_MAPPING_FILE).getAbsoluteFile.toPath
-      ).runSyncUnsafe()
+      val statusMappingFilePath = new File(MappingDirectory.STATUS_MAPPING_FILE).getAbsoluteFile.toPath
+
+      // Collect database
+      val database = jiraInjector.getInstance(classOf[MappingCollectDatabase])
+
+      val result = for {
+        statusMappings <- StatusMappingFileService.execute[JiraStatusMappingItem, Task](path = statusMappingFilePath, backlogStatusService.allStatuses()).handleError
+
+      } yield {
+        //        mappingFileService.usersFromJson(jiraBacklogPaths.jiraUsersJson).foreach { user =>
+        //          database.add(user)
+        //        } // TODO users from db
+
+        // Convert
+        val converter = jiraInjector.getInstance(classOf[MappingConverter])
+        converter.convert(
+          database      = database,
+          userMaps      = ???,
+          priorityMaps  = ???,
+          statusMaps    = statusMappings.map(ValidatedJiraStatusMapping.from)
+        )
+
+        // Project users mapping
+        implicit val mappingUserWrites: MappingUserWrites = new MappingUserWrites
+        val projectUserWriter = jiraInjector.getInstance(classOf[ProjectUserWriter])
+        //        val projectUsers = userMappingFile.tryUnMarshal().map(Convert.toBacklog(_))
+        //        projectUserWriter.write(projectUsers)
+
+        // Import
+        //        Boot.execute(config.backlogConfig, false) // TODO: comment out
+
+        // Finalize
+        if (!versionName.contains("SNAPSHOT")) {
+          Finalizer.finalize(config)
+        }
+      }
+
+      val b = result.value.runSyncUnsafe()
+
+      b
 
       for {
 //        _           <- validateMapping(statusMappingFile)
@@ -141,34 +180,9 @@ object J2BCli extends BacklogConfiguration
 //        _           <- finalConfirm(projectKeys, statusMappingFile, priorityMappingFile, userMappingFile)
       } yield {
 
-        // Collect database
-        val database = jiraInjector.getInstance(classOf[MappingCollectDatabase])
-//        mappingFileService.usersFromJson(jiraBacklogPaths.jiraUsersJson).foreach { user =>
-//          database.add(user)
-//        } // TODO users from db
 
-        // Convert
-        val converter = jiraInjector.getInstance(classOf[MappingConverter])
-        converter.convert(
-          database      = database,
-          userMaps      = ???,
-          priorityMaps  = priorityMappingFile.tryUnMarshal(),
-          statusMaps    = ??? // TODO statusMappingFile.tryUnMarshal()
-        )
 
-        // Project users mapping
-        implicit val mappingUserWrites: MappingUserWrites = new MappingUserWrites
-        val projectUserWriter = jiraInjector.getInstance(classOf[ProjectUserWriter])
-//        val projectUsers = userMappingFile.tryUnMarshal().map(Convert.toBacklog(_))
-//        projectUserWriter.write(projectUsers)
 
-        // Import
-//        Boot.execute(config.backlogConfig, false) // TODO: comment out
-
-        // Finalize
-        if (!versionName.contains("SNAPSHOT")) {
-          Finalizer.finalize(config)
-        }
       }
     }
   }
