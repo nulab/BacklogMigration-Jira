@@ -25,7 +25,7 @@ object JiraMappingDeserializer {
         val optValue = Option(record.get(2))
         val mappingType = record.get(3)
 
-        mappingType.trim match {
+        mappingType match {
           case "id" => BacklogUserIdMappingItem(optValue)
           case "mail" => BacklogUserMailMappingItem(optValue)
           case others => throw new RuntimeException(s"Invalid user mapping type. Input: $others")

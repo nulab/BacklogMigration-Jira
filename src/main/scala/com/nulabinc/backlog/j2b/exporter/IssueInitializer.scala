@@ -132,7 +132,7 @@ class IssueInitializer @Inject()(implicit val issueWrites: IssueWrites,
           userService.optUserOfKey(detail.from).map { user =>
             mappingCollectDatabase.addUser(ExistingMappingUser(user.accountId, user.displayName, user.emailAddress))
           }.getOrElse {
-            mappingCollectDatabase.addChangeLogUser(ChangeLogMappingUser(accountId, ""))
+            mappingCollectDatabase.addChangeLogUser(ChangeLogMappingUser(accountId, detail.fromDisplayString.getOrElse("")))
           }
           backlogUser
         }
