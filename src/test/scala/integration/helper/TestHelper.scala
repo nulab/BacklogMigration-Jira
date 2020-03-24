@@ -87,7 +87,8 @@ trait TestHelper {
   }
 
   def convertPriority(target: String): String = {
-    priorityMappingConverter.convert(priorityMappings, target)
+//    priorityMappingConverter.convert(priorityMappings, target)
+    ???
   }
 
   def backlogUpdated(issue: BacklogIssue): Date = {

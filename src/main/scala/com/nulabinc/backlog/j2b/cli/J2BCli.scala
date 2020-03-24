@@ -116,8 +116,9 @@ object J2BCli extends BacklogConfiguration
     val mappingFileService  = jiraInjector.getInstance(classOf[MappingFileService])
 //      val statusMappingFile   = mappingFileService.createStatusesMappingFileFromJson(jiraBacklogPaths.jiraStatusesJson, backlogStatusService.allStatuses())
 //      val priorityMappingFile = mappingFileService.createPrioritiesMappingFileFromJson(jiraBacklogPaths.jiraPrioritiesJson, backlogPriorityService.allPriorities())
-//      val userMappingFile     = mappingFileService.createUserMappingFileFromJson(jiraBacklogPaths.jiraUsersJson, backlogUserService.allUsers())
+    //      val userMappingFile     = mappingFileService.createUserMappingFileFromJson(jiraBacklogPaths.jiraUsersJson, backlogUserService.allUsers())
 
+    val priorityMappingFilePath = new File(MappingDirectory.PRIORITY_MAPPING_FILE).getAbsoluteFile.toPath
     val statusMappingFilePath = new File(MappingDirectory.STATUS_MAPPING_FILE).getAbsoluteFile.toPath
 
     // Collect database
@@ -126,6 +127,10 @@ object J2BCli extends BacklogConfiguration
     val result = for {
       _ <- checkJiraApiAccessible(config.jiraConfig).handleError
       _ <- validateConfig(config, jiraInjector.getInstance(classOf[JiraRestClient]), spaceService).handleError
+      priorityMappings <- PriorityMappingFileService.execute[JiraPriorityMappingItem, Task](
+        path = priorityMappingFilePath,
+        dstItems = backlogPriorityService.allPriorities()
+      ).mapError(MappingError).handleError
       statusMappings <- StatusMappingFileService.execute[JiraStatusMappingItem, Task](
         path = statusMappingFilePath,
         dstItems = backlogStatusService.allStatuses()
@@ -142,7 +147,7 @@ object J2BCli extends BacklogConfiguration
       converter.convert(
         database      = database,
         userMaps      = ???,
-        priorityMaps  = ???,
+        priorityMaps  = priorityMappings.map(ValidatedJiraPriorityMapping.from),
         statusMaps    = statusMappings.map(ValidatedJiraStatusMapping.from)
       )
 

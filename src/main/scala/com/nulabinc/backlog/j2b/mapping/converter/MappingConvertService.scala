@@ -2,7 +2,7 @@ package com.nulabinc.backlog.j2b.mapping.converter
 
 import better.files.{File => Path}
 import com.nulabinc.backlog.j2b.jira.converter._
-import com.nulabinc.backlog.j2b.jira.domain.mapping.{ValidatedJiraStatusMapping, Mapping, MappingCollectDatabase}
+import com.nulabinc.backlog.j2b.jira.domain.mapping.{Mapping, MappingCollectDatabase, ValidatedJiraPriorityMapping, ValidatedJiraStatusMapping}
 import com.nulabinc.backlog.j2b.mapping.converter.writes._
 import com.nulabinc.backlog.migration.common.conf.{BacklogConstantValue, BacklogPaths}
 import com.nulabinc.backlog.migration.common.convert.{BacklogUnmarshaller, Convert}
@@ -20,7 +20,7 @@ class MappingConvertService @Inject()(implicit val issueWrites: IssueWrites,
 
   private val userConverter = new MappingUserConverter()
 
-  def convert(database: MappingCollectDatabase, userMaps: Seq[Mapping], priorityMaps: Seq[Mapping], statusMaps: Seq[ValidatedJiraStatusMapping]): Unit = {
+  def convert(database: MappingCollectDatabase, userMaps: Seq[Mapping], priorityMaps: Seq[ValidatedJiraPriorityMapping], statusMaps: Seq[ValidatedJiraStatusMapping]): Unit = {
 
     val paths: Seq[Path] = IOUtil.directoryPaths(backlogPaths.issueDirectoryPath)
     paths.zipWithIndex.foreach {
@@ -29,7 +29,7 @@ class MappingConvertService @Inject()(implicit val issueWrites: IssueWrites,
     }
   }
 
-  private def loadDateDirectory(path: Path, database: MappingCollectDatabase, userMaps: Seq[Mapping], priorityMaps: Seq[Mapping], statusMaps: Seq[ValidatedJiraStatusMapping]): Unit = {
+  private def loadDateDirectory(path: Path, database: MappingCollectDatabase, userMaps: Seq[Mapping], priorityMaps: Seq[ValidatedJiraPriorityMapping], statusMaps: Seq[ValidatedJiraStatusMapping]): Unit = {
     val jsonDirs = path.list.filter(_.isDirectory).toSeq
     jsonDirs.zipWithIndex.foreach {
       case (jsonDir, index) =>
@@ -37,7 +37,7 @@ class MappingConvertService @Inject()(implicit val issueWrites: IssueWrites,
     }
   }
 
-  private def convertIssue(database: MappingCollectDatabase, path: Path, index: Int, size: Int, userMaps: Seq[Mapping], priorityMaps: Seq[Mapping], statusMaps: Seq[ValidatedJiraStatusMapping]): Unit = {
+  private def convertIssue(database: MappingCollectDatabase, path: Path, index: Int, size: Int, userMaps: Seq[Mapping], priorityMaps: Seq[ValidatedJiraPriorityMapping], statusMaps: Seq[ValidatedJiraStatusMapping]): Unit = {
     BacklogUnmarshaller.issue(backlogPaths.issueJson(path)) match {
       case Some(issue: BacklogIssue) =>
         val converted = issue.copy(

@@ -24,7 +24,7 @@ case class CollectData(
       case _ => None
     }
 
-    users.foldLeft(Seq.empty[MappingUser]) { (acc, item) =>
+    users.toList.distinctBy(_.key).foldLeft(Seq.empty[MappingUser]) { (acc, item) =>
       item match {
         case u: ExistingMappingUser =>
           acc :+ u
