@@ -1,14 +1,17 @@
 package com.nulabinc.backlog.j2b
 
+import java.util.Locale
+
 import com.nulabinc.backlog.j2b.cli.J2BCli
 import com.nulabinc.backlog.j2b.conf.AppConfiguration
-import com.nulabinc.backlog.j2b.core.{ConfigParser, NextCommand}
-import com.nulabinc.backlog.j2b.dsl.{AppDSL, ConsoleDSL}
-import com.nulabinc.backlog.j2b.interpreters.{AsyncAppInterpreter, AsyncConsoleInterpreter}
+import com.nulabinc.backlog.j2b.core.{ConfigParser, GithubRelease, NextCommand}
 import com.nulabinc.backlog.j2b.utils.ClassVersion
 import com.nulabinc.backlog.migration.common.conf.BacklogConfiguration
+import com.nulabinc.backlog.migration.common.dsl.{AppDSL, ConsoleDSL, StorageDSL}
+import com.nulabinc.backlog.migration.common.interpreters.{JansiConsoleDSL, LocalStorageDSL, TaskAppDSL}
 import com.nulabinc.backlog.migration.common.utils.{ConsoleOut, Logging}
 import com.osinka.i18n.Messages
+import monix.eval.Task
 import monix.execution.Scheduler
 
 import scala.concurrent.duration.Duration
@@ -16,6 +19,11 @@ import scala.concurrent.Await
 
 
 object App extends BacklogConfiguration with Logging {
+
+  private implicit val appDSL: AppDSL[Task] = TaskAppDSL()
+  private implicit val storageDSL: StorageDSL[Task] = LocalStorageDSL()
+  private implicit val consoleDSL: ConsoleDSL[Task] = JansiConsoleDSL()
+  private implicit val exc: Scheduler = monix.execution.Scheduler.Implicits.global
 
   def main(args: Array[String]): Unit = {
 
@@ -33,38 +41,29 @@ object App extends BacklogConfiguration with Logging {
       case None => sys.exit(1)
     }
 
-
-    implicit val exc: Scheduler = monix.execution.Scheduler.Implicits.global
-
-    val interpreter = AsyncAppInterpreter(
-      consoleInterpreter = AsyncConsoleInterpreter()
-    )
-
     val program = for {
-      _ <- AppDSL.fromConsole(ConsoleDSL.print(startMessage(applicationName)))
-      latestVersion <- AppDSL.latestRelease()
-      _ <- if (latestVersion != versionName) AppDSL.fromConsole(ConsoleDSL.warn(notLatestMessage(latestVersion))) else AppDSL.empty
-      _ <- AppDSL.setLanguage(language)
+      _ <- consoleDSL.println(startMessage(applicationName))
+      latestVersion <- Task(GithubRelease.checkRelease())
+      _ <- if (latestVersion != versionName) consoleDSL.warnln(notLatestMessage(latestVersion)) else Task(())
+      _ = language match {
+        case "ja" => Locale.setDefault(Locale.JAPAN)
+        case "en" => Locale.setDefault(Locale.US)
+        case _    => Locale.setDefault(Locale.getDefault)
+      }
       _ <- config.commandType match {
         case Some(Config.ExportCommand) =>
-          AppDSL.export(config.getAppConfiguration, NextCommand.command(args))
+          J2BCli.`export`(config.getAppConfiguration, NextCommand.command(args))
         case Some(Config.ImportCommand) =>
-          AppDSL.`import`(config.getAppConfiguration)
+          J2BCli.`import`(config.getAppConfiguration)
         case _ =>
-          AppDSL.pure(J2BCli.help())
+          Task(Right(J2BCli.help()))
       }
     } yield ()
 
-    val cleanup = interpreter.terminate()
-
-    val f = interpreter
-      .run(program)
-      .flatMap(_ => cleanup)
-      .onErrorHandleWith { ex =>
-        cleanup.map { _ =>
-          logger.error(ex.getMessage, ex)
-          exit(1, ex)
-        }
+    val f = program
+      .onErrorRecover { ex =>
+        logger.error(ex.getMessage, ex)
+        exit(1, ex)
       }
       .runToFuture
 
