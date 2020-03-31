@@ -8,11 +8,11 @@ import com.nulabinc.backlog.j2b.conf.{AppConfigValidator, AppConfiguration, Conf
 import com.nulabinc.backlog.j2b.core.Finalizer
 import com.nulabinc.backlog.j2b.exporter.Exporter
 import com.nulabinc.backlog.j2b.jira.conf.{JiraApiConfiguration, JiraBacklogPaths}
-import com.nulabinc.backlog.j2b.jira.converter.MappingConverter
 import com.nulabinc.backlog.j2b.jira.domain.mapping._
+import com.nulabinc.backlog.j2b.mapping.converter.MappingConvertService
 import com.nulabinc.backlog.j2b.mapping.core.MappingDirectory
 import com.nulabinc.backlog.j2b.modules._
-import com.nulabinc.backlog.migration.common.conf.BacklogConfiguration
+import com.nulabinc.backlog.migration.common.conf.{BacklogConfiguration, BacklogPaths}
 import com.nulabinc.backlog.migration.common.domain.mappings.ValidatedStatusMapping
 import com.nulabinc.backlog.migration.common.dsl.{AppDSL, ConsoleDSL, StorageDSL}
 import com.nulabinc.backlog.migration.common.interpreters.{JansiConsoleDSL, LocalStorageDSL, TaskAppDSL}
@@ -108,9 +108,7 @@ object J2BCli extends BacklogConfiguration
     val backlogUserService      = backlogInjector.getInstance(classOf[BacklogUserService])
     val backlogPriorityService  = backlogInjector.getInstance(classOf[BacklogPriorityService])
     val backlogStatusService    = backlogInjector.getInstance(classOf[BacklogStatusService])
-
-    // Collect database
-    val database = jiraInjector.getInstance(classOf[MappingCollectDatabase])
+    val backlogPaths            = backlogInjector.getInstance(classOf[BacklogPaths])
 
     val result = for {
       _ <- checkJiraApiAccessible(config.jiraConfig).handleError
@@ -134,10 +132,11 @@ object J2BCli extends BacklogConfiguration
       //        mappingFileService.usersFromJson(jiraBacklogPaths.jiraUsersJson).foreach { user =>
       //          database.add(user)
       //        } // TODO users from db
+
       // Convert
-      val converter = jiraInjector.getInstance(classOf[MappingConverter])
+      val converter = new MappingConvertService(backlogPaths)
+
       converter.convert(
-        database      = database,
         userMaps      = userMappings.map(ValidatedJiraUserMapping.from),
         priorityMaps  = priorityMappings.map(ValidatedJiraPriorityMapping.from),
         statusMaps    = statusMappings.map(ValidatedJiraStatusMapping.from)

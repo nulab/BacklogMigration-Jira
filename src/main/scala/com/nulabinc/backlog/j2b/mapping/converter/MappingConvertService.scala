@@ -1,39 +1,36 @@
 package com.nulabinc.backlog.j2b.mapping.converter
 
 import better.files.{File => Path}
-import com.nulabinc.backlog.j2b.jira.converter._
-import com.nulabinc.backlog.j2b.jira.domain.mapping.{MappingCollectDatabase, ValidatedJiraPriorityMapping, ValidatedJiraStatusMapping, ValidatedJiraUserMapping}
+import com.nulabinc.backlog.j2b.jira.domain.mapping.{ValidatedJiraPriorityMapping, ValidatedJiraStatusMapping, ValidatedJiraUserMapping}
 import com.nulabinc.backlog.j2b.mapping.converter.writes._
 import com.nulabinc.backlog.migration.common.conf.{BacklogConstantValue, BacklogPaths}
 import com.nulabinc.backlog.migration.common.convert.{BacklogUnmarshaller, Convert}
 import com.nulabinc.backlog.migration.common.domain.{BacklogComment, BacklogIssue}
 import com.nulabinc.backlog.migration.common.formatters.BacklogJsonProtocol._
 import com.nulabinc.backlog.migration.common.utils.IOUtil
-import javax.inject.Inject
 import spray.json._
 
-class MappingConvertService @Inject()(implicit val issueWrites: IssueWrites,
-                                      implicit val commentWrites: CommentWrites,
-                                      implicit val userWrites: UserWrites,
-                                      priorityConverter: PriorityConverter,
-                                      backlogPaths: BacklogPaths) extends MappingConverter {
+class MappingConvertService(backlogPaths: BacklogPaths) {
 
   private val userConverter = new MappingUserConverter()
+  private val priorityConverter = new MappingPriorityConverter()
 
-  def convert(database: MappingCollectDatabase,
-              userMaps: Seq[ValidatedJiraUserMapping],
+  private implicit val issueWrites: IssueWrites = new IssueWrites()
+  private implicit val commentWrites: CommentWrites = new CommentWrites()
+  private implicit val userWrites: UserWrites = new UserWrites()
+
+  def convert(userMaps: Seq[ValidatedJiraUserMapping],
               priorityMaps: Seq[ValidatedJiraPriorityMapping],
               statusMaps: Seq[ValidatedJiraStatusMapping]): Unit = {
 
     val paths: Seq[Path] = IOUtil.directoryPaths(backlogPaths.issueDirectoryPath)
     paths.zipWithIndex.foreach {
       case (path, _) =>
-        loadDateDirectory(path, database, userMaps, priorityMaps, statusMaps)
+        loadDateDirectory(path, userMaps, priorityMaps, statusMaps)
     }
   }
 
   private def loadDateDirectory(path: Path,
-                                database: MappingCollectDatabase,
                                 userMaps: Seq[ValidatedJiraUserMapping],
                                 priorityMaps: Seq[ValidatedJiraPriorityMapping],
                                 statusMaps: Seq[ValidatedJiraStatusMapping]): Unit = {

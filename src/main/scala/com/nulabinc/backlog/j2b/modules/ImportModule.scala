@@ -18,12 +18,8 @@ class ImportModule(config: AppConfiguration) extends DefaultModule(config) {
     // Converter
     bind(classOf[PriorityConverter]).to(classOf[MappingPriorityConverter])
 
-    // Mapping-converter
-    bind(classOf[MappingConverter]).to(classOf[MappingConvertService])
-
     // Writer
     bind(classOf[ProjectUserWriter]).to(classOf[ProjectUserFileWriter])
-
 
   }
 }
