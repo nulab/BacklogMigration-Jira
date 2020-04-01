@@ -1,7 +1,6 @@
 package com.nulabinc.backlog.j2b.mapping.converter
 
-import com.nulabinc.backlog.j2b.jira.converter.UserConverter
-import com.nulabinc.backlog.j2b.jira.domain.mapping.{MappingCollectDatabase, ValidatedJiraUserMapping}
+import com.nulabinc.backlog.j2b.jira.domain.mapping.ValidatedJiraUserMapping
 import com.nulabinc.backlog.j2b.mapping.converter.writes.UserWrites
 import com.nulabinc.backlog.migration.common.convert.Convert
 import com.nulabinc.backlog.migration.common.domain.BacklogUser
@@ -9,10 +8,9 @@ import com.nulabinc.backlog.migration.common.domain.mappings.{BacklogUserMapping
 import com.nulabinc.backlog.migration.common.utils.{ConsoleOut, Logging}
 import com.osinka.i18n.Messages
 
-class MappingUserConverter()(implicit val userWrites: UserWrites)
-    extends UserConverter with Logging {
+class MappingUserConverter()(implicit val userWrites: UserWrites) extends Logging {
 
-  override def convert(mappings: Seq[ValidatedJiraUserMapping], user: BacklogUser): BacklogUser =
+  def convert(mappings: Seq[ValidatedJiraUserMapping], user: BacklogUser): BacklogUser =
     user.optUserId match {
       case Some(userId) =>
         Convert.toBacklog(mappingOfAccountId(mappings, userId))
@@ -23,7 +21,7 @@ class MappingUserConverter()(implicit val userWrites: UserWrites)
         throw new RuntimeException(Messages("convert.user.failed", user.name))
     }
 
-  override def convert(mappings: Seq[ValidatedJiraUserMapping], user: String): String =
+  def convert(mappings: Seq[ValidatedJiraUserMapping], user: String): String =
     mappingOfAccountId(mappings, user).dst.value
 
   private def mappingOfAccountId(mappings: Seq[ValidatedJiraUserMapping], accountId: String): ValidatedJiraUserMapping =

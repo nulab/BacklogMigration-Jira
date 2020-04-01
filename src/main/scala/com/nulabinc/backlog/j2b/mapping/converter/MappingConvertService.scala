@@ -13,7 +13,6 @@ import spray.json._
 class MappingConvertService(backlogPaths: BacklogPaths) {
 
   private val userConverter = new MappingUserConverter()
-  private val priorityConverter = new MappingPriorityConverter()
 
   private implicit val issueWrites: IssueWrites = new IssueWrites()
   private implicit val commentWrites: CommentWrites = new CommentWrites()
@@ -56,7 +55,7 @@ class MappingConvertService(backlogPaths: BacklogPaths) {
             optCreatedUser = issue.operation.optCreatedUser.map(userConverter.convert(userMaps, _)),
             optUpdatedUser = issue.operation.optUpdatedUser.map(userConverter.convert(userMaps, _))
           ),
-          priorityName = priorityConverter.convert(priorityMaps, issue.priorityName),
+          priorityName = MappingPriorityConverter.convert(priorityMaps, issue.priorityName),
           status = MappingStatusConverter.convert(statusMaps, issue.status)
         )
         IOUtil.output(backlogPaths.issueJson(path), Convert.toBacklog(converted).toJson.prettyPrint)
@@ -68,8 +67,8 @@ class MappingConvertService(backlogPaths: BacklogPaths) {
               optNewValue      = changeLog.optNewValue.map(MappingStatusConverter.convert(statusMaps, _)).map(_.name.trimmed)
             )
             case BacklogConstantValue.ChangeLog.PRIORITY => changeLog.copy(
-              optOriginalValue = changeLog.optOriginalValue.map(priorityConverter.convert(priorityMaps, _)),
-              optNewValue      = changeLog.optNewValue.map(priorityConverter.convert(priorityMaps, _))
+              optOriginalValue = changeLog.optOriginalValue.map(MappingPriorityConverter.convert(priorityMaps, _)),
+              optNewValue      = changeLog.optNewValue.map(MappingPriorityConverter.convert(priorityMaps, _))
             )
             case BacklogConstantValue.ChangeLog.ASSIGNER => changeLog.copy(
               optOriginalValue = changeLog.optOriginalValue.map(userConverter.convert(userMaps, _)),

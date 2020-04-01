@@ -8,7 +8,6 @@ import com.nulabinc.backlog.j2b.exporter.service.{JiraClientCommentService, Jira
 import com.nulabinc.backlog.j2b.jira.conf.{JiraApiConfiguration, JiraBacklogPaths}
 import com.nulabinc.backlog.j2b.jira.domain.JiraProjectKey
 import com.nulabinc.backlog.j2b.mapping.collector.MappingCollectDatabaseInMemory
-import com.nulabinc.backlog.j2b.mapping.converter.MappingPriorityConverter
 import com.nulabinc.backlog.j2b.mapping.converter.writes.UserWrites
 import com.nulabinc.backlog.j2b.mapping.file.MappingFileServiceImpl
 import com.nulabinc.backlog.migration.common.conf.BacklogApiConfiguration
@@ -48,8 +47,6 @@ trait TestHelper {
 
   // Mapping converter
   implicit val userWrites = new UserWrites
-  val priorityMappingConverter = new MappingPriorityConverter
-//  val userMappingConverter     = new MappingUserConverter()
 
   // Mapping database
   val database = new MappingCollectDatabaseInMemory
