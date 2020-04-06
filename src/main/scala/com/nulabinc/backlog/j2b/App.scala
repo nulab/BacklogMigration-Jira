@@ -16,8 +16,8 @@ import com.osinka.i18n.Messages
 import monix.eval.Task
 import monix.execution.Scheduler
 
-import scala.concurrent.duration.Duration
 import scala.concurrent.Await
+import scala.concurrent.duration.Duration
 
 
 object App extends BacklogConfiguration with Logging {
@@ -74,7 +74,6 @@ object App extends BacklogConfiguration with Logging {
             case e =>
               consoleDSL.errorln(e.toString)
           }
-          appDSL.pure(println(error))
 //        case Left(ConfirmCanceled) =>
 //          consoleDSL.errorln(Messages.)
       }

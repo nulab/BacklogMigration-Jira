@@ -13,7 +13,7 @@ import com.nulabinc.backlog.j2b.mapping.converter.MappingConvertService
 import com.nulabinc.backlog.j2b.mapping.core.MappingDirectory
 import com.nulabinc.backlog.j2b.modules._
 import com.nulabinc.backlog.migration.common.conf.{BacklogConfiguration, BacklogPaths}
-import com.nulabinc.backlog.migration.common.domain.mappings.ValidatedStatusMapping
+import com.nulabinc.backlog.migration.common.domain.mappings.{ValidatedPriorityMapping, ValidatedStatusMapping, ValidatedUserMapping}
 import com.nulabinc.backlog.migration.common.dsl.{AppDSL, ConsoleDSL, StorageDSL}
 import com.nulabinc.backlog.migration.common.interpreters.{JansiConsoleDSL, LocalStorageDSL, TaskAppDSL}
 import com.nulabinc.backlog.migration.common.messages.ConsoleMessages
@@ -126,7 +126,12 @@ object J2BCli extends BacklogConfiguration
         dstItems = backlogUserService.allUsers()
       ).mapError(MappingError).handleError
       projectKeys <- confirmProject(config, backlogInjector.getInstance(classOf[ProjectService])).handleError
-      _ <- showCurrentConfigs(projectKeys, statusMappings = statusMappings).handleError
+      _ <- showCurrentConfigs(
+        keys = projectKeys,
+        priorityMappings = priorityMappings,
+        statusMappings = statusMappings,
+        userMappings = userMappings
+      ).handleError
       _ <- finalConfirm(projectKeys).handleError
     } yield {
       //        mappingFileService.usersFromJson(jiraBacklogPaths.jiraUsersJson).foreach { user =>
@@ -195,10 +200,12 @@ object J2BCli extends BacklogConfiguration
   }
 
   private def showCurrentConfigs(keys: ConfirmedProjectKeys,
-                                 statusMappings: Seq[ValidatedStatusMapping[JiraStatusMappingItem]]): Task[Either[AppError, Unit]] = {
-    val userStr = ""
-    val priorityStr = ""
-    val statusStr = statusMappings.map(item => s"- ${item.src.display} => ${item.dst.value}")
+                                 priorityMappings: Seq[ValidatedPriorityMapping[JiraPriorityMappingItem]],
+                                 statusMappings: Seq[ValidatedStatusMapping[JiraStatusMappingItem]],
+                                 userMappings: Seq[ValidatedUserMapping[JiraUserMappingItem]]): Task[Either[AppError, Unit]] = {
+    val userStr = userMappings.map(item => toMappingRow(item.src.displayName, item.dst.value)).mkString("\n")
+    val priorityStr = priorityMappings.map(item => toMappingRow(item.src.value, item.dst.value)).mkString("\n")
+    val statusStr = statusMappings.map(item => s"- ${item.src.display} => ${item.dst.value}").mkString("\n")
 
     consoleDSL.println(s"""
                           |${Messages("cli.mapping.show", Messages("common.projects"))}
@@ -223,6 +230,9 @@ object J2BCli extends BacklogConfiguration
                           |""".stripMargin)
       .map(_ => Right(()))
   }
+
+  private def toMappingRow(src: String, dst: String): String =
+    s"- $src => $dst"
 
   private def finalConfirm(confirmedProjectKeys: ConfirmedProjectKeys): Task[Either[AppError, Unit]] =
     for {

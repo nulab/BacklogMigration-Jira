@@ -97,6 +97,7 @@ cli.mapping.fix_file="{0}" needs to be fixed.\nTo recreate, run the sub-command 
 cli.mapping.show=The mapping {0} is as follows.
 cli.mapping.error=The mapping of {0} has the following error.
 cli.mapping.configurable=The values accepted for {0} in Backlog are "{1}".
+cli.mapping.error.invalid_choice=Invalid input [{1}]. Acceptable values are [{0}].
 cli.mapping.error.not_exist.item=The {0}[{1}] is not registered in destination {2}.
 cli.mapping.error.not_defined.item={0} [{1}] required for migration is not defined in mapping file [{2}].
 cli.mapping.error.empty.item=Corresponding item for {0} "{1}" in {2} is not specified.
