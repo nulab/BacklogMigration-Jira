@@ -7,7 +7,9 @@ case class JiraPriorityMappingItem(value: String)
 case class ValidatedJiraPriorityMapping(
   src: JiraPriorityMappingItem,
   dst: BacklogPriorityMappingItem
-) extends ValidatedPriorityMapping[JiraPriorityMappingItem]
+) extends ValidatedPriorityMapping[JiraPriorityMappingItem] {
+  override val srcDisplayValue: String = src.value
+}
 
 object ValidatedJiraPriorityMapping {
   def from(mapping: ValidatedPriorityMapping[JiraPriorityMappingItem]): ValidatedJiraPriorityMapping =

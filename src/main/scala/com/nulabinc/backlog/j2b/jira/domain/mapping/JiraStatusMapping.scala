@@ -7,7 +7,9 @@ case class JiraStatusMappingItem(value: String, display: String)
 case class ValidatedJiraStatusMapping(
   src: JiraStatusMappingItem,
   dst: BacklogStatusMappingItem
-) extends ValidatedStatusMapping[JiraStatusMappingItem]
+) extends ValidatedStatusMapping[JiraStatusMappingItem] {
+  override val srcDisplayValue: String = src.display
+}
 
 object ValidatedJiraStatusMapping {
   def from(mapping: ValidatedStatusMapping[JiraStatusMappingItem]): ValidatedJiraStatusMapping =

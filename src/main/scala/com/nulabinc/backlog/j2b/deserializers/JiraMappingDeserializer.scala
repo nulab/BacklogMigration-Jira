@@ -9,12 +9,14 @@ object JiraMappingDeserializer {
   implicit val statusDeserializer: Deserializer[CSVRecord, StatusMapping[JiraStatusMappingItem]] =
     (record: CSVRecord) => new StatusMapping[JiraStatusMappingItem] {
       override val src: JiraStatusMappingItem = JiraStatusMappingItem(record.get(0), record.get(0))
+      override val srcDisplayValue: String = src.display
       override val optDst: Option[BacklogStatusMappingItem] = Option(record.get(1)).map(s => BacklogStatusMappingItem(s))
     }
 
   implicit val priorityDeserializer: Deserializer[CSVRecord, PriorityMapping[JiraPriorityMappingItem]] =
     (record: CSVRecord) => new PriorityMapping[JiraPriorityMappingItem] {
       override val src: JiraPriorityMappingItem = JiraPriorityMappingItem(record.get(0))
+      override val srcDisplayValue: String = src.value
       override val optDst: Option[BacklogPriorityMappingItem] = Option(record.get(1)).map(p => BacklogPriorityMappingItem(p))
     }
 
@@ -22,6 +24,8 @@ object JiraMappingDeserializer {
     (record: CSVRecord) => new UserMapping[JiraUserMappingItem] {
       override val src: JiraUserMappingItem =
         JiraUserMappingItem(record.get(0), record.get(1))
+      override val srcDisplayValue: String =
+        src.displayName
       override val optDst: Option[BacklogUserMappingItem] =
         Option(record.get(2)).map(BacklogUserMappingItem)
       override val mappingType: String =

@@ -14,7 +14,9 @@ case class ValidatedJiraUserMapping(
   src: JiraUserMappingItem,
   dst: BacklogUserMappingItem,
   mappingType: UserMappingType
-) extends ValidatedUserMapping[JiraUserMappingItem]
+) extends ValidatedUserMapping[JiraUserMappingItem] {
+  override val srcDisplayValue: String = src.displayName
+}
 
 object ValidatedJiraUserMapping {
   def from(mapping: ValidatedUserMapping[JiraUserMappingItem]): ValidatedJiraUserMapping =

@@ -8,7 +8,9 @@ import com.nulabinc.backlog.j2b.core.{ConfigParser, GithubRelease, NextCommand}
 import com.nulabinc.backlog.j2b.utils.ClassVersion
 import com.nulabinc.backlog.migration.common.conf.BacklogConfiguration
 import com.nulabinc.backlog.migration.common.dsl.{AppDSL, ConsoleDSL, StorageDSL}
+import com.nulabinc.backlog.migration.common.errors.{MappingFileNotFound, MappingValidationError}
 import com.nulabinc.backlog.migration.common.interpreters.{JansiConsoleDSL, LocalStorageDSL, TaskAppDSL}
+import com.nulabinc.backlog.migration.common.messages.ConsoleMessages
 import com.nulabinc.backlog.migration.common.utils.{ConsoleOut, Logging}
 import com.osinka.i18n.Messages
 import monix.eval.Task
@@ -58,12 +60,25 @@ object App extends BacklogConfiguration with Logging {
         case _ =>
           Task(Right(J2BCli.help()))
       }
-    } yield {
-      result match {
-        case Right(value) => ()
-        case Left(error: MappingError) => println(error.toString)
+      _ <- result match {
+        case Right(_) =>
+          appDSL.pure(())
+//        case Left(error: ParameterError) => ()
+//        case Left(CannotAccessToJira) => ()
+        case Left(error: MappingError) =>
+          error.inner match {
+            case e: MappingFileNotFound =>
+              appDSL.pure(())
+            case e: MappingValidationError[_] =>
+              consoleDSL.errorln(ConsoleMessages.Mappings.validationError(e))
+            case e =>
+              consoleDSL.errorln(e.toString)
+          }
+          appDSL.pure(println(error))
+//        case Left(ConfirmCanceled) =>
+//          consoleDSL.errorln(Messages.)
       }
-    }
+    } yield ()
 
     val f = program
       .onErrorRecover { ex =>
@@ -98,12 +113,12 @@ object App extends BacklogConfiguration with Logging {
 
   private def configurationMessage(conf: AppConfiguration): String =
     s"""--------------------------------------------------
-       |${Messages("common.jira")} ${Messages("common.username")}[${conf.jiraUsername}]
-       |${Messages("common.jira")} ${Messages("common.url")}[${conf.jiraUrl}]
-       |${Messages("common.jira")} ${Messages("common.project_key")}[${conf.jiraKey}]
-       |${Messages("common.backlog")} ${Messages("common.url")}[${conf.backlogUrl}]
-       |${Messages("common.backlog")} ${Messages("common.access_key")}[${conf.backlogKey}]
-       |${Messages("common.backlog")} ${Messages("common.project_key")}[${conf.backlogKey}]
+       |${Messages("common.src")} ${Messages("common.username")}[${conf.jiraUsername}]
+       |${Messages("common.src")} ${Messages("common.url")}[${conf.jiraUrl}]
+       |${Messages("common.src")} ${Messages("common.project_key")}[${conf.jiraKey}]
+       |${Messages("common.dst")} ${Messages("common.url")}[${conf.backlogUrl}]
+       |${Messages("common.dst")} ${Messages("common.access_key")}[${conf.backlogKey}]
+       |${Messages("common.dst")} ${Messages("common.project_key")}[${conf.backlogKey}]
        |https.proxyHost[${Option(System.getProperty("https.proxyHost")).getOrElse("")}]
        |https.proxyPort[${Option(System.getProperty("https.proxyPort")).getOrElse("")}]
        |https.proxyUser[${Option(System.getProperty("https.proxyUser")).getOrElse("")}]
