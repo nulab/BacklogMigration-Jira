@@ -4,10 +4,10 @@ import java.io.File
 
 import com.google.inject.Guice
 import com.nulabinc.backlog.j2b._
-import com.nulabinc.backlog.j2b.conf.{AppConfigValidator, AppConfiguration, ConfigValidateFailure}
+import com.nulabinc.backlog.j2b.conf.{AppConfigValidator, AppConfiguration}
 import com.nulabinc.backlog.j2b.core.Finalizer
 import com.nulabinc.backlog.j2b.exporter.Exporter
-import com.nulabinc.backlog.j2b.jira.conf.{JiraApiConfiguration, JiraBacklogPaths}
+import com.nulabinc.backlog.j2b.jira.conf.JiraBacklogPaths
 import com.nulabinc.backlog.j2b.jira.domain.mapping._
 import com.nulabinc.backlog.j2b.mapping.converter.MappingConvertService
 import com.nulabinc.backlog.j2b.mapping.core.MappingDirectory
@@ -55,7 +55,7 @@ object J2BCli extends BacklogConfiguration
     val exporter                = jiraInjector.getInstance(classOf[Exporter])
 
     val result = for {
-      _ <- checkJiraApiAccessible(config.jiraConfig).handleError
+//      _ <- checkJiraApiAccessible(config.jiraConfig).handleError
       _ <- validateConfig(config, jiraInjector.getInstance(classOf[JiraRestClient]), backlogInjector.getInstance(classOf[SpaceService])).handleError
       _ = startExportMessage()
     } yield {
@@ -111,7 +111,7 @@ object J2BCli extends BacklogConfiguration
     val backlogPaths            = backlogInjector.getInstance(classOf[BacklogPaths])
 
     val result = for {
-      _ <- checkJiraApiAccessible(config.jiraConfig).handleError
+//      _ <- checkJiraApiAccessible(config.jiraConfig).handleError
       _ <- validateConfig(config, jiraInjector.getInstance(classOf[JiraRestClient]), spaceService).handleError
       priorityMappings <- PriorityMappingFileService.execute[JiraPriorityMappingItem, Task](
         path = new File(MappingDirectory.PRIORITY_MAPPING_FILE).getAbsoluteFile.toPath,
@@ -163,21 +163,6 @@ object J2BCli extends BacklogConfiguration
     }
 
     result.value
-  }
-
-  private def checkJiraApiAccessible(config: JiraApiConfiguration): Task[Either[AppError, Unit]] = {
-    // Check JIRA configuration is correct. Before creating injector.
-    val jiraClient = JiraRestClient(config.url, config.username, config.apiKey)
-
-    AppConfigValidator.validateConfigJira(jiraClient) match {
-      case ConfigValidateFailure(failure) =>
-        ConsoleDSL[Task].println(Messages("cli.param.error.disable.access.jira", Messages("common.src"))).map { _ =>
-          logger.error(failure)
-          Left(CannotAccessToJira)
-        }
-      case _ =>
-        AppDSL[Task].pure(Right(()))
-    }
   }
 
   private def confirmProject(config: AppConfiguration, projectService: ProjectService): Task[Either[AppError, ConfirmedProjectKeys]] = {
@@ -237,15 +222,7 @@ object J2BCli extends BacklogConfiguration
   private def finalConfirm(confirmedProjectKeys: ConfirmedProjectKeys): Task[Either[AppError, Unit]] =
     for {
       input <- ConsoleDSL[Task].read(Messages("cli.confirm"))
-      result <- if (input.toLowerCase == "y") {
-        appDSL.pure(Right(()))
-      } else {
-        ConsoleDSL[Task].println(
-          s"""
-             |--------------------------------------------------
-             |${Messages("cli.cancel")}""".stripMargin)
-        .map(_ => Left(ConfirmCanceled))
-      }
+      result = if (input.toLowerCase == "y") Right(()) else Left(ConfirmCanceled)
     } yield result
 
   private def validateConfig(config: AppConfiguration, jiraRestClient: JiraRestClient, spaceService: SpaceService): Task[Either[AppError, Unit]] = {

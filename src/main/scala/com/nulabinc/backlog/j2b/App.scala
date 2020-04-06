@@ -63,19 +63,19 @@ object App extends BacklogConfiguration with Logging {
       _ <- result match {
         case Right(_) =>
           appDSL.pure(())
-//        case Left(error: ParameterError) => ()
-//        case Left(CannotAccessToJira) => ()
+        case Left(_: ParameterError) =>
+          appDSL.pure(()) // TODO: refactor AppConfigValidator
         case Left(error: MappingError) =>
           error.inner match {
-            case e: MappingFileNotFound =>
-              appDSL.pure(())
+            case _: MappingFileNotFound =>
+              consoleDSL.errorln(ConsoleMessages.Mappings.needsSetup)
             case e: MappingValidationError[_] =>
               consoleDSL.errorln(ConsoleMessages.Mappings.validationError(e))
             case e =>
               consoleDSL.errorln(e.toString)
           }
-//        case Left(ConfirmCanceled) =>
-//          consoleDSL.errorln(Messages.)
+        case Left(ConfirmCanceled) =>
+          consoleDSL.errorln(ConsoleMessages.confirmCanceled)
       }
     } yield ()
 
