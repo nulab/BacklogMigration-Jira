@@ -9,7 +9,6 @@ import com.nulabinc.backlog.j2b.jira.conf.{JiraApiConfiguration, JiraBacklogPath
 import com.nulabinc.backlog.j2b.jira.domain.JiraProjectKey
 import com.nulabinc.backlog.j2b.mapping.collector.MappingCollectDatabaseInMemory
 import com.nulabinc.backlog.j2b.mapping.converter.writes.UserWrites
-import com.nulabinc.backlog.j2b.mapping.file.MappingFileServiceImpl
 import com.nulabinc.backlog.migration.common.conf.BacklogApiConfiguration
 import com.nulabinc.backlog.migration.common.modules.{ServiceInjector => BacklogInjector}
 import com.nulabinc.backlog.migration.common.service.{PriorityService => BacklogPriorityService, StatusService => BacklogStatusService, UserService => BacklogUserService}
@@ -35,15 +34,6 @@ trait TestHelper {
 
   // Mapping file
   val jiraBacklogPaths   = new JiraBacklogPaths(appConfig.backlogConfig.projectKey)
-  val mappingFileService = new MappingFileServiceImpl(appConfig.backlogConfig)
-  val statusMappingFile   = mappingFileService.createStatusesMappingFileFromJson(jiraBacklogPaths.jiraStatusesJson,  backlogStatusService.allStatuses())
-  val priorityMappingFile = mappingFileService.createPrioritiesMappingFileFromJson(jiraBacklogPaths.jiraPrioritiesJson, backlogPriorityService.allPriorities())
-  val userMappingFile     = mappingFileService.createUserMappingFileFromJson(jiraBacklogPaths.jiraUsersJson, backlogUserService.allUsers())
-
-  // Mappings
-  val priorityMappings = priorityMappingFile.tryUnMarshal()
-  val statusMappings   = statusMappingFile.tryUnMarshal()
-  val userMappings     = userMappingFile.tryUnMarshal()
 
   // Mapping converter
   implicit val userWrites = new UserWrites

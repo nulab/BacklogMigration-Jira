@@ -54,7 +54,6 @@ class CompareSpec extends FlatSpec
       implicit val backlogUserWrites: UserWrites = new UserWrites()
 
       val backlogUsers    = backlogApi.getProjectUsers(backlogConfig.projectKey).asScala
-      val userMappingFile = mappingFileService.createUserMappingFileFromJson(jiraBacklogPaths.jiraUsersJson, backlogUsers.map(Convert.toBacklog(_)).toSeq)
       val jiraUsers       = userMappingFile.tryUnMarshal()
 
       jiraUsers.foreach { jiraUser =>
