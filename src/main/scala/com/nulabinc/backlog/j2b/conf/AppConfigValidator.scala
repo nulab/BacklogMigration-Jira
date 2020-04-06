@@ -41,37 +41,37 @@ object AppConfigValidator extends Logging {
     else ConfigValidateFailure(s"- ${Messages("cli.param.error.project_key", projectKey)}")
 
   def validateConfigJira(jiraRestClient: JiraRestClient): ConfigValidateResult = {
-    ConsoleOut.println(Messages("cli.param.check.access", Messages("common.jira")))
+    ConsoleOut.println(Messages("cli.param.check.access", Messages("common.src")))
 
     jiraRestClient.myself() match {
       case Right(_) =>
-        ConsoleOut.println(Messages("cli.param.ok.access", Messages("common.jira")))
+        ConsoleOut.println(Messages("cli.param.ok.access", Messages("common.src")))
         ConfigValidateSuccess
       case Left(error: HttpError) =>
         logger.error(error.message, jiraRestClient.url)
         error.clientError match {
-          case AuthenticateFailedError => ConfigValidateFailure(s"- ${Messages("cli.param.error.auth", Messages("common.jira"))}")
+          case AuthenticateFailedError => ConfigValidateFailure(s"- ${Messages("cli.param.error.auth", Messages("common.src"))}")
           case unknown                 => ConfigValidateFailure(s"- ${Messages("cli.param.error.client.unknown", unknown.message)}")
         }
       case Left(e) =>
         logger.error(e.message, e)
-        ConfigValidateFailure(s"- ${Messages("cli.param.error.disable.access.jira", Messages("common.jira"))}")
+        ConfigValidateFailure(s"- ${Messages("cli.param.error.disable.access.jira", Messages("common.src"))}")
     }
   }
 
   def validateConfigBacklog(spaceService: SpaceService, config: BacklogApiConfiguration): ConfigValidateResult = {
-    ConsoleOut.println(Messages("cli.param.check.access", Messages("common.backlog")))
+    ConsoleOut.println(Messages("cli.param.check.access", Messages("common.dst")))
     try {
       spaceService.space()
-      ConsoleOut.println(Messages("cli.param.ok.access", Messages("common.backlog")))
+      ConsoleOut.println(Messages("cli.param.ok.access", Messages("common.dst")))
       ConfigValidateSuccess
     } catch {
       case unknown: BacklogAPIException if unknown.getStatusCode == 404 =>
         logger.error(unknown.getMessage, unknown)
-        ConfigValidateFailure(s"- ${Messages("cli.param.error.disable.host", Messages("common.backlog"), config.url)}")
+        ConfigValidateFailure(s"- ${Messages("cli.param.error.disable.host", Messages("common.dst"), config.url)}")
       case e: Throwable =>
         logger.error(e.getMessage, e)
-        ConfigValidateFailure(s"- ${Messages("cli.param.error.disable.access.backlog", Messages("common.backlog"))}")
+        ConfigValidateFailure(s"- ${Messages("cli.param.error.disable.access.backlog", Messages("common.dst"))}")
     }
   }
 

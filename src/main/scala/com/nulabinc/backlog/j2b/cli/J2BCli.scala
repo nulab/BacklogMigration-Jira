@@ -166,7 +166,7 @@ object J2BCli extends BacklogConfiguration
 
     AppConfigValidator.validateConfigJira(jiraClient) match {
       case ConfigValidateFailure(failure) =>
-        ConsoleDSL[Task].println(Messages("cli.param.error.disable.access.jira", Messages("common.jira"))).map { _ =>
+        ConsoleDSL[Task].println(Messages("cli.param.error.disable.access.jira", Messages("common.src"))).map { _ =>
           logger.error(failure)
           Left(CannotAccessToJira)
         }

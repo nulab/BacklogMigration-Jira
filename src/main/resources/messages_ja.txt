@@ -1,8 +1,8 @@
 # -----------------------------------------------------------------------------
 # Common
 # -----------------------------------------------------------------------------
-common.backlog=Backlog
-common.jira=JIRA
+common.dst=Backlog
+common.src=JIRA
 common.projects=プロジェクト
 common.users=ユーザー
 common.statuses=ステータス
