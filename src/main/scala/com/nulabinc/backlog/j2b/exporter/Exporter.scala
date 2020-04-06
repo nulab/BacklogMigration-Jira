@@ -183,8 +183,16 @@ class Exporter @Inject()(projectKey: JiraProjectKey,
           } yield {
             changelogItem.fieldId match {
               case Some(AssigneeFieldId) =>
-                changelogItem.from.foreach(str => ChangeLogMappingUser(str, changelogItem.fromDisplayString.getOrElse("")))
-                changelogItem.to.foreach(str => ChangeLogMappingUser(str, changelogItem.toDisplayString.getOrElse("")))
+                changelogItem.from.foreach { str =>
+                  mappingCollectDatabase.addChangeLogUser(
+                    ChangeLogMappingUser(str, changelogItem.fromDisplayString.getOrElse(""))
+                  )
+                }
+                changelogItem.to.foreach { str =>
+                  mappingCollectDatabase.addChangeLogUser(
+                    ChangeLogMappingUser(str, changelogItem.toDisplayString.getOrElse(""))
+                  )
+                }
               case _ =>
                 ()
             }

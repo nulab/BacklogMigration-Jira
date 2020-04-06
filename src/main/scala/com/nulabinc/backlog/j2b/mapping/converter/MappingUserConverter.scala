@@ -8,7 +8,9 @@ import com.nulabinc.backlog.migration.common.domain.mappings.{BacklogUserMapping
 import com.nulabinc.backlog.migration.common.utils.{ConsoleOut, Logging}
 import com.osinka.i18n.Messages
 
-class MappingUserConverter()(implicit val userWrites: UserWrites) extends Logging {
+class MappingUserConverter() extends Logging {
+
+  private implicit val userWrites: UserWrites = new UserWrites()
 
   def convert(mappings: Seq[ValidatedJiraUserMapping], user: BacklogUser): BacklogUser =
     user.optUserId match {
