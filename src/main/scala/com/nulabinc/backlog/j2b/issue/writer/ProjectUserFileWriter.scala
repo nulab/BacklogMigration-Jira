@@ -13,7 +13,7 @@ class ProjectUserFileWriter @Inject()(implicit val userWrites: UserWrites,
 
 
   override def write(users: Seq[BacklogUser]) = {
-    import com.nulabinc.backlog.migration.common.domain.BacklogJsonProtocol._
+    import com.nulabinc.backlog.migration.common.formatters.BacklogJsonProtocol._
     IOUtil.output(backlogPaths.projectUsersJson   , BacklogProjectUsersWrapper(users).toJson.prettyPrint)
     Right(users)
   }

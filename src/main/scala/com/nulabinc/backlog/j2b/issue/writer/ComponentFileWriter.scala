@@ -13,7 +13,7 @@ import spray.json._
 class ComponentFileWriter @Inject()(implicit val issueCategoriesWrites: ComponentWrites,
                                     backlogPaths: BacklogPaths) extends ComponentWriter {
 
-  import com.nulabinc.backlog.migration.common.domain.BacklogJsonProtocol.BacklogIssueCategoriesWrapperFormat
+  import com.nulabinc.backlog.migration.common.formatters.BacklogJsonProtocol.BacklogIssueCategoriesWrapperFormat
 
   override def write(categories: Seq[Component]) = {
     val backlogCategories = Convert.toBacklog(categories)

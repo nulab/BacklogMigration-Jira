@@ -4,7 +4,7 @@ import better.files.{File => Path}
 import com.nulabinc.backlog.j2b.jira.domain.mapping.MappingFile
 import com.nulabinc.backlog.j2b.jira.service.MappingFileService
 import com.nulabinc.backlog.migration.common.conf.BacklogApiConfiguration
-import com.nulabinc.backlog.migration.common.domain.BacklogUser
+import com.nulabinc.backlog.migration.common.domain.{BacklogStatuses, BacklogUser}
 import com.nulabinc.backlog.migration.common.utils.IOUtil
 import com.nulabinc.backlog4j.{Priority => BacklogPriority, Status => BacklogStatus}
 import com.nulabinc.jira.client.domain.{Priority => JiraPriority, Status => JiraStatus, User => JiraUser}
@@ -20,7 +20,7 @@ class MappingFileServiceImpl @Inject()(backlogApiConfig: BacklogApiConfiguration
   override def createPriorityMappingFile(jiraPriorities: Seq[JiraPriority], backlogPriorities: Seq[BacklogPriority]): MappingFile =
     new PriorityMappingFile(jiraPriorities, backlogPriorities)
 
-  override def createStatusMappingFile(jiraStatuses: Seq[JiraStatus], backlogStatuses: Seq[BacklogStatus]): MappingFile =
+  override def createStatusMappingFile(jiraStatuses: Seq[JiraStatus], backlogStatuses: BacklogStatuses): MappingFile =
     new StatusMappingFile(jiraStatuses, backlogStatuses)
 
   override def createUserMappingFileFromJson(jiraUsersFilePath: Path, backlogUsers: Seq[BacklogUser]): MappingFile =
@@ -33,7 +33,7 @@ class MappingFileServiceImpl @Inject()(backlogApiConfig: BacklogApiConfiguration
     new PriorityMappingFile(jiraPriorities, backlogPriorities)
   }
 
-  override def createStatusesMappingFileFromJson(jiraStatusesFilePath: Path, backlogStatuses: Seq[BacklogStatus]): StatusMappingFile = {
+  override def createStatusesMappingFileFromJson(jiraStatusesFilePath: Path, backlogStatuses: BacklogStatuses): StatusMappingFile = {
     import com.nulabinc.jira.client.json.StatusMappingJsonProtocol._
     val jiraStatuses = JsonParser(IOUtil.input(jiraStatusesFilePath).get).convertTo[Seq[JiraStatus]]
 

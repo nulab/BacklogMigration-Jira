@@ -6,7 +6,7 @@ import com.nulabinc.backlog.j2b.jira.domain.mapping.{Mapping, MappingCollectData
 import com.nulabinc.backlog.j2b.mapping.converter.writes._
 import com.nulabinc.backlog.migration.common.conf.{BacklogConstantValue, BacklogPaths}
 import com.nulabinc.backlog.migration.common.convert.{BacklogUnmarshaller, Convert}
-import com.nulabinc.backlog.migration.common.domain.BacklogJsonProtocol._
+import com.nulabinc.backlog.migration.common.formatters.BacklogJsonProtocol._
 import com.nulabinc.backlog.migration.common.domain.{BacklogComment, BacklogIssue}
 import com.nulabinc.backlog.migration.common.utils.IOUtil
 import javax.inject.Inject

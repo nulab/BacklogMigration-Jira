@@ -7,7 +7,7 @@ import com.nulabinc.backlog.j2b.jira.service.IssueService
 import com.nulabinc.backlog.j2b.jira.writer.IssueWriter
 import com.nulabinc.backlog.migration.common.conf.BacklogPaths
 import com.nulabinc.backlog.migration.common.domain.BacklogIssue
-import com.nulabinc.backlog.migration.common.domain.BacklogJsonProtocol._
+import com.nulabinc.backlog.migration.common.formatters.BacklogJsonProtocol._
 import com.nulabinc.backlog.migration.common.utils.IOUtil
 import javax.inject.Inject
 import spray.json._

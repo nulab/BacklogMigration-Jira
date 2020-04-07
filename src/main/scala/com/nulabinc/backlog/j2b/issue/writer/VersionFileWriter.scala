@@ -14,7 +14,7 @@ import spray.json._
 class VersionFileWriter @Inject()(implicit val versionsWrites: VersionWrites,
                                   backlogPaths: BacklogPaths) extends VersionWriter {
 
-  import com.nulabinc.backlog.migration.common.domain.BacklogJsonProtocol.BacklogVersionsWrapperFormat
+  import com.nulabinc.backlog.migration.common.formatters.BacklogJsonProtocol.BacklogVersionsWrapperFormat
 
   override def write(versions: Seq[Version], milestones: Seq[Milestone]) = {
     val convertedMilestones = milestones.map { milestone =>

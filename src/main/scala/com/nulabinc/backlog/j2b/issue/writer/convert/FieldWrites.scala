@@ -17,7 +17,7 @@ class FieldWrites extends Writes[FieldDefinitions, Seq[BacklogCustomFieldSetting
       .map { field =>
         BacklogCustomFieldSetting(
           optId                 = Some(field.id.replace("customfield_", "").toLong),
-          name                  = field.name,
+          rawName               = field.name,
           description           = "",
           typeId                = field.schema.backlogFieldType.getIntValue,
           required              = false,

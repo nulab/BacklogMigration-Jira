@@ -1,11 +1,13 @@
 package com.nulabinc.backlog.j2b.modules
 
+import com.google.inject.TypeLiteral
 import com.nulabinc.backlog.j2b.conf.AppConfiguration
 import com.nulabinc.backlog.j2b.exporter.{CommentFileWriter, IssueFileWriter}
 import com.nulabinc.backlog.j2b.exporter.service._
 import com.nulabinc.backlog.j2b.issue.writer._
 import com.nulabinc.backlog.j2b.jira.service._
 import com.nulabinc.backlog.j2b.jira.writer._
+import monix.eval.Task
 
 class ExportModule(config: AppConfiguration) extends DefaultModule(config) {
 
@@ -22,7 +24,7 @@ class ExportModule(config: AppConfiguration) extends DefaultModule(config) {
     bind(classOf[CommentWriter]).to(classOf[CommentFileWriter])
 
     // Exporter
-    bind(classOf[ProjectService]).to(classOf[JiraClientProjectService])
+    bind(new TypeLiteral[ProjectService[Task]] {}).to(classOf[JiraClientProjectService])
     bind(classOf[CategoryService]).to(classOf[JiraClientCategoryService])
     bind(classOf[VersionService]).to(classOf[JiraClientVersionService])
     bind(classOf[IssueTypeService]).to(classOf[JiraClientIssueTypeService])

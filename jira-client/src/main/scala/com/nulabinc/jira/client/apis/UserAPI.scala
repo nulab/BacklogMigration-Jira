@@ -2,7 +2,7 @@ package com.nulabinc.jira.client.apis
 
 import java.net.URLEncoder
 
-import com.netaporter.uri.dsl._
+import io.lemonlabs.uri.dsl._
 import com.nulabinc.jira.client._
 import com.nulabinc.jira.client.domain.User
 import spray.json.JsonParser
