@@ -8,7 +8,7 @@ import com.nulabinc.backlog.migration.common.domain.mappings.{BacklogUserMapping
 import com.nulabinc.backlog.migration.common.utils.{ConsoleOut, Logging}
 import com.osinka.i18n.Messages
 
-class MappingUserConverter() extends Logging {
+object MappingUserConverter extends Logging {
 
   private implicit val userWrites: UserWrites = new UserWrites()
 

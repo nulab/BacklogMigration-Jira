@@ -9,8 +9,6 @@ import com.nulabinc.backlog.j2b.jira.domain.{FieldConverter, IssueFieldConverter
 import com.nulabinc.backlog.j2b.mapping.core.MappingDirectory
 import com.nulabinc.backlog.migration.common.conf.{BacklogApiConfiguration, BacklogConstantValue}
 import com.nulabinc.backlog.migration.common.convert.writes.UserWrites
-import com.nulabinc.backlog.migration.common.dsl.{AppDSL, ConsoleDSL, StorageDSL}
-import com.nulabinc.backlog.migration.common.interpreters.{JansiConsoleDSL, LocalStorageDSL, TaskAppDSL}
 import com.nulabinc.backlog.migration.common.services.UserMappingFileService
 import com.nulabinc.backlog4j.api.option.{GetIssuesParams, QueryParams}
 import com.nulabinc.backlog4j.internal.json.customFields._
@@ -20,6 +18,7 @@ import integration.helper.{DateFormatter, TestHelper}
 import integration.matchers.{DateMatcher, UserMatcher}
 import monix.eval.Task
 import monix.execution.Scheduler.Implicits.global
+
 import org.scalatest.{DiagrammedAssertions, FlatSpec, Matchers}
 
 import scala.collection.JavaConverters._
@@ -34,10 +33,6 @@ class CompareSpec extends FlatSpec
     with DateMatcher {
 
   import com.nulabinc.backlog.j2b.deserializers.JiraMappingDeserializer._
-
-  private implicit val appDSL: AppDSL[Task] = TaskAppDSL()
-  private implicit val storageDSL: StorageDSL[Task] = LocalStorageDSL()
-  private implicit val consoleDSL: ConsoleDSL[Task] = JansiConsoleDSL()
 
   val jiraCustomFieldDefinitions: Seq[Field] = FieldConverter.toExportField(jiraRestApi.fieldAPI.all().right.get)
   val backlogCustomFieldDefinitions: mutable.Seq[CustomFieldSetting] = backlogApi.getCustomFields(appConfig.backlogConfig.projectKey).asScala

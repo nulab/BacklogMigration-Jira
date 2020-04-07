@@ -12,8 +12,6 @@ import spray.json._
 
 class MappingConvertService(backlogPaths: BacklogPaths) {
 
-  private val userConverter = new MappingUserConverter()
-
   private implicit val issueWrites: IssueWrites = new IssueWrites()
   private implicit val commentWrites: CommentWrites = new CommentWrites()
   private implicit val userWrites: UserWrites = new UserWrites()
@@ -49,11 +47,11 @@ class MappingConvertService(backlogPaths: BacklogPaths) {
     BacklogUnmarshaller.issue(backlogPaths.issueJson(path)) match {
       case Some(issue: BacklogIssue) =>
         val converted = issue.copy(
-          optAssignee = issue.optAssignee.map(userConverter.convert(userMaps, _)),
-          notifiedUsers = issue.notifiedUsers.map(userConverter.convert(userMaps, _)),
+          optAssignee = issue.optAssignee.map(MappingUserConverter.convert(userMaps, _)),
+          notifiedUsers = issue.notifiedUsers.map(MappingUserConverter.convert(userMaps, _)),
           operation = issue.operation.copy(
-            optCreatedUser = issue.operation.optCreatedUser.map(userConverter.convert(userMaps, _)),
-            optUpdatedUser = issue.operation.optUpdatedUser.map(userConverter.convert(userMaps, _))
+            optCreatedUser = issue.operation.optCreatedUser.map(MappingUserConverter.convert(userMaps, _)),
+            optUpdatedUser = issue.operation.optUpdatedUser.map(MappingUserConverter.convert(userMaps, _))
           ),
           priorityName = MappingPriorityConverter.convert(priorityMaps, issue.priorityName),
           status = MappingStatusConverter.convert(statusMaps, issue.status)
@@ -71,15 +69,15 @@ class MappingConvertService(backlogPaths: BacklogPaths) {
               optNewValue      = changeLog.optNewValue.map(MappingPriorityConverter.convert(priorityMaps, _))
             )
             case BacklogConstantValue.ChangeLog.ASSIGNER => changeLog.copy(
-              optOriginalValue = changeLog.optOriginalValue.map(userConverter.convert(userMaps, _)),
-              optNewValue      = changeLog.optNewValue.map(userConverter.convert(userMaps, _))
+              optOriginalValue = changeLog.optOriginalValue.map(MappingUserConverter.convert(userMaps, _)),
+              optNewValue      = changeLog.optNewValue.map(MappingUserConverter.convert(userMaps, _))
             )
             case _ => changeLog
           }
         }
         val convertedComment = comment.copy(
           changeLogs = convertedChangeLogs,
-          optCreatedUser = comment.optCreatedUser.map(userConverter.convert(userMaps, _))
+          optCreatedUser = comment.optCreatedUser.map(MappingUserConverter.convert(userMaps, _))
         )
         IOUtil.output(backlogPaths.issueJson(path), Convert.toBacklog(convertedComment).toJson.prettyPrint)
       }
