@@ -4,12 +4,10 @@ import com.google.inject.AbstractModule
 import com.nulabinc.backlog.j2b.conf.AppConfiguration
 import com.nulabinc.backlog.j2b.issue.writer.convert._
 import com.nulabinc.backlog.j2b.jira.conf.JiraApiConfiguration
-import com.nulabinc.backlog.j2b.jira.domain.{FieldConverter, JiraProjectKey}
 import com.nulabinc.backlog.j2b.jira.domain.export.Field
 import com.nulabinc.backlog.j2b.jira.domain.mapping.MappingCollectDatabase
-import com.nulabinc.backlog.j2b.jira.service._
+import com.nulabinc.backlog.j2b.jira.domain.{FieldConverter, JiraProjectKey}
 import com.nulabinc.backlog.j2b.mapping.collector.MappingCollectDatabaseInMemory
-import com.nulabinc.backlog.j2b.mapping.file.MappingFileServiceImpl
 import com.nulabinc.backlog.migration.common.conf.{BacklogApiConfiguration, BacklogPaths}
 import com.nulabinc.backlog.migration.common.domain.BacklogProjectKey
 import com.nulabinc.jira.client.JiraRestClient
@@ -35,9 +33,6 @@ class DefaultModule(config: AppConfiguration) extends AbstractModule {
 
     // Paths
     bind(classOf[BacklogPaths]).toInstance(new BacklogPaths(config.backlogProjectKey))
-
-    // Mapping-file
-    bind(classOf[MappingFileService]).to(classOf[MappingFileServiceImpl])
 
     // Data
     val fields = FieldConverter.toExportField(jira.fieldAPI.all().right.get)

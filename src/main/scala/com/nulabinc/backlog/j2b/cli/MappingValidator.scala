@@ -42,15 +42,4 @@ trait MappingValidator extends Logging {
       Left(MappingFileNeedFix)
     } else Right(())
   }
-
-  def mappingFileExists(mappingFile: MappingFile): Either[MappingValidateError, Unit] =
-    if (mappingFile.isExists) Right(())
-    else {
-      ConsoleOut.error(
-        s"""
-           |--------------------------------------------------
-           |${Messages("cli.invalid_setup")}
-        """.stripMargin)
-      Left(MappingFileMissing)
-    }
 }

@@ -131,12 +131,12 @@ trait MappingFile extends Logging {
     private def itemsExists(mappings: Seq[Mapping], checkService: String): Seq[String] = {
       mappings.foldLeft(Seq.empty[String])((errors: Seq[String], mapping: Mapping) =>
         if (checkService == CHECK_JIRA) {
-          itemExists(mapping.src, jiraMappings, Messages("common.jira")) match {
+          itemExists(mapping.src, jiraMappings, Messages("common.src")) match {
             case Some(error) => errors :+ error
             case None        => errors
           }
         } else {
-          itemExists(mapping.dst, backlogMappings, Messages("common.backlog")) match {
+          itemExists(mapping.dst, backlogMappings, Messages("common.dst")) match {
             case Some(error) => errors :+ error
             case None        => errors
           }
@@ -160,10 +160,10 @@ trait MappingFile extends Logging {
 
     private def itemRequired(mapping: Mapping, checkService: String): Option[String] = {
       if (checkService == CHECK_JIRA) {
-        if (mapping.src.isEmpty) Some(s"- ${Messages("cli.mapping.error.empty.item", Messages("common.backlog"), itemName, mapping.dst)}")
+        if (mapping.src.isEmpty) Some(s"- ${Messages("cli.mapping.error.empty.item", Messages("common.dst"), itemName, mapping.dst)}")
         else None
       } else {
-        if (mapping.dst.isEmpty) Some(s"- ${Messages("cli.mapping.error.empty.item", Messages("common.jira"), itemName, mapping.src)}")
+        if (mapping.dst.isEmpty) Some(s"- ${Messages("cli.mapping.error.empty.item", Messages("common.src"), itemName, mapping.src)}")
         else None
       }
     }

@@ -1,16 +1,11 @@
 package com.nulabinc.backlog.j2b.mapping.converter
 
-import com.nulabinc.backlog.j2b.jira.converter.PriorityConverter
-import com.nulabinc.backlog.j2b.jira.domain.mapping.Mapping
+import com.nulabinc.backlog.j2b.jira.domain.mapping.ValidatedJiraPriorityMapping
 
-class MappingPriorityConverter extends PriorityConverter {
+object MappingPriorityConverter {
 
-  override def convert(mappings: Seq[Mapping], priorityName: String) =
+  def convert(mappings: Seq[ValidatedJiraPriorityMapping], priorityName: String): String =
     if (mappings.isEmpty) priorityName
-    else
-      mappings.find(_.src == priorityName) match {
-        case Some(mapping) =>
-          if (mapping.dst.nonEmpty) mapping.dst else priorityName
-        case _ => priorityName
-      }
+    else mappings.find(_.src.value == priorityName).map(_.dst.value).getOrElse(priorityName)
+
 }

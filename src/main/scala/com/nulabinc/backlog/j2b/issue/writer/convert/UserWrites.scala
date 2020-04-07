@@ -7,12 +7,12 @@ import com.nulabinc.jira.client.domain.User
 
 class UserWrites extends Writes[User, BacklogUser] {
 
-  override def writes(user: User) =
+  override def writes(user: User): BacklogUser =
     BacklogUser(
       optId = None,
       optUserId = Some(user.identifyKey), // TODO: check impl. user.key?
       optPassword = None,
-      name = user.name,
+      name = user.displayName,
       optMailAddress = user.emailAddress,
       roleType = BacklogConstantValue.USER_ROLE
     )

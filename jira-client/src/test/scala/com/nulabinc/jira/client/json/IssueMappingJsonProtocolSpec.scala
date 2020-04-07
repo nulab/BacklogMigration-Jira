@@ -14,7 +14,7 @@ class IssueMappingJsonProtocolSpec extends Specification {
     actual.id must beEqualTo(10010)
     actual.key must beEqualTo("TEST-1")
     actual.description must beSome("Test issue #1")
-    actual.assignee.get.name must beEqualTo("tanaka")
+    actual.assignee.get.accountId must beEqualTo("557058:236c164c-9007-4cec-b067-08b82f7c437a")
     actual.issueFields.length must beEqualTo(5)
     actual.timeTrack.get.originalEstimateSeconds must beSome(32400)
     actual.timeTrack.get.timeSpentSeconds must beSome(3720)

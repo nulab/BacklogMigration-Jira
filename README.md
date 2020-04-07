@@ -77,13 +77,16 @@ Issues and the mapping files are created as follows.
     │   ├── backlog-migration-jira-warn.log
     │   └── backlog-migration-jira.log
     └── mapping
-        ├── priorities.json
-        ├── statuses.json
-        └── users.json
+        ├── priorities.csv
+        ├── priorities_list.csv
+        ├── statuses.csv
+        ├── statuses_list.csv
+        ├── users.csv
+        └── users_list.csv
 
-- 1.mapping / users.json (users)
-- 2.mapping / priorities.json (priority)
-- 3.mapping / statuses.json (state)
+- mapping/users.csv (users)
+- mapping/priorities.csv (priority)
+- mapping/statuses.csv (state)
 
 #### About mapping projects
 
@@ -92,21 +95,14 @@ Specify the destination project for **--projectKey** option by colon (:).  i.e. 
     --projectKey [JIRA project identifier]:[Backlog project key]
 
 ### Fix the mapping file
+A file in CSV format will be automatically created.
+The right side is Backlog item. 
+For the assignable items from **Name** column, please refer to the following file by reference
 
-A file in json format will be automatically created.
-The items that could not be automatically associated with Backlog will be blank.
-The blanks need to be filled using the items in the description.
+- mapping/users_list.csv (users)
+- mapping/priorities_list.csv (priority)
+- mapping/statuses_list.csv (state)
 
-     {
-      "Description": "The values accepted for User in Backlog are "admin,tanaka". "
-      "Mappings": [{
-        "jira": "admin",
-        "backlog": "admin"
-      }, {
-        "jira": "satou",
-        "backlog": ""
-      }]
-    }
 
 ### Import command
 
@@ -270,13 +266,16 @@ https://github.com/nulab/BacklogMigration-Jira/releases
     │   ├── backlog-migration-jira-warn.log
     │   └── backlog-migration-jira.log
     └── mapping
-        ├── priorities.json
-        ├── statuses.json
-        └── users.json
+        ├── priorities.csv
+        ├── priorities_list.csv
+        ├── statuses.csv
+        ├── statuses_list.csv
+        ├── users.csv
+        └── users_list.csv
 
-- 1.mapping/users.json(ユーザー)
-- 2.mapping/priorities.json(優先度)
-- 3.mapping/statuses.json(状態)
+- mapping/users.csv(ユーザー)
+- mapping/priorities.csv(優先度)
+- mapping/statuses.csv(状態)
 
 #### プロジェクトのマッピングについて
 
@@ -285,21 +284,13 @@ https://github.com/nulab/BacklogMigration-Jira/releases
     --projectKey [JIRAのプロジェクト識別子]:[Backlogのプロジェクトキー]
 
 ### マッピングファイルを修正
-
-自動作成されるファイルは以下のようにjson形式で出力されます。
+自動作成されるファイルは以下のようにCSV形式で出力されます。
 Backlog側の空白の項目は自動設定できなかった項目になります。
-descriptionにある項目を使い、空白を埋める必要が有ります。
+以下のファイルから **Name** 列の項目をコピーして、空白を埋める必要が有ります。
 
-    {
-      "description": "Backlogに設定可能なユーザーは[admin,tanaka]です。",
-      "mappings": [{
-        "jira": "admin",
-        "backlog": "admin"
-      }, {
-        "jira": "satou",
-        "backlog": ""
-      }]
-    }
+- mapping/users_list.csv(ユーザー)
+- mapping/priorities_list.csv(優先度)
+- mapping/statuses_list.csv(状態)
 
 ### インポートコマンド
 

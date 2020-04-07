@@ -1,17 +1,17 @@
 package com.nulabinc.backlog.j2b.mapping.converter.writes
 
-import com.nulabinc.backlog.j2b.jira.domain.mapping.Mapping
+import com.nulabinc.backlog.j2b.jira.domain.mapping.ValidatedJiraUserMapping
 import com.nulabinc.backlog.migration.common.conf.BacklogConstantValue
 import com.nulabinc.backlog.migration.common.convert.Writes
 import com.nulabinc.backlog.migration.common.domain.BacklogUser
 
-class UserWrites extends Writes[Mapping, BacklogUser] {
+class UserWrites extends Writes[ValidatedJiraUserMapping, BacklogUser] {
 
-  override def writes(mapping: Mapping) =
+  override def writes(mapping: ValidatedJiraUserMapping) =
     BacklogUser(optId = None,
-      optUserId = Some(mapping.dst),
+      optUserId = Some(mapping.dst.value),
       optPassword = None,
-      name = mapping.src,
+      name = mapping.src.displayName,
       optMailAddress = None,
       roleType = BacklogConstantValue.USER_ROLE)
 

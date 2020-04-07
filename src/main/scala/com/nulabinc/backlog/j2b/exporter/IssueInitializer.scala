@@ -125,16 +125,21 @@ class IssueInitializer @Inject()(implicit val issueWrites: IssueWrites,
     val issueInitialValue = new IssueInitialValue(ChangeLogItem.FieldType.JIRA, AssigneeFieldId)
     issueInitialValue.findChangeLogItem(issue.changeLogs) match {
       case Some(detail) =>
-        if (mappingCollectDatabase.userExistsFromAllUsers(detail.from)) {
-          mappingCollectDatabase.findByName(detail.from).map(Convert.toBacklog(_))
-        } else {
-          val optUser = userService.optUserOfKey(detail.from) match {
-            case Some(u) => Some(mappingCollectDatabase.add(u))
-            case None    => mappingCollectDatabase.add(detail.from); None
+        for {
+          accountId <- detail.from
+          backlogUser <- mappingCollectDatabase.findUser(accountId).map(_.toBacklogUser)
+        } yield {
+          userService.optUserOfKey(detail.from).map { user =>
+            mappingCollectDatabase.addUser(ExistingMappingUser(user.accountId, user.displayName, user.emailAddress))
+          }.getOrElse {
+            mappingCollectDatabase.addChangeLogUser(ChangeLogMappingUser(accountId, detail.fromDisplayString.getOrElse("")))
           }
-          optUser.map(Convert.toBacklog(_))
+          backlogUser
         }
-      case None => issue.assignee.map(Convert.toBacklog(_))
+      case None =>
+        issue.assignee.map { user =>
+          ExistingMappingUser(user.accountId, user.displayName, user.emailAddress): MappingUser
+        }.map(_.toBacklogUser)
     }
   }
 

@@ -19,7 +19,8 @@ project/plugins/project/
 # Project Specific
 backlog/project.json
 backlog/project
+backlog/*.db
 mapping/*.json
-mapping2/*.json
+mapping/*.csv
 log/
 test.properties
