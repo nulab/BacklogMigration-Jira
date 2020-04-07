@@ -9,10 +9,13 @@ import com.nulabinc.backlog.j2b.core.Finalizer
 import com.nulabinc.backlog.j2b.exporter.Exporter
 import com.nulabinc.backlog.j2b.jira.conf.JiraBacklogPaths
 import com.nulabinc.backlog.j2b.jira.domain.mapping._
+import com.nulabinc.backlog.j2b.jira.writer.ProjectUserWriter
 import com.nulabinc.backlog.j2b.mapping.converter.MappingConvertService
+import com.nulabinc.backlog.j2b.mapping.converter.writes.MappingUserWrites
 import com.nulabinc.backlog.j2b.mapping.core.MappingDirectory
 import com.nulabinc.backlog.j2b.modules._
 import com.nulabinc.backlog.migration.common.conf.{BacklogConfiguration, BacklogPaths}
+import com.nulabinc.backlog.migration.common.convert.Convert
 import com.nulabinc.backlog.migration.common.domain.mappings.{ValidatedPriorityMapping, ValidatedStatusMapping, ValidatedUserMapping}
 import com.nulabinc.backlog.migration.common.dsl.{AppDSL, ConsoleDSL, StorageDSL}
 import com.nulabinc.backlog.migration.common.interpreters.{JansiConsoleDSL, LocalStorageDSL, TaskAppDSL}
@@ -148,10 +151,10 @@ object J2BCli extends BacklogConfiguration
       )
 
       // Project users mapping
-//      implicit val mappingUserWrites: MappingUserWrites = new MappingUserWrites
-//      val projectUserWriter = jiraInjector.getInstance(classOf[ProjectUserWriter])
-//      val projectUsers = userMappingFile.t.map(Convert.toBacklog(_))
-//      projectUserWriter.write(projectUsers)
+      implicit val mappingUserWrites: MappingUserWrites = new MappingUserWrites
+      val projectUserWriter = jiraInjector.getInstance(classOf[ProjectUserWriter])
+      val projectUsers = userMappings.map(ValidatedJiraUserMapping.from).map(Convert.toBacklog(_))
+      projectUserWriter.write(projectUsers)
 
       // Import
       Boot.execute(config.backlogConfig, false, 0) // TODO: retry count
