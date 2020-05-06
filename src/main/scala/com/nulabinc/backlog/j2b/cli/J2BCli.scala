@@ -249,7 +249,7 @@ object J2BCli
       projectUserWriter.write(projectUsers)
 
       // Import
-      Boot.execute(config.backlogConfig, false, 0) // TODO: retry count
+      Boot.execute(config.backlogConfig, false, config.retryCount)
 
       // Finalize
       if (!versionName.contains("SNAPSHOT")) {

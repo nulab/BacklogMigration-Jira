@@ -48,6 +48,10 @@ object ConfigParser extends Logging {
         .action((x, c) => c.copy(projectKey = x))
         .text(Messages("cli.help.projectKey"))
 
+      opt[Int]("retryCount")
+        .action((x, c) => c.copy(retryCount = x))
+        .text(Messages("cli.help.retryCount"))
+
       cmd("export")
         .action((_, c) => c.copy(commandType = Some(Config.ExportCommand)))
         .text("Export the JIRA project.")
