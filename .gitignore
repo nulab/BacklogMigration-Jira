@@ -15,6 +15,9 @@ project/plugins/project/
 
 # IDE Specific
 .idea
+.bloop
+.metals
+project/metals.sbt
 
 # Project Specific
 backlog/project.json
