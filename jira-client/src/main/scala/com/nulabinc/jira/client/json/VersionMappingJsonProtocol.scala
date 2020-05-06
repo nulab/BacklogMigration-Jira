@@ -26,7 +26,12 @@ object VersionMappingJsonProtocol extends DefaultJsonProtocol {
       }
 
       jsObject.getFields("id", "name", "archived", "released") match {
-        case Seq(JsString(id), JsString(name), JsBoolean(archived), JsBoolean(released)) =>
+        case Seq(
+              JsString(id),
+              JsString(name),
+              JsBoolean(archived),
+              JsBoolean(released)
+            ) =>
           Version(
             id = Option(id.toLong),
             name = name,
@@ -35,13 +40,16 @@ object VersionMappingJsonProtocol extends DefaultJsonProtocol {
             released = released,
             releaseDate = releaseDate
           )
-        case other => deserializationError("Cannot deserialize Version: invalid input. Raw input: " + other)
+        case other =>
+          deserializationError(
+            "Cannot deserialize Version: invalid input. Raw input: " + other
+          )
       }
     }
   }
 
   implicit val versionResultJsonFormat = jsonFormat1(VersionResult)
 
-  private [client] case class VersionResult(values: Seq[Version])
+  private[client] case class VersionResult(values: Seq[Version])
 
 }

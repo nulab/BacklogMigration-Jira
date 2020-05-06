@@ -10,9 +10,10 @@ class FieldAPI(httpClient: HttpClient) {
 
   def all() =
     httpClient.get(s"/field") match {
-      case Right(json)               => Right(JsonParser(json).convertTo[Seq[Field]])
-      case Left(_: ApiNotFoundError) => Left(ResourceNotFoundError("Field", "all"))
-      case Left(error)               => Left(HttpError(error))
+      case Right(json) => Right(JsonParser(json).convertTo[Seq[Field]])
+      case Left(_: ApiNotFoundError) =>
+        Left(ResourceNotFoundError("Field", "all"))
+      case Left(error) => Left(HttpError(error))
     }
 
 }

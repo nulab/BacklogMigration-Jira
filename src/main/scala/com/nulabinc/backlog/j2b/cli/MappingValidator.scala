@@ -11,7 +11,9 @@ case object MappingFileNeedFix extends MappingValidateError
 
 trait MappingValidator extends Logging {
 
-  def validateMapping(mappingFile: MappingFile): Either[MappingValidateError, Unit] = {
+  def validateMapping(
+      mappingFile: MappingFile
+  ): Either[MappingValidateError, Unit] = {
     if (!mappingFile.isParsed) {
       val error =
         s"""
@@ -22,7 +24,10 @@ trait MappingValidator extends Logging {
       ConsoleOut.error(error)
       val message =
         s"""|--------------------------------------------------
-            |${Messages("cli.mapping.fix_file", mappingFile.filePath)}""".stripMargin
+            |${Messages(
+          "cli.mapping.fix_file",
+          mappingFile.filePath
+        )}""".stripMargin
       ConsoleOut.println(message)
       Left(MappingFileBroken)
     } else if (!mappingFile.isValid) {

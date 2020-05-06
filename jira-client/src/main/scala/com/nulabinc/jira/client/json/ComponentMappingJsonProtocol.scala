@@ -12,13 +12,16 @@ object ComponentMappingJsonProtocol extends DefaultJsonProtocol {
       val jsObject = json.asJsObject
       jsObject.getFields("id", "name") match {
         case Seq(JsString(id), JsString(name)) => Component(id.toLong, name)
-        case other => deserializationError("Cannot deserialize Component: invalid input. Raw input: " + other)
+        case other =>
+          deserializationError(
+            "Cannot deserialize Component: invalid input. Raw input: " + other
+          )
       }
     }
   }
 
   implicit val componentResultJsonFormat = jsonFormat1(ComponentResult)
 
-  private [client] case class ComponentResult(values: Seq[Component])
+  private[client] case class ComponentResult(values: Seq[Component])
 
 }

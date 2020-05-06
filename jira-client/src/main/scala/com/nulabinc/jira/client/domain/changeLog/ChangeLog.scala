@@ -5,59 +5,66 @@ import java.util.Date
 import com.nulabinc.jira.client.domain._
 
 case class ChangeLog(
-  id: Long,
-  optAuthor: Option[User],
-  createdAt: Date,
-  items: Seq[ChangeLogItem]
+    id: Long,
+    optAuthor: Option[User],
+    createdAt: Date,
+    items: Seq[ChangeLogItem]
 )
 
 case class ChangeLogItem(
-  field: ChangeLogItemField,
-  fieldType: String,
-  fieldId: Option[FieldId],
-  from: Option[String],
-  fromDisplayString: Option[String],
-  to: Option[String],
-  toDisplayString: Option[String]
+    field: ChangeLogItemField,
+    fieldType: String,
+    fieldId: Option[FieldId],
+    from: Option[String],
+    fromDisplayString: Option[String],
+    to: Option[String],
+    toDisplayString: Option[String]
 )
 
 sealed abstract class ChangeLogItemField(val value: String)
 case object ComponentChangeLogItemField extends ChangeLogItemField("Component")
 case object FixVersion extends ChangeLogItemField("Fix Version")
 case object ParentChangeLogItemField extends ChangeLogItemField("Parent")
-case object AttachmentChangeLogItemField extends ChangeLogItemField("Attachment")
+case object AttachmentChangeLogItemField
+    extends ChangeLogItemField("Attachment")
 case object StatusChangeLogItemField extends ChangeLogItemField("status")
 case object DueDateChangeLogItemField extends ChangeLogItemField("duedate")
 case object LinkChangeLogItemField extends ChangeLogItemField("Link")
 case object LabelsChangeLogItemField extends ChangeLogItemField("labels")
-case object TimeOriginalEstimateChangeLogItemField extends ChangeLogItemField("timeoriginalestimate")
+case object TimeOriginalEstimateChangeLogItemField
+    extends ChangeLogItemField("timeoriginalestimate")
 case object IssueTypeChangeLogItemField extends ChangeLogItemField("issuetype")
 case object TimeSpentChangeLogItemField extends ChangeLogItemField("timespent")
 case object WorkIdChangeLogItemField extends ChangeLogItemField("WorklogId")
-case object TimeEstimateChangeLogItemField extends ChangeLogItemField("timeestimate")
+case object TimeEstimateChangeLogItemField
+    extends ChangeLogItemField("timeestimate")
 case object SprintChangeLogItemField extends ChangeLogItemField("Sprint")
-case object DescriptionChangeLogItemField extends ChangeLogItemField("description")
+case object DescriptionChangeLogItemField
+    extends ChangeLogItemField("description")
 case class DefaultField(name: String) extends ChangeLogItemField(name)
 
 object ChangeLogItemField {
-  def parse(value: String) = value match {
-    case ComponentChangeLogItemField.value  => ComponentChangeLogItemField
-    case FixVersion.value                   => FixVersion
-    case AttachmentChangeLogItemField.value => AttachmentChangeLogItemField
-    case StatusChangeLogItemField.value     => StatusChangeLogItemField
-    case DueDateChangeLogItemField.value    => DueDateChangeLogItemField
-    case LinkChangeLogItemField.value       => LinkChangeLogItemField
-    case LabelsChangeLogItemField.value     => LabelsChangeLogItemField
-    case TimeOriginalEstimateChangeLogItemField.value => TimeOriginalEstimateChangeLogItemField
-    case IssueTypeChangeLogItemField.value            => IssueTypeChangeLogItemField
-    case ParentChangeLogItemField.value               => ParentChangeLogItemField
-    case TimeSpentChangeLogItemField.value            => TimeSpentChangeLogItemField
-    case WorkIdChangeLogItemField.value               => WorkIdChangeLogItemField
-    case TimeEstimateChangeLogItemField.value         => TimeEstimateChangeLogItemField
-    case SprintChangeLogItemField.value               => SprintChangeLogItemField
-    case DescriptionChangeLogItemField.value          => DescriptionChangeLogItemField
-    case v                                            => DefaultField(v)
-  }
+  def parse(value: String) =
+    value match {
+      case ComponentChangeLogItemField.value  => ComponentChangeLogItemField
+      case FixVersion.value                   => FixVersion
+      case AttachmentChangeLogItemField.value => AttachmentChangeLogItemField
+      case StatusChangeLogItemField.value     => StatusChangeLogItemField
+      case DueDateChangeLogItemField.value    => DueDateChangeLogItemField
+      case LinkChangeLogItemField.value       => LinkChangeLogItemField
+      case LabelsChangeLogItemField.value     => LabelsChangeLogItemField
+      case TimeOriginalEstimateChangeLogItemField.value =>
+        TimeOriginalEstimateChangeLogItemField
+      case IssueTypeChangeLogItemField.value => IssueTypeChangeLogItemField
+      case ParentChangeLogItemField.value    => ParentChangeLogItemField
+      case TimeSpentChangeLogItemField.value => TimeSpentChangeLogItemField
+      case WorkIdChangeLogItemField.value    => WorkIdChangeLogItemField
+      case TimeEstimateChangeLogItemField.value =>
+        TimeEstimateChangeLogItemField
+      case SprintChangeLogItemField.value      => SprintChangeLogItemField
+      case DescriptionChangeLogItemField.value => DescriptionChangeLogItemField
+      case v                                   => DefaultField(v)
+    }
 }
 
 object ChangeLogItem {
@@ -68,7 +75,11 @@ object ChangeLogItem {
   }
 }
 
-case class ChangeLogResult(total: Long, isLast: Boolean, values: Seq[ChangeLog]) {
+case class ChangeLogResult(
+    total: Long,
+    isLast: Boolean,
+    values: Seq[ChangeLog]
+) {
 
   def hasPage: Boolean = !isLast
 
@@ -95,22 +106,23 @@ case class GeneralFieldId(id: String) extends FieldId(id)
 
 object FieldId {
 
-  def parse(value: String): FieldId = value match {
-    case AttachmentFieldId.value           => AttachmentFieldId
-    case AssigneeFieldId.value             => AssigneeFieldId
-    case IssueTypeFieldId.value            => IssueTypeFieldId
-    case ComponentFieldId.value            => ComponentFieldId
-    case DescriptionFieldId.value          => DescriptionFieldId
-    case FixVersionFieldId.value           => FixVersionFieldId
-    case PriorityFieldId.value             => PriorityFieldId
-    case SummaryFieldId.value              => SummaryFieldId
-    case StatusFieldId.value               => StatusFieldId
-    case DueDateFieldId.value              => DueDateFieldId
-    case TimeOriginalEstimateFieldId.value => TimeOriginalEstimateFieldId
-    case TimeEstimateFieldId.value         => TimeEstimateFieldId
-    case TimeSpentFieldId.value            => TimeSpentFieldId
-    case ResolutionFieldId.value           => ResolutionFieldId
-    case v if v.startsWith("customfield_") => CustomFieldFieldId(v)
-    case v                                 => GeneralFieldId(v)
-  }
+  def parse(value: String): FieldId =
+    value match {
+      case AttachmentFieldId.value           => AttachmentFieldId
+      case AssigneeFieldId.value             => AssigneeFieldId
+      case IssueTypeFieldId.value            => IssueTypeFieldId
+      case ComponentFieldId.value            => ComponentFieldId
+      case DescriptionFieldId.value          => DescriptionFieldId
+      case FixVersionFieldId.value           => FixVersionFieldId
+      case PriorityFieldId.value             => PriorityFieldId
+      case SummaryFieldId.value              => SummaryFieldId
+      case StatusFieldId.value               => StatusFieldId
+      case DueDateFieldId.value              => DueDateFieldId
+      case TimeOriginalEstimateFieldId.value => TimeOriginalEstimateFieldId
+      case TimeEstimateFieldId.value         => TimeEstimateFieldId
+      case TimeSpentFieldId.value            => TimeSpentFieldId
+      case ResolutionFieldId.value           => ResolutionFieldId
+      case v if v.startsWith("customfield_") => CustomFieldFieldId(v)
+      case v                                 => GeneralFieldId(v)
+    }
 }

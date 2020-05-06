@@ -10,14 +10,22 @@ object IssueTypeMappingJsonProtocol extends DefaultJsonProtocol {
 
     def read(value: JsValue) = {
       value.asJsObject.getFields("id", "name", "subtask", "description") match {
-        case Seq(JsString(id), JsString(name), JsBoolean(isSubTask), JsString(description)) =>
+        case Seq(
+              JsString(id),
+              JsString(name),
+              JsBoolean(isSubTask),
+              JsString(description)
+            ) =>
           IssueType(
             id = id.toLong,
             name = name,
             isSubTask = isSubTask,
             description = description
           )
-        case other => deserializationError("Cannot deserialize Component: invalid input. Raw input: " + other)
+        case other =>
+          deserializationError(
+            "Cannot deserialize Component: invalid input. Raw input: " + other
+          )
       }
     }
   }

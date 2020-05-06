@@ -10,14 +10,19 @@ import com.nulabinc.jira.client.domain.issue.IssueType
 import javax.inject.Inject
 import spray.json._
 
-class IssueTypeFileWriter @Inject()(implicit val issueTypesWrites: IssueTypeWrites,
-                                    backlogPaths: BacklogPaths) extends IssueTypeWriter {
+class IssueTypeFileWriter @Inject() (implicit
+    val issueTypesWrites: IssueTypeWrites,
+    backlogPaths: BacklogPaths
+) extends IssueTypeWriter {
 
   import com.nulabinc.backlog.migration.common.formatters.BacklogJsonProtocol.BacklogIssueTypesWrapperFormat
 
   override def write(issueTypes: Seq[IssueType]) = {
     val backlogIssueTypes = Convert.toBacklog(issueTypes)
-    IOUtil.output(backlogPaths.issueTypesJson, BacklogIssueTypesWrapper(backlogIssueTypes).toJson.prettyPrint)
+    IOUtil.output(
+      backlogPaths.issueTypesJson,
+      BacklogIssueTypesWrapper(backlogIssueTypes).toJson.prettyPrint
+    )
     Right(backlogIssueTypes)
   }
 }

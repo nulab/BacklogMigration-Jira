@@ -36,7 +36,10 @@ trait MappingFile extends Logging {
 
   def create(): MappingFile = {
     val wrapper = MappingsWrapper(description, jiras.map(convert))
-    IOUtil.output(File(filePath).path.toAbsolutePath, wrapper.toJson.prettyPrint)
+    IOUtil.output(
+      File(filePath).path.toAbsolutePath,
+      wrapper.toJson.prettyPrint
+    )
     this
   }
 
@@ -54,7 +57,10 @@ trait MappingFile extends Logging {
               addedList += convert(jiraItem)
           }
         }
-        IOUtil.output(File(filePath).path.toAbsolutePath, MappingsWrapper(description, mergeList.toSeq).toJson.prettyPrint)
+        IOUtil.output(
+          File(filePath).path.toAbsolutePath,
+          MappingsWrapper(description, mergeList.toSeq).toJson.prettyPrint
+        )
         addedList.toSeq
       case _ =>
         Seq.empty[Mapping]
@@ -106,15 +112,16 @@ trait MappingFile extends Logging {
       dst = matchItem(jira)
     )
 
+  private class MappingValidator(
+      jiraMappings: Seq[MappingItem],
+      backlogMappings: Seq[MappingItem],
+      itemName: String
+  ) {
 
+    implicit val userLang =
+      if (Locale.getDefault.equals(Locale.JAPAN)) Lang("ja") else Lang("en")
 
-  private class MappingValidator(jiraMappings: Seq[MappingItem],
-                                 backlogMappings: Seq[MappingItem],
-                                 itemName: String) {
-
-    implicit val userLang = if (Locale.getDefault.equals(Locale.JAPAN)) Lang("ja") else Lang("en")
-
-    val CHECK_JIRA    = "CHECK_JIRA"
+    val CHECK_JIRA = "CHECK_JIRA"
     val CHECK_BACKLOG = "CHECK_BACKLOG"
 
     def validate(optMappings: Option[Seq[Mapping]]): Seq[String] = {
@@ -128,42 +135,75 @@ trait MappingFile extends Logging {
       }
     }
 
-    private def itemsExists(mappings: Seq[Mapping], checkService: String): Seq[String] = {
-      mappings.foldLeft(Seq.empty[String])((errors: Seq[String], mapping: Mapping) =>
-        if (checkService == CHECK_JIRA) {
-          itemExists(mapping.src, jiraMappings, Messages("common.src")) match {
-            case Some(error) => errors :+ error
-            case None        => errors
+    private def itemsExists(
+        mappings: Seq[Mapping],
+        checkService: String
+    ): Seq[String] = {
+      mappings.foldLeft(Seq.empty[String])(
+        (errors: Seq[String], mapping: Mapping) =>
+          if (checkService == CHECK_JIRA) {
+            itemExists(
+              mapping.src,
+              jiraMappings,
+              Messages("common.src")
+            ) match {
+              case Some(error) => errors :+ error
+              case None        => errors
+            }
+          } else {
+            itemExists(
+              mapping.dst,
+              backlogMappings,
+              Messages("common.dst")
+            ) match {
+              case Some(error) => errors :+ error
+              case None        => errors
+            }
           }
-        } else {
-          itemExists(mapping.dst, backlogMappings, Messages("common.dst")) match {
-            case Some(error) => errors :+ error
-            case None        => errors
-          }
-        })
+      )
     }
 
-    private def itemExists(value: String, mappingItems: Seq[MappingItem], serviceName: String): Option[String] = {
+    private def itemExists(
+        value: String,
+        mappingItems: Seq[MappingItem],
+        serviceName: String
+    ): Option[String] = {
       if (value.nonEmpty && !mappingItems.exists(_.name == value)) {
-        Some(s"- ${Messages("cli.mapping.error.not_exist.item", itemName, value, serviceName)}")
+        Some(
+          s"- ${Messages("cli.mapping.error.not_exist.item", itemName, value, serviceName)}"
+        )
       } else None
     }
 
-    private  def itemsRequired(mappings: Seq[Mapping], checkService: String): Seq[String] = {
-      mappings.foldLeft(Seq.empty[String])((errors: Seq[String], mapping: Mapping) => {
-        itemRequired(mapping, checkService) match {
-          case Some(error) => errors :+ error
-          case None        => errors
+    private def itemsRequired(
+        mappings: Seq[Mapping],
+        checkService: String
+    ): Seq[String] = {
+      mappings.foldLeft(Seq.empty[String])(
+        (errors: Seq[String], mapping: Mapping) => {
+          itemRequired(mapping, checkService) match {
+            case Some(error) => errors :+ error
+            case None        => errors
+          }
         }
-      })
+      )
     }
 
-    private def itemRequired(mapping: Mapping, checkService: String): Option[String] = {
+    private def itemRequired(
+        mapping: Mapping,
+        checkService: String
+    ): Option[String] = {
       if (checkService == CHECK_JIRA) {
-        if (mapping.src.isEmpty) Some(s"- ${Messages("cli.mapping.error.empty.item", Messages("common.dst"), itemName, mapping.dst)}")
+        if (mapping.src.isEmpty)
+          Some(
+            s"- ${Messages("cli.mapping.error.empty.item", Messages("common.dst"), itemName, mapping.dst)}"
+          )
         else None
       } else {
-        if (mapping.dst.isEmpty) Some(s"- ${Messages("cli.mapping.error.empty.item", Messages("common.src"), itemName, mapping.src)}")
+        if (mapping.dst.isEmpty)
+          Some(
+            s"- ${Messages("cli.mapping.error.empty.item", Messages("common.src"), itemName, mapping.src)}"
+          )
         else None
       }
     }

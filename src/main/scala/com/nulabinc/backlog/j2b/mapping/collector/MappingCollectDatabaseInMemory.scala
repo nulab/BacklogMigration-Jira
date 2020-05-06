@@ -1,8 +1,15 @@
 package com.nulabinc.backlog.j2b.mapping.collector
 
-import com.nulabinc.backlog.j2b.jira.domain.`export`.{ChangeLogMappingUser, ExistingMappingUser, MappingUser}
+import com.nulabinc.backlog.j2b.jira.domain.`export`.{
+  ChangeLogMappingUser,
+  ExistingMappingUser,
+  MappingUser
+}
 import com.nulabinc.backlog.j2b.jira.domain.export.Milestone
-import com.nulabinc.backlog.j2b.jira.domain.mapping.{CustomFieldRow, MappingCollectDatabase}
+import com.nulabinc.backlog.j2b.jira.domain.mapping.{
+  CustomFieldRow,
+  MappingCollectDatabase
+}
 
 import scala.collection.mutable
 
@@ -18,7 +25,9 @@ class MappingCollectDatabaseInMemory extends MappingCollectDatabase {
     user
   }
 
-  override def addChangeLogUser(user: ChangeLogMappingUser): ChangeLogMappingUser = {
+  override def addChangeLogUser(
+      user: ChangeLogMappingUser
+  ): ChangeLogMappingUser = {
     ignoreUserSet += user
     user
   }
@@ -29,17 +38,21 @@ class MappingCollectDatabaseInMemory extends MappingCollectDatabase {
   override def findUser(accountId: String): Option[MappingUser] =
     existUsers.find(_.key == accountId)
 
-  override def addCustomField(fieldId: String, value: Option[String]): Option[String] = value.map { v =>
-    val items = v.split(",").map(_.trim).filter(_.nonEmpty)
-    customFieldSet.find(_.fieldId == fieldId) match {
-      case Some(row) =>
-        items.map(str => row.values.add(str))
-        v
-      case None =>
-        customFieldSet += CustomFieldRow(fieldId, mutable.Set() ++ items)
-        v
+  override def addCustomField(
+      fieldId: String,
+      value: Option[String]
+  ): Option[String] =
+    value.map { v =>
+      val items = v.split(",").map(_.trim).filter(_.nonEmpty)
+      customFieldSet.find(_.fieldId == fieldId) match {
+        case Some(row) =>
+          items.map(str => row.values.add(str))
+          v
+        case None =>
+          customFieldSet += CustomFieldRow(fieldId, mutable.Set() ++ items)
+          v
+      }
     }
-  }
 
   override def customFieldRows: Seq[CustomFieldRow] =
     customFieldSet.toSeq

@@ -5,21 +5,24 @@ import com.nulabinc.backlog.migration.common.domain.mappings._
 import com.nulabinc.backlog.migration.common.serializers.Serializer
 
 object JiraMappingSerializer {
-  implicit val statusSerializer: Serializer[StatusMapping[JiraStatusMappingItem], Seq[String]] =
+  implicit val statusSerializer
+      : Serializer[StatusMapping[JiraStatusMappingItem], Seq[String]] =
     (mapping: StatusMapping[JiraStatusMappingItem]) =>
       Seq(mapping.src.value, mapping.optDst.map(_.value).getOrElse(""))
 
-  implicit val prioritySerializer: Serializer[PriorityMapping[JiraPriorityMappingItem], Seq[String]] =
+  implicit val prioritySerializer
+      : Serializer[PriorityMapping[JiraPriorityMappingItem], Seq[String]] =
     (mapping: PriorityMapping[JiraPriorityMappingItem]) =>
       Seq(mapping.src.value, mapping.optDst.map(_.value).getOrElse(""))
 
-  implicit val userSerializer: Serializer[UserMapping[JiraUserMappingItem], Seq[String]] =
+  implicit val userSerializer
+      : Serializer[UserMapping[JiraUserMappingItem], Seq[String]] =
     (mapping: UserMapping[JiraUserMappingItem]) =>
       Seq(
-        mapping.src.accountId,                      // 0
-        mapping.src.displayName,                    // 1
-        mapping.optDst.map(_.value).getOrElse(""),  // 2
-        mapping.mappingType                         // 3
+        mapping.src.accountId, // 0
+        mapping.src.displayName, // 1
+        mapping.optDst.map(_.value).getOrElse(""), // 2
+        mapping.mappingType // 3
       )
 
 }

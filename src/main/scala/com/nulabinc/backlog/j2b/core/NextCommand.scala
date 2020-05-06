@@ -16,14 +16,16 @@ object NextCommand extends BacklogConfiguration {
 
   private def formattedArgs(args: Seq[String]): Seq[String] =
     args
-    .filterNot(_ == "export")
-    .grouped(2)
-    .collect {
-      case Seq(k, _) if k.contains("apiKey") => language match {
-        case "ja" => s"    $k JIRAのAPIキー"
-        case "en" => s"    $k JIRA_API_KEY"
-        case _    => s"    $k JIRA_API_KEY"
+      .filterNot(_ == "export")
+      .grouped(2)
+      .collect {
+        case Seq(k, _) if k.contains("apiKey") =>
+          language match {
+            case "ja" => s"    $k JIRAのAPIキー"
+            case "en" => s"    $k JIRA_API_KEY"
+            case _    => s"    $k JIRA_API_KEY"
+          }
+        case Seq(k, v) => s"    $k $v"
       }
-      case Seq(k, v) => s"    $k $v"
-    }.toSeq
+      .toSeq
 }

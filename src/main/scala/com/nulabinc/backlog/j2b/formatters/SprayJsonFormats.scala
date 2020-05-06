@@ -1,6 +1,10 @@
 package com.nulabinc.backlog.j2b.formatters
 
-import com.nulabinc.backlog.j2b.jira.domain.`export`.{ChangeLogMappingUser, ExistingMappingUser, MappingUser}
+import com.nulabinc.backlog.j2b.jira.domain.`export`.{
+  ChangeLogMappingUser,
+  ExistingMappingUser,
+  MappingUser
+}
 import spray.json._
 
 object SprayJsonFormats extends DefaultJsonProtocol {
@@ -24,10 +28,17 @@ object SprayJsonFormats extends DefaultJsonProtocol {
     def read(value: JsValue): MappingUser =
       value.asJsObject.getFields("key", "displayName", "optEmail") match {
         case Seq(JsString(key), JsString(displayName), JsString(optEmail)) =>
-          ExistingMappingUser(key = key, displayName = displayName, Option(optEmail))
+          ExistingMappingUser(
+            key = key,
+            displayName = displayName,
+            Option(optEmail)
+          )
         case Seq(JsString(key), JsString(displayName)) =>
           ChangeLogMappingUser(key = key, displayName = displayName)
-        case other => deserializationError("Cannot deserialize MappingUser. Raw input: " + other)
+        case other =>
+          deserializationError(
+            "Cannot deserialize MappingUser. Raw input: " + other
+          )
       }
 
   }

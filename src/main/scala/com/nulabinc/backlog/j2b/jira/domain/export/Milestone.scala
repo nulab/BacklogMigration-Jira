@@ -7,11 +7,11 @@ import com.nulabinc.backlog.migration.common.utils.DateUtil
 import scala.util.matching.Regex
 
 case class Milestone(
-  id: Long,
-  name: String,
-  goal: Option[String],
-  startDate: Option[String],
-  endDate: Option[Date]
+    id: Long,
+    name: String,
+    goal: Option[String],
+    startDate: Option[String],
+    endDate: Option[Date]
 )
 
 object Milestone {
@@ -19,7 +19,7 @@ object Milestone {
   implicit class SeqEitherOps[A, E](results: Seq[Either[E, A]]) {
     def sequence: Either[E, Seq[A]] =
       results.foldLeft(Right(Seq.empty[A]): Either[E, Seq[A]]) {
-        case (acc, Left(_)) => acc
+        case (acc, Left(_))     => acc
         case (acc, Right(item)) => acc.map(_ :+ item)
       }
   }
@@ -37,7 +37,10 @@ object Milestone {
 
     val value = pattern.findFirstMatchIn(text) match {
       case Some(m) => m.group(1)
-      case _ => throw new RuntimeException("Unable to parse milestone. Raw input: " + text)
+      case _ =>
+        throw new RuntimeException(
+          "Unable to parse milestone. Raw input: " + text
+        )
     }
 
     split(value)
@@ -62,11 +65,14 @@ object Milestone {
       .fold(
         error => {
           val message = error match {
-            case err: ExtractError => s"'=' not found. Raw input: ${err.rawInput}"
-            case IdNotFound => s"Id not found"
+            case err: ExtractError =>
+              s"'=' not found. Raw input: ${err.rawInput}"
+            case IdNotFound   => s"Id not found"
             case NameNotFound => s"Name not found"
           }
-          throw new RuntimeException(s"Unable to parse milestone. Error: $message Raw input: $text")
+          throw new RuntimeException(
+            s"Unable to parse milestone. Error: $message Raw input: $text"
+          )
         },
         value => value
       )
@@ -86,17 +92,23 @@ object Milestone {
 
   private def findValue(params: MileStoneParams, key: String): Option[String] =
     params.get(key).flatMap {
-      case "<null>" => None
+      case "<null>"           => None
       case str if str.isEmpty => None
-      case str => Some(str)
+      case str                => Some(str)
     }
 
-  private def mustFind[E <: MilestoneError](params: MileStoneParams, key: String, error: String => E): Either[E, String] =
+  private def mustFind[E <: MilestoneError](
+      params: MileStoneParams,
+      key: String,
+      error: String => E
+  ): Either[E, String] =
     params.get(key).map(Right(_)).getOrElse(Left(error(key)))
 
   private def findId(params: MileStoneParams): Either[MilestoneError, String] =
     mustFind(params, "id", _ => IdNotFound)
 
-  private def findName(params: MileStoneParams): Either[MilestoneError, String] =
+  private def findName(
+      params: MileStoneParams
+  ): Either[MilestoneError, String] =
     mustFind(params, "name", _ => NameNotFound)
 }

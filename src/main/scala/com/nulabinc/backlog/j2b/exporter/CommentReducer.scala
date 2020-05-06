@@ -3,7 +3,10 @@ package com.nulabinc.backlog.j2b.exporter
 import com.nulabinc.backlog.migration.common.domain._
 import com.nulabinc.backlog.migration.common.utils.{Logging, StringUtil}
 
-private [exporter] class CommentReducer(issueId: Long, changeLogReducer: ChangeLogReducer) extends Logging {
+private[exporter] class CommentReducer(
+    issueId: Long,
+    changeLogReducer: ChangeLogReducer
+) extends Logging {
 
   def reduce(comment: BacklogComment): BacklogComment = {
     val changeLogContent = new StringBuilder()
@@ -19,7 +22,11 @@ private [exporter] class CommentReducer(issueId: Long, changeLogReducer: ChangeL
       case None =>
         StringUtil.notEmpty(changeLogContent.result().trim)
     }
-    comment.copy(optIssueId = Some(issueId), optContent = optNewContent, changeLogs = newChangeLogs)
+    comment.copy(
+      optIssueId = Some(issueId),
+      optContent = optNewContent,
+      changeLogs = newChangeLogs
+    )
   }
 
 }

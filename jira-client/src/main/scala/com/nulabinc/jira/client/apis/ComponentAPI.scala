@@ -14,8 +14,9 @@ class ComponentAPI(httpClient: HttpClient) {
 
   private def fetchProjectComponents(projectIdOrKey: String) =
     httpClient.get(s"/project/$projectIdOrKey/components") match {
-      case Right(json)               => Right(JsonParser(json).convertTo[Seq[Component]])
-      case Left(_: ApiNotFoundError) => Left(ResourceNotFoundError("Component", projectIdOrKey))
-      case Left(error)               => Left(HttpError(error))
+      case Right(json) => Right(JsonParser(json).convertTo[Seq[Component]])
+      case Left(_: ApiNotFoundError) =>
+        Left(ResourceNotFoundError("Component", projectIdOrKey))
+      case Left(error) => Left(HttpError(error))
     }
 }

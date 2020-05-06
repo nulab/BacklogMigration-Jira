@@ -16,13 +16,23 @@ object Mapping extends Logging {
     user.optUserId match {
       case Some(userId) =>
         Mapping(
-          info = Some(MappingInfo(name = user.name, mail = user.optMailAddress.getOrElse(""))),
+          info = Some(
+            MappingInfo(
+              name = user.name,
+              mail = user.optMailAddress.getOrElse("")
+            )
+          ),
           src = userId,
           dst = ""
         )
       case None =>
         Mapping(
-          info = Some(MappingInfo(name = user.name, mail = user.optMailAddress.getOrElse(""))),
+          info = Some(
+            MappingInfo(
+              name = user.name,
+              mail = user.optMailAddress.getOrElse("")
+            )
+          ),
           src = user.name,
           dst = ""
         )
@@ -39,8 +49,8 @@ object Mapping extends Logging {
 
 object MappingJsonProtocol extends DefaultJsonProtocol {
   implicit val MappingDescriptionFormat = jsonFormat2(MappingInfo)
-  implicit val MappingFormat            = jsonFormat3(Mapping.apply)
-  implicit val MappingsWrapperFormat    = jsonFormat2(MappingsWrapper)
+  implicit val MappingFormat = jsonFormat3(Mapping.apply)
+  implicit val MappingsWrapperFormat = jsonFormat2(MappingsWrapper)
 }
 
 sealed abstract class MappingType(val value: String) {

@@ -2,58 +2,116 @@ package com.nulabinc.backlog.j2b.exporter
 
 import better.files.{File => Path}
 import com.nulabinc.backlog.j2b.jira.service.IssueService
-import com.nulabinc.backlog.migration.common.conf.{BacklogConstantValue, BacklogPaths}
+import com.nulabinc.backlog.migration.common.conf.{
+  BacklogConstantValue,
+  BacklogPaths
+}
 import com.nulabinc.backlog.migration.common.domain._
 import com.nulabinc.backlog.migration.common.utils.{IOUtil, Logging}
 import com.nulabinc.jira.client._
 import com.nulabinc.jira.client.domain.changeLog._
 import com.osinka.i18n.Messages
 
-private [exporter] class ChangeLogReducer(issueDirPath: Path,
-                                          backlogPaths: BacklogPaths,
-                                          issueService: IssueService)
-  extends Logging {
+private[exporter] class ChangeLogReducer(
+    issueDirPath: Path,
+    backlogPaths: BacklogPaths,
+    issueService: IssueService
+) extends Logging {
 
-  def reduce(changeLog: BacklogChangeLog): (Option[BacklogChangeLog], String) = {
+  def reduce(
+      changeLog: BacklogChangeLog
+  ): (Option[BacklogChangeLog], String) = {
     changeLog.field match {
       case BacklogConstantValue.ChangeLog.ATTACHMENT => attachment(changeLog)
       case "done_ratio" =>
         val message =
-          Messages("common.change_comment", Messages("common.done_ratio"), getValue(changeLog.optOriginalValue), getValue(changeLog.optNewValue))
+          Messages(
+            "common.change_comment",
+            Messages("common.done_ratio"),
+            getValue(changeLog.optOriginalValue),
+            getValue(changeLog.optNewValue)
+          )
         (None, s"${message}\n")
       case "relates" =>
         val message =
-          Messages("common.change_comment", Messages("common.relation"), getValue(changeLog.optOriginalValue), getValue(changeLog.optNewValue))
+          Messages(
+            "common.change_comment",
+            Messages("common.relation"),
+            getValue(changeLog.optOriginalValue),
+            getValue(changeLog.optNewValue)
+          )
         (None, s"${message}\n")
       case "is_private" =>
-        val message = Messages("common.change_comment",
+        val message = Messages(
+          "common.change_comment",
           Messages("common.private"),
           getValue(privateValue(changeLog.optOriginalValue)),
-          getValue(privateValue(changeLog.optNewValue)))
+          getValue(privateValue(changeLog.optNewValue))
+        )
         (None, s"${message}\n")
       case BacklogConstantValue.ChangeLog.RESOLUTION =>
-        val message = Messages("common.change_comment", Messages("common.resolution"), getValue(changeLog.optOriginalValue), getValue(changeLog.optNewValue))
+        val message = Messages(
+          "common.change_comment",
+          Messages("common.resolution"),
+          getValue(changeLog.optOriginalValue),
+          getValue(changeLog.optNewValue)
+        )
         (None, s"${message}\n")
       case "timeestimate" =>
-        val message = Messages("common.change_comment", Messages("common.timeestimate"), getValue(changeLog.optOriginalValue), getValue(changeLog.optNewValue))
+        val message = Messages(
+          "common.change_comment",
+          Messages("common.timeestimate"),
+          getValue(changeLog.optOriginalValue),
+          getValue(changeLog.optNewValue)
+        )
         (None, s"${message}\n")
       case ParentChangeLogItemField.value =>
-        val message = Messages("common.change_comment", Messages("common.parent_issue"), getValue(changeLog.optOriginalValue), getValue(changeLog.optNewValue))
+        val message = Messages(
+          "common.change_comment",
+          Messages("common.parent_issue"),
+          getValue(changeLog.optOriginalValue),
+          getValue(changeLog.optNewValue)
+        )
         (None, s"${message}\n")
       case "deleted_category" =>
-        val message = Messages("common.change_comment", Messages("common.category"), getValue(changeLog.optOriginalValue), getValue(changeLog.optNewValue))
+        val message = Messages(
+          "common.change_comment",
+          Messages("common.category"),
+          getValue(changeLog.optOriginalValue),
+          getValue(changeLog.optNewValue)
+        )
         (None, s"${message}\n")
       case "deleted_version" =>
-        val message = Messages("common.change_comment", Messages("common.version"), getValue(changeLog.optOriginalValue), getValue(changeLog.optNewValue))
+        val message = Messages(
+          "common.change_comment",
+          Messages("common.version"),
+          getValue(changeLog.optOriginalValue),
+          getValue(changeLog.optNewValue)
+        )
         (None, s"${message}\n")
       case "link_issue" =>
-        val message = Messages("common.change_comment", Messages("common.link"), getValue(changeLog.optOriginalValue), getValue(changeLog.optNewValue))
+        val message = Messages(
+          "common.change_comment",
+          Messages("common.link"),
+          getValue(changeLog.optOriginalValue),
+          getValue(changeLog.optNewValue)
+        )
         (None, s"${message}\n")
       case LabelsChangeLogItemField.value =>
-        val message = Messages("common.change_comment", Messages("common.labels"), getValue(changeLog.optOriginalValue), getValue(changeLog.optNewValue))
+        val message = Messages(
+          "common.change_comment",
+          Messages("common.labels"),
+          getValue(changeLog.optOriginalValue),
+          getValue(changeLog.optNewValue)
+        )
         (None, s"${message}\n")
       case SprintChangeLogItemField.value =>
-        val message = Messages("common.change_comment", Messages("common.sprint"), getValue(changeLog.optOriginalValue), getValue(changeLog.optNewValue))
+        val message = Messages(
+          "common.change_comment",
+          Messages("common.sprint"),
+          getValue(changeLog.optOriginalValue),
+          getValue(changeLog.optNewValue)
+        )
         (None, s"${message}\n")
       case _ =>
         (Some(changeLog.copy(optNewValue = ValueReducer.reduce(changeLog))), "")
@@ -83,22 +141,30 @@ private [exporter] class ChangeLogReducer(issueDirPath: Path,
     }
   }
 
-  private def attachment(changeLog: BacklogChangeLog): (Option[BacklogChangeLog], String) = {
+  private def attachment(
+      changeLog: BacklogChangeLog
+  ): (Option[BacklogChangeLog], String) = {
     changeLog.optAttachmentInfo match {
       case Some(attachmentInfo) =>
         attachmentInfo.optId match {
           case Some(attachmentInfoId) =>
             // download
-            val dir  = backlogPaths.issueAttachmentDirectoryPath(issueDirPath)
-            val path = backlogPaths.issueAttachmentPath(dir, attachmentInfo.name)
+            val dir = backlogPaths.issueAttachmentDirectoryPath(issueDirPath)
+            val path =
+              backlogPaths.issueAttachmentPath(dir, attachmentInfo.name)
             IOUtil.createDirectory(dir)
-            issueService.downloadAttachments(attachmentInfoId.toLong, path, attachmentInfo.name) match {
+            issueService.downloadAttachments(
+              attachmentInfoId.toLong,
+              path,
+              attachmentInfo.name
+            ) match {
               case DownloadSuccess =>
                 (Some(changeLog), "")
               case DownloadFailure =>
                 val emptyMessage = Messages(
                   "export.attachment.empty",
-                  changeLog.optOriginalValue.getOrElse(Messages("common.empty")),
+                  changeLog.optOriginalValue
+                    .getOrElse(Messages("common.empty")),
                   changeLog.optNewValue.getOrElse(Messages("common.empty"))
                 )
                 (None, s"$emptyMessage\n")

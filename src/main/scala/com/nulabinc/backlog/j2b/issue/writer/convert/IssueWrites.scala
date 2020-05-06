@@ -9,10 +9,11 @@ import com.nulabinc.backlog.migration.common.domain._
 import com.nulabinc.backlog.migration.common.utils.DateUtil
 import com.nulabinc.jira.client.domain.issue.Issue
 
-class IssueWrites @Inject()(implicit val userWrites: UserWrites,
-                            implicit val issueFieldWrites: IssueFieldWrites,
-                            implicit val attachmentWrites: AttachmentWrites)
-    extends Writes[(Issue, Seq[IssueField]), BacklogIssue]
+class IssueWrites @Inject() (
+    implicit val userWrites: UserWrites,
+    implicit val issueFieldWrites: IssueFieldWrites,
+    implicit val attachmentWrites: AttachmentWrites
+) extends Writes[(Issue, Seq[IssueField]), BacklogIssue]
     with SecondToHourFormatter {
 
   override def writes(map: (Issue, Seq[IssueField])) = {
@@ -22,16 +23,20 @@ class IssueWrites @Inject()(implicit val userWrites: UserWrites,
       eventType = "issue",
       id = issue.id,
       optIssueKey = None,
-      summary = BacklogIssueSummary(value = issue.summary, original = issue.summary),
+      summary =
+        BacklogIssueSummary(value = issue.summary, original = issue.summary),
       optParentIssueId = issue.parent.map(_.id),
       description = issue.description.getOrElse(""),
       optStartDate = None,
       optDueDate = issue.dueDate.map(DateUtil.dateFormat),
-      optEstimatedHours = issue.timeTrack.flatMap(_.originalEstimateSeconds.map(secondsToHours)),
-      optActualHours = issue.timeTrack.flatMap(_.timeSpentSeconds.map(secondsToHours)),
+      optEstimatedHours =
+        issue.timeTrack.flatMap(_.originalEstimateSeconds.map(secondsToHours)),
+      optActualHours =
+        issue.timeTrack.flatMap(_.timeSpentSeconds.map(secondsToHours)),
       optIssueTypeName = Some(issue.issueType.name),
 //      status = issue.status,
-      status = BacklogCustomStatus.create(BacklogStatusName("aaa")), // TODO: fix
+      status =
+        BacklogCustomStatus.create(BacklogStatusName("aaa")), // TODO: fix
       categoryNames = issue.components.map(_.name),
       versionNames = issue.fixVersions.map(_.name),
       milestoneNames = Seq.empty[String],
@@ -47,10 +52,11 @@ class IssueWrites @Inject()(implicit val userWrites: UserWrites,
 
   private def toBacklogOperation(issue: Issue) =
     BacklogOperation(
-      optCreatedUser  = Some(Convert.toBacklog(issue.creator)),
-      optCreated      = Some(issue.createdAt).map(DateUtil.isoFormat),
-      optUpdatedUser  = issue.changeLogs.lastOption.flatMap(_.optAuthor.map(Convert.toBacklog(_))),
-      optUpdated      = Some(issue.updatedAt).map(DateUtil.isoFormat)
+      optCreatedUser = Some(Convert.toBacklog(issue.creator)),
+      optCreated = Some(issue.createdAt).map(DateUtil.isoFormat),
+      optUpdatedUser = issue.changeLogs.lastOption
+        .flatMap(_.optAuthor.map(Convert.toBacklog(_))),
+      optUpdated = Some(issue.updatedAt).map(DateUtil.isoFormat)
     )
 
 }

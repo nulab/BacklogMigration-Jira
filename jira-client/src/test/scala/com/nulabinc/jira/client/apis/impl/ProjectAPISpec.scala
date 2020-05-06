@@ -134,7 +134,12 @@ class ProjectAPISpec extends Specification with Mockito {
     httpClient.get(any[String]) returns Right(response)
 
     val client = new ProjectAPI(httpClient)
-    val expect = Project(10000, "EX", "Example", "This project was created as an example for REST.")
+    val expect = Project(
+      10000,
+      "EX",
+      "Example",
+      "This project was created as an example for REST."
+    )
     val actual = client.project(10000).right.get
     actual must equalTo(expect)
   }

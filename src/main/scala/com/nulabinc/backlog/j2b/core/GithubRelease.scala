@@ -10,7 +10,9 @@ object GithubRelease extends Logging {
     import spray.json._
     import spray.json.DefaultJsonProtocol._
 
-    val url = new URL("https://api.github.com/repos/nulab/BacklogMigration-Jira/releases")
+    val url = new URL(
+      "https://api.github.com/repos/nulab/BacklogMigration-Jira/releases"
+    )
     val http = url.openConnection().asInstanceOf[HttpURLConnection]
     val optProxyUser = Option(System.getProperty("https.proxyUser"))
     val optProxyPass = Option(System.getProperty("https.proxyPassword"))
@@ -29,7 +31,9 @@ object GithubRelease extends Logging {
       http.setRequestMethod("GET")
       http.connect()
 
-      val reader = new BufferedReader(new InputStreamReader(http.getInputStream))
+      val reader = new BufferedReader(
+        new InputStreamReader(http.getInputStream)
+      )
       val output = new StringBuilder()
       var line = ""
 
@@ -42,7 +46,10 @@ object GithubRelease extends Logging {
 
       output.toString().parseJson match {
         case JsArray(releases) if releases.nonEmpty =>
-          releases(0).asJsObject.fields.apply("tag_name").convertTo[String].replace("v", "")
+          releases(0).asJsObject.fields
+            .apply("tag_name")
+            .convertTo[String]
+            .replace("v", "")
         case _ => ""
       }
     } catch {

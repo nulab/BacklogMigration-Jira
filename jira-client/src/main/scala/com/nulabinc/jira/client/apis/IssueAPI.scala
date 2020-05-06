@@ -18,10 +18,14 @@ class IssueRestClientImpl(httpClient: HttpClient) extends Pageable {
 
   def issue(key: String) = fetchIssue(key)
 
-  def projectIssues(key: String, startAt: Long = 0, maxResults: Long = 100): Either[HttpError, Seq[Issue]] = {
+  def projectIssues(
+      key: String,
+      startAt: Long = 0,
+      maxResults: Long = 100
+  ): Either[HttpError, Seq[Issue]] = {
     val uri = "/search" ? paginateUri(startAt, maxResults) &
-      ("jql"        -> s"project=$key") &
-      ("fields"     -> "*all")
+      ("jql" -> s"project=$key") &
+      ("fields" -> "*all")
 
     httpClient.get(uri.toString) match {
       case Right(json) => Right(JsonParser(json).convertTo[IssueResult].issues)
@@ -29,17 +33,21 @@ class IssueRestClientImpl(httpClient: HttpClient) extends Pageable {
     }
   }
 
-  def changeLogs(issueIdOrKey: String): Either[JiraRestClientError, ChangeLogResult] =
+  def changeLogs(
+      issueIdOrKey: String
+  ): Either[JiraRestClientError, ChangeLogResult] =
     httpClient.get(s"/issue/$issueIdOrKey/changelog") match {
-      case Right(json)               => Right(JsonParser(json).convertTo[ChangeLogResult])
-      case Left(_: ApiNotFoundError) => Right(ChangeLogResult(0, true, Seq.empty[ChangeLog]))
-      case Left(error)               => Left(HttpError(error))
+      case Right(json) => Right(JsonParser(json).convertTo[ChangeLogResult])
+      case Left(_: ApiNotFoundError) =>
+        Right(ChangeLogResult(0, true, Seq.empty[ChangeLog]))
+      case Left(error) => Left(HttpError(error))
     }
 
-  private [this] def fetchIssue(issueIdOrKey: String) =
+  private[this] def fetchIssue(issueIdOrKey: String) =
     httpClient.get(s"/issue/$issueIdOrKey") match {
-      case Right(json)               => Right(JsonParser(json).convertTo[Issue])
-      case Left(_: ApiNotFoundError) => Left(ResourceNotFoundError("Issue", issueIdOrKey))
-      case Left(error)               => Left(HttpError(error))
+      case Right(json) => Right(JsonParser(json).convertTo[Issue])
+      case Left(_: ApiNotFoundError) =>
+        Left(ResourceNotFoundError("Issue", issueIdOrKey))
+      case Left(error) => Left(HttpError(error))
     }
 }

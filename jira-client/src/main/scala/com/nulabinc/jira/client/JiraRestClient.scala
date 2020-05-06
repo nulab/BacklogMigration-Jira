@@ -8,27 +8,28 @@ class JiraRestClient(val url: String, username: String, apiKey: String) {
 
   val httpClient = new HttpClient(url, username, apiKey)
 
-  lazy val projectAPI    = new ProjectAPI(httpClient)
-  lazy val userAPI       = new UserAPI(httpClient)
-  lazy val issueAPI      = new IssueRestClientImpl(httpClient)
-  lazy val searchAPI     = new SearchAPI(httpClient)
-  lazy val statusAPI     = new StatusAPI(httpClient)
-  lazy val fieldAPI      = new FieldAPI(httpClient)
-  lazy val componentAPI  = new ComponentAPI(httpClient)
-  lazy val versionsAPI   = new VersionAPI(httpClient)
-  lazy val issueTypeAPI  = new IssueTypeAPI(httpClient)
-  lazy val priorityAPI   = new PriorityAPI(httpClient)
+  lazy val projectAPI = new ProjectAPI(httpClient)
+  lazy val userAPI = new UserAPI(httpClient)
+  lazy val issueAPI = new IssueRestClientImpl(httpClient)
+  lazy val searchAPI = new SearchAPI(httpClient)
+  lazy val statusAPI = new StatusAPI(httpClient)
+  lazy val fieldAPI = new FieldAPI(httpClient)
+  lazy val componentAPI = new ComponentAPI(httpClient)
+  lazy val versionsAPI = new VersionAPI(httpClient)
+  lazy val issueTypeAPI = new IssueTypeAPI(httpClient)
+  lazy val priorityAPI = new PriorityAPI(httpClient)
   lazy val attachmentAPI = new AttachmentAPI(httpClient)
-  lazy val commentAPI    = new CommentAPI(httpClient)
+  lazy val commentAPI = new CommentAPI(httpClient)
 
   def myself(): Either[JiraRestClientError, User] = {
 
     import json.UserMappingJsonProtocol._
 
     httpClient.get(s"/myself") match {
-      case Right(json)               => Right(JsonParser(json).convertTo[User])
-      case Left(_: ApiNotFoundError) => Left(ResourceNotFoundError("myself", s"$username:$apiKey"))
-      case Left(error)               => Left(HttpError(error))
+      case Right(json) => Right(JsonParser(json).convertTo[User])
+      case Left(_: ApiNotFoundError) =>
+        Left(ResourceNotFoundError("myself", s"$username:$apiKey"))
+      case Left(error) => Left(HttpError(error))
     }
   }
 }

@@ -16,13 +16,17 @@ object CommentMappingJsonProtocol extends DefaultJsonProtocol {
     def read(json: JsValue) = {
       val jsObject = json.asJsObject
       jsObject.getFields("id", "body", "author", "created") match {
-        case Seq(JsString(id), JsString(body), author, createdAt) => Comment(
-          id = id.toLong,
-          body = body,
-          author = author.convertTo[User],
-          createdAt = createdAt.convertTo[Date]
-        )
-        case other => deserializationError("Cannot deserialize Comment: invalid input. Raw input: " + other)
+        case Seq(JsString(id), JsString(body), author, createdAt) =>
+          Comment(
+            id = id.toLong,
+            body = body,
+            author = author.convertTo[User],
+            createdAt = createdAt.convertTo[Date]
+          )
+        case other =>
+          deserializationError(
+            "Cannot deserialize Comment: invalid input. Raw input: " + other
+          )
       }
     }
   }

@@ -10,9 +10,10 @@ class PriorityAPI(httpClient: HttpClient) {
 
   def priorities: Either[JiraRestClientError, Seq[Priority]] = {
     httpClient.get(s"/priority") match {
-      case Right(json)               => Right(JsonParser(json).convertTo[Seq[Priority]])
-      case Left(_: ApiNotFoundError) => Left(ResourceNotFoundError("priority", ""))
-      case Left(error)               => Left(HttpError(error))
+      case Right(json) => Right(JsonParser(json).convertTo[Seq[Priority]])
+      case Left(_: ApiNotFoundError) =>
+        Left(ResourceNotFoundError("priority", ""))
+      case Left(error) => Left(HttpError(error))
     }
   }
 

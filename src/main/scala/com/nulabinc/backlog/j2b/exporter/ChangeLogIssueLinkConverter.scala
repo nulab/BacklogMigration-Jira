@@ -5,7 +5,10 @@ import com.nulabinc.jira.client.domain.changeLog._
 
 object ChangeLogIssueLinkConverter {
 
-  def convert(changeLogs: Seq[ChangeLog], backlogIssue: BacklogIssue): Seq[ChangeLog] = {
+  def convert(
+      changeLogs: Seq[ChangeLog],
+      backlogIssue: BacklogIssue
+  ): Seq[ChangeLog] = {
     val displayStrings = changeLogs.flatMap { changeLog =>
       changeLog.items
         .filter { item => item.field == DefaultField("link_issue") }
@@ -13,13 +16,16 @@ object ChangeLogIssueLinkConverter {
     }
 
     val linkedIssueChangeLogItems = if (displayStrings.nonEmpty) {
-      val lastDescription = changeLogs.reverse.flatMap { changeLog =>
-        changeLog.items.reverse.find(_.field == DescriptionChangeLogItemField)
-      }.headOption.flatMap(_.toDisplayString)
+      val lastDescription = changeLogs.reverse
+        .flatMap { changeLog =>
+          changeLog.items.reverse.find(_.field == DescriptionChangeLogItemField)
+        }
+        .headOption
+        .flatMap(_.toDisplayString)
 
       Seq(
         ChangeLog(
-          id = 0,   // TODO: Check
+          id = 0, // TODO: Check
           optAuthor = changeLogs.last.optAuthor,
           createdAt = changeLogs.last.createdAt,
           items = Seq(
@@ -30,7 +36,11 @@ object ChangeLogIssueLinkConverter {
               from = None,
               fromDisplayString = lastDescription,
               to = None,
-              toDisplayString = Some(lastDescription.getOrElse(backlogIssue.description) + "\n\n" + displayStrings.mkString("\n"))
+              toDisplayString = Some(
+                lastDescription.getOrElse(
+                  backlogIssue.description
+                ) + "\n\n" + displayStrings.mkString("\n")
+              )
             )
           )
         )

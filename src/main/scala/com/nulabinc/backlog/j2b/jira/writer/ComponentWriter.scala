@@ -5,6 +5,8 @@ import com.nulabinc.jira.client.domain.Component
 
 trait ComponentWriter {
 
-  def write(categories: Seq[Component]): Either[WriteError, Seq[BacklogIssueCategory]]
+  def write(
+      categories: Seq[Component]
+  ): Either[WriteError, Seq[BacklogIssueCategory]]
 
 }

@@ -7,6 +7,9 @@ trait ProgressConsole extends Logging {
 
   def finishExportMessage(nextCommandStr: String): Unit = {
     ConsoleOut.println(s"""--------------------------------------------------
-                          |${Messages("export.finish", nextCommandStr)}""".stripMargin)
+                          |${Messages(
+      "export.finish",
+      nextCommandStr
+    )}""".stripMargin)
   }
 }

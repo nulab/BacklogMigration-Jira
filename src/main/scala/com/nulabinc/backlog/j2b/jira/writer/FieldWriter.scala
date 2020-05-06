@@ -6,6 +6,9 @@ import com.nulabinc.backlog.migration.common.domain.BacklogCustomFieldSetting
 
 trait FieldWriter {
 
-  def write(db: MappingCollectDatabase, fields: Seq[Field]): Either[WriteError, Seq[BacklogCustomFieldSetting]]
+  def write(
+      db: MappingCollectDatabase,
+      fields: Seq[Field]
+  ): Either[WriteError, Seq[BacklogCustomFieldSetting]]
 
 }

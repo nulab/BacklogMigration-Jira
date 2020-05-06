@@ -7,19 +7,20 @@ import com.nulabinc.backlog.migration.common.domain._
 import com.nulabinc.backlog.migration.common.utils.DateUtil
 import com.nulabinc.jira.client.domain.changeLog.ChangeLog
 
-class ChangeLogWrites @Inject()(implicit val userWrites: UserWrites,
-                                implicit val changelogItemWrites: ChangelogItemWrites)
-    extends Writes[ChangeLog, BacklogComment] {
+class ChangeLogWrites @Inject() (
+    implicit val userWrites: UserWrites,
+    implicit val changelogItemWrites: ChangelogItemWrites
+) extends Writes[ChangeLog, BacklogComment] {
 
   override def writes(changeLog: ChangeLog) =
     BacklogComment(
-      eventType       = "comment",
-      optIssueId      = None,
-      optContent      = None,
-      changeLogs      = changeLog.items.map(Convert.toBacklog(_)),
-      notifications   = Seq.empty[BacklogNotification],
-      optCreatedUser  = changeLog.optAuthor.map(Convert.toBacklog(_)),
-      optCreated      = Some(DateUtil.isoFormat(changeLog.createdAt))
+      eventType = "comment",
+      optIssueId = None,
+      optContent = None,
+      changeLogs = changeLog.items.map(Convert.toBacklog(_)),
+      notifications = Seq.empty[BacklogNotification],
+      optCreatedUser = changeLog.optAuthor.map(Convert.toBacklog(_)),
+      optCreated = Some(DateUtil.isoFormat(changeLog.createdAt))
     )
 
 }
