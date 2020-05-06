@@ -72,6 +72,7 @@ object App extends BacklogConfiguration with Logging {
         case "en" => Locale.setDefault(Locale.US)
         case _    => Locale.setDefault(Locale.getDefault)
       }
+      _ <- consoleDSL.println(configurationMessage(config.getAppConfiguration))
       result <- config.commandType match {
         case Some(Config.ExportCommand) =>
           J2BCli.`export`(config.getAppConfiguration, NextCommand.command(args))
