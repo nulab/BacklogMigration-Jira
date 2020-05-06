@@ -4,22 +4,58 @@ import java.io.{File, FileInputStream}
 import java.util.{Date, Properties}
 
 import com.nulabinc.backlog.j2b.conf.AppConfiguration
-import com.nulabinc.backlog.j2b.exporter.service.{JiraClientCommentService, JiraClientIssueService}
+import com.nulabinc.backlog.j2b.exporter.service.{
+  JiraClientCommentService,
+  JiraClientIssueService
+}
 import com.nulabinc.backlog.j2b.jira.conf.JiraApiConfiguration
 import com.nulabinc.backlog.j2b.jira.domain.JiraProjectKey
-import com.nulabinc.backlog.j2b.jira.domain.mapping.{JiraPriorityMappingItem, JiraStatusMappingItem, JiraUserMappingItem, ValidatedJiraPriorityMapping, ValidatedJiraStatusMapping, ValidatedJiraUserMapping}
+import com.nulabinc.backlog.j2b.jira.domain.mapping.{
+  JiraPriorityMappingItem,
+  JiraStatusMappingItem,
+  JiraUserMappingItem,
+  ValidatedJiraPriorityMapping,
+  ValidatedJiraStatusMapping,
+  ValidatedJiraUserMapping
+}
 import com.nulabinc.backlog.j2b.mapping.collector.MappingCollectDatabaseInMemory
-import com.nulabinc.backlog.j2b.mapping.converter.{MappingPriorityConverter, MappingStatusConverter, MappingUserConverter}
+import com.nulabinc.backlog.j2b.mapping.converter.{
+  MappingPriorityConverter,
+  MappingStatusConverter,
+  MappingUserConverter
+}
 import com.nulabinc.backlog.j2b.mapping.converter.writes.UserWrites
 import com.nulabinc.backlog.j2b.mapping.core.MappingDirectory
 import com.nulabinc.backlog.migration.common.conf.BacklogApiConfiguration
-import com.nulabinc.backlog.migration.common.dsl.{AppDSL, ConsoleDSL, StorageDSL}
-import com.nulabinc.backlog.migration.common.interpreters.{JansiConsoleDSL, LocalStorageDSL, TaskAppDSL}
-import com.nulabinc.backlog.migration.common.modules.{ServiceInjector => BacklogInjector}
-import com.nulabinc.backlog.migration.common.service.{PriorityService => BacklogPriorityService, StatusService => BacklogStatusService, UserService => BacklogUserService}
-import com.nulabinc.backlog.migration.common.services.{PriorityMappingFileService, StatusMappingFileService, UserMappingFileService}
+import com.nulabinc.backlog.migration.common.dsl.{
+  AppDSL,
+  ConsoleDSL,
+  StorageDSL
+}
+import com.nulabinc.backlog.migration.common.interpreters.{
+  JansiConsoleDSL,
+  LocalStorageDSL,
+  TaskAppDSL
+}
+import com.nulabinc.backlog.migration.common.modules.{
+  ServiceInjector => BacklogInjector
+}
+import com.nulabinc.backlog.migration.common.service.{
+  PriorityService => BacklogPriorityService,
+  StatusService => BacklogStatusService,
+  UserService => BacklogUserService
+}
+import com.nulabinc.backlog.migration.common.services.{
+  PriorityMappingFileService,
+  StatusMappingFileService,
+  UserMappingFileService
+}
 import com.nulabinc.backlog4j.conf.{BacklogConfigure, BacklogPackageConfigure}
-import com.nulabinc.backlog4j.{BacklogClient, BacklogClientFactory, Issue => BacklogIssue}
+import com.nulabinc.backlog4j.{
+  BacklogClient,
+  BacklogClientFactory,
+  Issue => BacklogIssue
+}
 import com.nulabinc.jira.client.JiraRestClient
 import monix.eval.Task
 import monix.execution.Scheduler.Implicits.global
@@ -37,29 +73,43 @@ trait TestHelper {
 
   val appConfig: AppConfiguration = getAppConfiguration
   val jiraRestApi: JiraRestClient = createJiraRestApi(appConfig.jiraConfig)
-  val backlogApi: BacklogClient   = createBacklogApi(appConfig.backlogConfig)
+  val backlogApi: BacklogClient = createBacklogApi(appConfig.backlogConfig)
 
   // Backlog services
-  val backlogInjector         = BacklogInjector.createInjector(appConfig.backlogConfig)
-  val backlogUserService      = backlogInjector.getInstance(classOf[BacklogUserService])
-  val backlogPriorityService  = backlogInjector.getInstance(classOf[BacklogPriorityService])
-  val backlogStatusService    = backlogInjector.getInstance(classOf[BacklogStatusService])
+  val backlogInjector = BacklogInjector.createInjector(appConfig.backlogConfig)
+  val backlogUserService =
+    backlogInjector.getInstance(classOf[BacklogUserService])
+  val backlogPriorityService =
+    backlogInjector.getInstance(classOf[BacklogPriorityService])
+  val backlogStatusService =
+    backlogInjector.getInstance(classOf[BacklogStatusService])
 
   // Backlog items
   val priorities = backlogPriorityService.allPriorities()
-  val statuses   = backlogStatusService.allStatuses()
-  val users      = backlogUserService.allUsers()
+  val statuses = backlogStatusService.allStatuses()
+  val users = backlogUserService.allUsers()
 
   // Mappings
-  val priorityMappings = PriorityMappingFileService.getMappings[JiraPriorityMappingItem, Task](
-    path = new File(MappingDirectory.PRIORITY_MAPPING_FILE).getAbsoluteFile.toPath
-  ).runSyncUnsafe().orFail
-  val statusMappings = StatusMappingFileService.getMappings[JiraStatusMappingItem, Task](
-    path = new File(MappingDirectory.STATUS_MAPPING_FILE).getAbsoluteFile.toPath
-  ).runSyncUnsafe().orFail
-  val userMappings = UserMappingFileService.getMappings[JiraUserMappingItem, Task](
-    path = new File(MappingDirectory.USER_MAPPING_FILE).getAbsoluteFile.toPath
-  ).runSyncUnsafe().orFail
+  val priorityMappings = PriorityMappingFileService
+    .getMappings[JiraPriorityMappingItem, Task](
+      path =
+        new File(MappingDirectory.PRIORITY_MAPPING_FILE).getAbsoluteFile.toPath
+    )
+    .runSyncUnsafe()
+    .orFail
+  val statusMappings = StatusMappingFileService
+    .getMappings[JiraStatusMappingItem, Task](
+      path =
+        new File(MappingDirectory.STATUS_MAPPING_FILE).getAbsoluteFile.toPath
+    )
+    .runSyncUnsafe()
+    .orFail
+  val userMappings = UserMappingFileService
+    .getMappings[JiraUserMappingItem, Task](
+      path = new File(MappingDirectory.USER_MAPPING_FILE).getAbsoluteFile.toPath
+    )
+    .runSyncUnsafe()
+    .orFail
 
   val validatedPriorityMappings = PriorityMappingFileService
     .validateMappings(priorityMappings, priorities)
@@ -82,7 +132,8 @@ trait TestHelper {
 
   // JIRA client service
   val jiraCommentService = new JiraClientCommentService(jiraRestApi)
-  val jiraIssueService = new JiraClientIssueService(JiraProjectKey(appConfig.jiraKey), jiraRestApi)
+  val jiraIssueService =
+    new JiraClientIssueService(JiraProjectKey(appConfig.jiraKey), jiraRestApi)
 
   // Regex
   val attachmentCommentPattern: Regex = """\[\^.+?\]""".r
@@ -95,8 +146,9 @@ trait TestHelper {
     )
 
   def createBacklogApi(config: BacklogApiConfiguration): BacklogClient = {
-    val backlogPackageConfigure: BacklogPackageConfigure = new BacklogPackageConfigure(config.url)
-    val configure: BacklogConfigure                      = backlogPackageConfigure.apiKey(config.key)
+    val backlogPackageConfigure: BacklogPackageConfigure =
+      new BacklogPackageConfigure(config.url)
+    val configure: BacklogConfigure = backlogPackageConfigure.apiKey(config.key)
     new BacklogClientFactory(configure).newClient()
   }
 
@@ -131,14 +183,16 @@ trait TestHelper {
     prop.load(new FileInputStream(file))
     val jiraUsername: String = prop.getProperty("jira.username")
     val jiraApiKey: String = prop.getProperty("jira.apiKey")
-    val jiraUrl: String      = prop.getProperty("jira.url")
-    val backlogKey: String   = prop.getProperty("backlog.key")
-    val backlogUrl: String   = prop.getProperty("backlog.url")
-    val projectKey: String   = prop.getProperty("projectKey")
+    val jiraUrl: String = prop.getProperty("jira.url")
+    val backlogKey: String = prop.getProperty("backlog.key")
+    val backlogUrl: String = prop.getProperty("backlog.url")
+    val projectKey: String = prop.getProperty("projectKey")
 
     val keys: Array[String] = projectKey.split(":")
-    val jira: String        = keys(0)
-    val backlog: String     = if (keys.length == 2) keys(1) else keys(0).toUpperCase.replaceAll("-", "_")
+    val jira: String = keys(0)
+    val backlog: String =
+      if (keys.length == 2) keys(1)
+      else keys(0).toUpperCase.replaceAll("-", "_")
 
     new AppConfiguration(
       jiraConfig = JiraApiConfiguration(

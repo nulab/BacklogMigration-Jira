@@ -6,7 +6,9 @@ import com.osinka.i18n.Messages
 
 trait MappingConsole extends Logging {
 
-  def displayMergedMappingFileMessageToConsole(mappingFile: MappingFile): Unit = {
+  def displayMergedMappingFileMessageToConsole(
+      mappingFile: MappingFile
+  ): Unit = {
     val addItems = mappingFile.merge()
     val message = if (addItems.nonEmpty) {
       def displayItem(value: String) = {
@@ -18,7 +20,11 @@ trait MappingConsole extends Logging {
       val mappingString = addItems.map(display).mkString("\n")
       s"""
          |--------------------------------------------------
-         |${Messages("cli.mapping.merge_file", mappingFile.itemName, mappingFile.filePath)}
+         |${Messages(
+        "cli.mapping.merge_file",
+        mappingFile.itemName,
+        mappingFile.filePath
+      )}
          |[${mappingFile.filePath}]
          |${mappingString}
          |--------------------------------------------------""".stripMargin
@@ -31,7 +37,9 @@ trait MappingConsole extends Logging {
     ConsoleOut.println(message)
   }
 
-  def displayCreateMappingFileMessageToConsole(mappingFile: MappingFile): Unit = {
+  def displayCreateMappingFileMessageToConsole(
+      mappingFile: MappingFile
+  ): Unit = {
     val message =
       s"""
          |--------------------------------------------------

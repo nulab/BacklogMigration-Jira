@@ -24,7 +24,8 @@ class ExportModule(config: AppConfiguration) extends DefaultModule(config) {
     bind(classOf[CommentWriter]).to(classOf[CommentFileWriter])
 
     // Exporter
-    bind(new TypeLiteral[ProjectService[Task]] {}).to(classOf[JiraClientProjectService])
+    bind(new TypeLiteral[ProjectService[Task]] {})
+      .to(classOf[JiraClientProjectService])
     bind(classOf[CategoryService]).to(classOf[JiraClientCategoryService])
     bind(classOf[VersionService]).to(classOf[JiraClientVersionService])
     bind(classOf[IssueTypeService]).to(classOf[JiraClientIssueTypeService])
@@ -35,6 +36,5 @@ class ExportModule(config: AppConfiguration) extends DefaultModule(config) {
     bind(classOf[CommentService]).to(classOf[JiraClientCommentService])
     bind(classOf[UserService]).to(classOf[JiraClientUserService])
   }
-
 
 }

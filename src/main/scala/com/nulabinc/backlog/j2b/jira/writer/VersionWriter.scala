@@ -6,6 +6,9 @@ import com.nulabinc.jira.client.domain.Version
 
 trait VersionWriter {
 
-  def write(versions: Seq[Version], milestones: Seq[Milestone]): Either[WriteError, Seq[BacklogVersion]]
+  def write(
+      versions: Seq[Version],
+      milestones: Seq[Milestone]
+  ): Either[WriteError, Seq[BacklogVersion]]
 
 }

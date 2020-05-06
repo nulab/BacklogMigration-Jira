@@ -22,7 +22,9 @@ object Finalizer extends Logging {
       case _ => ()
     }
 
-    val url = new URL(s"${config.backlogUrl}/api/v2/importer/jira?projectKey=${config.backlogProjectKey}")
+    val url = new URL(
+      s"${config.backlogUrl}/api/v2/importer/jira?projectKey=${config.backlogProjectKey}"
+    )
     url.openConnection match {
       case http: HttpURLConnection =>
         http.setRequestMethod("GET")

@@ -11,8 +11,10 @@ import com.nulabinc.jira.client.domain.Version
 import javax.inject.Inject
 import spray.json._
 
-class VersionFileWriter @Inject()(implicit val versionsWrites: VersionWrites,
-                                  backlogPaths: BacklogPaths) extends VersionWriter {
+class VersionFileWriter @Inject() (implicit
+    val versionsWrites: VersionWrites,
+    backlogPaths: BacklogPaths
+) extends VersionWriter {
 
   import com.nulabinc.backlog.migration.common.formatters.BacklogJsonProtocol.BacklogVersionsWrapperFormat
 
@@ -28,7 +30,10 @@ class VersionFileWriter @Inject()(implicit val versionsWrites: VersionWrites,
       )
     }
     val backlogVersions = Convert.toBacklog(versions ++ convertedMilestones)
-    IOUtil.output(backlogPaths.versionsJson, BacklogVersionsWrapper(backlogVersions).toJson.prettyPrint)
+    IOUtil.output(
+      backlogPaths.versionsJson,
+      BacklogVersionsWrapper(backlogVersions).toJson.prettyPrint
+    )
     Right(backlogVersions)
   }
 

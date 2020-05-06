@@ -9,7 +9,12 @@ import org.apache.http._
 import org.apache.http.auth.{AuthScope, UsernamePasswordCredentials}
 import org.apache.http.client.config.RequestConfig
 import org.apache.http.client.methods.{CloseableHttpResponse, HttpGet}
-import org.apache.http.impl.client.{BasicCredentialsProvider, CloseableHttpClient, HttpClientBuilder, HttpClients}
+import org.apache.http.impl.client.{
+  BasicCredentialsProvider,
+  CloseableHttpClient,
+  HttpClientBuilder,
+  HttpClients
+}
 import org.slf4j.{Logger, LoggerFactory}
 import spray.json.{JsArray, JsonParser}
 
@@ -21,9 +26,12 @@ sealed abstract class HttpClientError(val message: String) {
 case object AuthenticateFailedError extends HttpClientError("Bad credential")
 case class ApiNotFoundError(url: String) extends HttpClientError(url)
 case class BadRequestError(error: String) extends HttpClientError(error)
-case class GetContentError(throwable: Throwable) extends HttpClientError(throwable.getMessage)
-case class ThrowableError(throwable: Throwable) extends HttpClientError(throwable.getMessage)
-case class UndefinedError(statusCode: Int) extends HttpClientError(s"Unknown status code: $statusCode")
+case class GetContentError(throwable: Throwable)
+    extends HttpClientError(throwable.getMessage)
+case class ThrowableError(throwable: Throwable)
+    extends HttpClientError(throwable.getMessage)
+case class UndefinedError(statusCode: Int)
+    extends HttpClientError(s"Unknown status code: $statusCode")
 
 sealed trait DownloadResult
 case object DownloadSuccess extends DownloadResult
@@ -33,23 +41,32 @@ class HttpClient(url: String, username: String, apiKey: String) {
 
   val logger: Logger = LoggerFactory.getLogger(getClass)
 
-  private val auth: String              = username + ":" + apiKey
-  private val encodedAuth: Array[Byte]  = Base64.encodeBase64(auth.getBytes(Charset.forName("ISO-8859-1")))
-  private val authHeader: String        = "Basic " + new String(encodedAuth)
+  private val auth: String = username + ":" + apiKey
+  private val encodedAuth: Array[Byte] =
+    Base64.encodeBase64(auth.getBytes(Charset.forName("ISO-8859-1")))
+  private val authHeader: String = "Basic " + new String(encodedAuth)
 
   private val optProxyConfig: Option[HttpHost] =
-    (Option(System.getProperty("https.proxyHost")), Option(System.getProperty("https.proxyPort"))) match {
-    case (Some(host), Some(port)) => Some(new HttpHost(host, port.toInt))
-    case _ => None
-  }
+    (
+      Option(System.getProperty("https.proxyHost")),
+      Option(System.getProperty("https.proxyPort"))
+    ) match {
+      case (Some(host), Some(port)) => Some(new HttpHost(host, port.toInt))
+      case _                        => None
+    }
 
   private val optCredentialsProvider: Option[BasicCredentialsProvider] =
-    (optProxyConfig, Option(System.getProperty("https.proxyUser")), Option(System.getProperty("https.proxyPassword"))) match {
+    (
+      optProxyConfig,
+      Option(System.getProperty("https.proxyUser")),
+      Option(System.getProperty("https.proxyPassword"))
+    ) match {
       case (Some(proxy), Some(user), Some(pass)) =>
         val credsProvider = new BasicCredentialsProvider()
-          credsProvider.setCredentials(
-            new AuthScope(proxy),
-            new UsernamePasswordCredentials(user, pass))
+        credsProvider.setCredentials(
+          new AuthScope(proxy),
+          new UsernamePasswordCredentials(user, pass)
+        )
         Some(credsProvider)
       case _ =>
         None
@@ -58,7 +75,7 @@ class HttpClient(url: String, username: String, apiKey: String) {
   def get(path: String): Either[HttpClientError, String] = {
 
     val closableHttpClient = createHttpClient()
-    val httpRequest        = createHttpGetRequest(url + "/rest/api/2" + path)
+    val httpRequest = createHttpGetRequest(url + "/rest/api/2" + path)
 
     try {
       val closableHttpResponse = httpExecute(closableHttpClient, httpRequest)
@@ -85,7 +102,8 @@ class HttpClient(url: String, username: String, apiKey: String) {
           } finally {
             closableHttpResponse.close()
           }
-        case HttpStatus.SC_NOT_FOUND    => Left(ApiNotFoundError(httpRequest.getURI.toString))
+        case HttpStatus.SC_NOT_FOUND =>
+          Left(ApiNotFoundError(httpRequest.getURI.toString))
         case HttpStatus.SC_UNAUTHORIZED => Left(AuthenticateFailedError)
         case HttpStatus.SC_FORBIDDEN    => Left(AuthenticateFailedError)
         case statusCode                 => Left(UndefinedError(statusCode))
@@ -108,7 +126,7 @@ class HttpClient(url: String, username: String, apiKey: String) {
     }
 
     val closableHttpClient = createHttpClient()
-    val httpRequest        = createHttpGetRequest(url)
+    val httpRequest = createHttpGetRequest(url)
 
     try {
       val closableHttpResponse = httpExecute(closableHttpClient, httpRequest)
@@ -140,7 +158,8 @@ class HttpClient(url: String, username: String, apiKey: String) {
       proxyConfig <- optProxyConfig
       credentialProvider <- optCredentialsProvider
     } yield {
-      val config = RequestConfig.custom()
+      val config = RequestConfig
+        .custom()
         .setProxy(proxyConfig)
         .build()
 
@@ -156,7 +175,10 @@ class HttpClient(url: String, username: String, apiKey: String) {
     new HttpGet(path)
   }
 
-  private def httpExecute(client: CloseableHttpClient, request: HttpGet): CloseableHttpResponse = {
+  private def httpExecute(
+      client: CloseableHttpClient,
+      request: HttpGet
+  ): CloseableHttpResponse = {
     request.setHeader(HttpHeaders.AUTHORIZATION, authHeader)
     client.execute(request)
   }

@@ -1,5 +1,3 @@
 package com.nulabinc.jira
 
-package object client {
-
-}
+package object client {}

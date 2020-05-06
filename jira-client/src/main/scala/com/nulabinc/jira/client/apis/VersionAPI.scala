@@ -14,8 +14,9 @@ class VersionAPI(httpClient: HttpClient) {
 
   private def fetch(projectIdOrKey: String) =
     httpClient.get(s"/project/$projectIdOrKey/versions") match {
-      case Right(json)               => Right(JsonParser(json).convertTo[Seq[Version]])
-      case Left(_: ApiNotFoundError) => Left(ResourceNotFoundError("Version", projectIdOrKey))
-      case Left(error)               => Left(HttpError(error))
+      case Right(json) => Right(JsonParser(json).convertTo[Seq[Version]])
+      case Left(_: ApiNotFoundError) =>
+        Left(ResourceNotFoundError("Version", projectIdOrKey))
+      case Left(error) => Left(HttpError(error))
     }
 }

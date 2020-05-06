@@ -13,6 +13,10 @@ trait IssueService {
 
   def changeLogs(issue: Issue): Seq[ChangeLog]
 
-  def downloadAttachments(attachmentId: Long, destinationPath: Path, fileName: String): DownloadResult
-  
+  def downloadAttachments(
+      attachmentId: Long,
+      destinationPath: Path,
+      fileName: String
+  ): DownloadResult
+
 }

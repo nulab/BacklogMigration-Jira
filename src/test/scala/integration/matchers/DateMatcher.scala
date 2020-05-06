@@ -6,7 +6,8 @@ import com.nulabinc.backlog.j2b.jira.utils.DatetimeToDateFormatter
 import integration.helper.{DateFormatter, TestHelper}
 import org.scalatest.{Assertion, Matchers}
 
-trait DateMatcher extends TestHelper
+trait DateMatcher
+    extends TestHelper
     with Matchers
     with DateFormatter
     with DatetimeToDateFormatter {

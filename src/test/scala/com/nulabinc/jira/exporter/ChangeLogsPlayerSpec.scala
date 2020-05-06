@@ -46,8 +46,8 @@ class ChangeLogsPlayerSpec extends Specification {
     )
 
     val re = Calc.run(init, events)
-    re(0) must equalTo(Result(1, Seq("A"),           Seq("A", "B")))
-    re(1) must equalTo(Result(2, Seq("A", "B"),      Seq("A", "B", "C")))
+    re(0) must equalTo(Result(1, Seq("A"), Seq("A", "B")))
+    re(1) must equalTo(Result(2, Seq("A", "B"), Seq("A", "B", "C")))
     re(2) must equalTo(Result(3, Seq("A", "B", "C"), Seq("B", "C")))
   }
 

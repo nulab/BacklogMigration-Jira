@@ -10,14 +10,19 @@ import com.nulabinc.jira.client.domain.Project
 import javax.inject.Inject
 import spray.json._
 
-class ProjectFileWriter @Inject()(implicit val projectWrites: ProjectWrites,
-                                  backlogPaths: BacklogPaths) extends ProjectWriter {
+class ProjectFileWriter @Inject() (implicit
+    val projectWrites: ProjectWrites,
+    backlogPaths: BacklogPaths
+) extends ProjectWriter {
 
   import com.nulabinc.backlog.migration.common.formatters.BacklogJsonProtocol.BacklogProjectWrapperFormat
 
   override def write(project: Project) = {
     val backlogProject = Convert.toBacklog(project)
-    IOUtil.output(backlogPaths.projectJson, BacklogProjectWrapper(backlogProject).toJson.prettyPrint)
+    IOUtil.output(
+      backlogPaths.projectJson,
+      BacklogProjectWrapper(backlogProject).toJson.prettyPrint
+    )
     Right(backlogProject)
   }
 }

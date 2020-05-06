@@ -6,6 +6,9 @@ import com.nulabinc.backlog.migration.common.domain.BacklogIssue
 
 trait IssueWriter {
 
-  def write(issue: BacklogIssue, issueCreatedAt: Date): Either[WriteError, BacklogIssue]
+  def write(
+      issue: BacklogIssue,
+      issueCreatedAt: Date
+  ): Either[WriteError, BacklogIssue]
 
 }

@@ -12,11 +12,12 @@ class ProjectAPI(httpClient: HttpClient) {
 
   def project(key: String) = fetchProject(key)
 
-  private [this] def fetchProject(projectIdOrKey: String) = {
+  private[this] def fetchProject(projectIdOrKey: String) = {
     httpClient.get(s"/project/$projectIdOrKey") match {
-      case Right(json)               => Right(JsonParser(json).convertTo[Project])
-      case Left(_: ApiNotFoundError) => Left(ResourceNotFoundError("Project", projectIdOrKey))
-      case Left(error)               => Left(HttpError(error))
+      case Right(json) => Right(JsonParser(json).convertTo[Project])
+      case Left(_: ApiNotFoundError) =>
+        Left(ResourceNotFoundError("Project", projectIdOrKey))
+      case Left(error) => Left(HttpError(error))
     }
   }
 }

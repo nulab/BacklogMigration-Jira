@@ -11,9 +11,11 @@ import com.nulabinc.jira.client.domain.issue.Issue
 import com.nulabinc.jira.client.{DownloadResult, JiraRestClient}
 import javax.inject.Inject
 
-class JiraClientIssueService @Inject()(projectKey: JiraProjectKey,
-                                       jira: JiraRestClient)
-    extends IssueService with Logging {
+class JiraClientIssueService @Inject() (
+    projectKey: JiraProjectKey,
+    jira: JiraRestClient
+) extends IssueService
+    with Logging {
 
   override def count(): Long = {
     jira.searchAPI.searchJql(s"project=${projectKey.value}", 0, 0) match {
@@ -36,23 +38,38 @@ class JiraClientIssueService @Inject()(projectKey: JiraProjectKey,
 
   override def changeLogs(issue: Issue): Seq[ChangeLog] = {
 
-    def fetch(issue: Issue, startAt: Long, maxResults: Long, changeLogs: Seq[ChangeLog]): Seq[ChangeLog] =
+    def fetch(
+        issue: Issue,
+        startAt: Long,
+        maxResults: Long,
+        changeLogs: Seq[ChangeLog]
+    ): Seq[ChangeLog] =
       jira.issueAPI.changeLogs(issue.id.toString) match {
         case Right(result) =>
           val appendedChangeLogs = changeLogs ++ result.values
-          if (result.hasPage) fetch(issue, startAt + maxResults, maxResults, appendedChangeLogs)
+          if (result.hasPage)
+            fetch(issue, startAt + maxResults, maxResults, appendedChangeLogs)
           else appendedChangeLogs
         case Left(error) =>
-          throw new RuntimeException(s"Cannot get issue change logs: ${error.message}")
+          throw new RuntimeException(
+            s"Cannot get issue change logs: ${error.message}"
+          )
       }
 
     fetch(issue, 0, 100, Seq.empty[ChangeLog])
   }
 
-  override def downloadAttachments(attachmentId: Long, saveDirectory: Path, fileName: String): DownloadResult = {
+  override def downloadAttachments(
+      attachmentId: Long,
+      saveDirectory: Path,
+      fileName: String
+  ): DownloadResult = {
     // content = https://(workspace name).atlassian.net/secure/attachment/(attachment ID)/(file name)
     val encodedFileName = URLEncoder.encode(fileName, "UTF-8")
-    jira.httpClient.download(jira.url + s"/secure/attachment/$attachmentId/$encodedFileName", saveDirectory.toString)
+    jira.httpClient.download(
+      jira.url + s"/secure/attachment/$attachmentId/$encodedFileName",
+      saveDirectory.toString
+    )
   }
 
 }

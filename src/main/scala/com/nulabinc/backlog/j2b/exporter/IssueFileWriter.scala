@@ -11,14 +11,21 @@ import com.nulabinc.backlog.migration.common.utils.IOUtil
 import javax.inject.Inject
 import spray.json._
 
-class IssueFileWriter @Inject()(backlogPaths: BacklogPaths,
-                                issueService: IssueService) extends IssueWriter {
+class IssueFileWriter @Inject() (
+    backlogPaths: BacklogPaths,
+    issueService: IssueService
+) extends IssueWriter {
 
   override def write(backlogIssue: BacklogIssue, issueCreatedAt: Date) = {
-    val issueDirPath = backlogPaths.issueDirectoryPath("issue", backlogIssue.id, issueCreatedAt, 0)
+    val issueDirPath = backlogPaths.issueDirectoryPath(
+      "issue",
+      backlogIssue.id,
+      issueCreatedAt,
+      0
+    )
 
     // download
-    val dir  = backlogPaths.issueAttachmentDirectoryPath(issueDirPath)
+    val dir = backlogPaths.issueAttachmentDirectoryPath(issueDirPath)
     backlogIssue.attachments.foreach { attachment =>
       IOUtil.createDirectory(dir)
       val path = backlogPaths.issueAttachmentPath(dir, attachment.name)
@@ -27,7 +34,10 @@ class IssueFileWriter @Inject()(backlogPaths: BacklogPaths,
       }
     }
 
-    IOUtil.output(backlogPaths.issueJson(issueDirPath), backlogIssue.toJson.prettyPrint)
+    IOUtil.output(
+      backlogPaths.issueJson(issueDirPath),
+      backlogIssue.toJson.prettyPrint
+    )
     Right(backlogIssue)
   }
 }

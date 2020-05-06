@@ -1,10 +1,16 @@
 package com.nulabinc.backlog.j2b.mapping
 
-import com.nulabinc.backlog.migration.common.domain.mappings.{MappingHeader, PriorityMapping, StatusMapping, UserMapping}
+import com.nulabinc.backlog.migration.common.domain.mappings.{
+  MappingHeader,
+  PriorityMapping,
+  StatusMapping,
+  UserMapping
+}
 
 object JiraMappingHeader {
 
-  implicit object PriorityMappingHeader extends MappingHeader[PriorityMapping[_]] {
+  implicit object PriorityMappingHeader
+      extends MappingHeader[PriorityMapping[_]] {
     val headers: Seq[String] = Seq("JIRA", "Backlog")
   }
 
@@ -13,6 +19,11 @@ object JiraMappingHeader {
   }
 
   implicit object UserMappingHeader extends MappingHeader[UserMapping[_]] {
-    val headers: Seq[String] = Seq("JIRA Account ID", "JIRA display name", "Backlog user name", "Backlog mapping type")
+    val headers: Seq[String] = Seq(
+      "JIRA Account ID",
+      "JIRA display name",
+      "Backlog user name",
+      "Backlog mapping type"
+    )
   }
 }

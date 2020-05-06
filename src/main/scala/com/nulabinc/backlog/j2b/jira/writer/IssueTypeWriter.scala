@@ -5,6 +5,8 @@ import com.nulabinc.jira.client.domain.issue.IssueType
 
 trait IssueTypeWriter {
 
-  def write(issueTypes: Seq[IssueType]): Either[WriteError, Seq[BacklogIssueType]]
+  def write(
+      issueTypes: Seq[IssueType]
+  ): Either[WriteError, Seq[BacklogIssueType]]
 
 }

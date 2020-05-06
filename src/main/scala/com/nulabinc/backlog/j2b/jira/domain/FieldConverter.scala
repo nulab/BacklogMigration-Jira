@@ -1,13 +1,16 @@
 package com.nulabinc.backlog.j2b.jira.domain
 
-import com.nulabinc.backlog.j2b.jira.domain.export.{FieldType, Field => ExportField}
+import com.nulabinc.backlog.j2b.jira.domain.export.{
+  FieldType,
+  Field => ExportField
+}
 import com.nulabinc.jira.client.domain.field.{Field => ClientField}
 
 object FieldConverter {
 
   def toExportField(clientFields: Seq[ClientField]): Seq[ExportField] =
     for {
-      field  <- clientFields
+      field <- clientFields
       schema <- field.schema
     } yield {
       ExportField(

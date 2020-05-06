@@ -8,11 +8,13 @@ import com.nulabinc.backlog.migration.common.domain.BacklogUser
 class UserWrites extends Writes[ValidatedJiraUserMapping, BacklogUser] {
 
   override def writes(mapping: ValidatedJiraUserMapping) =
-    BacklogUser(optId = None,
+    BacklogUser(
+      optId = None,
       optUserId = Some(mapping.dst.value),
       optPassword = None,
       name = mapping.src.displayName,
       optMailAddress = None,
-      roleType = BacklogConstantValue.USER_ROLE)
+      roleType = BacklogConstantValue.USER_ROLE
+    )
 
 }

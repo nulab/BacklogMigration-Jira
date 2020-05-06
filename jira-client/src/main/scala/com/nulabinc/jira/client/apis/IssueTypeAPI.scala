@@ -10,8 +10,9 @@ class IssueTypeAPI(httpClient: HttpClient) {
 
   def allIssueTypes() =
     httpClient.get("/issuetype") match {
-      case Right(json)               => Right(JsonParser(json).convertTo[Seq[IssueType]])
-      case Left(_: ApiNotFoundError) => Left(ResourceNotFoundError("IssueType", ""))
-      case Left(error)               => Left(HttpError(error))
+      case Right(json) => Right(JsonParser(json).convertTo[Seq[IssueType]])
+      case Left(_: ApiNotFoundError) =>
+        Left(ResourceNotFoundError("IssueType", ""))
+      case Left(error) => Left(HttpError(error))
     }
 }

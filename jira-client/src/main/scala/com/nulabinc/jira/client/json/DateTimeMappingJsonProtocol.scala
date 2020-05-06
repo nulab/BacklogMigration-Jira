@@ -13,10 +13,12 @@ object DateTimeMappingJsonProtocol {
     def write(datetime: Date): JsValue =
       JsString(datetime.formatted(format.toPattern))
 
-    def read(json: JsValue): Date = json match {
-      case JsString(x) => format.parse(x)
-      case x           => deserializationError("Expected DateTime as JsString, but got " + x)
-    }
+    def read(json: JsValue): Date =
+      json match {
+        case JsString(x) => format.parse(x)
+        case x =>
+          deserializationError("Expected DateTime as JsString, but got " + x)
+      }
   }
 
 }

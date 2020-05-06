@@ -2,14 +2,24 @@ package com.nulabinc.backlog.j2b.exporter.console
 
 import java.util.Date
 
-import com.nulabinc.backlog.migration.common.utils.{ConsoleOut, DateUtil, Logging, ProgressBar}
+import com.nulabinc.backlog.migration.common.utils.{
+  ConsoleOut,
+  DateUtil,
+  Logging,
+  ProgressBar
+}
 import com.osinka.i18n.Messages
 import org.fusesource.jansi.Ansi
 import org.fusesource.jansi.Ansi.ansi
 
 class RemainingTimeCalculator(totalSize: Long) extends Logging {
 
-  private case class RemainingTime(totalSize: Long, lastTime: Long = System.currentTimeMillis(), totalElapsedTime: Long = 0, count: Long = 0) {
+  private case class RemainingTime(
+      totalSize: Long,
+      lastTime: Long = System.currentTimeMillis(),
+      totalElapsedTime: Long = 0,
+      count: Long = 0
+  ) {
 
     def action(): RemainingTime = {
       val elapsedTime: Long = System.currentTimeMillis() - this.lastTime
@@ -29,7 +39,7 @@ class RemainingTimeCalculator(totalSize: Long) extends Logging {
 
   private var remainingTime = RemainingTime(totalSize)
 
-  private[this] var newLine       = false
+  private[this] var newLine = false
   private[this] var isMessageMode = false
 
   def progress(indexOfDate: Int): Unit = {
@@ -46,15 +56,23 @@ class RemainingTimeCalculator(totalSize: Long) extends Logging {
       ConsoleOut.outStream.println()
     }
     (0 until 3).foreach { _ =>
-      ConsoleOut.outStream.print(ansi.cursorLeft(999).cursorUp(1).eraseLine(Ansi.Erase.ALL))
+      ConsoleOut.outStream.print(
+        ansi.cursorLeft(999).cursorUp(1).eraseLine(Ansi.Erase.ALL)
+      )
     }
     ConsoleOut.outStream.flush()
     newLine = false
   }
 
   private def remaining(): String = {
-    val progressBar = ProgressBar.progressBar(remainingTime.count.toInt, remainingTime.totalSize.toInt)
-    val time        = Messages("export.remaining_time", DateUtil.timeFormat(new Date(remainingTime.remainingTime)))
+    val progressBar = ProgressBar.progressBar(
+      remainingTime.count.toInt,
+      remainingTime.totalSize.toInt
+    )
+    val time = Messages(
+      "export.remaining_time",
+      DateUtil.timeFormat(new Date(remainingTime.remainingTime))
+    )
     s"$progressBar $time"
   }
 }

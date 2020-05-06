@@ -10,10 +10,11 @@ object TimeTrackMappingJsonProtocol extends DefaultJsonProtocol {
 
     def read(json: JsValue) = {
       val obj = json.asJsObject
-      val originalEstimateSeconds = obj.getFields("originalEstimateSeconds") match {
-        case Seq(JsNumber(sec)) => Some(sec.toInt)
-        case _                  => None
-      }
+      val originalEstimateSeconds =
+        obj.getFields("originalEstimateSeconds") match {
+          case Seq(JsNumber(sec)) => Some(sec.toInt)
+          case _                  => None
+        }
       val timeSpentSeconds = obj.getFields("timeSpentSeconds") match {
         case Seq(JsNumber(sec)) => Some(sec.toInt)
         case _                  => None

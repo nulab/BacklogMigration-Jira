@@ -14,8 +14,24 @@ object AttachmentMappingJsonProtocol extends DefaultJsonProtocol {
     def write(obj: Attachment): JsValue = ???
 
     def read(json: JsValue): Attachment =
-      json.asJsObject.getFields("id", "filename", "author", "created", "size", "mimeType", "content") match {
-        case Seq(JsString(id), JsString(fileName), author, createdAt, JsNumber(size), JsString(mineType), JsString(content)) =>
+      json.asJsObject.getFields(
+        "id",
+        "filename",
+        "author",
+        "created",
+        "size",
+        "mimeType",
+        "content"
+      ) match {
+        case Seq(
+              JsString(id),
+              JsString(fileName),
+              author,
+              createdAt,
+              JsNumber(size),
+              JsString(mineType),
+              JsString(content)
+            ) =>
           Attachment(
             id = id.toLong,
             fileName = fileName,
@@ -25,7 +41,10 @@ object AttachmentMappingJsonProtocol extends DefaultJsonProtocol {
             mimeType = mineType,
             content = content
           )
-        case other => deserializationError("Cannot deserialize Attachment: invalid input. Raw input: " + other)
+        case other =>
+          deserializationError(
+            "Cannot deserialize Attachment: invalid input. Raw input: " + other
+          )
       }
   }
 

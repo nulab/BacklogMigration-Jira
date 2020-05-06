@@ -33,8 +33,8 @@ class AttachmentFilterSpec extends Specification {
       status = Status("1", "status"),
       priority = Priority("priority"),
       creator = User("key", "display", Some("mail")),
-      createdAt =  new Date(),
-      updatedAt =  new Date(),
+      createdAt = new Date(),
+      updatedAt = new Date(),
       changeLogs = Seq.empty[ChangeLog],
       attachments = Seq(
         Attachment(

@@ -7,19 +7,21 @@ import com.nulabinc.backlog.migration.common.conf.BacklogApiConfiguration
 import com.typesafe.config.ConfigFactory
 
 case class Config(
-  backlogKey: String = "",
-  backlogUrl: String = "",
-  jiraUsername: String = "",
-  jiraApiKey: String = "",
-  jiraUrl: String = "",
-  projectKey: String = "",
-  commandType: Option[CommandType] = None
+    backlogKey: String = "",
+    backlogUrl: String = "",
+    jiraUsername: String = "",
+    jiraApiKey: String = "",
+    jiraUrl: String = "",
+    projectKey: String = "",
+    commandType: Option[CommandType] = None
 ) {
 
   val getAppConfiguration: AppConfiguration = {
     val keys = projectKey.split(":")
     val jira = keys(0)
-    val backlog = if (keys.length == 2) keys(1) else keys(0).toUpperCase.replaceAll("-", "_")
+    val backlog =
+      if (keys.length == 2) keys(1)
+      else keys(0).toUpperCase.replaceAll("-", "_")
 
     new AppConfiguration(
       jiraConfig = JiraApiConfiguration(
