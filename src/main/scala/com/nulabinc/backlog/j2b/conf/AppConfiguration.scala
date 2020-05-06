@@ -5,7 +5,8 @@ import com.nulabinc.backlog.migration.common.conf.BacklogApiConfiguration
 
 class AppConfiguration(
     val jiraConfig: JiraApiConfiguration,
-    val backlogConfig: BacklogApiConfiguration
+    val backlogConfig: BacklogApiConfiguration,
+    val retryCount: Int
 ) {
 
   val jiraKey = jiraConfig.projectKey

@@ -41,6 +41,7 @@ common.access_key=Access Key
 common.project_key=Project Key
 common.username=Username
 common.url=URL
+common.retryCount=Maximum number of retries
 
 # -----------------------------------------------------------------------------
 # CLI
@@ -68,6 +69,7 @@ cli.help.backlog.url=Your Backlog url (required) Example:--backlog.url [your bac
 cli.help.jira.username=Your Jira user name (required) Example:--jira.username [your jira username]
 cli.help.jira.apiKey=Your Jira API key (required) Example:--jira.apiKey [your jira API key]
 cli.help.jira.url=Your Jira url (required) Example:--jira.url [your jira url]
+cli.help.retryCount=Maximum number of retries when an error occurs.
 
 # -----------------------------------------------------------------------------
 # CLI Validate Param

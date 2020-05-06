@@ -205,7 +205,8 @@ trait TestHelper {
         url = backlogUrl,
         key = backlogKey,
         projectKey = backlog
-      )
+      ),
+      retryCount = 0
     )
   }
 }
