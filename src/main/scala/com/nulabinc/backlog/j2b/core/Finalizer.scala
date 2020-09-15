@@ -9,8 +9,8 @@ object Finalizer extends Logging {
   def finalize(config: AppConfiguration): Unit = {
     import java.net._
 
-    val optProxyUser = Option(System.getProperty("https.proxyUser"))
-    val optProxyPass = Option(System.getProperty("https.proxyPassword"))
+    val optProxyUser = getSystemProperty("https.proxyUser")
+    val optProxyPass = getSystemProperty("https.proxyPassword")
 
     (optProxyUser, optProxyPass) match {
       case (Some(proxyUser), Some(proxyPass)) =>
@@ -32,7 +32,10 @@ object Finalizer extends Logging {
         using(http) { connection =>
           connection.getResponseCode
         }
-      case _ => 0
+      case _ => ()
     }
   }
+
+  private def getSystemProperty(key: String): Option[String] =
+    Option(System.getProperty(key))
 }
