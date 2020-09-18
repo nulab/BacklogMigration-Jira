@@ -14,43 +14,16 @@ import com.nulabinc.backlog.j2b.mapping.converter.MappingConvertService
 import com.nulabinc.backlog.j2b.mapping.converter.writes.MappingUserWrites
 import com.nulabinc.backlog.j2b.mapping.core.MappingDirectory
 import com.nulabinc.backlog.j2b.modules._
-import com.nulabinc.backlog.migration.common.conf.{
-  BacklogConfiguration,
-  BacklogPaths
-}
+import com.nulabinc.backlog.migration.common.conf.{BacklogConfiguration, BacklogPaths}
 import com.nulabinc.backlog.migration.common.convert.Convert
-import com.nulabinc.backlog.migration.common.domain.mappings.{
-  ValidatedPriorityMapping,
-  ValidatedStatusMapping,
-  ValidatedUserMapping
-}
-import com.nulabinc.backlog.migration.common.dsl.{
-  AppDSL,
-  ConsoleDSL,
-  StorageDSL
-}
-import com.nulabinc.backlog.migration.common.interpreters.{
-  JansiConsoleDSL,
-  LocalStorageDSL,
-  TaskAppDSL
-}
+import com.nulabinc.backlog.migration.common.domain.mappings.{ValidatedPriorityMapping, ValidatedStatusMapping, ValidatedUserMapping}
+import com.nulabinc.backlog.migration.common.dsl.{AppDSL, ConsoleDSL, StorageDSL}
+import com.nulabinc.backlog.migration.common.interpreters.{JansiConsoleDSL, LocalStorageDSL, TaskAppDSL}
 import com.nulabinc.backlog.migration.common.messages.ConsoleMessages
-import com.nulabinc.backlog.migration.common.modules.{
-  ServiceInjector => BacklogInjector
-}
-import com.nulabinc.backlog.migration.common.service.{
-  ProjectService,
-  SpaceService,
-  PriorityService => BacklogPriorityService,
-  StatusService => BacklogStatusService,
-  UserService => BacklogUserService
-}
-import com.nulabinc.backlog.migration.common.services.{
-  PriorityMappingFileService,
-  StatusMappingFileService,
-  UserMappingFileService
-}
-import com.nulabinc.backlog.migration.common.utils.{ConsoleOut, Logging}
+import com.nulabinc.backlog.migration.common.modules.{ServiceInjector => BacklogInjector}
+import com.nulabinc.backlog.migration.common.service.{ProjectService, SpaceService, PriorityService => BacklogPriorityService, StatusService => BacklogStatusService, UserService => BacklogUserService}
+import com.nulabinc.backlog.migration.common.services.{PriorityMappingFileService, StatusMappingFileService, UserMappingFileService}
+import com.nulabinc.backlog.migration.common.utils.Logging
 import com.nulabinc.backlog.migration.importer.core.Boot
 import com.nulabinc.jira.client.JiraRestClient
 import com.osinka.i18n.Messages
@@ -97,7 +70,7 @@ object J2BCli
         jiraInjector.getInstance(classOf[JiraRestClient]),
         backlogInjector.getInstance(classOf[SpaceService])
       ).handleError
-      _ = startExportMessage()
+      _ <- startExportMessage().handleError
     } yield {
       // Delete old exports
       if (jiraBacklogPaths.outputPath.exists) {
@@ -386,13 +359,12 @@ object J2BCli
     }
   }
 
-  private def startExportMessage(): Unit = {
-    ConsoleOut.println(
+  private def startExportMessage(): Task[Either[AppError, Unit]] =
+    ConsoleDSL[Task].println(
       s"""
-                          |${Messages("export.start")}
-                          |--------------------------------------------------""".stripMargin
-    )
-  }
+         |${Messages("export.start")}
+         |--------------------------------------------------""".stripMargin
+    ).map(Right(_))
 }
 
 case class ConfirmedProjectKeys(jiraKey: String, backlogKey: String)
