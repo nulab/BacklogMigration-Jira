@@ -1,11 +1,7 @@
 package com.nulabinc.backlog.j2b.mapping.converter
 
 import com.nulabinc.backlog.j2b.jira.domain.mapping.ValidatedJiraStatusMapping
-import com.nulabinc.backlog.migration.common.domain.{
-  BacklogCustomStatus,
-  BacklogStatus,
-  BacklogStatusName
-}
+import com.nulabinc.backlog.migration.common.domain.{BacklogCustomStatus, BacklogStatus, BacklogStatusName}
 
 object MappingStatusConverter {
 

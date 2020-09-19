@@ -9,12 +9,12 @@ class AppConfiguration(
     val retryCount: Int
 ) {
 
-  val jiraKey = jiraConfig.projectKey
+  val jiraKey      = jiraConfig.projectKey
   val jiraUsername = jiraConfig.username
-  val jiraApiKey = jiraConfig.apiKey
-  val jiraUrl = jiraConfig.url
+  val jiraApiKey   = jiraConfig.apiKey
+  val jiraUrl      = jiraConfig.url
 
-  val backlogKey = backlogConfig.key
+  val backlogKey        = backlogConfig.key
   val backlogProjectKey = backlogConfig.projectKey
-  val backlogUrl = backlogConfig.url
+  val backlogUrl        = backlogConfig.url
 }

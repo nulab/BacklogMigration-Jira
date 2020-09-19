@@ -22,26 +22,22 @@ case class ChangeLogItem(
 )
 
 sealed abstract class ChangeLogItemField(val value: String)
-case object ComponentChangeLogItemField extends ChangeLogItemField("Component")
-case object FixVersion extends ChangeLogItemField("Fix Version")
-case object ParentChangeLogItemField extends ChangeLogItemField("Parent")
-case object AttachmentChangeLogItemField
-    extends ChangeLogItemField("Attachment")
-case object StatusChangeLogItemField extends ChangeLogItemField("status")
-case object DueDateChangeLogItemField extends ChangeLogItemField("duedate")
-case object LinkChangeLogItemField extends ChangeLogItemField("Link")
-case object LabelsChangeLogItemField extends ChangeLogItemField("labels")
-case object TimeOriginalEstimateChangeLogItemField
-    extends ChangeLogItemField("timeoriginalestimate")
-case object IssueTypeChangeLogItemField extends ChangeLogItemField("issuetype")
-case object TimeSpentChangeLogItemField extends ChangeLogItemField("timespent")
-case object WorkIdChangeLogItemField extends ChangeLogItemField("WorklogId")
-case object TimeEstimateChangeLogItemField
-    extends ChangeLogItemField("timeestimate")
-case object SprintChangeLogItemField extends ChangeLogItemField("Sprint")
-case object DescriptionChangeLogItemField
-    extends ChangeLogItemField("description")
-case class DefaultField(name: String) extends ChangeLogItemField(name)
+case object ComponentChangeLogItemField            extends ChangeLogItemField("Component")
+case object FixVersion                             extends ChangeLogItemField("Fix Version")
+case object ParentChangeLogItemField               extends ChangeLogItemField("Parent")
+case object AttachmentChangeLogItemField           extends ChangeLogItemField("Attachment")
+case object StatusChangeLogItemField               extends ChangeLogItemField("status")
+case object DueDateChangeLogItemField              extends ChangeLogItemField("duedate")
+case object LinkChangeLogItemField                 extends ChangeLogItemField("Link")
+case object LabelsChangeLogItemField               extends ChangeLogItemField("labels")
+case object TimeOriginalEstimateChangeLogItemField extends ChangeLogItemField("timeoriginalestimate")
+case object IssueTypeChangeLogItemField            extends ChangeLogItemField("issuetype")
+case object TimeSpentChangeLogItemField            extends ChangeLogItemField("timespent")
+case object WorkIdChangeLogItemField               extends ChangeLogItemField("WorklogId")
+case object TimeEstimateChangeLogItemField         extends ChangeLogItemField("timeestimate")
+case object SprintChangeLogItemField               extends ChangeLogItemField("Sprint")
+case object DescriptionChangeLogItemField          extends ChangeLogItemField("description")
+case class DefaultField(name: String)              extends ChangeLogItemField(name)
 
 object ChangeLogItemField {
   def parse(value: String) =
@@ -69,9 +65,9 @@ object ChangeLogItemField {
 
 object ChangeLogItem {
   object FieldType {
-    val JIRA = "jira"
+    val JIRA     = "jira"
     val PRIORITY = "priority"
-    val CUSTOM = "custom"
+    val CUSTOM   = "custom"
   }
 }
 
@@ -87,22 +83,22 @@ case class ChangeLogResult(
 
 sealed abstract class FieldId(val value: String)
 
-case object AttachmentFieldId extends FieldId("attachment")
-case object AssigneeFieldId extends FieldId("assignee")
-case object IssueTypeFieldId extends FieldId("issuetype")
-case object ComponentFieldId extends FieldId("components")
-case object DescriptionFieldId extends FieldId("description")
-case object FixVersionFieldId extends FieldId("fixVersions")
-case object PriorityFieldId extends FieldId("priority")
-case object SummaryFieldId extends FieldId("summary")
-case object StatusFieldId extends FieldId("status")
-case object DueDateFieldId extends FieldId("duedate")
-case object TimeOriginalEstimateFieldId extends FieldId("timeoriginalestimate")
-case object TimeEstimateFieldId extends FieldId("timeestimate")
-case object TimeSpentFieldId extends FieldId("timespent")
-case object ResolutionFieldId extends FieldId("resolution")
+case object AttachmentFieldId             extends FieldId("attachment")
+case object AssigneeFieldId               extends FieldId("assignee")
+case object IssueTypeFieldId              extends FieldId("issuetype")
+case object ComponentFieldId              extends FieldId("components")
+case object DescriptionFieldId            extends FieldId("description")
+case object FixVersionFieldId             extends FieldId("fixVersions")
+case object PriorityFieldId               extends FieldId("priority")
+case object SummaryFieldId                extends FieldId("summary")
+case object StatusFieldId                 extends FieldId("status")
+case object DueDateFieldId                extends FieldId("duedate")
+case object TimeOriginalEstimateFieldId   extends FieldId("timeoriginalestimate")
+case object TimeEstimateFieldId           extends FieldId("timeestimate")
+case object TimeSpentFieldId              extends FieldId("timespent")
+case object ResolutionFieldId             extends FieldId("resolution")
 case class CustomFieldFieldId(id: String) extends FieldId(id)
-case class GeneralFieldId(id: String) extends FieldId(id)
+case class GeneralFieldId(id: String)     extends FieldId(id)
 
 object FieldId {
 

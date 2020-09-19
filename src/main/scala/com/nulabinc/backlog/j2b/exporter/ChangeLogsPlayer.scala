@@ -1,19 +1,13 @@
 package com.nulabinc.backlog.j2b.exporter
 
-import com.nulabinc.jira.client.domain.changeLog.{
-  ChangeLog,
-  ChangeLogItemField,
-  ParentChangeLogItemField
-}
+import com.nulabinc.jira.client.domain.changeLog.{ChangeLog, ChangeLogItemField, ParentChangeLogItemField}
 
 object Calc {
 
   def run(initialValues: Seq[String], histories: Seq[History]): Seq[Result] = {
 
     val head = Result(0, Seq.empty[String], to = initialValues)
-    val tail = histories.map(history =>
-      Result(history.id, from = history.fromToSeq(), to = history.toToSeq())
-    )
+    val tail = histories.map(history => Result(history.id, from = history.fromToSeq(), to = history.toToSeq()))
 
     tail
       .foldLeft(Seq(head)) { (a, b) =>
@@ -78,8 +72,8 @@ object ChangeLogsPlayer {
       changeLogs: Seq[ChangeLog]
   ): Seq[ChangeLog] = {
     val concatenated = changeLogs.map(concat(targetField, _))
-    val histories = History.fromChangeLogs(targetField, concatenated)
-    val result = Calc.run(latestValues, histories)
+    val histories    = History.fromChangeLogs(targetField, concatenated)
+    val result       = Calc.run(latestValues, histories)
 
     concatenated.map { changeLog =>
       val items = changeLog.items.map { changeLogItem =>
@@ -103,8 +97,8 @@ object ChangeLogsPlayer {
       changeLogs: Seq[ChangeLog]
   ): Seq[String] = {
     val concatenated = changeLogs.map(concat(targetField, _))
-    val histories = History.fromChangeLogs(targetField, concatenated)
-    val result = Calc.run(initialValues, histories.reverse.map(_.reverse()))
+    val histories    = History.fromChangeLogs(targetField, concatenated)
+    val result       = Calc.run(initialValues, histories.reverse.map(_.reverse()))
 
     result.lastOption match {
       case Some(r) => r.to.distinct
@@ -126,21 +120,17 @@ object ChangeLogsPlayer {
       case ParentChangeLogItemField =>
         changeLog.items.filter(_.field == targetField).flatten(_.from)
       case _ =>
-        changeLog.items
-          .filter(_.field == targetField)
-          .flatten(_.fromDisplayString)
+        changeLog.items.filter(_.field == targetField).flatten(_.fromDisplayString)
     }
     val toNames = targetField match {
       case ParentChangeLogItemField =>
         changeLog.items.filter(_.field == targetField).flatten(_.to)
       case _ =>
-        changeLog.items
-          .filter(_.field == targetField)
-          .flatten(_.toDisplayString)
+        changeLog.items.filter(_.field == targetField).flatten(_.toDisplayString)
     }
 
     val fromStrings = makeStrings(fromNames)
-    val toStrings = makeStrings(toNames)
+    val toStrings   = makeStrings(toNames)
 
     val items = changeLog.items.map { item =>
       if (item.field == targetField)

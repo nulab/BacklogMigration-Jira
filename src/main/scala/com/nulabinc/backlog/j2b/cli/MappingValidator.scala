@@ -5,9 +5,9 @@ import com.nulabinc.backlog.migration.common.utils.{ConsoleOut, Logging}
 import com.osinka.i18n.Messages
 
 sealed trait MappingValidateError extends CliError
-case object MappingFileMissing extends MappingValidateError
-case object MappingFileBroken extends MappingValidateError
-case object MappingFileNeedFix extends MappingValidateError
+case object MappingFileMissing    extends MappingValidateError
+case object MappingFileBroken     extends MappingValidateError
+case object MappingFileNeedFix    extends MappingValidateError
 
 trait MappingValidator extends Logging {
 

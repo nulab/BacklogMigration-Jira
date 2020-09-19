@@ -1,24 +1,17 @@
 package com.nulabinc.backlog.j2b.mapping.collector
 
-import com.nulabinc.backlog.j2b.jira.domain.`export`.{
-  ChangeLogMappingUser,
-  ExistingMappingUser,
-  MappingUser
-}
+import com.nulabinc.backlog.j2b.jira.domain.`export`.{ChangeLogMappingUser, ExistingMappingUser, MappingUser}
 import com.nulabinc.backlog.j2b.jira.domain.export.Milestone
-import com.nulabinc.backlog.j2b.jira.domain.mapping.{
-  CustomFieldRow,
-  MappingCollectDatabase
-}
+import com.nulabinc.backlog.j2b.jira.domain.mapping.{CustomFieldRow, MappingCollectDatabase}
 
 import scala.collection.mutable
 
 class MappingCollectDatabaseInMemory extends MappingCollectDatabase {
 
-  private val userSet = mutable.Set.empty[ExistingMappingUser]
-  private val ignoreUserSet = mutable.Set.empty[ChangeLogMappingUser]
+  private val userSet        = mutable.Set.empty[ExistingMappingUser]
+  private val ignoreUserSet  = mutable.Set.empty[ChangeLogMappingUser]
   private val customFieldSet = mutable.Set.empty[CustomFieldRow]
-  private val milestoneSet = mutable.Set.empty[Milestone]
+  private val milestoneSet   = mutable.Set.empty[Milestone]
 
   override def addUser(user: ExistingMappingUser): ExistingMappingUser = {
     userSet += user

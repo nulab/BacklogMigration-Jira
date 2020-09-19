@@ -10,9 +10,6 @@ object MappingPriorityConverter {
   ): String =
     if (mappings.isEmpty) priorityName
     else
-      mappings
-        .find(_.src.value == priorityName)
-        .map(_.dst.value)
-        .getOrElse(priorityName)
+      mappings.find(_.src.value == priorityName).map(_.dst.value).getOrElse(priorityName)
 
 }

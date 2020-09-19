@@ -6,8 +6,7 @@ import com.nulabinc.backlog.migration.common.domain.mappings._
 import org.apache.commons.csv.CSVRecord
 
 object JiraMappingDeserializer {
-  implicit val statusDeserializer
-      : Deserializer[CSVRecord, StatusMapping[JiraStatusMappingItem]] =
+  implicit val statusDeserializer: Deserializer[CSVRecord, StatusMapping[JiraStatusMappingItem]] =
     (record: CSVRecord) =>
       new StatusMapping[JiraStatusMappingItem] {
         override val src: JiraStatusMappingItem =
@@ -17,8 +16,7 @@ object JiraMappingDeserializer {
           Option(record.get(1)).map(s => BacklogStatusMappingItem(s))
       }
 
-  implicit val priorityDeserializer
-      : Deserializer[CSVRecord, PriorityMapping[JiraPriorityMappingItem]] =
+  implicit val priorityDeserializer: Deserializer[CSVRecord, PriorityMapping[JiraPriorityMappingItem]] =
     (record: CSVRecord) =>
       new PriorityMapping[JiraPriorityMappingItem] {
         override val src: JiraPriorityMappingItem = JiraPriorityMappingItem(
@@ -29,8 +27,7 @@ object JiraMappingDeserializer {
           Option(record.get(1)).map(p => BacklogPriorityMappingItem(p))
       }
 
-  implicit val userDeserializer
-      : Deserializer[CSVRecord, UserMapping[JiraUserMappingItem]] =
+  implicit val userDeserializer: Deserializer[CSVRecord, UserMapping[JiraUserMappingItem]] =
     (record: CSVRecord) =>
       new UserMapping[JiraUserMappingItem] {
         override val src: JiraUserMappingItem =

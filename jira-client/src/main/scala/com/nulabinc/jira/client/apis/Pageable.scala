@@ -6,7 +6,7 @@ import io.lemonlabs.uri.dsl._
 trait Pageable {
 
   def paginateUri(startAt: Long, maxResults: Long): Url =
-    ("startAt" -> startAt) &
+    ("startAt"      -> startAt) &
       ("maxResults" -> maxResults)
 
 }

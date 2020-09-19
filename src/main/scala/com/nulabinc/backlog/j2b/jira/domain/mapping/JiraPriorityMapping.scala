@@ -1,9 +1,6 @@
 package com.nulabinc.backlog.j2b.jira.domain.mapping
 
-import com.nulabinc.backlog.migration.common.domain.mappings.{
-  BacklogPriorityMappingItem,
-  ValidatedPriorityMapping
-}
+import com.nulabinc.backlog.migration.common.domain.mappings.{BacklogPriorityMappingItem, ValidatedPriorityMapping}
 
 case class JiraPriorityMappingItem(value: String)
 

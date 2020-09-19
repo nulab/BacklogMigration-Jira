@@ -6,6 +6,6 @@ import spray.json._
 object FieldMappingJsonProtocol extends DefaultJsonProtocol {
 
   implicit val fieldSchemaJsonFormat = jsonFormat4(FieldSchema)
-  implicit val fieldJsonFormat = jsonFormat3(Field)
+  implicit val fieldJsonFormat       = jsonFormat3(Field)
 
 }

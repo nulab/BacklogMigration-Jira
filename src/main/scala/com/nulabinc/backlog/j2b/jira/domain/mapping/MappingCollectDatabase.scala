@@ -1,10 +1,6 @@
 package com.nulabinc.backlog.j2b.jira.domain.mapping
 
-import com.nulabinc.backlog.j2b.jira.domain.`export`.{
-  ChangeLogMappingUser,
-  ExistingMappingUser,
-  MappingUser
-}
+import com.nulabinc.backlog.j2b.jira.domain.`export`.{ChangeLogMappingUser, ExistingMappingUser, MappingUser}
 import com.nulabinc.backlog.j2b.jira.domain.export.Milestone
 
 import scala.collection.mutable

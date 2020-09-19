@@ -10,18 +10,13 @@ object ChangeLogIssueLinkConverter {
       backlogIssue: BacklogIssue
   ): Seq[ChangeLog] = {
     val displayStrings = changeLogs.flatMap { changeLog =>
-      changeLog.items
-        .filter { item => item.field == DefaultField("link_issue") }
-        .flatMap { _.toDisplayString }
+      changeLog.items.filter { item => item.field == DefaultField("link_issue") }.flatMap { _.toDisplayString }
     }
 
     val linkedIssueChangeLogItems = if (displayStrings.nonEmpty) {
-      val lastDescription = changeLogs.reverse
-        .flatMap { changeLog =>
-          changeLog.items.reverse.find(_.field == DescriptionChangeLogItemField)
-        }
-        .headOption
-        .flatMap(_.toDisplayString)
+      val lastDescription = changeLogs.reverse.flatMap { changeLog =>
+        changeLog.items.reverse.find(_.field == DescriptionChangeLogItemField)
+      }.headOption.flatMap(_.toDisplayString)
 
       Seq(
         ChangeLog(

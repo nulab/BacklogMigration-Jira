@@ -6,9 +6,7 @@ import com.nulabinc.jira.client.JiraRestClient
 import com.nulabinc.jira.client.domain.Status
 import javax.inject.Inject
 
-class JiraClientStatusService @Inject() (jira: JiraRestClient)
-    extends StatusService
-    with Logging {
+class JiraClientStatusService @Inject() (jira: JiraRestClient) extends StatusService with Logging {
 
   override def all(projectIdOrKey: String): Seq[Status] =
     jira.statusAPI.statuses(projectIdOrKey) match {

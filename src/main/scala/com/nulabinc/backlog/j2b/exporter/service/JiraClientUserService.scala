@@ -6,9 +6,7 @@ import com.nulabinc.jira.client.JiraRestClient
 import com.nulabinc.jira.client.domain.User
 import javax.inject.Inject
 
-class JiraClientUserService @Inject() (jira: JiraRestClient)
-    extends UserService
-    with Logging {
+class JiraClientUserService @Inject() (jira: JiraRestClient) extends UserService with Logging {
 
   override def allUsers() =
     jira.userAPI.users match {

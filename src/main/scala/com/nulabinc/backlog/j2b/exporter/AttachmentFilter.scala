@@ -10,11 +10,9 @@ object AttachmentFilter {
   val fileNamePattern: Regex = """\[\^(.+?)\]""".r
 
   def filteredIssue(issue: Issue, comments: Seq[Comment]): Issue = {
-    val issueAttachments = issue.attachments
-    val fileNames = extractFileNameFromComments(comments)
-    val filteredAttachments = issueAttachments.filterNot(attachment =>
-      fileNames.contains(attachment.fileName)
-    )
+    val issueAttachments    = issue.attachments
+    val fileNames           = extractFileNameFromComments(comments)
+    val filteredAttachments = issueAttachments.filterNot(attachment => fileNames.contains(attachment.fileName))
 
     issue.copy(attachments = filteredAttachments)
   }

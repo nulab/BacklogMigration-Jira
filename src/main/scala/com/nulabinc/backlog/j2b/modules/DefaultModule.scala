@@ -8,10 +8,7 @@ import com.nulabinc.backlog.j2b.jira.domain.export.Field
 import com.nulabinc.backlog.j2b.jira.domain.mapping.MappingCollectDatabase
 import com.nulabinc.backlog.j2b.jira.domain.{FieldConverter, JiraProjectKey}
 import com.nulabinc.backlog.j2b.mapping.collector.MappingCollectDatabaseInMemory
-import com.nulabinc.backlog.migration.common.conf.{
-  BacklogApiConfiguration,
-  BacklogPaths
-}
+import com.nulabinc.backlog.migration.common.conf.{BacklogApiConfiguration, BacklogPaths}
 import com.nulabinc.backlog.migration.common.domain.BacklogProjectKey
 import com.nulabinc.jira.client.JiraRestClient
 
@@ -30,15 +27,12 @@ class DefaultModule(config: AppConfiguration) extends AbstractModule {
     bind(classOf[JiraRestClient]).toInstance(jira)
 //    bind(classOf[Project]).toInstance(project)
     bind(classOf[JiraApiConfiguration]).toInstance(config.jiraConfig)
-    bind(classOf[JiraProjectKey])
-      .toInstance(JiraProjectKey(config.jiraConfig.projectKey))
-    bind(classOf[BacklogProjectKey])
-      .toInstance(BacklogProjectKey(config.backlogConfig.projectKey))
+    bind(classOf[JiraProjectKey]).toInstance(JiraProjectKey(config.jiraConfig.projectKey))
+    bind(classOf[BacklogProjectKey]).toInstance(BacklogProjectKey(config.backlogConfig.projectKey))
     bind(classOf[BacklogApiConfiguration]).toInstance(config.backlogConfig)
 
     // Paths
-    bind(classOf[BacklogPaths])
-      .toInstance(new BacklogPaths(config.backlogProjectKey))
+    bind(classOf[BacklogPaths]).toInstance(new BacklogPaths(config.backlogProjectKey))
 
     // Data
     val fields = FieldConverter.toExportField(jira.fieldAPI.all().right.get)
@@ -49,12 +43,10 @@ class DefaultModule(config: AppConfiguration) extends AbstractModule {
     // Writes
     bind(classOf[UserWrites]).toInstance(new UserWrites)
     bind(classOf[IssueFieldWrites]).toInstance(new IssueFieldWrites(fields))
-    bind(classOf[ChangelogItemWrites])
-      .toInstance(new ChangelogItemWrites(fields))
+    bind(classOf[ChangelogItemWrites]).toInstance(new ChangelogItemWrites(fields))
     bind(classOf[AttachmentWrites]).toInstance(new AttachmentWrites)
 
     // Collector
-    bind(classOf[MappingCollectDatabase])
-      .to(classOf[MappingCollectDatabaseInMemory])
+    bind(classOf[MappingCollectDatabase]).to(classOf[MappingCollectDatabaseInMemory])
   }
 }

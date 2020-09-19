@@ -21,7 +21,7 @@ class FieldFileWriter @Inject() (implicit
 
   override def write(db: MappingCollectDatabase, fields: Seq[Field]) = {
     val fieldDefinitions = FieldDefinitions(fields, db.customFieldRows)
-    val backlogFields = Convert.toBacklog(fieldDefinitions)
+    val backlogFields    = Convert.toBacklog(fieldDefinitions)
     IOUtil.output(
       backlogPaths.customFieldSettingsJson,
       BacklogCustomFieldSettings(backlogFields).toJson.prettyPrint

@@ -1,33 +1,20 @@
 package com.nulabinc.backlog.j2b.mapping.converter
 
 import better.files.{File => Path}
-import com.nulabinc.backlog.j2b.jira.domain.mapping.{
-  ValidatedJiraPriorityMapping,
-  ValidatedJiraStatusMapping,
-  ValidatedJiraUserMapping
-}
+import com.nulabinc.backlog.j2b.jira.domain.mapping.{ValidatedJiraPriorityMapping, ValidatedJiraStatusMapping, ValidatedJiraUserMapping}
 import com.nulabinc.backlog.j2b.mapping.converter.writes._
-import com.nulabinc.backlog.migration.common.conf.{
-  BacklogConstantValue,
-  BacklogPaths
-}
-import com.nulabinc.backlog.migration.common.convert.{
-  BacklogUnmarshaller,
-  Convert
-}
-import com.nulabinc.backlog.migration.common.domain.{
-  BacklogComment,
-  BacklogIssue
-}
+import com.nulabinc.backlog.migration.common.conf.{BacklogConstantValue, BacklogPaths}
+import com.nulabinc.backlog.migration.common.convert.{BacklogUnmarshaller, Convert}
+import com.nulabinc.backlog.migration.common.domain.{BacklogComment, BacklogIssue}
 import com.nulabinc.backlog.migration.common.formatters.BacklogJsonProtocol._
 import com.nulabinc.backlog.migration.common.utils.IOUtil
 import spray.json._
 
 class MappingConvertService(backlogPaths: BacklogPaths) {
 
-  private implicit val issueWrites: IssueWrites = new IssueWrites()
+  private implicit val issueWrites: IssueWrites     = new IssueWrites()
   private implicit val commentWrites: CommentWrites = new CommentWrites()
-  private implicit val userWrites: UserWrites = new UserWrites()
+  private implicit val userWrites: UserWrites       = new UserWrites()
 
   def convert(
       userMaps: Seq[ValidatedJiraUserMapping],
@@ -74,18 +61,13 @@ class MappingConvertService(backlogPaths: BacklogPaths) {
     BacklogUnmarshaller.issue(backlogPaths.issueJson(path)) match {
       case Some(issue: BacklogIssue) =>
         val converted = issue.copy(
-          optAssignee =
-            issue.optAssignee.map(MappingUserConverter.convert(userMaps, _)),
-          notifiedUsers =
-            issue.notifiedUsers.map(MappingUserConverter.convert(userMaps, _)),
+          optAssignee = issue.optAssignee.map(MappingUserConverter.convert(userMaps, _)),
+          notifiedUsers = issue.notifiedUsers.map(MappingUserConverter.convert(userMaps, _)),
           operation = issue.operation.copy(
-            optCreatedUser = issue.operation.optCreatedUser
-              .map(MappingUserConverter.convert(userMaps, _)),
-            optUpdatedUser = issue.operation.optUpdatedUser
-              .map(MappingUserConverter.convert(userMaps, _))
+            optCreatedUser = issue.operation.optCreatedUser.map(MappingUserConverter.convert(userMaps, _)),
+            optUpdatedUser = issue.operation.optUpdatedUser.map(MappingUserConverter.convert(userMaps, _))
           ),
-          priorityName =
-            MappingPriorityConverter.convert(priorityMaps, issue.priorityName),
+          priorityName = MappingPriorityConverter.convert(priorityMaps, issue.priorityName),
           status = MappingStatusConverter.convert(statusMaps, issue.status)
         )
         IOUtil.output(
@@ -97,25 +79,19 @@ class MappingConvertService(backlogPaths: BacklogPaths) {
           changeLog.field match {
             case BacklogConstantValue.ChangeLog.STATUS =>
               changeLog.copy(
-                optOriginalValue = changeLog.optOriginalValue
-                  .map(MappingStatusConverter.convert(statusMaps, _))
-                  .map(_.name.trimmed),
-                optNewValue = changeLog.optNewValue
-                  .map(MappingStatusConverter.convert(statusMaps, _))
-                  .map(_.name.trimmed)
+                optOriginalValue = changeLog.optOriginalValue.map(MappingStatusConverter.convert(statusMaps, _)).map(_.name.trimmed),
+                optNewValue = changeLog.optNewValue.map(MappingStatusConverter.convert(statusMaps, _)).map(_.name.trimmed)
               )
             case BacklogConstantValue.ChangeLog.PRIORITY =>
               changeLog.copy(
-                optOriginalValue = changeLog.optOriginalValue
-                  .map(MappingPriorityConverter.convert(priorityMaps, _)),
+                optOriginalValue = changeLog.optOriginalValue.map(MappingPriorityConverter.convert(priorityMaps, _)),
                 optNewValue = changeLog.optNewValue.map(
                   MappingPriorityConverter.convert(priorityMaps, _)
                 )
               )
             case BacklogConstantValue.ChangeLog.ASSIGNER =>
               changeLog.copy(
-                optOriginalValue = changeLog.optOriginalValue
-                  .map(MappingUserConverter.convert(userMaps, _)),
+                optOriginalValue = changeLog.optOriginalValue.map(MappingUserConverter.convert(userMaps, _)),
                 optNewValue = changeLog.optNewValue.map(
                   MappingUserConverter.convert(userMaps, _)
                 )

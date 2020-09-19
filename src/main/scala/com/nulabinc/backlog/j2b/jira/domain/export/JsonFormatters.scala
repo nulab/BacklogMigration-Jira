@@ -9,11 +9,10 @@ object JsonFormatters extends DefaultJsonProtocol {
 
   import com.nulabinc.jira.client.json.UserMappingJsonProtocol._
 
-  implicit object IssueFieldOptionMappingFormat
-      extends RootJsonFormat[IssueFieldOption] {
+  implicit object IssueFieldOptionMappingFormat extends RootJsonFormat[IssueFieldOption] {
     def write(obj: IssueFieldOption) =
       JsObject(
-        "id" -> JsString(obj.id.toString),
+        "id"    -> JsString(obj.id.toString),
         "value" -> obj.value.toJson
       )
 
@@ -44,14 +43,11 @@ object JsonFormatters extends DefaultJsonProtocol {
         case v: JsObject =>
           List(
             Try {
-              OptionFieldValue(v.convertTo[IssueFieldOption])
-                .asInstanceOf[FieldValue]
+              OptionFieldValue(v.convertTo[IssueFieldOption]).asInstanceOf[FieldValue]
             },
             Try { UserFieldValue(v.convertTo[User]).asInstanceOf[FieldValue] },
             Try { StringFieldValue(v.toString) }
-          ).filter(_.isSuccess)
-            .head
-            .getOrElse(StringFieldValue(v.convertTo[String]))
+          ).filter(_.isSuccess).head.getOrElse(StringFieldValue(v.convertTo[String]))
         case v: JsString => StringFieldValue(v.value.replace("\"", ""))
         case v           => StringFieldValue(v.toString)
       }

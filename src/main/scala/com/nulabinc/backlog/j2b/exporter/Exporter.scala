@@ -4,24 +4,14 @@ import com.nulabinc.backlog.j2b.exporter.console.RemainingTimeCalculator
 import com.nulabinc.backlog.j2b.jira.conf.JiraBacklogPaths
 import com.nulabinc.backlog.j2b.jira.domain.export._
 import com.nulabinc.backlog.j2b.jira.domain.mapping.MappingCollectDatabase
-import com.nulabinc.backlog.j2b.jira.domain.{
-  CollectData,
-  FieldConverter,
-  IssueFieldConverter,
-  JiraProjectKey
-}
+import com.nulabinc.backlog.j2b.jira.domain.{CollectData, FieldConverter, IssueFieldConverter, JiraProjectKey}
 import com.nulabinc.backlog.j2b.jira.service._
 import com.nulabinc.backlog.j2b.jira.utils.DateChangeLogConverter
 import com.nulabinc.backlog.j2b.jira.writer._
 import com.nulabinc.backlog.migration.common.interpreters.JansiConsoleDSL
 import com.nulabinc.backlog.migration.common.utils.{ConsoleOut, Logging}
 import com.nulabinc.jira.client.domain._
-import com.nulabinc.jira.client.domain.changeLog.{
-  AssigneeFieldId,
-  ComponentChangeLogItemField,
-  CustomFieldFieldId,
-  FixVersion
-}
+import com.nulabinc.jira.client.domain.changeLog.{AssigneeFieldId, ComponentChangeLogItemField, CustomFieldFieldId, FixVersion}
 import com.nulabinc.jira.client.domain.issue._
 import com.osinka.i18n.Messages
 import javax.inject.Inject
@@ -72,7 +62,7 @@ class Exporter @Inject() (
       )
       // category
       categories = categoryService.all()
-      _ = categoryWriter.write(categories)
+      _          = categoryWriter.write(categories)
       _ <- console.boldln(
         Messages(
           "message.executed",
@@ -85,7 +75,7 @@ class Exporter @Inject() (
       versions = versionService.all()
       // issue type
       issueTypes = issueTypeService.all()
-      _ = issueTypesWriter.write(issueTypes)
+      _          = issueTypesWriter.write(issueTypes)
       _ <- console.boldln(
         Messages(
           "message.executed",
@@ -96,10 +86,10 @@ class Exporter @Inject() (
       )
     } yield {
       // issue
-      val statuses = statusService.all(project.key)
-      val total = issueService.count()
+      val statuses   = statusService.all(project.key)
+      val total      = issueService.count()
       val calculator = new RemainingTimeCalculator(total)
-      val fields = FieldConverter.toExportField(fieldService.all())
+      val fields     = FieldConverter.toExportField(fieldService.all())
 
       fetchIssue(
         calculator,
@@ -185,8 +175,7 @@ class Exporter @Inject() (
             IssueFieldFilter.filterMilestone(fields, issueFields)
           val issueWithFilteredChangeLogs: Issue = issue.copy(
             changeLogs = {
-              val filtered = ChangeLogFilter
-                .filter(fields, components, versions, issueChangeLogs)
+              val filtered = ChangeLogFilter.filter(fields, components, versions, issueChangeLogs)
               convertDateChangeLogs(filtered, fields)
             }
           )
@@ -198,9 +187,7 @@ class Exporter @Inject() (
               case NumberFieldValue(value) =>
                 mappingCollectDatabase.addCustomField(id, Some(value.toString))
               case ArrayFieldValue(values) =>
-                values.map(v =>
-                  mappingCollectDatabase.addCustomField(id, Some(v.value))
-                )
+                values.map(v => mappingCollectDatabase.addCustomField(id, Some(v.value)))
               case OptionFieldValue(value) =>
                 saveIssueFieldValue(id, value.value)
               case UserFieldValue(user) =>
@@ -217,8 +204,7 @@ class Exporter @Inject() (
           issueWithFilteredChangeLogs.changeLogs.foreach { changeLog =>
             changeLog.items.foreach { changeLogItem =>
               (changeLogItem.fieldId, fields.find(_.name == "Sprint")) match {
-                case (Some(CustomFieldFieldId(id)), Some(sprintDefinition))
-                    if sprintDefinition.id == id =>
+                case (Some(CustomFieldFieldId(id)), Some(sprintDefinition)) if sprintDefinition.id == id =>
                   ()
                 case (Some(CustomFieldFieldId(id)), _) =>
                   mappingCollectDatabase.addCustomField(
@@ -275,7 +261,7 @@ class Exporter @Inject() (
           // changelog author
           for {
             changelog <- changeLogs
-            author <- changelog.optAuthor
+            author    <- changelog.optAuthor
           } yield mappingCollectDatabase.addUser(
             ExistingMappingUser(
               author.accountId,
@@ -286,7 +272,7 @@ class Exporter @Inject() (
 
           // changelog value
           for {
-            changelog <- changeLogs
+            changelog     <- changeLogs
             changelogItem <- changelog.items
           } yield {
             changelogItem.fieldId match {

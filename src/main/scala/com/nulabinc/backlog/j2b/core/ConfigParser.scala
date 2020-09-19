@@ -18,47 +18,23 @@ object ConfigParser extends Logging {
 
       head(Config.Application.name, Config.Application.version)
 
-      opt[String]("backlog.url")
-        .required()
-        .action((x, c) => c.copy(backlogUrl = x))
-        .text(Messages("cli.help.backlog.url"))
+      opt[String]("backlog.url").required().action((x, c) => c.copy(backlogUrl = x)).text(Messages("cli.help.backlog.url"))
 
-      opt[String]("backlog.key")
-        .required()
-        .action((x, c) => c.copy(backlogKey = x))
-        .text(Messages("cli.help.backlog.key"))
+      opt[String]("backlog.key").required().action((x, c) => c.copy(backlogKey = x)).text(Messages("cli.help.backlog.key"))
 
-      opt[String]("jira.username")
-        .required()
-        .action((x, c) => c.copy(jiraUsername = x))
-        .text(Messages("cli.help.jira.username"))
+      opt[String]("jira.username").required().action((x, c) => c.copy(jiraUsername = x)).text(Messages("cli.help.jira.username"))
 
-      opt[String]("jira.apiKey")
-        .required()
-        .action((x, c) => c.copy(jiraApiKey = x))
-        .text(Messages("cli.help.jira.apiKey"))
+      opt[String]("jira.apiKey").required().action((x, c) => c.copy(jiraApiKey = x)).text(Messages("cli.help.jira.apiKey"))
 
-      opt[String]("jira.url")
-        .required()
-        .action((x, c) => c.copy(jiraUrl = x))
-        .text(Messages("cli.help.jira.url"))
+      opt[String]("jira.url").required().action((x, c) => c.copy(jiraUrl = x)).text(Messages("cli.help.jira.url"))
 
-      opt[String]("projectKey")
-        .required()
-        .action((x, c) => c.copy(projectKey = x))
-        .text(Messages("cli.help.projectKey"))
+      opt[String]("projectKey").required().action((x, c) => c.copy(projectKey = x)).text(Messages("cli.help.projectKey"))
 
-      opt[Int]("retryCount")
-        .action((x, c) => c.copy(retryCount = x))
-        .text(Messages("cli.help.retryCount"))
+      opt[Int]("retryCount").action((x, c) => c.copy(retryCount = x)).text(Messages("cli.help.retryCount"))
 
-      cmd("export")
-        .action((_, c) => c.copy(commandType = Some(Config.ExportCommand)))
-        .text("Export the JIRA project.")
+      cmd("export").action((_, c) => c.copy(commandType = Some(Config.ExportCommand))).text("Export the JIRA project.")
 
-      cmd("import")
-        .action { (_, c) => c.copy(commandType = Some(Config.ImportCommand)) }
-        .text("Import the project to Backlog.")
+      cmd("import").action { (_, c) => c.copy(commandType = Some(Config.ImportCommand)) }.text("Import the project to Backlog.")
 
       help("help") text "print this usage text."
 

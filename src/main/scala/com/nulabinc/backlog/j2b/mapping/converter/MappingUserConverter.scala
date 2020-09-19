@@ -4,10 +4,7 @@ import com.nulabinc.backlog.j2b.jira.domain.mapping.ValidatedJiraUserMapping
 import com.nulabinc.backlog.j2b.mapping.converter.writes.UserWrites
 import com.nulabinc.backlog.migration.common.convert.Convert
 import com.nulabinc.backlog.migration.common.domain.BacklogUser
-import com.nulabinc.backlog.migration.common.domain.mappings.{
-  BacklogUserMappingItem,
-  IdUserMappingType
-}
+import com.nulabinc.backlog.migration.common.domain.mappings.{BacklogUserMappingItem, IdUserMappingType}
 import com.nulabinc.backlog.migration.common.utils.{ConsoleOut, Logging}
 import com.osinka.i18n.Messages
 

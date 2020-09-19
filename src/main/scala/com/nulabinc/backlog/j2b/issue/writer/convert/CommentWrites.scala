@@ -7,8 +7,7 @@ import com.nulabinc.backlog.migration.common.domain._
 import com.nulabinc.backlog.migration.common.utils.{DateUtil, StringUtil}
 import com.nulabinc.jira.client.domain.Comment
 
-class CommentWrites @Inject() (implicit val userWrites: UserWrites)
-    extends Writes[Comment, BacklogComment] {
+class CommentWrites @Inject() (implicit val userWrites: UserWrites) extends Writes[Comment, BacklogComment] {
 
   override def writes(comment: Comment) =
     BacklogComment(

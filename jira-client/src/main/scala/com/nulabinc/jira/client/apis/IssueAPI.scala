@@ -24,7 +24,7 @@ class IssueRestClientImpl(httpClient: HttpClient) extends Pageable {
       maxResults: Long = 100
   ): Either[HttpError, Seq[Issue]] = {
     val uri = "/search" ? paginateUri(startAt, maxResults) &
-      ("jql" -> s"project=$key") &
+      ("jql"    -> s"project=$key") &
       ("fields" -> "*all")
 
     httpClient.get(uri.toString) match {

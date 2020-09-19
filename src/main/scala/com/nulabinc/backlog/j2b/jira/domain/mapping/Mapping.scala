@@ -49,8 +49,8 @@ object Mapping extends Logging {
 
 object MappingJsonProtocol extends DefaultJsonProtocol {
   implicit val MappingDescriptionFormat = jsonFormat2(MappingInfo)
-  implicit val MappingFormat = jsonFormat3(Mapping.apply)
-  implicit val MappingsWrapperFormat = jsonFormat2(MappingsWrapper)
+  implicit val MappingFormat            = jsonFormat3(Mapping.apply)
+  implicit val MappingsWrapperFormat    = jsonFormat2(MappingsWrapper)
 }
 
 sealed abstract class MappingType(val value: String) {

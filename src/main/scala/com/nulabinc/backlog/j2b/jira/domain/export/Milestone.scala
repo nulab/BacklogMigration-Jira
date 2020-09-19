@@ -26,8 +26,8 @@ object Milestone {
 
   sealed trait MilestoneError
   case class ExtractError(rawInput: String) extends MilestoneError
-  case object IdNotFound extends MilestoneError
-  case object NameNotFound extends MilestoneError
+  case object IdNotFound                    extends MilestoneError
+  case object NameNotFound                  extends MilestoneError
 
   type MileStoneParams = Map[String, String]
 
@@ -50,7 +50,7 @@ object Milestone {
       .map(_.toMap[String, String])
       .flatMap { params =>
         for {
-          id <- findId(params)
+          id   <- findId(params)
           name <- findName(params)
         } yield {
           new Milestone(

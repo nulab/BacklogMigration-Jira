@@ -10,9 +10,7 @@ import com.nulabinc.backlog.migration.common.domain._
 import com.nulabinc.backlog.migration.common.utils.FileUtil
 import com.nulabinc.jira.client.domain.changeLog._
 
-class ChangelogItemWrites @Inject() (fields: Seq[Field])
-    extends Writes[ChangeLogItem, BacklogChangeLog]
-    with SecondToHourFormatter {
+class ChangelogItemWrites @Inject() (fields: Seq[Field]) extends Writes[ChangeLogItem, BacklogChangeLog] with SecondToHourFormatter {
 
   override def writes(changeLogItem: ChangeLogItem) =
     BacklogChangeLog(
@@ -101,8 +99,7 @@ class ChangelogItemWrites @Inject() (fields: Seq[Field])
         Some(
           BacklogAttachment(
             optId = changeLogItem.to.map(_.toLong),
-            name =
-              FileUtil.normalize(changeLogItem.toDisplayString.getOrElse(""))
+            name = FileUtil.normalize(changeLogItem.toDisplayString.getOrElse(""))
           )
         )
       case _ => None
@@ -121,9 +118,7 @@ class ChangelogItemWrites @Inject() (fields: Seq[Field])
               s"custom field id not found [${changeLogItem.field}]"
             )
         }
-        optTypeId.map(typeId =>
-          BacklogAttributeInfo(optId = None, typeId = typeId.toString)
-        )
+        optTypeId.map(typeId => BacklogAttributeInfo(optId = None, typeId = typeId.toString))
       case _ => None
     }
 

@@ -1,11 +1,7 @@
 package com.nulabinc.backlog.j2b.jira.domain.mapping
 
 import com.nulabinc.backlog.j2b.jira.domain.`export`.MappingUser
-import com.nulabinc.backlog.migration.common.domain.mappings.{
-  BacklogUserMappingItem,
-  UserMappingType,
-  ValidatedUserMapping
-}
+import com.nulabinc.backlog.migration.common.domain.mappings.{BacklogUserMappingItem, UserMappingType, ValidatedUserMapping}
 
 case class JiraUserMappingItem(accountId: String, displayName: String)
 

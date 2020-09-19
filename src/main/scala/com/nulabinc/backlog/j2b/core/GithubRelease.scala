@@ -13,7 +13,7 @@ object GithubRelease extends Logging {
     val url = new URL(
       "https://api.github.com/repos/nulab/BacklogMigration-Jira/releases"
     )
-    val http = url.openConnection().asInstanceOf[HttpURLConnection]
+    val http         = url.openConnection().asInstanceOf[HttpURLConnection]
     val optProxyUser = Option(System.getProperty("https.proxyUser"))
     val optProxyPass = Option(System.getProperty("https.proxyPassword"))
 
@@ -35,7 +35,7 @@ object GithubRelease extends Logging {
         new InputStreamReader(http.getInputStream)
       )
       val output = new StringBuilder()
-      var line = ""
+      var line   = ""
 
       while (line != null) {
         line = reader.readLine()
@@ -46,10 +46,7 @@ object GithubRelease extends Logging {
 
       output.toString().parseJson match {
         case JsArray(releases) if releases.nonEmpty =>
-          releases(0).asJsObject.fields
-            .apply("tag_name")
-            .convertTo[String]
-            .replace("v", "")
+          releases(0).asJsObject.fields.apply("tag_name").convertTo[String].replace("v", "")
         case _ => ""
       }
     } catch {

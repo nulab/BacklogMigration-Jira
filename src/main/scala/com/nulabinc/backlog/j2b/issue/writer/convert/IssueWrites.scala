@@ -17,26 +17,22 @@ class IssueWrites @Inject() (
     with SecondToHourFormatter {
 
   override def writes(map: (Issue, Seq[IssueField])) = {
-    val issue = map._1
+    val issue       = map._1
     val issueFields = map._2
     BacklogIssue(
       eventType = "issue",
       id = issue.id,
       optIssueKey = None,
-      summary =
-        BacklogIssueSummary(value = issue.summary, original = issue.summary),
+      summary = BacklogIssueSummary(value = issue.summary, original = issue.summary),
       optParentIssueId = issue.parent.map(_.id),
       description = issue.description.getOrElse(""),
       optStartDate = None,
       optDueDate = issue.dueDate.map(DateUtil.dateFormat),
-      optEstimatedHours =
-        issue.timeTrack.flatMap(_.originalEstimateSeconds.map(secondsToHours)),
-      optActualHours =
-        issue.timeTrack.flatMap(_.timeSpentSeconds.map(secondsToHours)),
+      optEstimatedHours = issue.timeTrack.flatMap(_.originalEstimateSeconds.map(secondsToHours)),
+      optActualHours = issue.timeTrack.flatMap(_.timeSpentSeconds.map(secondsToHours)),
       optIssueTypeName = Some(issue.issueType.name),
 //      status = issue.status,
-      status =
-        BacklogCustomStatus.create(BacklogStatusName("aaa")), // TODO: fix
+      status = BacklogCustomStatus.create(BacklogStatusName("aaa")), // TODO: fix
       categoryNames = issue.components.map(_.name),
       versionNames = issue.fixVersions.map(_.name),
       milestoneNames = Seq.empty[String],
@@ -54,8 +50,7 @@ class IssueWrites @Inject() (
     BacklogOperation(
       optCreatedUser = Some(Convert.toBacklog(issue.creator)),
       optCreated = Some(issue.createdAt).map(DateUtil.isoFormat),
-      optUpdatedUser = issue.changeLogs.lastOption
-        .flatMap(_.optAuthor.map(Convert.toBacklog(_))),
+      optUpdatedUser = issue.changeLogs.lastOption.flatMap(_.optAuthor.map(Convert.toBacklog(_))),
       optUpdated = Some(issue.updatedAt).map(DateUtil.isoFormat)
     )
 

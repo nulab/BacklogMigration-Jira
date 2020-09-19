@@ -7,20 +7,9 @@ import com.nulabinc.backlog.j2b.conf.AppConfiguration
 import com.nulabinc.backlog.j2b.core.{ConfigParser, GithubRelease, NextCommand}
 import com.nulabinc.backlog.j2b.utils.ClassVersion
 import com.nulabinc.backlog.migration.common.conf.BacklogConfiguration
-import com.nulabinc.backlog.migration.common.dsl.{
-  AppDSL,
-  ConsoleDSL,
-  StorageDSL
-}
-import com.nulabinc.backlog.migration.common.errors.{
-  MappingFileNotFound,
-  MappingValidationError
-}
-import com.nulabinc.backlog.migration.common.interpreters.{
-  JansiConsoleDSL,
-  LocalStorageDSL,
-  TaskAppDSL
-}
+import com.nulabinc.backlog.migration.common.dsl.{AppDSL, ConsoleDSL, StorageDSL}
+import com.nulabinc.backlog.migration.common.errors.{MappingFileNotFound, MappingValidationError}
+import com.nulabinc.backlog.migration.common.interpreters.{JansiConsoleDSL, LocalStorageDSL, TaskAppDSL}
 import com.nulabinc.backlog.migration.common.messages.ConsoleMessages
 import com.nulabinc.backlog.migration.common.utils.{ConsoleOut, Logging}
 import com.osinka.i18n.Messages
@@ -32,7 +21,7 @@ import scala.concurrent.duration.Duration
 
 object App extends BacklogConfiguration with Logging {
 
-  private implicit val appDSL: AppDSL[Task] = TaskAppDSL()
+  private implicit val appDSL: AppDSL[Task]         = TaskAppDSL()
   private implicit val storageDSL: StorageDSL[Task] = LocalStorageDSL()
   private implicit val consoleDSL: ConsoleDSL[Task] = JansiConsoleDSL()
   private implicit val exc: Scheduler =
@@ -61,7 +50,7 @@ object App extends BacklogConfiguration with Logging {
     }
 
     val program = for {
-      _ <- consoleDSL.println(startMessage(applicationName))
+      _             <- consoleDSL.println(startMessage(applicationName))
       latestVersion <- Task(GithubRelease.checkRelease())
       _ <-
         if (latestVersion != versionName)
@@ -140,14 +129,10 @@ object App extends BacklogConfiguration with Logging {
        |${Messages("common.dst")} ${Messages("common.access_key")}[${conf.backlogKey}]
        |${Messages("common.dst")} ${Messages("common.project_key")}[${conf.backlogKey}]
        |${Messages("common.retryCount")} [${conf.retryCount}]
-       |https.proxyHost[${Option(System.getProperty("https.proxyHost"))
-      .getOrElse("")}]
-       |https.proxyPort[${Option(System.getProperty("https.proxyPort"))
-      .getOrElse("")}]
-       |https.proxyUser[${Option(System.getProperty("https.proxyUser"))
-      .getOrElse("")}]
-       |https.proxyPassword[${Option(System.getProperty("https.proxyPassword"))
-      .getOrElse("")}]
+       |https.proxyHost[${Option(System.getProperty("https.proxyHost")).getOrElse("")}]
+       |https.proxyPort[${Option(System.getProperty("https.proxyPort")).getOrElse("")}]
+       |https.proxyUser[${Option(System.getProperty("https.proxyUser")).getOrElse("")}]
+       |https.proxyPassword[${Option(System.getProperty("https.proxyPassword")).getOrElse("")}]
        |--------------------------------------------------
        |""".stripMargin
 }

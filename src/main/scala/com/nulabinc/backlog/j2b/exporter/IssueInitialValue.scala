@@ -1,10 +1,6 @@
 package com.nulabinc.backlog.j2b.exporter
 
-import com.nulabinc.jira.client.domain.changeLog.{
-  ChangeLog,
-  ChangeLogItem,
-  FieldId
-}
+import com.nulabinc.jira.client.domain.changeLog.{ChangeLog, ChangeLogItem, FieldId}
 
 private[exporter] class IssueInitialValue(fieldType: String, fieldId: FieldId) {
 
@@ -28,8 +24,6 @@ private[exporter] class IssueInitialValue(fieldType: String, fieldId: FieldId) {
     ) && changeLogItem.fieldType == fieldType
 
   private def targetChangeLogItems(changeLog: ChangeLog): Seq[ChangeLogItem] =
-    changeLog.items
-      .filter(isTargetChangeLogItem)
-      .filter(changeLogItem => changeLogItem.fromDisplayString.isDefined)
+    changeLog.items.filter(isTargetChangeLogItem).filter(changeLogItem => changeLogItem.fromDisplayString.isDefined)
 
 }

@@ -9,12 +9,7 @@ import org.apache.http._
 import org.apache.http.auth.{AuthScope, UsernamePasswordCredentials}
 import org.apache.http.client.config.RequestConfig
 import org.apache.http.client.methods.{CloseableHttpResponse, HttpGet}
-import org.apache.http.impl.client.{
-  BasicCredentialsProvider,
-  CloseableHttpClient,
-  HttpClientBuilder,
-  HttpClients
-}
+import org.apache.http.impl.client.{BasicCredentialsProvider, CloseableHttpClient, HttpClientBuilder, HttpClients}
 import org.slf4j.{Logger, LoggerFactory}
 import spray.json.{JsArray, JsonParser}
 
@@ -23,15 +18,12 @@ import scala.io.Source
 sealed abstract class HttpClientError(val message: String) {
   override def toString: String = message
 }
-case object AuthenticateFailedError extends HttpClientError("Bad credential")
-case class ApiNotFoundError(url: String) extends HttpClientError(url)
-case class BadRequestError(error: String) extends HttpClientError(error)
-case class GetContentError(throwable: Throwable)
-    extends HttpClientError(throwable.getMessage)
-case class ThrowableError(throwable: Throwable)
-    extends HttpClientError(throwable.getMessage)
-case class UndefinedError(statusCode: Int)
-    extends HttpClientError(s"Unknown status code: $statusCode")
+case object AuthenticateFailedError              extends HttpClientError("Bad credential")
+case class ApiNotFoundError(url: String)         extends HttpClientError(url)
+case class BadRequestError(error: String)        extends HttpClientError(error)
+case class GetContentError(throwable: Throwable) extends HttpClientError(throwable.getMessage)
+case class ThrowableError(throwable: Throwable)  extends HttpClientError(throwable.getMessage)
+case class UndefinedError(statusCode: Int)       extends HttpClientError(s"Unknown status code: $statusCode")
 
 sealed trait DownloadResult
 case object DownloadSuccess extends DownloadResult
@@ -75,7 +67,7 @@ class HttpClient(url: String, username: String, apiKey: String) {
   def get(path: String): Either[HttpClientError, String] = {
 
     val closableHttpClient = createHttpClient()
-    val httpRequest = createHttpGetRequest(url + "/rest/api/2" + path)
+    val httpRequest        = createHttpGetRequest(url + "/rest/api/2" + path)
 
     try {
       val closableHttpResponse = httpExecute(closableHttpClient, httpRequest)
@@ -126,7 +118,7 @@ class HttpClient(url: String, username: String, apiKey: String) {
     }
 
     val closableHttpClient = createHttpClient()
-    val httpRequest = createHttpGetRequest(url)
+    val httpRequest        = createHttpGetRequest(url)
 
     try {
       val closableHttpResponse = httpExecute(closableHttpClient, httpRequest)
@@ -155,19 +147,12 @@ class HttpClient(url: String, username: String, apiKey: String) {
 
   private def createHttpClient(): CloseableHttpClient =
     (for {
-      proxyConfig <- optProxyConfig
+      proxyConfig        <- optProxyConfig
       credentialProvider <- optCredentialsProvider
     } yield {
-      val config = RequestConfig
-        .custom()
-        .setProxy(proxyConfig)
-        .build()
+      val config = RequestConfig.custom().setProxy(proxyConfig).build()
 
-      HttpClients
-        .custom()
-        .setDefaultCredentialsProvider(credentialProvider)
-        .setDefaultRequestConfig(config)
-        .build()
+      HttpClients.custom().setDefaultCredentialsProvider(credentialProvider).setDefaultRequestConfig(config).build()
     }).getOrElse(HttpClientBuilder.create().build())
 
   private def createHttpGetRequest(path: String): HttpGet = {

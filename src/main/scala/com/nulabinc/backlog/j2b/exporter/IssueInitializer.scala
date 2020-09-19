@@ -52,9 +52,7 @@ class IssueInitializer @Inject() (
       versionNames = versionNames(filteredIssue),
       priorityName = priorityName(filteredIssue),
       optAssignee = assignee(mappingCollectDatabase, filteredIssue),
-      customFields = issueFields.flatMap(f =>
-        customField(fields, f, filteredIssue.changeLogs)
-      ),
+      customFields = issueFields.flatMap(f => customField(fields, f, filteredIssue.changeLogs)),
       attachments = attachmentNames(filteredIssue),
       optActualHours = actualHours(filteredIssue),
       notifiedUsers = Seq.empty[BacklogUser]
@@ -80,10 +78,7 @@ class IssueInitializer @Inject() (
       case Some(parentIssue) => Seq(parentIssue.id.toString)
       case _                 => Seq.empty[String]
     }
-    ChangeLogsPlayer
-      .reversePlay(ParentChangeLogItemField, currentValues, issue.changeLogs)
-      .headOption
-      .map(_.toLong)
+    ChangeLogsPlayer.reversePlay(ParentChangeLogItemField, currentValues, issue.changeLogs).headOption.map(_.toLong)
   }
 
   private def description(issue: Issue): String = {
@@ -172,9 +167,8 @@ class IssueInitializer @Inject() (
     issueInitialValue.findChangeLogItem(issue.changeLogs) match {
       case Some(detail) =>
         for {
-          accountId <- detail.from
-          backlogUser <-
-            mappingCollectDatabase.findUser(accountId).map(_.toBacklogUser)
+          accountId   <- detail.from
+          backlogUser <- mappingCollectDatabase.findUser(accountId).map(_.toBacklogUser)
         } yield {
           userService
             .optUserOfKey(detail.from)
@@ -198,15 +192,13 @@ class IssueInitializer @Inject() (
           backlogUser
         }
       case None =>
-        issue.assignee
-          .map { user =>
-            ExistingMappingUser(
-              user.accountId,
-              user.displayName,
-              user.emailAddress
-            ): MappingUser
-          }
-          .map(_.toBacklogUser)
+        issue.assignee.map { user =>
+          ExistingMappingUser(
+            user.accountId,
+            user.displayName,
+            user.emailAddress
+          ): MappingUser
+        }.map(_.toBacklogUser)
     }
   }
 
@@ -215,9 +207,7 @@ class IssueInitializer @Inject() (
       case Some(second) => Seq(second.toString)
       case _            => Seq.empty[String]
     }
-    val initializedTimeSpentSeconds = ChangeLogsPlayer
-      .reversePlay(TimeSpentChangeLogItemField, initialValues, issue.changeLogs)
-      .headOption
+    val initializedTimeSpentSeconds = ChangeLogsPlayer.reversePlay(TimeSpentChangeLogItemField, initialValues, issue.changeLogs).headOption
     initializedTimeSpentSeconds.map(sec => secondsToHours(sec.toInt))
   }
 

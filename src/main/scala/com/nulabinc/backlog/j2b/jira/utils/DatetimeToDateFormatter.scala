@@ -15,11 +15,9 @@ trait DatetimeToDateFormatter {
   val writeFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
 
   def dateTimeStringToDateString(dateTime: String): String = {
-    val date = readFormats
-      .map { readFormat =>
-        Try { readFormat.parse(dateTime) }
-      }
-      .find(_.isSuccess) match {
+    val date = readFormats.map { readFormat =>
+      Try { readFormat.parse(dateTime) }
+    }.find(_.isSuccess) match {
       case Some(x) => x.get
       case _ =>
         throw new Exception(s"Can not parse DateTime to Date: $dateTime")

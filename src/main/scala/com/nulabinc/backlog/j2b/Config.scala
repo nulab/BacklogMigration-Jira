@@ -48,8 +48,8 @@ object Config {
   object Application {
     private val applicationConfig = config.getConfig("application")
 
-    val name: String = applicationConfig.getString("name")
-    val version: String = applicationConfig.getString("version")
+    val name: String     = applicationConfig.getString("name")
+    val version: String  = applicationConfig.getString("version")
     val fileName: String = applicationConfig.getString("fileName")
   }
 

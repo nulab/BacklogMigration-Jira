@@ -52,10 +52,8 @@ object ChangeLogFilter {
                 definitions.find(_.name == fieldId) match {
                   case Some(definition) if definition.schema == CustomLabels =>
                     item.copy(
-                      fromDisplayString =
-                        item.fromDisplayString.map(_.replace(" ", ",")),
-                      toDisplayString =
-                        item.toDisplayString.map(_.replace(" ", ","))
+                      fromDisplayString = item.fromDisplayString.map(_.replace(" ", ",")),
+                      toDisplayString = item.toDisplayString.map(_.replace(" ", ","))
                     )
                   case _ => item
                 }
@@ -63,9 +61,7 @@ object ChangeLogFilter {
             }
         }
       }
-      changeLog.copy(items =
-        items.filterNot(_.field == WorkIdChangeLogItemField)
-      )
+      changeLog.copy(items = items.filterNot(_.field == WorkIdChangeLogItemField))
     }
   }
 }

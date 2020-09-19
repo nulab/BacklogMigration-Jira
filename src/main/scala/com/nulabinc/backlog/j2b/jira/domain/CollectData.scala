@@ -1,11 +1,7 @@
 package com.nulabinc.backlog.j2b.jira.domain
 
 import better.files.{File => Path}
-import com.nulabinc.backlog.j2b.jira.domain.`export`.{
-  ChangeLogMappingUser,
-  ExistingMappingUser,
-  MappingUser
-}
+import com.nulabinc.backlog.j2b.jira.domain.`export`.{ChangeLogMappingUser, ExistingMappingUser, MappingUser}
 import com.nulabinc.backlog.migration.common.utils.IOUtil
 import com.nulabinc.jira.client.domain.{Priority, Status}
 
@@ -28,14 +24,13 @@ case class CollectData(
       case _                      => None
     }
 
-    users.toList.distinctBy(_.key).foldLeft(Seq.empty[MappingUser]) {
-      (acc, item) =>
-        item match {
-          case u: ExistingMappingUser =>
-            acc :+ u
-          case u: ChangeLogMappingUser =>
-            acc :+ existingUsers.find(_.key == u.key).getOrElse(u)
-        }
+    users.toList.distinctBy(_.key).foldLeft(Seq.empty[MappingUser]) { (acc, item) =>
+      item match {
+        case u: ExistingMappingUser =>
+          acc :+ u
+        case u: ChangeLogMappingUser =>
+          acc :+ existingUsers.find(_.key == u.key).getOrElse(u)
+      }
     }
   }
 

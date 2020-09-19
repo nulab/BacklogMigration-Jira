@@ -7,8 +7,7 @@ import com.nulabinc.backlog.migration.common.domain.BacklogVersion
 import com.nulabinc.backlog.migration.common.utils.DateUtil
 import com.nulabinc.jira.client.domain.Version
 
-private[writer] class VersionWrites @Inject() ()
-    extends Writes[Seq[Version], Seq[BacklogVersion]] {
+private[writer] class VersionWrites @Inject() () extends Writes[Seq[Version], Seq[BacklogVersion]] {
 
   override def writes(versions: Seq[Version]) =
     versions.map(toBacklog)

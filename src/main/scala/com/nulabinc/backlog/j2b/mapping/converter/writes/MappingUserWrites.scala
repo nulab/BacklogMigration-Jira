@@ -6,8 +6,7 @@ import com.nulabinc.backlog.migration.common.convert.Writes
 import com.nulabinc.backlog.migration.common.domain.BacklogUser
 import javax.inject.Inject
 
-class MappingUserWrites @Inject() ()
-    extends Writes[ValidatedJiraUserMapping, BacklogUser] {
+class MappingUserWrites @Inject() () extends Writes[ValidatedJiraUserMapping, BacklogUser] {
 
   override def writes(mapping: ValidatedJiraUserMapping): BacklogUser = {
     BacklogUser(
