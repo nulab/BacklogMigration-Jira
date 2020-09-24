@@ -5,15 +5,8 @@ lazy val commonSettings = Seq(
   version := projectVersion,
   scalaVersion := "2.13.2",
   libraryDependencies ++= {
-    val catsVersion  = "2.1.0"
-    val monixVersion = "3.1.0"
     val spec2Version = "4.8.3"
     Seq(
-      "org.typelevel" %% "cats-core"       % catsVersion,
-      "org.typelevel" %% "cats-free"       % catsVersion,
-      "io.monix"      %% "monix"           % monixVersion,
-      "io.monix"      %% "monix-execution" % monixVersion,
-      "io.monix"      %% "monix-eval"      % monixVersion,
       // test
       "org.scalatest" %% "scalatest"            % "3.1.0"      % "test",
       "org.specs2"    %% "specs2-core"          % spec2Version % Test,
@@ -26,9 +19,7 @@ lazy val commonSettings = Seq(
   test in assembly := {}
 )
 
-lazy val common = (project in file("common/core")).settings(commonSettings)
-
-lazy val importer = (project in file("common/importer")).settings(commonSettings).dependsOn(common)
+lazy val common = (project in file("common")).settings(commonSettings)
 
 lazy val client = (project in file("jira-client")).settings(commonSettings)
 
@@ -47,5 +38,5 @@ lazy val root = (project in file("."))
       Tests.Argument(TestFrameworks.ScalaTest, "-f", "target/test-reports/output.txt")
     )
   )
-  .dependsOn(common % "test->test;compile->compile", importer, client)
-  .aggregate(common, importer, client)
+  .dependsOn(common % "test->test;compile->compile", client)
+  .aggregate(common, client)
