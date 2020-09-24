@@ -1,7 +1,5 @@
 package com.nulabinc.backlog.j2b.cli
 
-import java.io.File
-
 import com.google.inject.Guice
 import com.nulabinc.backlog.j2b._
 import com.nulabinc.backlog.j2b.conf.{AppConfigValidator, AppConfiguration}
@@ -12,7 +10,6 @@ import com.nulabinc.backlog.j2b.jira.domain.mapping._
 import com.nulabinc.backlog.j2b.jira.writer.ProjectUserWriter
 import com.nulabinc.backlog.j2b.mapping.converter.MappingConvertService
 import com.nulabinc.backlog.j2b.mapping.converter.writes.MappingUserWrites
-import com.nulabinc.backlog.j2b.mapping.core.MappingDirectory
 import com.nulabinc.backlog.j2b.modules._
 import com.nulabinc.backlog.migration.common.conf.{BacklogConfiguration, BacklogPaths, MappingDirectory}
 import com.nulabinc.backlog.migration.common.convert.Convert

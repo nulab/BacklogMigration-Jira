@@ -93,20 +93,20 @@ trait TestHelper {
   val priorityMappings = PriorityMappingFileService
     .getMappings[JiraPriorityMappingItem, Task](
       path =
-        new File(MappingDirectory.PRIORITY_MAPPING_FILE).getAbsoluteFile.toPath
+        MappingDirectory.default.priorityMappingFilePath
     )
     .runSyncUnsafe()
     .orFail
   val statusMappings = StatusMappingFileService
     .getMappings[JiraStatusMappingItem, Task](
       path =
-        new File(MappingDirectory.STATUS_MAPPING_FILE).getAbsoluteFile.toPath
+        MappingDirectory.default.statusMappingFilePath
     )
     .runSyncUnsafe()
     .orFail
   val userMappings = UserMappingFileService
     .getMappings[JiraUserMappingItem, Task](
-      path = new File(MappingDirectory.USER_MAPPING_FILE).getAbsoluteFile.toPath
+      path = MappingDirectory.default.userMappingFilePath
     )
     .runSyncUnsafe()
     .orFail

@@ -5,15 +5,8 @@ import java.io.File
 import com.nulabinc.backlog.j2b.jira.conf.JiraApiConfiguration
 import com.nulabinc.backlog.j2b.jira.domain.export._
 import com.nulabinc.backlog.j2b.jira.domain.mapping.JiraUserMappingItem
-import com.nulabinc.backlog.j2b.jira.domain.{
-  FieldConverter,
-  IssueFieldConverter
-}
-import com.nulabinc.backlog.j2b.mapping.core.MappingDirectory
-import com.nulabinc.backlog.migration.common.conf.{
-  BacklogApiConfiguration,
-  BacklogConstantValue
-}
+import com.nulabinc.backlog.j2b.jira.domain.{FieldConverter, IssueFieldConverter}
+import com.nulabinc.backlog.migration.common.conf.{BacklogApiConfiguration, BacklogConstantValue, MappingDirectory}
 import com.nulabinc.backlog.migration.common.convert.writes.UserWrites
 import com.nulabinc.backlog.migration.common.services.UserMappingFileService
 import com.nulabinc.backlog4j.api.option.{GetIssuesParams, QueryParams}
@@ -24,7 +17,6 @@ import integration.helper.{DateFormatter, TestHelper}
 import integration.matchers.{DateMatcher, UserMatcher}
 import monix.eval.Task
 import monix.execution.Scheduler.Implicits.global
-
 import org.scalatest.{DiagrammedAssertions, FlatSpec, Matchers}
 
 import scala.collection.JavaConverters._
@@ -80,7 +72,7 @@ class CompareSpec
         backlogApi.getProjectUsers(backlogConfig.projectKey).asScala
       val jiraUsersResult = UserMappingFileService
         .getMappings[JiraUserMappingItem, Task](
-          new File(MappingDirectory.USER_MAPPING_FILE).getAbsoluteFile.toPath
+          MappingDirectory.default.userMappingFilePath
         )
         .runSyncUnsafe()
 
