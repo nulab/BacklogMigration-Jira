@@ -9,7 +9,11 @@ import com.nulabinc.backlog.j2b.utils.ClassVersion
 import com.nulabinc.backlog.migration.common.conf.BacklogConfiguration
 import com.nulabinc.backlog.migration.common.dsl.{AppDSL, ConsoleDSL, StorageDSL}
 import com.nulabinc.backlog.migration.common.errors.{MappingFileNotFound, MappingValidationError}
-import com.nulabinc.backlog.migration.common.interpreters.{JansiConsoleDSL, LocalStorageDSL, TaskAppDSL}
+import com.nulabinc.backlog.migration.common.interpreters.{
+  JansiConsoleDSL,
+  LocalStorageDSL,
+  TaskAppDSL
+}
 import com.nulabinc.backlog.migration.common.messages.ConsoleMessages
 import com.nulabinc.backlog.migration.common.utils.{ConsoleOut, Logging}
 import com.osinka.i18n.Messages
