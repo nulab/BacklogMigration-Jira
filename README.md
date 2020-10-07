@@ -1,5 +1,7 @@
 # Backlog Migration for JIRA
 
+![](https://github.com/nulab/BacklogMigration-Jira/workflows/Build/badge.svg)
+
 Migrate your projects from JIRA to [Backlog].
 (英語の下に日本文が記載されています)
 
