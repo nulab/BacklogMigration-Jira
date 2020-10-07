@@ -25,6 +25,24 @@ object Milestone {
       }
   }
 
+  implicit class ResultOps[A](result: Either[MilestoneError, A]) {
+    def orError(input: String): A =
+      result match {
+        case Right(value) =>
+          value
+        case Left(error) =>
+          val message = error match {
+            case err: ExtractError =>
+              s"'=' not found. Raw input: ${err.rawInput}"
+            case IdNotFound   => s"Id not found"
+            case NameNotFound => s"Name not found"
+          }
+          throw new RuntimeException(
+            s"Unable to parse milestone. Error: $message Raw input: $input"
+          )
+      }
+  }
+
   implicit object milestoneReader extends JsonReader[Milestone] {
     private def getOptString(obj: JsObject, fieldName: String): Option[String] =
       obj.getFields(fieldName) match {
@@ -65,41 +83,22 @@ object Milestone {
   def from(text: String): Milestone =
     pattern.findFirstMatchIn(text) match {
       case Some(m) =>
-        val value = m.group(1)
-
-        split(value)
-          .map(_.trim)
-          .map(extract)
-          .sequence
-          .map(_.toMap[String, String])
-          .flatMap { params =>
-            for {
-              id   <- findId(params)
-              name <- findName(params)
-            } yield {
-              new Milestone(
-                id = id.toLong,
-                name = name,
-                goal = findValue(params, "goal"),
-                startDate = findValue(params, "startDate"),
-                endDate = findValue(params, "endDate").map(DateUtil.yyyymmddParse)
-              )
-            }
+        val result = for {
+          params <- split(m.group(1)).map(_.trim).map(extract).sequence.map(_.toMap[String, String])
+          milestone <- for {
+            id   <- findId(params)
+            name <- findName(params)
+          } yield {
+            new Milestone(
+              id = id.toLong,
+              name = name,
+              goal = findValue(params, "goal"),
+              startDate = findValue(params, "startDate"),
+              endDate = findValue(params, "endDate").map(DateUtil.yyyymmddParse)
+            )
           }
-          .fold(
-            error => {
-              val message = error match {
-                case err: ExtractError =>
-                  s"'=' not found. Raw input: ${err.rawInput}"
-                case IdNotFound   => s"Id not found"
-                case NameNotFound => s"Name not found"
-              }
-              throw new RuntimeException(
-                s"Unable to parse milestone. Error: $message Raw input: $text"
-              )
-            },
-            value => value
-          )
+        } yield milestone
+        result.orError(text)
       case _ =>
         text.parseJson.convertTo[Milestone]
     }
