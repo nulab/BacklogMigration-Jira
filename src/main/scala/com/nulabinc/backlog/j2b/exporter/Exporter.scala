@@ -4,14 +4,24 @@ import com.nulabinc.backlog.j2b.exporter.console.RemainingTimeCalculator
 import com.nulabinc.backlog.j2b.jira.conf.JiraBacklogPaths
 import com.nulabinc.backlog.j2b.jira.domain.export._
 import com.nulabinc.backlog.j2b.jira.domain.mapping.MappingCollectDatabase
-import com.nulabinc.backlog.j2b.jira.domain.{CollectData, FieldConverter, IssueFieldConverter, JiraProjectKey}
+import com.nulabinc.backlog.j2b.jira.domain.{
+  CollectData,
+  FieldConverter,
+  IssueFieldConverter,
+  JiraProjectKey
+}
 import com.nulabinc.backlog.j2b.jira.service._
 import com.nulabinc.backlog.j2b.jira.utils.DateChangeLogConverter
 import com.nulabinc.backlog.j2b.jira.writer._
 import com.nulabinc.backlog.migration.common.interpreters.JansiConsoleDSL
 import com.nulabinc.backlog.migration.common.utils.{ConsoleOut, Logging}
 import com.nulabinc.jira.client.domain._
-import com.nulabinc.jira.client.domain.changeLog.{AssigneeFieldId, ComponentChangeLogItemField, CustomFieldFieldId, FixVersion}
+import com.nulabinc.jira.client.domain.changeLog.{
+  AssigneeFieldId,
+  ComponentChangeLogItemField,
+  CustomFieldFieldId,
+  FixVersion
+}
 import com.nulabinc.jira.client.domain.issue._
 import com.osinka.i18n.Messages
 import javax.inject.Inject
@@ -167,7 +177,7 @@ class Exporter @Inject() (
           val comments = commentService.issueComments(issue)
 
           // milestone
-          val milestones = MilestoneExtractor.extract(fields, issueFields)
+          val milestones = Milestone.from(fields, issueFields)
           milestones.foreach(m => mappingCollectDatabase.addMilestone(m))
 
           // filter change logs and custom fields
@@ -204,7 +214,8 @@ class Exporter @Inject() (
           issueWithFilteredChangeLogs.changeLogs.foreach { changeLog =>
             changeLog.items.foreach { changeLogItem =>
               (changeLogItem.fieldId, fields.find(_.name == "Sprint")) match {
-                case (Some(CustomFieldFieldId(id)), Some(sprintDefinition)) if sprintDefinition.id == id =>
+                case (Some(CustomFieldFieldId(id)), Some(sprintDefinition))
+                    if sprintDefinition.id == id =>
                   ()
                 case (Some(CustomFieldFieldId(id)), _) =>
                   mappingCollectDatabase.addCustomField(

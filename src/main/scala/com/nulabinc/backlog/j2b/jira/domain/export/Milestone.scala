@@ -33,7 +33,7 @@ object Milestone {
 
   val pattern: Regex = """.*?\[(.+?)]$""".r
 
-  def apply(text: String): Milestone = {
+  def from(text: String): Milestone = {
 
     val value = pattern.findFirstMatchIn(text) match {
       case Some(m) => m.group(1)
@@ -77,6 +77,21 @@ object Milestone {
         value => value
       )
   }
+
+  def from(
+      fieldDefinitions: Seq[Field],
+      issueFields: Seq[IssueField]
+  ): Seq[Milestone] =
+    fieldDefinitions
+      .find(_.name == "Sprint")
+      .map { sprintDefinition =>
+        issueFields.find(_.id == sprintDefinition.id) match {
+          case Some(IssueField(_, ArrayFieldValue(values))) =>
+            values.map(v => Milestone.from(v.value))
+          case _ => Seq()
+        }
+      }
+      .getOrElse(Seq())
 
   private def split(str: String): Seq[String] =
     str.split(",")
