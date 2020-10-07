@@ -30,6 +30,19 @@ class MilestoneSpec extends Specification {
     actual2.endDate must beSome(
       DateUtil.yyyymmddParse("2012-12-03T05:14:00.000Z")
     )
+
+    // BLGMIGRATION-908
+    val text3 =
+      """{"boardId":10,"endDate":"2020-10-01T04:04:00.000Z","goal":"future","id":122,"name":"スプリント 3","startDate":"2020-09-18T04:04:24.041Z","state":"active"}"""
+    val actual3 = Milestone.from(text3)
+
+    actual3.id must equalTo(122)
+    actual3.name must equalTo("スプリント 3")
+    actual3.goal must beSome("future")
+    actual3.startDate must beSome("2020-09-18T04:04:24.041Z")
+    actual3.endDate must beSome(
+      DateUtil.yyyymmddParse("2020-10-01T04:04:00.000Z")
+    )
   }
 
 }
