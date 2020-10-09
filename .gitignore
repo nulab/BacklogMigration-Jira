@@ -18,7 +18,7 @@ project/plugins/project/
 .bsp
 .bloop
 .metals
-project/metals.sbt
+metals.sbt
 
 # Project Specific
 backlog/project.json
