@@ -78,7 +78,7 @@ jobs:
           TYPETALK_TOKEN: ${{ secrets.TYPETALK_TOKEN }}
         with:
           topic-id: 54145
-          message: "JIRA Importer [JOB](${{ github.event.repository.url }}/actions/runs/${{ github.run_id }}) success :smile: "
+          message: ":tada: JIRA Importer job success :smile:\n${{ github.event.repository.url }}/actions/runs/${{ github.run_id }}"
 
       - name: Notify to Typetalk if fail
         if: failure()
@@ -87,7 +87,7 @@ jobs:
           TYPETALK_TOKEN: ${{ secrets.TYPETALK_TOKEN }}
         with:
           topic-id: 54145
-          message: "JIRA Importer job failed"
+          message: ":rage: JIRA Importer job failed\n${{ github.event.repository.url }}/actions/runs/${{ github.run_id }}"
 
       - name: Notify to Typetalk if cancelled
         if: cancelled()
@@ -96,4 +96,5 @@ jobs:
           TYPETALK_TOKEN: ${{ secrets.TYPETALK_TOKEN }}
         with:
           topic-id: 54145
-          message: "JIRA Importer job cancelled"
+          message: ":no_entry: JIRA Importer job cancelled\n${{ github.event.repository.url }}/actions/runs/${{ github.run_id }}"
+
