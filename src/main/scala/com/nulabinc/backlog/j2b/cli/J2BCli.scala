@@ -35,10 +35,10 @@ import monix.execution.Scheduler
 
 object J2BCli extends BacklogConfiguration with Logging with HelpCommand with MappingValidator with MappingConsole with ProgressConsole {
 
-  import com.nulabinc.backlog.j2b.deserializers.JiraMappingDeserializer._
+  import com.nulabinc.backlog.j2b.codec.JiraMappingEncoder._
+  import com.nulabinc.backlog.j2b.codec.JiraMappingDecoder._
   import com.nulabinc.backlog.j2b.formatters.JiraFormatter._
   import com.nulabinc.backlog.j2b.mapping.JiraMappingHeader._
-  import com.nulabinc.backlog.j2b.serializers.JiraMappingSerializer._
   import com.nulabinc.backlog.migration.common.shared.syntax._
 
   private implicit val appDSL: AppDSL[Task]         = TaskAppDSL()

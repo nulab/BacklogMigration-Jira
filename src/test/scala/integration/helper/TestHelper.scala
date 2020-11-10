@@ -27,7 +27,7 @@ import scala.collection.JavaConverters._
 import scala.util.matching.Regex
 
 trait TestHelper {
-  import com.nulabinc.backlog.j2b.deserializers.JiraMappingDeserializer._
+  import com.nulabinc.backlog.j2b.codec.JiraMappingDecoder._
   import com.nulabinc.backlog.migration.common.shared.syntax._
 
   implicit val appDSL: AppDSL[Task] = TaskAppDSL()

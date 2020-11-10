@@ -31,7 +31,7 @@ class CompareSpec
     with UserMatcher
     with DateMatcher {
 
-  import com.nulabinc.backlog.j2b.deserializers.JiraMappingDeserializer._
+  import com.nulabinc.backlog.j2b.codec.JiraMappingDecoder._
 
   val jiraCustomFieldDefinitions: Seq[Field] =
     FieldConverter.toExportField(jiraRestApi.fieldAPI.all().right.get)
