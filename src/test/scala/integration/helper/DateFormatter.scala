@@ -5,7 +5,7 @@ import java.util.Date
 
 trait DateFormatter {
 
-  val dateFormat: String = "yyyy-MM-dd"
+  val dateFormat: String      = "yyyy-MM-dd"
   val timestampFormat: String = "yyyy-MM-dd'T'HH:mm:ssZ"
 
   def dateToOptionDateString(dateTime: Option[Date]): Option[String] =

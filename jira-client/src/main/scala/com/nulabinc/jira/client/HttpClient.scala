@@ -9,7 +9,12 @@ import org.apache.http._
 import org.apache.http.auth.{AuthScope, UsernamePasswordCredentials}
 import org.apache.http.client.config.RequestConfig
 import org.apache.http.client.methods.{CloseableHttpResponse, HttpGet}
-import org.apache.http.impl.client.{BasicCredentialsProvider, CloseableHttpClient, HttpClientBuilder, HttpClients}
+import org.apache.http.impl.client.{
+  BasicCredentialsProvider,
+  CloseableHttpClient,
+  HttpClientBuilder,
+  HttpClients
+}
 import org.slf4j.{Logger, LoggerFactory}
 import spray.json.{JsArray, JsonParser}
 
@@ -23,7 +28,8 @@ case class ApiNotFoundError(url: String)         extends HttpClientError(url)
 case class BadRequestError(error: String)        extends HttpClientError(error)
 case class GetContentError(throwable: Throwable) extends HttpClientError(throwable.getMessage)
 case class ThrowableError(throwable: Throwable)  extends HttpClientError(throwable.getMessage)
-case class UndefinedError(statusCode: Int)       extends HttpClientError(s"Unknown status code: $statusCode")
+case class UndefinedError(statusCode: Int)
+    extends HttpClientError(s"Unknown status code: $statusCode")
 
 sealed trait DownloadResult
 case object DownloadSuccess extends DownloadResult
@@ -152,7 +158,11 @@ class HttpClient(url: String, username: String, apiKey: String) {
     } yield {
       val config = RequestConfig.custom().setProxy(proxyConfig).build()
 
-      HttpClients.custom().setDefaultCredentialsProvider(credentialProvider).setDefaultRequestConfig(config).build()
+      HttpClients
+        .custom()
+        .setDefaultCredentialsProvider(credentialProvider)
+        .setDefaultRequestConfig(config)
+        .build()
     }).getOrElse(HttpClientBuilder.create().build())
 
   private def createHttpGetRequest(path: String): HttpGet = {

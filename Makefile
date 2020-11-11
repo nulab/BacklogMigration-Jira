@@ -1,7 +1,7 @@
 .DEFAULT_GOAL := help
 
 build:  ## Build a jar file
-	@sbt clean test assembly
+	@sbt clean "testOnly com.nulabinc.*" assembly
 
 .PHONY: help
 help:
