@@ -88,13 +88,26 @@ object IssueMappingJsonProtocol extends DefaultJsonProtocol {
             id = id.toLong,
             key = key,
             summary = fieldMap.find(_._1 == "summary").map(_._2.convertTo[String]).getOrElse(""),
-            description = fieldMap.find(_._1 == "description").filterNot(_._2 == JsNull).map(_._2.convertTo[String]),
+            description = fieldMap
+              .find(_._1 == "description")
+              .filterNot(_._2 == JsNull)
+              .map(_._2.convertTo[String]),
             parent = fieldMap.find(_._1 == "parent").map(_._2.convertTo[ParentIssue]),
-            assignee = fieldMap.find(_._1 == "assignee").filterNot(_._2 == JsNull).map(_._2.convertTo[User]),
-            components = fieldMap.find(_._1 == "components").map(_._2.convertTo[Seq[Component]]).getOrElse(Seq.empty[Component]),
-            fixVersions = fieldMap.find(_._1 == "fixVersions").map(_._2.convertTo[Seq[Version]]).getOrElse(Seq.empty[Version]),
+            assignee = fieldMap
+              .find(_._1 == "assignee")
+              .filterNot(_._2 == JsNull)
+              .map(_._2.convertTo[User]),
+            components = fieldMap
+              .find(_._1 == "components")
+              .map(_._2.convertTo[Seq[Component]])
+              .getOrElse(Seq.empty[Component]),
+            fixVersions = fieldMap
+              .find(_._1 == "fixVersions")
+              .map(_._2.convertTo[Seq[Version]])
+              .getOrElse(Seq.empty[Version]),
             issueFields = issueFields,
-            dueDate = fieldMap.find(_._1 == "duedate").filterNot(_._2 == JsNull).map(_._2.convertTo[Date]),
+            dueDate =
+              fieldMap.find(_._1 == "duedate").filterNot(_._2 == JsNull).map(_._2.convertTo[Date]),
             timeTrack = fieldMap.find(_._1 == "timetracking").map(_._2.convertTo[TimeTrack]),
             issueType = requireField[IssueType](fieldMap, "issuetype"),
             status = requireField[Status](fieldMap, "status"),
@@ -103,7 +116,10 @@ object IssueMappingJsonProtocol extends DefaultJsonProtocol {
             createdAt = requireField[Date](fieldMap, "created"),
             updatedAt = requireField[Date](fieldMap, "updated"),
             changeLogs = Seq.empty[ChangeLog],
-            attachments = fieldMap.find(_._1 == "attachment").map(_._2.convertTo[Seq[Attachment]]).getOrElse(Seq.empty[Attachment])
+            attachments = fieldMap
+              .find(_._1 == "attachment")
+              .map(_._2.convertTo[Seq[Attachment]])
+              .getOrElse(Seq.empty[Attachment])
           )
         }
         case other =>

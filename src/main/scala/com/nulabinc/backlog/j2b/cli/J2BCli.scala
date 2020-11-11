@@ -11,11 +11,23 @@ import com.nulabinc.backlog.j2b.jira.writer.ProjectUserWriter
 import com.nulabinc.backlog.j2b.mapping.converter.MappingConvertService
 import com.nulabinc.backlog.j2b.mapping.converter.writes.MappingUserWrites
 import com.nulabinc.backlog.j2b.modules._
-import com.nulabinc.backlog.migration.common.conf.{BacklogConfiguration, BacklogPaths, MappingDirectory}
+import com.nulabinc.backlog.migration.common.conf.{
+  BacklogConfiguration,
+  BacklogPaths,
+  MappingDirectory
+}
 import com.nulabinc.backlog.migration.common.convert.Convert
-import com.nulabinc.backlog.migration.common.domain.mappings.{ValidatedPriorityMapping, ValidatedStatusMapping, ValidatedUserMapping}
+import com.nulabinc.backlog.migration.common.domain.mappings.{
+  ValidatedPriorityMapping,
+  ValidatedStatusMapping,
+  ValidatedUserMapping
+}
 import com.nulabinc.backlog.migration.common.dsl.{AppDSL, ConsoleDSL, StorageDSL}
-import com.nulabinc.backlog.migration.common.interpreters.{JansiConsoleDSL, LocalStorageDSL, TaskAppDSL}
+import com.nulabinc.backlog.migration.common.interpreters.{
+  JansiConsoleDSL,
+  LocalStorageDSL,
+  TaskAppDSL
+}
 import com.nulabinc.backlog.migration.common.messages.ConsoleMessages
 import com.nulabinc.backlog.migration.common.modules.{ServiceInjector => BacklogInjector}
 import com.nulabinc.backlog.migration.common.service.{
@@ -25,7 +37,11 @@ import com.nulabinc.backlog.migration.common.service.{
   StatusService => BacklogStatusService,
   UserService => BacklogUserService
 }
-import com.nulabinc.backlog.migration.common.services.{PriorityMappingFileService, StatusMappingFileService, UserMappingFileService}
+import com.nulabinc.backlog.migration.common.services.{
+  PriorityMappingFileService,
+  StatusMappingFileService,
+  UserMappingFileService
+}
 import com.nulabinc.backlog.migration.common.utils.Logging
 import com.nulabinc.backlog.migration.importer.core.Boot
 import com.nulabinc.jira.client.JiraRestClient
@@ -33,7 +49,13 @@ import com.osinka.i18n.Messages
 import monix.eval.Task
 import monix.execution.Scheduler
 
-object J2BCli extends BacklogConfiguration with Logging with HelpCommand with MappingValidator with MappingConsole with ProgressConsole {
+object J2BCli
+    extends BacklogConfiguration
+    with Logging
+    with HelpCommand
+    with MappingValidator
+    with MappingConsole
+    with ProgressConsole {
 
   import com.nulabinc.backlog.j2b.codec.JiraMappingEncoder._
   import com.nulabinc.backlog.j2b.codec.JiraMappingDecoder._
@@ -77,9 +99,11 @@ object J2BCli extends BacklogConfiguration with Logging with HelpCommand with Ma
       // Export
       val collectDataTask = exporter.export(jiraBacklogPaths)
 
-      val collectedData        = collectDataTask.runSyncUnsafe()
-      val statusMappingItems   = collectedData.statuses.map(status => JiraStatusMappingItem(status.name, status.name))
-      val priorityMappingItems = collectedData.priorities.map(priority => JiraPriorityMappingItem(priority.name))
+      val collectedData = collectDataTask.runSyncUnsafe()
+      val statusMappingItems =
+        collectedData.statuses.map(status => JiraStatusMappingItem(status.name, status.name))
+      val priorityMappingItems =
+        collectedData.priorities.map(priority => JiraPriorityMappingItem(priority.name))
       val userMappingItems =
         collectedData.getUsers.map(JiraUserMappingItem.from)
 
@@ -250,9 +274,12 @@ object J2BCli extends BacklogConfiguration with Logging with HelpCommand with Ma
       statusMappings: Seq[ValidatedStatusMapping[JiraStatusMappingItem]],
       userMappings: Seq[ValidatedUserMapping[JiraUserMappingItem]]
   ): Task[Either[AppError, Unit]] = {
-    val userStr     = userMappings.map(item => toMappingRow(item.src.displayName, item.dst.value)).mkString("\n")
-    val priorityStr = priorityMappings.map(item => toMappingRow(item.src.value, item.dst.value)).mkString("\n")
-    val statusStr   = statusMappings.map(item => s"- ${item.src.display} => ${item.dst.value}").mkString("\n")
+    val userStr =
+      userMappings.map(item => toMappingRow(item.src.displayName, item.dst.value)).mkString("\n")
+    val priorityStr =
+      priorityMappings.map(item => toMappingRow(item.src.value, item.dst.value)).mkString("\n")
+    val statusStr =
+      statusMappings.map(item => s"- ${item.src.display} => ${item.dst.value}").mkString("\n")
 
     consoleDSL
       .println(s"""

@@ -14,7 +14,8 @@ object ChangeLogStatusConverter {
         item.field match {
           case StatusChangeLogItemField =>
             item.copy(
-              fromDisplayString = item.from.flatMap(from => statuses.find(_.id == from).map(_.name)),
+              fromDisplayString =
+                item.from.flatMap(from => statuses.find(_.id == from).map(_.name)),
               toDisplayString = item.to.flatMap(to => statuses.find(_.id == to).map(_.name))
             )
           case _ => item

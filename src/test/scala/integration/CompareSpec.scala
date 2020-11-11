@@ -6,7 +6,11 @@ import com.nulabinc.backlog.j2b.jira.conf.JiraApiConfiguration
 import com.nulabinc.backlog.j2b.jira.domain.export._
 import com.nulabinc.backlog.j2b.jira.domain.mapping.JiraUserMappingItem
 import com.nulabinc.backlog.j2b.jira.domain.{FieldConverter, IssueFieldConverter}
-import com.nulabinc.backlog.migration.common.conf.{BacklogApiConfiguration, BacklogConstantValue, MappingDirectory}
+import com.nulabinc.backlog.migration.common.conf.{
+  BacklogApiConfiguration,
+  BacklogConstantValue,
+  MappingDirectory
+}
 import com.nulabinc.backlog.migration.common.convert.writes.UserWrites
 import com.nulabinc.backlog.migration.common.services.UserMappingFileService
 import com.nulabinc.backlog4j.api.option.{GetIssuesParams, QueryParams}
@@ -52,7 +56,7 @@ class CompareSpec
       backlogConfig: BacklogApiConfiguration
   ): Unit = {
     "Project" should "match" in {
-      val jiraProject = jiraRestApi.projectAPI.project(jiraConfig.projectKey)
+      val jiraProject    = jiraRestApi.projectAPI.project(jiraConfig.projectKey)
       val backlogProject = backlogApi.getProject(backlogConfig.projectKey)
 
       backlogProject.getName should equal(jiraProject.right.get.name)
@@ -102,9 +106,8 @@ class CompareSpec
       val jiraVersions =
         jiraRestApi.versionsAPI.projectVersions(jiraConfig.projectKey).right.get
       jiraVersions.foreach { jiraVersion =>
-        val optBacklogVersion = backlogVersions.find(backlogVersion =>
-          jiraVersion.name == backlogVersion.getName
-        )
+        val optBacklogVersion =
+          backlogVersions.find(backlogVersion => jiraVersion.name == backlogVersion.getName)
         optBacklogVersion.isDefined should be(true)
         for {
           backlogVersion <- optBacklogVersion
@@ -124,9 +127,7 @@ class CompareSpec
       val jiraIssueTypes = jiraRestApi.issueTypeAPI.allIssueTypes().right.get
       jiraIssueTypes.foreach { jiraIssueType =>
         val backlogIssueType = backlogIssueTypes
-          .find(backlogIssueType =>
-            jiraIssueType.name == backlogIssueType.getName
-          )
+          .find(backlogIssueType => jiraIssueType.name == backlogIssueType.getName)
           .get
         jiraIssueType.name should equal(backlogIssueType.getName)
       }
@@ -145,9 +146,7 @@ class CompareSpec
         .get
       jiraComponents.foreach { jiraComponent =>
         val backlogComponent = backlogComponents
-          .find(backlogComponent =>
-            jiraComponent.name == backlogComponent.getName
-          )
+          .find(backlogComponent => jiraComponent.name == backlogComponent.getName)
           .get
         jiraComponent.name should equal(backlogComponent.getName)
       }
@@ -157,11 +156,10 @@ class CompareSpec
     "Custom field definition" should "match" in {
       val backlogCustomFields =
         backlogApi.getCustomFields(backlogConfig.projectKey).asScala
-      jiraCustomFieldDefinitions.filter(_.id.contains("customfield_")).foreach {
-        jiraCustomField =>
-          val backlogCustomField =
-            backlogCustomFields.find(_.getName == jiraCustomField.name).get
-          jiraCustomField.name should equal(backlogCustomField.getName)
+      jiraCustomFieldDefinitions.filter(_.id.contains("customfield_")).foreach { jiraCustomField =>
+        val backlogCustomField =
+          backlogCustomFields.find(_.getName == jiraCustomField.name).get
+        jiraCustomField.name should equal(backlogCustomField.getName)
       }
     }
 
@@ -181,9 +179,8 @@ class CompareSpec
       issues.foreach { jiraIssue =>
         "Issue" should s"match: ${jiraIssue.id} - ${jiraIssue.summary}" in {
 
-          val maybeBacklogIssue = backlogIssues.find(backlogIssue =>
-            jiraIssue.summary == backlogIssue.getSummary
-          )
+          val maybeBacklogIssue =
+            backlogIssues.find(backlogIssue => jiraIssue.summary == backlogIssue.getSummary)
 
           withClue(s"""
                       |jira subject:${jiraIssue.summary}
@@ -216,15 +213,12 @@ class CompareSpec
             for {
               sprintCustomField <- maybeSprintCustomField
             } yield {
-              jiraIssueFields.filter(_.id == sprintCustomField.id).map {
-                sprint =>
-                  val backlogMilestones = backlogIssue.getMilestone.asScala
-                  sprint.value.asInstanceOf[ArrayFieldValue].values.map {
-                    jiraMilestone =>
-                      backlogMilestones.find(m =>
-                        jiraMilestone.value.contains(m.getName)
-                      ) should not be empty
-                  }
+              jiraIssueFields.filter(_.id == sprintCustomField.id).map { sprint =>
+                val backlogMilestones = backlogIssue.getMilestone.asScala
+                sprint.value.asInstanceOf[ArrayFieldValue].values.map { jiraMilestone =>
+                  backlogMilestones
+                    .find(m => jiraMilestone.value.contains(m.getName)) should not be empty
+                }
               }
             }
 

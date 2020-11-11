@@ -1,6 +1,11 @@
 package com.nulabinc.backlog.j2b.mapping
 
-import com.nulabinc.backlog.migration.common.domain.mappings.{MappingHeader, PriorityMapping, StatusMapping, UserMapping}
+import com.nulabinc.backlog.migration.common.domain.mappings.{
+  MappingHeader,
+  PriorityMapping,
+  StatusMapping,
+  UserMapping
+}
 
 object JiraMappingHeader {
 

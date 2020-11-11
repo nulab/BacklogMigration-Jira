@@ -1,6 +1,10 @@
 package com.nulabinc.backlog.j2b.formatters
 
-import com.nulabinc.backlog.j2b.jira.domain.`export`.{ChangeLogMappingUser, ExistingMappingUser, MappingUser}
+import com.nulabinc.backlog.j2b.jira.domain.`export`.{
+  ChangeLogMappingUser,
+  ExistingMappingUser,
+  MappingUser
+}
 import spray.json._
 
 object SprayJsonFormats extends DefaultJsonProtocol {

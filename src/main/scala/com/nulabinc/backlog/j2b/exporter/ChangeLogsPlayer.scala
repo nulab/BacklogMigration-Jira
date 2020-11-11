@@ -1,13 +1,19 @@
 package com.nulabinc.backlog.j2b.exporter
 
-import com.nulabinc.jira.client.domain.changeLog.{ChangeLog, ChangeLogItemField, ParentChangeLogItemField}
+import com.nulabinc.jira.client.domain.changeLog.{
+  ChangeLog,
+  ChangeLogItemField,
+  ParentChangeLogItemField
+}
 
 object Calc {
 
   def run(initialValues: Seq[String], histories: Seq[History]): Seq[Result] = {
 
     val head = Result(0, Seq.empty[String], to = initialValues)
-    val tail = histories.map(history => Result(history.id, from = history.fromToSeq(), to = history.toToSeq()))
+    val tail = histories.map(history =>
+      Result(history.id, from = history.fromToSeq(), to = history.toToSeq())
+    )
 
     tail
       .foldLeft(Seq(head)) { (a, b) =>

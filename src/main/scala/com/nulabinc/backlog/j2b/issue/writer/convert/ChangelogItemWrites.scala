@@ -10,7 +10,9 @@ import com.nulabinc.backlog.migration.common.domain._
 import com.nulabinc.backlog.migration.common.utils.FileUtil
 import com.nulabinc.jira.client.domain.changeLog._
 
-class ChangelogItemWrites @Inject() (fields: Seq[Field]) extends Writes[ChangeLogItem, BacklogChangeLog] with SecondToHourFormatter {
+class ChangelogItemWrites @Inject() (fields: Seq[Field])
+    extends Writes[ChangeLogItem, BacklogChangeLog]
+    with SecondToHourFormatter {
 
   override def writes(changeLogItem: ChangeLogItem) =
     BacklogChangeLog(
