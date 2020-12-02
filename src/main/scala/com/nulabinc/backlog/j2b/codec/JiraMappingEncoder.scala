@@ -20,10 +20,9 @@ object JiraMappingEncoder {
   implicit val userSerializer: UserMappingEncoder[JiraUserMappingItem] =
     (mapping: UserMapping[JiraUserMappingItem]) =>
       Seq(
-        mapping.src.accountId,                     // 0
-        mapping.src.displayName,                   // 1
-        mapping.optDst.map(_.value).getOrElse(""), // 2
-        mapping.mappingType                        // 3
+        mapping.src.accountId,                    // 0
+        mapping.src.displayName,                  // 1
+        mapping.optDst.map(_.value).getOrElse("") // 2
       )
 
 }

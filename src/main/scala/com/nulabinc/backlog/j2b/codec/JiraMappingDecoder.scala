@@ -40,7 +40,5 @@ object JiraMappingDecoder {
           src.displayName
         override val optDst: Option[BacklogUserMappingItem] =
           Option(record.get(2)).map(BacklogUserMappingItem)
-        override val mappingType: String =
-          record.get(3)
       }
 }

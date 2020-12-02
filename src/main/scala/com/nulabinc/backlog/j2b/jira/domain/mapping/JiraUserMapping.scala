@@ -3,7 +3,6 @@ package com.nulabinc.backlog.j2b.jira.domain.mapping
 import com.nulabinc.backlog.j2b.jira.domain.`export`.MappingUser
 import com.nulabinc.backlog.migration.common.domain.mappings.{
   BacklogUserMappingItem,
-  UserMappingType,
   ValidatedUserMapping
 }
 
@@ -16,8 +15,7 @@ object JiraUserMappingItem {
 
 case class ValidatedJiraUserMapping(
     src: JiraUserMappingItem,
-    dst: BacklogUserMappingItem,
-    mappingType: UserMappingType
+    dst: BacklogUserMappingItem
 ) extends ValidatedUserMapping[JiraUserMappingItem] {
   override val srcDisplayValue: String = src.displayName
 }
@@ -26,9 +24,5 @@ object ValidatedJiraUserMapping {
   def from(
       mapping: ValidatedUserMapping[JiraUserMappingItem]
   ): ValidatedJiraUserMapping =
-    ValidatedJiraUserMapping(
-      src = mapping.src,
-      dst = mapping.dst,
-      mappingType = mapping.mappingType
-    )
+    ValidatedJiraUserMapping(src = mapping.src, dst = mapping.dst)
 }
