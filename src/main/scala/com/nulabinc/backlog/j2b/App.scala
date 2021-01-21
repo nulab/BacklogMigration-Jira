@@ -79,8 +79,8 @@ object App extends BacklogConfiguration with Logging {
           appDSL.pure(())
         case Left(_: ParameterError) =>
           appDSL.pure(()) // TODO: refactor AppConfigValidator
-        case Left(error: UnknownError) =>
-          consoleDSL.errorln(error.e.getStackTrace.mkString("\n"))
+        case Left(UnknownError(error)) =>
+          consoleDSL.errorln(error.getStackTrace.mkString("\n"))
         case Left(error: MappingError) =>
           error.inner match {
             case _: MappingFileNotFound =>

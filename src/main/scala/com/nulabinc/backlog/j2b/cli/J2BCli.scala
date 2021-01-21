@@ -11,15 +11,38 @@ import com.nulabinc.backlog.j2b.jira.writer.ProjectUserWriter
 import com.nulabinc.backlog.j2b.mapping.converter.MappingConvertService
 import com.nulabinc.backlog.j2b.mapping.converter.writes.MappingUserWrites
 import com.nulabinc.backlog.j2b.modules._
-import com.nulabinc.backlog.migration.common.conf.{BacklogConfiguration, BacklogPaths, MappingDirectory}
+import com.nulabinc.backlog.migration.common.conf.{
+  BacklogConfiguration,
+  BacklogPaths,
+  MappingDirectory
+}
 import com.nulabinc.backlog.migration.common.convert.Convert
-import com.nulabinc.backlog.migration.common.domain.mappings.{ValidatedPriorityMapping, ValidatedStatusMapping, ValidatedUserMapping}
+import com.nulabinc.backlog.migration.common.domain.mappings.{
+  ValidatedPriorityMapping,
+  ValidatedStatusMapping,
+  ValidatedUserMapping
+}
 import com.nulabinc.backlog.migration.common.dsl.{AppDSL, ConsoleDSL, StorageDSL, StoreDSL}
-import com.nulabinc.backlog.migration.common.interpreters.{JansiConsoleDSL, LocalStorageDSL, SQLiteStoreDSL, TaskAppDSL}
+import com.nulabinc.backlog.migration.common.interpreters.{
+  JansiConsoleDSL,
+  LocalStorageDSL,
+  SQLiteStoreDSL,
+  TaskAppDSL
+}
 import com.nulabinc.backlog.migration.common.messages.ConsoleMessages
 import com.nulabinc.backlog.migration.common.modules.{ServiceInjector => BacklogInjector}
-import com.nulabinc.backlog.migration.common.service.{ProjectService, SpaceService, PriorityService => BacklogPriorityService, StatusService => BacklogStatusService, UserService => BacklogUserService}
-import com.nulabinc.backlog.migration.common.services.{PriorityMappingFileService, StatusMappingFileService, UserMappingFileService}
+import com.nulabinc.backlog.migration.common.service.{
+  ProjectService,
+  SpaceService,
+  PriorityService => BacklogPriorityService,
+  StatusService => BacklogStatusService,
+  UserService => BacklogUserService
+}
+import com.nulabinc.backlog.migration.common.services.{
+  PriorityMappingFileService,
+  StatusMappingFileService,
+  UserMappingFileService
+}
 import com.nulabinc.backlog.migration.common.utils.Logging
 import com.nulabinc.backlog.migration.importer.core.Boot
 import com.nulabinc.jira.client.JiraRestClient
@@ -205,7 +228,7 @@ object J2BCli
   }
 
   private def createBacklogDirectory(backlogDirectory: Path): Task[Either[AppError, Unit]] =
-    storageDSL.createDirectory(backlogDirectory).map(Right(_))
+    storageDSL.createDirectory(backlogDirectory).map(_ => Right(()))
 
   private def createTable()(implicit storeDSL: SQLiteStoreDSL): Task[Either[AppError, Unit]] =
     storeDSL.createTable.map(Right(_))

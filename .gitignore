@@ -28,3 +28,5 @@ mapping/*.json
 mapping/*.csv
 log/
 test.properties
+
+test.db
