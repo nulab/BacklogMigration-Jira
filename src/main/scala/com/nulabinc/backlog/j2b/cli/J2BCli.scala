@@ -11,43 +11,23 @@ import com.nulabinc.backlog.j2b.jira.writer.ProjectUserWriter
 import com.nulabinc.backlog.j2b.mapping.converter.MappingConvertService
 import com.nulabinc.backlog.j2b.mapping.converter.writes.MappingUserWrites
 import com.nulabinc.backlog.j2b.modules._
-import com.nulabinc.backlog.migration.common.conf.{
-  BacklogConfiguration,
-  BacklogPaths,
-  MappingDirectory
-}
+import com.nulabinc.backlog.migration.common.conf.{BacklogConfiguration, BacklogPaths, MappingDirectory}
 import com.nulabinc.backlog.migration.common.convert.Convert
-import com.nulabinc.backlog.migration.common.domain.mappings.{
-  ValidatedPriorityMapping,
-  ValidatedStatusMapping,
-  ValidatedUserMapping
-}
-import com.nulabinc.backlog.migration.common.dsl.{AppDSL, ConsoleDSL, StorageDSL}
-import com.nulabinc.backlog.migration.common.interpreters.{
-  JansiConsoleDSL,
-  LocalStorageDSL,
-  TaskAppDSL
-}
+import com.nulabinc.backlog.migration.common.domain.mappings.{ValidatedPriorityMapping, ValidatedStatusMapping, ValidatedUserMapping}
+import com.nulabinc.backlog.migration.common.dsl.{AppDSL, ConsoleDSL, StorageDSL, StoreDSL}
+import com.nulabinc.backlog.migration.common.interpreters.{JansiConsoleDSL, LocalStorageDSL, SQLiteStoreDSL, TaskAppDSL}
 import com.nulabinc.backlog.migration.common.messages.ConsoleMessages
 import com.nulabinc.backlog.migration.common.modules.{ServiceInjector => BacklogInjector}
-import com.nulabinc.backlog.migration.common.service.{
-  ProjectService,
-  SpaceService,
-  PriorityService => BacklogPriorityService,
-  StatusService => BacklogStatusService,
-  UserService => BacklogUserService
-}
-import com.nulabinc.backlog.migration.common.services.{
-  PriorityMappingFileService,
-  StatusMappingFileService,
-  UserMappingFileService
-}
+import com.nulabinc.backlog.migration.common.service.{ProjectService, SpaceService, PriorityService => BacklogPriorityService, StatusService => BacklogStatusService, UserService => BacklogUserService}
+import com.nulabinc.backlog.migration.common.services.{PriorityMappingFileService, StatusMappingFileService, UserMappingFileService}
 import com.nulabinc.backlog.migration.common.utils.Logging
 import com.nulabinc.backlog.migration.importer.core.Boot
 import com.nulabinc.jira.client.JiraRestClient
 import com.osinka.i18n.Messages
 import monix.eval.Task
 import monix.execution.Scheduler
+
+import java.nio.file.{Path, Paths}
 
 object J2BCli
     extends BacklogConfiguration
@@ -57,11 +37,13 @@ object J2BCli
     with MappingConsole
     with ProgressConsole {
 
-  import com.nulabinc.backlog.j2b.codec.JiraMappingEncoder._
   import com.nulabinc.backlog.j2b.codec.JiraMappingDecoder._
+  import com.nulabinc.backlog.j2b.codec.JiraMappingEncoder._
   import com.nulabinc.backlog.j2b.formatters.JiraFormatter._
   import com.nulabinc.backlog.j2b.mapping.JiraMappingHeader._
   import com.nulabinc.backlog.migration.common.shared.syntax._
+
+  private val dbPath = Paths.get("./backlog/data.db")
 
   private implicit val appDSL: AppDSL[Task]         = TaskAppDSL()
   private implicit val storageDSL: StorageDSL[Task] = LocalStorageDSL()
@@ -70,6 +52,8 @@ object J2BCli
   def export(config: AppConfiguration, nextCommandStr: String)(implicit
       s: Scheduler
   ): Task[Either[AppError, Unit]] = {
+    implicit val storeDSL = new SQLiteStoreDSL(dbPath)
+
     val backlogInjector = BacklogInjector.createInjector(config.backlogConfig)
     val backlogUserService =
       backlogInjector.getInstance(classOf[BacklogUserService])
@@ -79,8 +63,7 @@ object J2BCli
       backlogInjector.getInstance(classOf[BacklogStatusService])
     val jiraInjector     = Guice.createInjector(new ExportModule(config))
     val jiraBacklogPaths = new JiraBacklogPaths(config.backlogConfig.projectKey)
-//    val storeDSL                = SQLiteStoreDSL(jiraBacklogPaths.dbPath)
-    val exporter = jiraInjector.getInstance(classOf[Exporter])
+    val exporter         = jiraInjector.getInstance(classOf[Exporter])
 
     val result = for {
 //      _ <- checkJiraApiAccessible(config.jiraConfig).handleError
@@ -90,12 +73,13 @@ object J2BCli
         backlogInjector.getInstance(classOf[SpaceService])
       ).handleError
       _ <- startExportMessage().handleError
-    } yield {
-      // Delete old exports
-      if (jiraBacklogPaths.outputPath.exists) {
+      _ = if (jiraBacklogPaths.outputPath.exists) {
         jiraBacklogPaths.outputPath.listRecursively.foreach(_.delete(false))
       }
+      _ <- createBacklogDirectory(jiraBacklogPaths.outputPath.path).handleError
+      _ <- createTable().handleError
 
+    } yield {
       // Export
       val collectDataTask = exporter.export(jiraBacklogPaths)
 
@@ -144,6 +128,9 @@ object J2BCli
   def `import`(
       config: AppConfiguration
   )(implicit s: Scheduler): Task[Either[AppError, Unit]] = {
+    implicit val mappingUserWrites: MappingUserWrites = new MappingUserWrites
+    implicit val storeDSL: StoreDSL[Task]             = new SQLiteStoreDSL(dbPath)
+
     val backlogInjector = BacklogInjector.createInjector(config.backlogConfig)
     val spaceService    = backlogInjector.getInstance(classOf[SpaceService])
     val jiraInjector    = Guice.createInjector(new ImportModule(config))
@@ -154,7 +141,9 @@ object J2BCli
       backlogInjector.getInstance(classOf[BacklogPriorityService])
     val backlogStatusService =
       backlogInjector.getInstance(classOf[BacklogStatusService])
-    val backlogPaths = backlogInjector.getInstance(classOf[BacklogPaths])
+    val backlogPaths      = backlogInjector.getInstance(classOf[BacklogPaths])
+    val converter         = new MappingConvertService(backlogPaths)
+    val projectUserWriter = jiraInjector.getInstance(classOf[ProjectUserWriter])
 
     val result = for {
 //      _ <- checkJiraApiAccessible(config.jiraConfig).handleError
@@ -198,35 +187,38 @@ object J2BCli
         userMappings = userMappings
       ).handleError
       _ <- finalConfirm(projectKeys).handleError
-    } yield {
-      //        mappingFileService.usersFromJson(jiraBacklogPaths.jiraUsersJson).foreach { user =>
-      //          database.add(user)
-      //        } // TODO users from db
-
-      // Convert
-      val converter = new MappingConvertService(backlogPaths)
-
-      converter.convert(
+      _ = converter.convert(
         userMaps = userMappings.map(ValidatedJiraUserMapping.from),
         priorityMaps = priorityMappings.map(ValidatedJiraPriorityMapping.from),
         statusMaps = statusMappings.map(ValidatedJiraStatusMapping.from)
       )
-
-      // Project users mapping
-      implicit val mappingUserWrites: MappingUserWrites = new MappingUserWrites
-      val projectUserWriter =
-        jiraInjector.getInstance(classOf[ProjectUserWriter])
-      val projectUsers = userMappings.map(ValidatedJiraUserMapping.from).map(Convert.toBacklog(_))
-      projectUserWriter.write(projectUsers)
-
-      // Import
-      Boot.execute(config.backlogConfig, false, config.retryCount)
-
-      // Finalize
+      projectUsers = userMappings.map(ValidatedJiraUserMapping.from).map(Convert.toBacklog(_))
+      _            = projectUserWriter.write(projectUsers)
+      _ <- doImport(config).handleError
+    } yield {
       if (!versionName.contains("SNAPSHOT")) {
         Finalizer.finalize(config)
       }
     }
+
+    result.value
+  }
+
+  private def createBacklogDirectory(backlogDirectory: Path): Task[Either[AppError, Unit]] =
+    storageDSL.createDirectory(backlogDirectory).map(Right(_))
+
+  private def createTable()(implicit storeDSL: SQLiteStoreDSL): Task[Either[AppError, Unit]] =
+    storeDSL.createTable.map(Right(_))
+
+  private def doImport(config: AppConfiguration)(implicit
+      s: Scheduler,
+      consoleDSL: ConsoleDSL[Task],
+      storeDSL: StoreDSL[Task]
+  ): Task[Either[AppError, Unit]] = {
+    val result = Boot
+      .execute[Task](config.backlogConfig, false, config.retryCount)
+      .mapError[AppError](UnknownError(_))
+      .handleError
 
     result.value
   }
