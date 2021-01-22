@@ -30,3 +30,4 @@ log/
 test.properties
 
 test.db
+jira.db
