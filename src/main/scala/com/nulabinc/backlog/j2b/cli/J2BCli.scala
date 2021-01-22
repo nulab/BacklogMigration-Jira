@@ -6,11 +6,14 @@ import com.nulabinc.backlog.j2b.conf.{AppConfigValidator, AppConfiguration}
 import com.nulabinc.backlog.j2b.core.Finalizer
 import com.nulabinc.backlog.j2b.exporter.Exporter
 import com.nulabinc.backlog.j2b.jira.conf.JiraBacklogPaths
+import com.nulabinc.backlog.j2b.jira.domain.CollectData
 import com.nulabinc.backlog.j2b.jira.domain.mapping._
 import com.nulabinc.backlog.j2b.jira.writer.ProjectUserWriter
 import com.nulabinc.backlog.j2b.mapping.converter.MappingConvertService
 import com.nulabinc.backlog.j2b.mapping.converter.writes.MappingUserWrites
 import com.nulabinc.backlog.j2b.modules._
+import com.nulabinc.backlog.j2b.persistence.store
+import com.nulabinc.backlog.j2b.persistence.store.JiraSQLiteStoreDSL
 import com.nulabinc.backlog.migration.common.conf.{
   BacklogConfiguration,
   BacklogPaths,
@@ -46,6 +49,7 @@ import com.nulabinc.backlog.migration.common.services.{
 import com.nulabinc.backlog.migration.common.utils.Logging
 import com.nulabinc.backlog.migration.importer.core.Boot
 import com.nulabinc.jira.client.JiraRestClient
+import com.nulabinc.jira.client.domain.Status
 import com.osinka.i18n.Messages
 import monix.eval.Task
 import monix.execution.Scheduler
@@ -59,6 +63,8 @@ object J2BCli
     with MappingValidator
     with MappingConsole
     with ProgressConsole {
+
+  type Result[A] = Task[Either[AppError, A]]
 
   import com.nulabinc.backlog.j2b.codec.JiraMappingDecoder._
   import com.nulabinc.backlog.j2b.codec.JiraMappingEncoder._
@@ -75,7 +81,7 @@ object J2BCli
   def export(config: AppConfiguration, nextCommandStr: String)(implicit
       s: Scheduler
   ): Task[Either[AppError, Unit]] = {
-    implicit val storeDSL = new SQLiteStoreDSL(dbPath)
+    implicit val storeDSL = JiraSQLiteStoreDSL(dbPath)
 
     val backlogInjector = BacklogInjector.createInjector(config.backlogConfig)
     val backlogUserService =
@@ -99,14 +105,11 @@ object J2BCli
       _ = if (jiraBacklogPaths.outputPath.exists) {
         jiraBacklogPaths.outputPath.listRecursively.foreach(_.delete(false))
       }
-      _ <- createBacklogDirectory(jiraBacklogPaths.outputPath.path).handleError
-      _ <- createTable().handleError
-
+      _             <- createBacklogDirectory(jiraBacklogPaths.outputPath.path).handleError
+      _             <- createTable().handleError
+      collectedData <- doExport(exporter, jiraBacklogPaths).handleError
+      _             <- storeJiraStatuses(storeDSL, collectedData.statuses).handleError
     } yield {
-      // Export
-      val collectDataTask = exporter.export(jiraBacklogPaths)
-
-      val collectedData = collectDataTask.runSyncUnsafe()
       val statusMappingItems =
         collectedData.statuses.map(status => JiraStatusMappingItem(status.name, status.name))
       val priorityMappingItems =
@@ -227,10 +230,19 @@ object J2BCli
     result.value
   }
 
+  private def doExport(exporter: Exporter, paths: JiraBacklogPaths): Result[CollectData] =
+    exporter.export(paths).map(Right(_))
+
+  private def storeJiraStatuses(
+      storeDSL: JiraSQLiteStoreDSL,
+      statuses: Seq[Status]
+  ): Result[Unit] =
+    storeDSL.storeJiraStatuses(statuses).map(_ => Right(()))
+
   private def createBacklogDirectory(backlogDirectory: Path): Task[Either[AppError, Unit]] =
     storageDSL.createDirectory(backlogDirectory).map(_ => Right(()))
 
-  private def createTable()(implicit storeDSL: SQLiteStoreDSL): Task[Either[AppError, Unit]] =
+  private def createTable()(implicit storeDSL: JiraSQLiteStoreDSL): Task[Either[AppError, Unit]] =
     storeDSL.createTable.map(Right(_))
 
   private def doImport(config: AppConfiguration)(implicit
@@ -240,7 +252,7 @@ object J2BCli
   ): Task[Either[AppError, Unit]] = {
     val result = Boot
       .execute[Task](config.backlogConfig, false, config.retryCount)
-      .mapError[AppError](UnknownError(_))
+      .mapError[AppError](e => UnknownError(e))
       .handleError
 
     result.value
