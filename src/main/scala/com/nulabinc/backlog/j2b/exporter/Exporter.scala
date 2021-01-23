@@ -142,7 +142,6 @@ class Exporter @Inject() (
 
       collectedData.outputJiraUsersToFile(backlogPaths.jiraUsersJson)
       collectedData.outputJiraPrioritiesToFile(backlogPaths.jiraPrioritiesJson)
-      collectedData.outputJiraStatusesToFile(backlogPaths.jiraStatusesJson)
 
       collectedData
     }

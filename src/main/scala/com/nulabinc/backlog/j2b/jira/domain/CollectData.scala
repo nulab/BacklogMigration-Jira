@@ -38,11 +38,6 @@ case class CollectData(
     }
   }
 
-  def outputJiraStatusesToFile(filePath: Path): Unit = {
-    import com.nulabinc.jira.client.json.StatusMappingJsonProtocol._
-    IOUtil.output(filePath, statuses.toJson.prettyPrint)
-  }
-
   def outputJiraPrioritiesToFile(filePath: Path): Unit = {
     import com.nulabinc.jira.client.json.PriorityMappingJsonProtocol._
     IOUtil.output(filePath, priorities.toJson.prettyPrint)

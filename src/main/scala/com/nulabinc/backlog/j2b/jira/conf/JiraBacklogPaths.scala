@@ -8,9 +8,6 @@ class JiraBacklogPaths(backlogProjectKey: String) extends BacklogPaths(backlogPr
   def jiraUsersJson: BetterFile =
     outputPath / "project" / backlogProjectKey / "jiraUsers.json"
 
-  def jiraStatusesJson: BetterFile =
-    outputPath / "project" / backlogProjectKey / "jiraStatuses.json"
-
   def jiraPrioritiesJson: BetterFile =
     outputPath / "project" / backlogProjectKey / "jiraPriorities.json"
 

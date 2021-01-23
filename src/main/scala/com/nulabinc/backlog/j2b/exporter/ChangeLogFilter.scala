@@ -35,7 +35,7 @@ object ChangeLogFilter {
               item.from,
               item.to
             ).flatten.flatMap { value =>
-              versions.find(_.id == value.toLong)
+              versions.find(_.id.contains(value.toLong))
             }.length match {
               case n if n > 0 => item
               case _ =>
