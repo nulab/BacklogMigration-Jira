@@ -190,6 +190,11 @@ Single-byte **lowercase** character → Single-byte **uppercase** character
 
 - Worklog is not supported. Scheduled for next release.
 
+### Others
+
+- If the space of Backlog is a free plan, it cannot be migrated due to API rate limiting. 
+- This tool cannot be used in parallel as it can exceed the API rate limit when run in parallel.
+
 ## Re-importing
 
 When the project key in Backlog and JIRA matches, they will be considered as the same project and data will be imported as follows.
@@ -401,6 +406,11 @@ Backlog で **マックスプラン以上** のプランを契約している必
 ### Change log について
 
 - Worklog には対応していません。(次回リリースで対応予定)
+
+### その他
+
+- Backlog のスペースがフリープランの場合はAPIのレート制限により移行できません。
+- 本移行ツールの並列実行は、APIのレート制限を超える可能性があるため動作を保証できません。
 
 ## 再インポートの仕様
 
