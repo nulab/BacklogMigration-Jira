@@ -84,7 +84,11 @@ object Milestone {
     pattern.findFirstMatchIn(text) match {
       case Some(m) =>
         val result = for {
-          params <- split(m.group(1)).map(_.trim).map(extract).sequence.map(_.toMap[String, String])
+          params <- split(m.group(1))
+            .map(_.trim)
+            .map(extract)
+            .sequence
+            .map(_.toMap[String, String])
           milestone <- for {
             id   <- findId(params)
             name <- findName(params)
