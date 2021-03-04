@@ -1,7 +1,7 @@
 lazy val commonSettings = Seq(
   organization := "com.nulabinc",
   version := "0.6.1-SNAPSHOT",
-  scalaVersion := "2.13.4",
+  scalaVersion := "2.13.5",
   libraryDependencies ++= {
     val spec2Version = "4.8.3"
     Seq(
