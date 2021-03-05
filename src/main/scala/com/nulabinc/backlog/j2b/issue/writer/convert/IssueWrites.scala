@@ -22,7 +22,7 @@ class IssueWrites @Inject() (
     BacklogIssue(
       eventType = "issue",
       id = issue.id,
-      optIssueKey = None,
+      issueKey = issue.key,
       summary = BacklogIssueSummary(value = issue.summary, original = issue.summary),
       optParentIssueId = issue.parent.map(_.id),
       description = issue.description.getOrElse(""),
