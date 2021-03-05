@@ -1,6 +1,7 @@
 package com.nulabinc.backlog.j2b.core
 
 import com.nulabinc.backlog.j2b.Config
+import com.nulabinc.backlog.migration.common.client.IAAH
 import com.nulabinc.backlog.migration.common.utils.Logging
 import com.osinka.i18n.Messages
 
@@ -51,6 +52,9 @@ object ConfigParser extends Logging {
       opt[Int]("retryCount")
         .action((x, c) => c.copy(retryCount = x))
         .text(Messages("cli.help.retryCount"))
+
+      opt[String]("iaah")
+        .action((x, c) => c.copy(iaah = Some(IAAH(x))))
 
       cmd("export")
         .action((_, c) => c.copy(commandType = Some(Config.ExportCommand)))

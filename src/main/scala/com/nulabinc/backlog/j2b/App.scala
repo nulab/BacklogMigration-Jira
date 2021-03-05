@@ -6,6 +6,7 @@ import com.nulabinc.backlog.j2b.cli.J2BCli
 import com.nulabinc.backlog.j2b.conf.AppConfiguration
 import com.nulabinc.backlog.j2b.core.{ConfigParser, GithubRelease, NextCommand}
 import com.nulabinc.backlog.j2b.utils.ClassVersion
+import com.nulabinc.backlog.migration.common.client.IAAH
 import com.nulabinc.backlog.migration.common.conf.BacklogConfiguration
 import com.nulabinc.backlog.migration.common.dsl.{AppDSL, ConsoleDSL, StorageDSL}
 import com.nulabinc.backlog.migration.common.errors.{MappingFileNotFound, MappingValidationError}
@@ -30,6 +31,9 @@ object App extends BacklogConfiguration with Logging {
   private implicit val consoleDSL: ConsoleDSL[Task] = JansiConsoleDSL()
   private implicit val exc: Scheduler =
     monix.execution.Scheduler.Implicits.global
+
+  private final val iaahStr = ""
+  private final val iaah    = IAAH(iaahStr)
 
   def main(args: Array[String]): Unit = {
 
@@ -65,12 +69,13 @@ object App extends BacklogConfiguration with Logging {
         case "en" => Locale.setDefault(Locale.US)
         case _    => Locale.setDefault(Locale.getDefault)
       }
-      _ <- consoleDSL.println(configurationMessage(config.getAppConfiguration))
+      appConfig = config.getAppConfiguration(config.iaah.getOrElse(iaah))
+      _ <- consoleDSL.println(configurationMessage(appConfig))
       result <- config.commandType match {
         case Some(Config.ExportCommand) =>
-          J2BCli.`export`(config.getAppConfiguration, NextCommand.command(args))
+          J2BCli.`export`(appConfig, NextCommand.command(args))
         case Some(Config.ImportCommand) =>
-          J2BCli.`import`(config.getAppConfiguration)
+          J2BCli.`import`(appConfig)
         case _ =>
           Task(Right(J2BCli.help()))
       }
