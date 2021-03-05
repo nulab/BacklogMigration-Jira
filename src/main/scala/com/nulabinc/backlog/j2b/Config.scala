@@ -3,6 +3,7 @@ package com.nulabinc.backlog.j2b
 import com.nulabinc.backlog.j2b.Config.CommandType
 import com.nulabinc.backlog.j2b.conf.AppConfiguration
 import com.nulabinc.backlog.j2b.jira.conf.JiraApiConfiguration
+import com.nulabinc.backlog.migration.common.client.IAAH
 import com.nulabinc.backlog.migration.common.conf.BacklogApiConfiguration
 import com.typesafe.config.ConfigFactory
 
@@ -14,10 +15,11 @@ case class Config(
     jiraUrl: String = "",
     projectKey: String = "",
     retryCount: Int = 20,
+    iaah: Option[IAAH] = None,
     commandType: Option[CommandType] = None
 ) {
 
-  val getAppConfiguration: AppConfiguration = {
+  def getAppConfiguration(iaah: IAAH): AppConfiguration = {
     val keys = projectKey.split(":")
     val jira = keys(0)
     val backlog =
@@ -34,7 +36,8 @@ case class Config(
       backlogConfig = BacklogApiConfiguration(
         url = backlogUrl,
         key = backlogKey,
-        projectKey = backlog
+        projectKey = backlog,
+        iaah = iaah
       ),
       retryCount = retryCount
     )
