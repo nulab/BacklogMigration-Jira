@@ -6,17 +6,40 @@ import com.nulabinc.backlog.j2b.conf.AppConfiguration
 import com.nulabinc.backlog.j2b.exporter.service.{JiraClientCommentService, JiraClientIssueService}
 import com.nulabinc.backlog.j2b.jira.conf.JiraApiConfiguration
 import com.nulabinc.backlog.j2b.jira.domain.JiraProjectKey
-import com.nulabinc.backlog.j2b.jira.domain.mapping.{JiraPriorityMappingItem, JiraStatusMappingItem, JiraUserMappingItem, ValidatedJiraPriorityMapping, ValidatedJiraStatusMapping, ValidatedJiraUserMapping}
+import com.nulabinc.backlog.j2b.jira.domain.mapping.{
+  JiraPriorityMappingItem,
+  JiraStatusMappingItem,
+  JiraUserMappingItem,
+  ValidatedJiraPriorityMapping,
+  ValidatedJiraStatusMapping,
+  ValidatedJiraUserMapping
+}
 import com.nulabinc.backlog.j2b.mapping.collector.MappingCollectDatabaseInMemory
-import com.nulabinc.backlog.j2b.mapping.converter.{MappingPriorityConverter, MappingStatusConverter, MappingUserConverter}
+import com.nulabinc.backlog.j2b.mapping.converter.{
+  MappingPriorityConverter,
+  MappingStatusConverter,
+  MappingUserConverter
+}
 import com.nulabinc.backlog.j2b.mapping.converter.writes.UserWrites
 import com.nulabinc.backlog.migration.common.client.IAAH
 import com.nulabinc.backlog.migration.common.conf.{BacklogApiConfiguration, MappingDirectory}
 import com.nulabinc.backlog.migration.common.dsl.{AppDSL, ConsoleDSL, StorageDSL}
-import com.nulabinc.backlog.migration.common.interpreters.{JansiConsoleDSL, LocalStorageDSL, TaskAppDSL}
+import com.nulabinc.backlog.migration.common.interpreters.{
+  JansiConsoleDSL,
+  LocalStorageDSL,
+  TaskAppDSL
+}
 import com.nulabinc.backlog.migration.common.modules.{ServiceInjector => BacklogInjector}
-import com.nulabinc.backlog.migration.common.service.{PriorityService => BacklogPriorityService, StatusService => BacklogStatusService, UserService => BacklogUserService}
-import com.nulabinc.backlog.migration.common.services.{PriorityMappingFileService, StatusMappingFileService, UserMappingFileService}
+import com.nulabinc.backlog.migration.common.service.{
+  PriorityService => BacklogPriorityService,
+  StatusService => BacklogStatusService,
+  UserService => BacklogUserService
+}
+import com.nulabinc.backlog.migration.common.services.{
+  PriorityMappingFileService,
+  StatusMappingFileService,
+  UserMappingFileService
+}
 import com.nulabinc.backlog4j.conf.{BacklogConfigure, BacklogPackageConfigure}
 import com.nulabinc.backlog4j.{BacklogClient, BacklogClientFactory, Issue => BacklogIssue}
 import com.nulabinc.jira.client.JiraRestClient
