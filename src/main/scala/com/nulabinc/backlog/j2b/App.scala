@@ -138,7 +138,7 @@ object App extends BacklogConfiguration with Logging {
        |${Messages("common.src")} ${Messages("common.project_key")}[${conf.jiraKey}]
        |${Messages("common.dst")} ${Messages("common.url")}[${conf.backlogUrl}]
        |${Messages("common.dst")} ${Messages("common.access_key")}[${conf.backlogKey}]
-       |${Messages("common.dst")} ${Messages("common.project_key")}[${conf.backlogKey}]
+       |${Messages("common.dst")} ${Messages("common.project_key")}[${conf.backlogProjectKey}]
        |${Messages("common.retryCount")} [${conf.retryCount}]
        |https.proxyHost[${Option(System.getProperty("https.proxyHost")).getOrElse("")}]
        |https.proxyPort[${Option(System.getProperty("https.proxyPort")).getOrElse("")}]
