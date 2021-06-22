@@ -1,7 +1,7 @@
 lazy val commonSettings = Seq(
   organization := "com.nulabinc",
   version := "0.6.2-SNAPSHOT",
-  scalaVersion := "2.13.5",
+  scalaVersion := "2.13.6",
   libraryDependencies ++= {
     val spec2Version = "4.8.3"
     Seq(
@@ -14,7 +14,7 @@ lazy val commonSettings = Seq(
     )
   },
   javacOptions ++= Seq("-encoding", "UTF-8"),
-  test in assembly := {}
+  assembly / test := {}
 )
 
 lazy val common = (project in file("common")).settings(commonSettings)
@@ -28,10 +28,10 @@ lazy val root = (project in file("."))
     libraryDependencies ++= Seq(
       "com.github.scopt" %% "scopt" % "3.7.1"
     ),
-    assemblyJarName in assembly := {
+    assembly / assemblyJarName := {
       s"${name.value}-${version.value}.jar"
     },
-    testOptions in Test ++= Seq(
+    Test / testOptions ++= Seq(
       Tests.Argument(TestFrameworks.ScalaTest, "-u", "target/test-reports"),
       Tests.Argument(TestFrameworks.ScalaTest, "-f", "target/test-reports/output.txt")
     )
