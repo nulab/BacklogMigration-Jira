@@ -38,3 +38,16 @@ lazy val root = (project in file("."))
   )
   .dependsOn(common % "test->test;compile->compile", client)
   .aggregate(common, client)
+
+addCommandAlias(
+  "fixAll",
+  "all compile:scalafix; test:scalafix; scalafmt; test:scalafmt; scalafmtSbt"
+)
+addCommandAlias(
+  "checkAll",
+  "compile:scalafix --check; test:scalafix --check; scalafmtCheck; test:scalafmtCheck; scalafmtSbtCheck"
+)
+
+ThisBuild / scalafixDependencies += "com.github.liancheng" %% "organize-imports" % "0.5.0"
+
+Global / onChangedBuildSource := ReloadOnSourceChanges
