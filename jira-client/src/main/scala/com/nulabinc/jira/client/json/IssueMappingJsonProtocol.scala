@@ -68,8 +68,8 @@ object IssueMappingJsonProtocol extends DefaultJsonProtocol {
             .map { item => IssueField(item._1, item._2.toString) }
             .toSeq
 
-          def requireField[A](fields: Map[String, JsValue], fieldName: String)(implicit
-              p: JsonReader[A]
+          def requireField[A](fields: Map[String, JsValue], fieldName: String)(
+              implicit p: JsonReader[A]
           ): A =
             fields.find(_._1 == fieldName).map(_._2) match {
               case Some(result) if result == JsNull =>
@@ -87,12 +87,16 @@ object IssueMappingJsonProtocol extends DefaultJsonProtocol {
           Issue(
             id = id.toLong,
             key = key,
-            summary = fieldMap.find(_._1 == "summary").map(_._2.convertTo[String]).getOrElse(""),
+            summary = fieldMap
+              .find(_._1 == "summary")
+              .map(_._2.convertTo[String])
+              .getOrElse(""),
             description = fieldMap
               .find(_._1 == "description")
               .filterNot(_._2 == JsNull)
               .map(_._2.convertTo[String]),
-            parent = fieldMap.find(_._1 == "parent").map(_._2.convertTo[ParentIssue]),
+            parent =
+              fieldMap.find(_._1 == "parent").map(_._2.convertTo[ParentIssue]),
             assignee = fieldMap
               .find(_._1 == "assignee")
               .filterNot(_._2 == JsNull)
@@ -106,9 +110,13 @@ object IssueMappingJsonProtocol extends DefaultJsonProtocol {
               .map(_._2.convertTo[Seq[Version]])
               .getOrElse(Seq.empty[Version]),
             issueFields = issueFields,
-            dueDate =
-              fieldMap.find(_._1 == "duedate").filterNot(_._2 == JsNull).map(_._2.convertTo[Date]),
-            timeTrack = fieldMap.find(_._1 == "timetracking").map(_._2.convertTo[TimeTrack]),
+            dueDate = fieldMap
+              .find(_._1 == "duedate")
+              .filterNot(_._2 == JsNull)
+              .map(_._2.convertTo[Date]),
+            timeTrack = fieldMap
+              .find(_._1 == "timetracking")
+              .map(_._2.convertTo[TimeTrack]),
             issueType = requireField[IssueType](fieldMap, "issuetype"),
             status = requireField[Status](fieldMap, "status"),
             priority = requireField[Priority](fieldMap, "priority"),

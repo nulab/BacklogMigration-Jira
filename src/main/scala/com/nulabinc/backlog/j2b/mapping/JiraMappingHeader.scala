@@ -9,7 +9,8 @@ import com.nulabinc.backlog.migration.common.domain.mappings.{
 
 object JiraMappingHeader {
 
-  implicit object PriorityMappingHeader extends MappingHeader[PriorityMapping[_]] {
+  implicit object PriorityMappingHeader
+      extends MappingHeader[PriorityMapping[_]] {
     val headers: Seq[String] = Seq("JIRA", "Backlog")
   }
 

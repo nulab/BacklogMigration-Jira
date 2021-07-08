@@ -35,9 +35,9 @@ class UserAPI(httpClient: HttpClient) {
   ): Either[JiraRestClientError, Seq[User]] = {
     val maxResults = 100
     val uri = "/user/search" ?
-      ("startAt"    -> startAt) &
+      ("startAt" -> startAt) &
       ("maxResults" -> maxResults) &
-      ("username"   -> "%")
+      ("username" -> "%")
     val body = httpClient.get(uri.toString)
     val result = body match {
       case Right(json) => Right(JsonParser(json).convertTo[Seq[User]])

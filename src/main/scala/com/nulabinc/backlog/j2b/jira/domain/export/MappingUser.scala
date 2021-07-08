@@ -34,5 +34,6 @@ case class ExistingMappingUser(
     key: String,
     displayName: String,
     optEmail: Option[String]
-)                                                                 extends MappingUser
-case class ChangeLogMappingUser(key: String, displayName: String) extends MappingUser
+) extends MappingUser
+case class ChangeLogMappingUser(key: String, displayName: String)
+    extends MappingUser

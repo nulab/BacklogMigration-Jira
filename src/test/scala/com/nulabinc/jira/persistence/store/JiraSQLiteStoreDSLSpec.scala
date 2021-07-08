@@ -10,7 +10,7 @@ import java.nio.file.Paths
 
 trait TestFixture {
   implicit val sc: Scheduler = monix.execution.Scheduler.global
-  private val dbPath         = Paths.get("./jira.db")
+  private val dbPath = Paths.get("./jira.db")
 
   val dsl = JiraSQLiteStoreDSL(dbPath)
 
@@ -20,9 +20,12 @@ trait TestFixture {
   }
 }
 
-class JiraSQLiteStoreDSLSpec extends AnyFunSuite with Matchers with TestFixture {
-  val status1  = Status("123", "name1")
-  val status2  = Status("id2", "name2")
+class JiraSQLiteStoreDSLSpec
+    extends AnyFunSuite
+    with Matchers
+    with TestFixture {
+  val status1 = Status("123", "name1")
+  val status2 = Status("id2", "name2")
   val statuses = Seq(status1, status2)
 
   test("store Jira statuses and find") {

@@ -52,7 +52,9 @@ class IssueInitializer @Inject() (
       versionNames = versionNames(filteredIssue),
       priorityName = priorityName(filteredIssue),
       optAssignee = assignee(mappingCollectDatabase, filteredIssue),
-      customFields = issueFields.flatMap(f => customField(fields, f, filteredIssue.changeLogs)),
+      customFields = issueFields.flatMap(f =>
+        customField(fields, f, filteredIssue.changeLogs)
+      ),
       attachments = attachmentNames(filteredIssue),
       optActualHours = actualHours(filteredIssue),
       notifiedUsers = Seq.empty[BacklogUser]
@@ -170,8 +172,9 @@ class IssueInitializer @Inject() (
     issueInitialValue.findChangeLogItem(issue.changeLogs) match {
       case Some(detail) =>
         for {
-          accountId   <- detail.from
-          backlogUser <- mappingCollectDatabase.findUser(accountId).map(_.toBacklogUser)
+          accountId <- detail.from
+          backlogUser <-
+            mappingCollectDatabase.findUser(accountId).map(_.toBacklogUser)
         } yield {
           userService
             .optUserOfKey(detail.from)

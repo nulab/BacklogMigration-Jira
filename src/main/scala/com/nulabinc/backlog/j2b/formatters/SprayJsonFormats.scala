@@ -14,13 +14,13 @@ object SprayJsonFormats extends DefaultJsonProtocol {
       o match {
         case m: ExistingMappingUser =>
           JsObject(
-            "key"         -> JsString(m.key),
+            "key" -> JsString(m.key),
             "displayName" -> JsString(m.displayName),
-            "optEmail"    -> m.optEmail.map(JsString(_)).getOrElse(JsNull)
+            "optEmail" -> m.optEmail.map(JsString(_)).getOrElse(JsNull)
           )
         case m: ChangeLogMappingUser =>
           JsObject(
-            "key"         -> JsString(m.key),
+            "key" -> JsString(m.key),
             "displayName" -> JsString(m.displayName)
           )
       }

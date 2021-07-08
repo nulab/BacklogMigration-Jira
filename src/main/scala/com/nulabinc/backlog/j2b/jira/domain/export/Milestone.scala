@@ -73,8 +73,8 @@ object Milestone {
 
   sealed trait MilestoneError
   case class ExtractError(rawInput: String) extends MilestoneError
-  case object IdNotFound                    extends MilestoneError
-  case object NameNotFound                  extends MilestoneError
+  case object IdNotFound extends MilestoneError
+  case object NameNotFound extends MilestoneError
 
   type MileStoneParams = Map[String, String]
 
@@ -84,13 +84,14 @@ object Milestone {
     pattern.findFirstMatchIn(text) match {
       case Some(m) =>
         val result = for {
-          params <- split(m.group(1))
-            .map(_.trim)
-            .map(extract)
-            .sequence
-            .map(_.toMap[String, String])
+          params <-
+            split(m.group(1))
+              .map(_.trim)
+              .map(extract)
+              .sequence
+              .map(_.toMap[String, String])
           milestone <- for {
-            id   <- findId(params)
+            id <- findId(params)
             name <- findName(params)
           } yield {
             new Milestone(
@@ -107,7 +108,10 @@ object Milestone {
         text.parseJson.convertTo[Milestone]
     }
 
-  def from(fieldDefinitions: Seq[Field], issueFields: Seq[IssueField]): Seq[Milestone] =
+  def from(
+      fieldDefinitions: Seq[Field],
+      issueFields: Seq[IssueField]
+  ): Seq[Milestone] =
     fieldDefinitions
       .find(_.name == "Sprint")
       .map { sprintDefinition =>

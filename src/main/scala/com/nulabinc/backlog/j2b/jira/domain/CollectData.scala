@@ -28,13 +28,14 @@ case class CollectData(
       case _                      => None
     }
 
-    users.toList.distinctBy(_.key).foldLeft(Seq.empty[MappingUser]) { (acc, item) =>
-      item match {
-        case u: ExistingMappingUser =>
-          acc :+ u
-        case u: ChangeLogMappingUser =>
-          acc :+ existingUsers.find(_.key == u.key).getOrElse(u)
-      }
+    users.toList.distinctBy(_.key).foldLeft(Seq.empty[MappingUser]) {
+      (acc, item) =>
+        item match {
+          case u: ExistingMappingUser =>
+            acc :+ u
+          case u: ChangeLogMappingUser =>
+            acc :+ existingUsers.find(_.key == u.key).getOrElse(u)
+        }
     }
   }
 

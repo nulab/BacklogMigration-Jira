@@ -2,7 +2,10 @@ package com.nulabinc.backlog.j2b.exporter
 
 import better.files.{File => Path}
 import com.nulabinc.backlog.j2b.jira.service.IssueService
-import com.nulabinc.backlog.migration.common.conf.{BacklogConstantValue, BacklogPaths}
+import com.nulabinc.backlog.migration.common.conf.{
+  BacklogConstantValue,
+  BacklogPaths
+}
 import com.nulabinc.backlog.migration.common.domain._
 import com.nulabinc.backlog.migration.common.utils.{IOUtil, Logging}
 import com.nulabinc.jira.client._
@@ -160,7 +163,8 @@ private[exporter] class ChangeLogReducer(
               case DownloadFailure =>
                 val emptyMessage = Messages(
                   "export.attachment.empty",
-                  changeLog.optOriginalValue.getOrElse(Messages("common.empty")),
+                  changeLog.optOriginalValue
+                    .getOrElse(Messages("common.empty")),
                   changeLog.optNewValue.getOrElse(Messages("common.empty"))
                 )
                 (None, s"$emptyMessage\n")

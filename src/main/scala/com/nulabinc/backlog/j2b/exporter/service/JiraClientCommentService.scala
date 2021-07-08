@@ -6,7 +6,8 @@ import com.nulabinc.jira.client.domain.Comment
 import com.nulabinc.jira.client.domain.issue.Issue
 import javax.inject.Inject
 
-class JiraClientCommentService @Inject() (jira: JiraRestClient) extends CommentService {
+class JiraClientCommentService @Inject() (jira: JiraRestClient)
+    extends CommentService {
 
   override def issueComments(issue: Issue): Seq[Comment] =
     fetch(issue, 0, 100, Seq.empty[Comment])

@@ -20,7 +20,8 @@ object JiraMappingDecoder {
           Option(record.get(1)).map(s => BacklogStatusMappingItem(s))
       }
 
-  implicit val priorityDeserializer: PriorityMappingDecoder[JiraPriorityMappingItem] =
+  implicit val priorityDeserializer
+      : PriorityMappingDecoder[JiraPriorityMappingItem] =
     (record: CSVRecord) =>
       new PriorityMapping[JiraPriorityMappingItem] {
         override val src: JiraPriorityMappingItem = JiraPriorityMappingItem(

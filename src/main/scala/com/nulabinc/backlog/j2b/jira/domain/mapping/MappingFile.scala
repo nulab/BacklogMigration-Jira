@@ -121,7 +121,7 @@ trait MappingFile extends Logging {
     implicit val userLang =
       if (Locale.getDefault.equals(Locale.JAPAN)) Lang("ja") else Lang("en")
 
-    val CHECK_JIRA    = "CHECK_JIRA"
+    val CHECK_JIRA = "CHECK_JIRA"
     val CHECK_BACKLOG = "CHECK_BACKLOG"
 
     def validate(optMappings: Option[Seq[Mapping]]): Seq[String] = {
@@ -139,26 +139,27 @@ trait MappingFile extends Logging {
         mappings: Seq[Mapping],
         checkService: String
     ): Seq[String] = {
-      mappings.foldLeft(Seq.empty[String])((errors: Seq[String], mapping: Mapping) =>
-        if (checkService == CHECK_JIRA) {
-          itemExists(
-            mapping.src,
-            jiraMappings,
-            Messages("common.src")
-          ) match {
-            case Some(error) => errors :+ error
-            case None        => errors
+      mappings.foldLeft(Seq.empty[String])(
+        (errors: Seq[String], mapping: Mapping) =>
+          if (checkService == CHECK_JIRA) {
+            itemExists(
+              mapping.src,
+              jiraMappings,
+              Messages("common.src")
+            ) match {
+              case Some(error) => errors :+ error
+              case None        => errors
+            }
+          } else {
+            itemExists(
+              mapping.dst,
+              backlogMappings,
+              Messages("common.dst")
+            ) match {
+              case Some(error) => errors :+ error
+              case None        => errors
+            }
           }
-        } else {
-          itemExists(
-            mapping.dst,
-            backlogMappings,
-            Messages("common.dst")
-          ) match {
-            case Some(error) => errors :+ error
-            case None        => errors
-          }
-        }
       )
     }
 
@@ -178,12 +179,14 @@ trait MappingFile extends Logging {
         mappings: Seq[Mapping],
         checkService: String
     ): Seq[String] = {
-      mappings.foldLeft(Seq.empty[String])((errors: Seq[String], mapping: Mapping) => {
-        itemRequired(mapping, checkService) match {
-          case Some(error) => errors :+ error
-          case None        => errors
+      mappings.foldLeft(Seq.empty[String])(
+        (errors: Seq[String], mapping: Mapping) => {
+          itemRequired(mapping, checkService) match {
+            case Some(error) => errors :+ error
+            case None        => errors
+          }
         }
-      })
+      )
     }
 
     private def itemRequired(

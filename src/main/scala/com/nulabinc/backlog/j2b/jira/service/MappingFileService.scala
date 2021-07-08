@@ -3,7 +3,10 @@ package com.nulabinc.backlog.j2b.jira.service
 import better.files.{File => Path}
 import com.nulabinc.backlog.j2b.jira.domain.`export`.MappingUser
 import com.nulabinc.backlog.j2b.jira.domain.mapping.MappingFile
-import com.nulabinc.backlog.migration.common.domain.{BacklogStatuses, BacklogUser}
+import com.nulabinc.backlog.migration.common.domain.{
+  BacklogStatuses,
+  BacklogUser
+}
 import com.nulabinc.backlog4j.{Priority => BacklogPriority}
 import com.nulabinc.jira.client.domain.{Priority, Status, User}
 

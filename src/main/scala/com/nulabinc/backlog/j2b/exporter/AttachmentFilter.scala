@@ -11,9 +11,11 @@ object AttachmentFilter {
 
   def filteredIssue(issue: Issue, comments: Seq[Comment]): Issue = {
     val issueAttachments = issue.attachments
-    val fileNames        = extractFileNameFromComments(comments)
+    val fileNames = extractFileNameFromComments(comments)
     val filteredAttachments =
-      issueAttachments.filterNot(attachment => fileNames.contains(attachment.fileName))
+      issueAttachments.filterNot(attachment =>
+        fileNames.contains(attachment.fileName)
+      )
 
     issue.copy(attachments = filteredAttachments)
   }

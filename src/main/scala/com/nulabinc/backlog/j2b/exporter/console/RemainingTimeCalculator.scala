@@ -2,7 +2,12 @@ package com.nulabinc.backlog.j2b.exporter.console
 
 import java.util.Date
 
-import com.nulabinc.backlog.migration.common.utils.{ConsoleOut, DateUtil, Logging, ProgressBar}
+import com.nulabinc.backlog.migration.common.utils.{
+  ConsoleOut,
+  DateUtil,
+  Logging,
+  ProgressBar
+}
 import com.osinka.i18n.Messages
 import org.fusesource.jansi.Ansi
 import org.fusesource.jansi.Ansi.ansi
@@ -34,7 +39,7 @@ class RemainingTimeCalculator(totalSize: Long) extends Logging {
 
   private var remainingTime = RemainingTime(totalSize)
 
-  private[this] var newLine       = false
+  private[this] var newLine = false
   private[this] var isMessageMode = false
 
   def progress(indexOfDate: Int): Unit = {

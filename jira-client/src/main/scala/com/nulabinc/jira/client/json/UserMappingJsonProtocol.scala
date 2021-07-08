@@ -24,7 +24,9 @@ object UserMappingJsonProtocol extends DefaultJsonProtocol {
           case Seq(JsString(key), JsString(name)) =>
             User(accountId = key, displayName = name, emailAddress = None)
           case others =>
-            throw deserializationError("Cannot deserialize User. Input: " + others)
+            throw deserializationError(
+              "Cannot deserialize User. Input: " + others
+            )
         }
       }
     override def write(obj: User): JsValue = ???

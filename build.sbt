@@ -6,11 +6,11 @@ lazy val commonSettings = Seq(
     val spec2Version = "4.8.3"
     Seq(
       // test
-      "org.scalatest" %% "scalatest"            % "3.1.0"      % "test",
-      "org.specs2"    %% "specs2-core"          % spec2Version % Test,
-      "org.specs2"    %% "specs2-matcher"       % spec2Version % Test,
-      "org.specs2"    %% "specs2-matcher-extra" % spec2Version % Test,
-      "org.specs2"    %% "specs2-mock"          % spec2Version % Test
+      "org.scalatest" %% "scalatest" % "3.1.0" % "test",
+      "org.specs2" %% "specs2-core" % spec2Version % Test,
+      "org.specs2" %% "specs2-matcher" % spec2Version % Test,
+      "org.specs2" %% "specs2-matcher-extra" % spec2Version % Test,
+      "org.specs2" %% "specs2-mock" % spec2Version % Test
     )
   },
   javacOptions ++= Seq("-encoding", "UTF-8"),
@@ -33,7 +33,11 @@ lazy val root = (project in file("."))
     },
     Test / testOptions ++= Seq(
       Tests.Argument(TestFrameworks.ScalaTest, "-u", "target/test-reports"),
-      Tests.Argument(TestFrameworks.ScalaTest, "-f", "target/test-reports/output.txt")
+      Tests.Argument(
+        TestFrameworks.ScalaTest,
+        "-f",
+        "target/test-reports/output.txt"
+      )
     )
   )
   .dependsOn(common % "test->test;compile->compile", client)

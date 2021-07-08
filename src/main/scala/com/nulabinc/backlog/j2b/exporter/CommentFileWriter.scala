@@ -55,7 +55,7 @@ class CommentFileWriter @Inject() (
     val changeLogReducer =
       new ChangeLogReducer(issueDirPath, backlogPaths, issueService)
     val commentReducer = new CommentReducer(issue.id, changeLogReducer)
-    val reduced        = commentReducer.reduce(comment)
+    val reduced = commentReducer.reduce(comment)
 
     IOUtil.output(
       backlogPaths.issueJson(issueDirPath),

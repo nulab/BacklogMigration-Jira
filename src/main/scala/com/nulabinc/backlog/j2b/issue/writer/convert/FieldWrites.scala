@@ -9,20 +9,24 @@ import com.nulabinc.backlog.migration.common.domain._
 import com.nulabinc.backlog.migration.common.utils.Logging
 import com.nulabinc.backlog4j.CustomField.{FieldType => BacklogFieldType}
 
-class FieldWrites extends Writes[FieldDefinitions, Seq[BacklogCustomFieldSetting]] with Logging {
+class FieldWrites
+    extends Writes[FieldDefinitions, Seq[BacklogCustomFieldSetting]]
+    with Logging {
 
   override def writes(fieldDefinition: FieldDefinitions) = {
-    fieldDefinition.fields.filter(_.id.startsWith("customfield_")).map { field =>
-      BacklogCustomFieldSetting(
-        optId = Some(field.id.replace("customfield_", "").toLong),
-        rawName = field.name,
-        description = "",
-        typeId = field.schema.backlogFieldType.getIntValue,
-        required = false,
-        applicableIssueTypes = Seq.empty[String],
-        delete = false,
-        property = property(fieldDefinition.definitions, field.schema, field.id)
-      )
+    fieldDefinition.fields.filter(_.id.startsWith("customfield_")).map {
+      field =>
+        BacklogCustomFieldSetting(
+          optId = Some(field.id.replace("customfield_", "").toLong),
+          rawName = field.name,
+          description = "",
+          typeId = field.schema.backlogFieldType.getIntValue,
+          required = false,
+          applicableIssueTypes = Seq.empty[String],
+          delete = false,
+          property =
+            property(fieldDefinition.definitions, field.schema, field.id)
+        )
     }
   }
 
@@ -114,5 +118,8 @@ class FieldWrites extends Writes[FieldDefinitions, Seq[BacklogCustomFieldSetting
       fieldId: String,
       definitions: Seq[CustomFieldRow]
   ): Seq[String] =
-    definitions.find(_.fieldId == fieldId).map(_.values.toSeq).getOrElse(Seq.empty[String])
+    definitions
+      .find(_.fieldId == fieldId)
+      .map(_.values.toSeq)
+      .getOrElse(Seq.empty[String])
 }

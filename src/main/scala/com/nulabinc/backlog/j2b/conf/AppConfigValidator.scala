@@ -23,7 +23,8 @@ class AppConfigValidator(
     List(
       AppConfigValidator.validateProjectKey(config.backlogProjectKey),
       AppConfigValidator.validateConfigJira(jiraRestClient),
-      AppConfigValidator.validateConfigBacklog(spaceService, config.backlogConfig),
+      AppConfigValidator
+        .validateConfigBacklog(spaceService, config.backlogConfig),
       AppConfigValidator.validateJiraProject(jiraRestClient, config.jiraConfig),
       AppConfigValidator.validateAuthBacklog(spaceService)
     ).filter {

@@ -13,15 +13,16 @@ object JiraMappingEncoder {
     (mapping: StatusMapping[JiraStatusMappingItem]) =>
       Seq(mapping.src.value, mapping.optDst.map(_.value).getOrElse(""))
 
-  implicit val prioritySerializer: PriorityMappingEncoder[JiraPriorityMappingItem] =
+  implicit val prioritySerializer
+      : PriorityMappingEncoder[JiraPriorityMappingItem] =
     (mapping: PriorityMapping[JiraPriorityMappingItem]) =>
       Seq(mapping.src.value, mapping.optDst.map(_.value).getOrElse(""))
 
   implicit val userSerializer: UserMappingEncoder[JiraUserMappingItem] =
     (mapping: UserMapping[JiraUserMappingItem]) =>
       Seq(
-        mapping.src.accountId,                    // 0
-        mapping.src.displayName,                  // 1
+        mapping.src.accountId, // 0
+        mapping.src.displayName, // 1
         mapping.optDst.map(_.value).getOrElse("") // 2
       )
 

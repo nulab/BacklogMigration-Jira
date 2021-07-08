@@ -101,7 +101,8 @@ class ChangelogItemWrites @Inject() (fields: Seq[Field])
         Some(
           BacklogAttachment(
             optId = changeLogItem.to.map(_.toLong),
-            name = FileUtil.normalize(changeLogItem.toDisplayString.getOrElse(""))
+            name =
+              FileUtil.normalize(changeLogItem.toDisplayString.getOrElse(""))
           )
         )
       case _ => None
@@ -120,7 +121,9 @@ class ChangelogItemWrites @Inject() (fields: Seq[Field])
               s"custom field id not found [${changeLogItem.field}]"
             )
         }
-        optTypeId.map(typeId => BacklogAttributeInfo(optId = None, typeId = typeId.toString))
+        optTypeId.map(typeId =>
+          BacklogAttributeInfo(optId = None, typeId = typeId.toString)
+        )
       case _ => None
     }
 

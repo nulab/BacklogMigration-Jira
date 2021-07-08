@@ -11,7 +11,8 @@ object ChangeLogMappingJsonProtocol extends DefaultJsonProtocol {
   import DateTimeMappingJsonProtocol._
   import UserMappingJsonProtocol._
 
-  implicit object ChangeLogItemMappingFormat extends RootJsonFormat[ChangeLogItem] {
+  implicit object ChangeLogItemMappingFormat
+      extends RootJsonFormat[ChangeLogItem] {
     def write(obj: ChangeLogItem) = ???
 
     def read(json: JsValue) = {

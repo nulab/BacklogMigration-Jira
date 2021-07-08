@@ -25,7 +25,12 @@ import com.nulabinc.backlog.migration.common.domain.mappings.{
   ValidatedStatusMapping,
   ValidatedUserMapping
 }
-import com.nulabinc.backlog.migration.common.dsl.{AppDSL, ConsoleDSL, StorageDSL, StoreDSL}
+import com.nulabinc.backlog.migration.common.dsl.{
+  AppDSL,
+  ConsoleDSL,
+  StorageDSL,
+  StoreDSL
+}
 import com.nulabinc.backlog.migration.common.interpreters.{
   JansiConsoleDSL,
   LocalStorageDSL,
@@ -33,7 +38,9 @@ import com.nulabinc.backlog.migration.common.interpreters.{
   TaskAppDSL
 }
 import com.nulabinc.backlog.migration.common.messages.ConsoleMessages
-import com.nulabinc.backlog.migration.common.modules.{ServiceInjector => BacklogInjector}
+import com.nulabinc.backlog.migration.common.modules.{
+  ServiceInjector => BacklogInjector
+}
 import com.nulabinc.backlog.migration.common.service.{
   ProjectService,
   SpaceService,
@@ -74,7 +81,7 @@ object J2BCli
 
   private val dbPath = Paths.get("./backlog/data.db")
 
-  private implicit val appDSL: AppDSL[Task]         = TaskAppDSL()
+  private implicit val appDSL: AppDSL[Task] = TaskAppDSL()
   private implicit val storageDSL: StorageDSL[Task] = LocalStorageDSL()
   private implicit val consoleDSL: ConsoleDSL[Task] = JansiConsoleDSL()
 
@@ -90,9 +97,9 @@ object J2BCli
       backlogInjector.getInstance(classOf[BacklogPriorityService])
     val backlogStatusService =
       backlogInjector.getInstance(classOf[BacklogStatusService])
-    val jiraInjector     = Guice.createInjector(new ExportModule(config))
+    val jiraInjector = Guice.createInjector(new ExportModule(config))
     val jiraBacklogPaths = new JiraBacklogPaths(config.backlogConfig.projectKey)
-    val exporter         = jiraInjector.getInstance(classOf[Exporter])
+    val exporter = jiraInjector.getInstance(classOf[Exporter])
 
     val result = for {
 //      _ <- checkJiraApiAccessible(config.jiraConfig).handleError
@@ -105,15 +112,19 @@ object J2BCli
       _ = if (jiraBacklogPaths.outputPath.exists) {
         jiraBacklogPaths.outputPath.listRecursively.foreach(_.delete(false))
       }
-      _             <- createBacklogDirectory(jiraBacklogPaths.outputPath.path).handleError
-      _             <- createTable().handleError
+      _ <- createBacklogDirectory(jiraBacklogPaths.outputPath.path).handleError
+      _ <- createTable().handleError
       collectedData <- doExport(exporter, jiraBacklogPaths).handleError
-      _             <- storeJiraStatuses(storeDSL, collectedData.statuses).handleError
+      _ <- storeJiraStatuses(storeDSL, collectedData.statuses).handleError
     } yield {
       val statusMappingItems =
-        collectedData.statuses.map(status => JiraStatusMappingItem(status.name, status.name))
+        collectedData.statuses.map(status =>
+          JiraStatusMappingItem(status.name, status.name)
+        )
       val priorityMappingItems =
-        collectedData.priorities.map(priority => JiraPriorityMappingItem(priority.name))
+        collectedData.priorities.map(priority =>
+          JiraPriorityMappingItem(priority.name)
+        )
       val userMappingItems =
         collectedData.getUsers.map(JiraUserMappingItem.from)
 
@@ -129,7 +140,8 @@ object J2BCli
       PriorityMappingFileService
         .init[JiraPriorityMappingItem, Task](
           mappingFilePath = MappingDirectory.default.priorityMappingFilePath,
-          mappingListPath = MappingDirectory.default.priorityMappingListFilePath,
+          mappingListPath =
+            MappingDirectory.default.priorityMappingListFilePath,
           srcItems = priorityMappingItems,
           dstItems = backlogPriorityService.allPriorities()
         )
@@ -155,11 +167,11 @@ object J2BCli
       config: AppConfiguration
   )(implicit s: Scheduler): Task[Either[AppError, Unit]] = {
     implicit val mappingUserWrites: MappingUserWrites = new MappingUserWrites
-    implicit val storeDSL: StoreDSL[Task]             = new SQLiteStoreDSL(dbPath)
+    implicit val storeDSL: StoreDSL[Task] = new SQLiteStoreDSL(dbPath)
 
     val backlogInjector = BacklogInjector.createInjector(config.backlogConfig)
-    val spaceService    = backlogInjector.getInstance(classOf[SpaceService])
-    val jiraInjector    = Guice.createInjector(new ImportModule(config))
+    val spaceService = backlogInjector.getInstance(classOf[SpaceService])
+    val jiraInjector = Guice.createInjector(new ImportModule(config))
 
     val backlogUserService =
       backlogInjector.getInstance(classOf[BacklogUserService])
@@ -167,8 +179,8 @@ object J2BCli
       backlogInjector.getInstance(classOf[BacklogPriorityService])
     val backlogStatusService =
       backlogInjector.getInstance(classOf[BacklogStatusService])
-    val backlogPaths      = backlogInjector.getInstance(classOf[BacklogPaths])
-    val converter         = new MappingConvertService(backlogPaths)
+    val backlogPaths = backlogInjector.getInstance(classOf[BacklogPaths])
+    val converter = new MappingConvertService(backlogPaths)
     val projectUserWriter = jiraInjector.getInstance(classOf[ProjectUserWriter])
 
     val result = for {
@@ -218,8 +230,11 @@ object J2BCli
         priorityMaps = priorityMappings.map(ValidatedJiraPriorityMapping.from),
         statusMaps = statusMappings.map(ValidatedJiraStatusMapping.from)
       )
-      projectUsers = userMappings.map(ValidatedJiraUserMapping.from).map(Convert.toBacklog(_))
-      _            = projectUserWriter.write(projectUsers)
+      projectUsers =
+        userMappings
+          .map(ValidatedJiraUserMapping.from)
+          .map(Convert.toBacklog(_))
+      _ = projectUserWriter.write(projectUsers)
       _ <- doImport(config).handleError
     } yield {
       if (!versionName.contains("SNAPSHOT")) {
@@ -230,7 +245,10 @@ object J2BCli
     result.value
   }
 
-  private def doExport(exporter: Exporter, paths: JiraBacklogPaths): Result[CollectData] =
+  private def doExport(
+      exporter: Exporter,
+      paths: JiraBacklogPaths
+  ): Result[CollectData] =
     exporter.export(paths).map(Right(_))
 
   private def storeJiraStatuses(
@@ -239,10 +257,14 @@ object J2BCli
   ): Result[Unit] =
     storeDSL.storeJiraStatuses(statuses).map(_ => Right(()))
 
-  private def createBacklogDirectory(backlogDirectory: Path): Task[Either[AppError, Unit]] =
+  private def createBacklogDirectory(
+      backlogDirectory: Path
+  ): Task[Either[AppError, Unit]] =
     storageDSL.createDirectory(backlogDirectory).map(_ => Right(()))
 
-  private def createTable()(implicit storeDSL: JiraSQLiteStoreDSL): Task[Either[AppError, Unit]] =
+  private def createTable()(implicit
+      storeDSL: JiraSQLiteStoreDSL
+  ): Task[Either[AppError, Unit]] =
     storeDSL.createTable.map(Right(_))
 
   private def doImport(config: AppConfiguration)(implicit
@@ -263,7 +285,9 @@ object J2BCli
       projectService: ProjectService
   ): Task[Either[AppError, ConfirmedProjectKeys]] = {
     val result =
-      if (projectService.optProject(config.backlogConfig.projectKey).isDefined) {
+      if (
+        projectService.optProject(config.backlogConfig.projectKey).isDefined
+      ) {
         for {
           input <- ConsoleDSL[Task].read(
             Messages(
@@ -302,11 +326,17 @@ object J2BCli
       userMappings: Seq[ValidatedUserMapping[JiraUserMappingItem]]
   ): Task[Either[AppError, Unit]] = {
     val userStr =
-      userMappings.map(item => toMappingRow(item.src.displayName, item.dst.value)).mkString("\n")
+      userMappings
+        .map(item => toMappingRow(item.src.displayName, item.dst.value))
+        .mkString("\n")
     val priorityStr =
-      priorityMappings.map(item => toMappingRow(item.src.value, item.dst.value)).mkString("\n")
+      priorityMappings
+        .map(item => toMappingRow(item.src.value, item.dst.value))
+        .mkString("\n")
     val statusStr =
-      statusMappings.map(item => s"- ${item.src.display} => ${item.dst.value}").mkString("\n")
+      statusMappings
+        .map(item => s"- ${item.src.display} => ${item.dst.value}")
+        .mkString("\n")
 
     consoleDSL
       .println(s"""
@@ -353,7 +383,8 @@ object J2BCli
   ): Task[Either[AppError, Unit]] =
     for {
       input <- ConsoleDSL[Task].read(Messages("cli.confirm"))
-      result = if (input.toLowerCase == "y") Right(()) else Left(ConfirmCanceled)
+      result =
+        if (input.toLowerCase == "y") Right(()) else Left(ConfirmCanceled)
     } yield result
 
   private def validateConfig(
@@ -362,7 +393,7 @@ object J2BCli
       spaceService: SpaceService
   ): Task[Either[AppError, Unit]] = {
     val validator = AppConfigValidator(jiraRestClient, spaceService)
-    val errors    = validator.validate(config)
+    val errors = validator.validate(config)
 
     if (errors.isEmpty) appDSL.pure(Right(()))
     else {

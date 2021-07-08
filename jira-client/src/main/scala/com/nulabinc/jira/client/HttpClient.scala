@@ -23,11 +23,13 @@ import scala.io.Source
 sealed abstract class HttpClientError(val message: String) {
   override def toString: String = message
 }
-case object AuthenticateFailedError              extends HttpClientError("Bad credential")
-case class ApiNotFoundError(url: String)         extends HttpClientError(url)
-case class BadRequestError(error: String)        extends HttpClientError(error)
-case class GetContentError(throwable: Throwable) extends HttpClientError(throwable.getMessage)
-case class ThrowableError(throwable: Throwable)  extends HttpClientError(throwable.getMessage)
+case object AuthenticateFailedError extends HttpClientError("Bad credential")
+case class ApiNotFoundError(url: String) extends HttpClientError(url)
+case class BadRequestError(error: String) extends HttpClientError(error)
+case class GetContentError(throwable: Throwable)
+    extends HttpClientError(throwable.getMessage)
+case class ThrowableError(throwable: Throwable)
+    extends HttpClientError(throwable.getMessage)
 case class UndefinedError(statusCode: Int)
     extends HttpClientError(s"Unknown status code: $statusCode")
 
@@ -73,7 +75,7 @@ class HttpClient(url: String, username: String, apiKey: String) {
   def get(path: String): Either[HttpClientError, String] = {
 
     val closableHttpClient = createHttpClient()
-    val httpRequest        = createHttpGetRequest(url + "/rest/api/2" + path)
+    val httpRequest = createHttpGetRequest(url + "/rest/api/2" + path)
 
     try {
       val closableHttpResponse = httpExecute(closableHttpClient, httpRequest)
@@ -124,7 +126,7 @@ class HttpClient(url: String, username: String, apiKey: String) {
     }
 
     val closableHttpClient = createHttpClient()
-    val httpRequest        = createHttpGetRequest(url)
+    val httpRequest = createHttpGetRequest(url)
 
     try {
       val closableHttpResponse = httpExecute(closableHttpClient, httpRequest)
@@ -153,7 +155,7 @@ class HttpClient(url: String, username: String, apiKey: String) {
 
   private def createHttpClient(): CloseableHttpClient =
     (for {
-      proxyConfig        <- optProxyConfig
+      proxyConfig <- optProxyConfig
       credentialProvider <- optCredentialsProvider
     } yield {
       val config = RequestConfig.custom().setProxy(proxyConfig).build()

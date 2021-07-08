@@ -7,9 +7,9 @@ object ProjectMappingJsonProtocol extends DefaultJsonProtocol {
   implicit object IdFormat extends RootJsonFormat[Project] {
     def write(c: Project) =
       JsObject(
-        "id"          -> JsString(c.id.toString),
-        "key"         -> JsString(c.key),
-        "name"        -> JsString(c.name),
+        "id" -> JsString(c.id.toString),
+        "key" -> JsString(c.key),
+        "name" -> JsString(c.name),
         "description" -> JsString(c.description)
       )
     def read(value: JsValue) = {
