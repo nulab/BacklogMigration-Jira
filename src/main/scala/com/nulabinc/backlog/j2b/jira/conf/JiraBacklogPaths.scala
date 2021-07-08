@@ -1,7 +1,7 @@
 package com.nulabinc.backlog.j2b.jira.conf
 
-import com.nulabinc.backlog.migration.common.conf.BacklogPaths
 import better.files.{File => BetterFile}
+import com.nulabinc.backlog.migration.common.conf.BacklogPaths
 
 class JiraBacklogPaths(backlogProjectKey: String) extends BacklogPaths(backlogProjectKey) {
 

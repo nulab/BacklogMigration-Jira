@@ -2,9 +2,9 @@ package com.nulabinc.jira.client.apis
 
 import java.net.URLEncoder
 
-import io.lemonlabs.uri.dsl._
 import com.nulabinc.jira.client._
 import com.nulabinc.jira.client.domain.User
+import io.lemonlabs.uri.dsl._
 import spray.json.JsonParser
 
 class UserAPI(httpClient: HttpClient) {

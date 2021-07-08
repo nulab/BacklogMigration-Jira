@@ -2,6 +2,13 @@ lazy val commonSettings = Seq(
   organization := "com.nulabinc",
   version := "0.6.2-SNAPSHOT",
   scalaVersion := "2.13.6",
+  scalacOptions ++= Seq(
+    "-deprecation",
+    "-feature",
+    "-unchecked",
+    "-Xlint",
+    "-Wunused"
+  ),
   libraryDependencies ++= {
     val spec2Version = "4.8.3"
     Seq(
@@ -14,7 +21,11 @@ lazy val commonSettings = Seq(
     )
   },
   javacOptions ++= Seq("-encoding", "UTF-8"),
-  assembly / test := {}
+  assembly / test := {},
+  // scalafix
+  addCompilerPlugin(scalafixSemanticdb),
+  semanticdbEnabled := true,
+  semanticdbVersion := scalafixSemanticdb.revision
 )
 
 lazy val common = (project in file("common")).settings(commonSettings)
