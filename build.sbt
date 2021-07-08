@@ -6,7 +6,7 @@ lazy val commonSettings = Seq(
     val spec2Version = "4.8.3"
     Seq(
       // test
-      "org.scalatest" %% "scalatest"            % "3.1.0"      % "test",
+      "org.scalatest" %% "scalatest"            % "3.1.4"      % "test",
       "org.specs2"    %% "specs2-core"          % spec2Version % Test,
       "org.specs2"    %% "specs2-matcher"       % spec2Version % Test,
       "org.specs2"    %% "specs2-matcher-extra" % spec2Version % Test,
