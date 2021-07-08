@@ -1,6 +1,7 @@
 package com.nulabinc.backlog.j2b.exporter.service
 
 import java.net.URLEncoder
+import javax.inject.Inject
 
 import better.files.{File => Path}
 import com.nulabinc.backlog.j2b.jira.domain.JiraProjectKey
@@ -9,7 +10,6 @@ import com.nulabinc.backlog.migration.common.utils.Logging
 import com.nulabinc.jira.client.domain.changeLog.ChangeLog
 import com.nulabinc.jira.client.domain.issue.Issue
 import com.nulabinc.jira.client.{DownloadResult, JiraRestClient}
-import javax.inject.Inject
 
 class JiraClientIssueService @Inject() (
     projectKey: JiraProjectKey,
