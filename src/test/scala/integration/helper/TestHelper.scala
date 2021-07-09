@@ -22,7 +22,6 @@ import com.nulabinc.backlog.j2b.mapping.converter.{
   MappingStatusConverter,
   MappingUserConverter
 }
-import com.nulabinc.backlog.migration.common.client.IAAH
 import com.nulabinc.backlog.migration.common.conf.{BacklogApiConfiguration, MappingDirectory}
 import com.nulabinc.backlog.migration.common.dsl.{AppDSL, ConsoleDSL, StorageDSL}
 import com.nulabinc.backlog.migration.common.interpreters.{
@@ -189,8 +188,7 @@ trait TestHelper {
       backlogConfig = BacklogApiConfiguration(
         url = backlogUrl,
         key = backlogKey,
-        projectKey = backlog,
-        iaah = IAAH.empty
+        projectKey = backlog
       ),
       retryCount = 0
     )
