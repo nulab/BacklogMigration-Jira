@@ -32,7 +32,7 @@ jobs:
         uses: coursier/cache-action@v6
 
       - name: Set header
-        run: sed -i -e 's/iaahStr = ""/iaahStr = "${{ secrets.IAAH }}"/' src/main/scala/com/nulabinc/backlog/j2b/App.scala
+        run: sed -i -e 's/iaah = ""/iaah = "${{ secrets.IAAH }}"/' src/main/resources/application.conf
 
       - name: Check format
         run: |
