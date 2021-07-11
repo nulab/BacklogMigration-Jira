@@ -36,8 +36,7 @@ case class Config(
       backlogConfig = BacklogApiConfiguration(
         url = backlogUrl,
         key = backlogKey,
-        projectKey = backlog,
-        iaah = iaah
+        projectKey = backlog
       ),
       retryCount = retryCount
     )
