@@ -1,6 +1,7 @@
 package com.nulabinc.backlog.j2b.jira.domain.mapping
 
 import java.util.Locale
+
 import better.files.File
 import com.nulabinc.backlog.j2b.jira.domain.mapping.MappingJsonProtocol._
 import com.nulabinc.backlog.migration.common.utils.{IOUtil, Logging}

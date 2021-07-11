@@ -1,5 +1,7 @@
 package com.nulabinc.backlog.j2b.issue.writer
 
+import javax.inject.Inject
+
 import com.nulabinc.backlog.j2b.issue.writer.convert.FieldWrites
 import com.nulabinc.backlog.j2b.jira.domain.FieldDefinitions
 import com.nulabinc.backlog.j2b.jira.domain.export.Field
@@ -9,7 +11,6 @@ import com.nulabinc.backlog.migration.common.conf.BacklogPaths
 import com.nulabinc.backlog.migration.common.convert.Convert
 import com.nulabinc.backlog.migration.common.domain.BacklogCustomFieldSettings
 import com.nulabinc.backlog.migration.common.utils.IOUtil
-import javax.inject.Inject
 import spray.json._
 
 class FieldFileWriter @Inject() (implicit

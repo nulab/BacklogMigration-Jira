@@ -2,6 +2,7 @@ package integration.helper
 
 import java.io.{File, FileInputStream}
 import java.util.{Date, Properties}
+
 import com.nulabinc.backlog.j2b.conf.AppConfiguration
 import com.nulabinc.backlog.j2b.exporter.service.{JiraClientCommentService, JiraClientIssueService}
 import com.nulabinc.backlog.j2b.jira.conf.JiraApiConfiguration
@@ -15,13 +16,12 @@ import com.nulabinc.backlog.j2b.jira.domain.mapping.{
   ValidatedJiraUserMapping
 }
 import com.nulabinc.backlog.j2b.mapping.collector.MappingCollectDatabaseInMemory
+import com.nulabinc.backlog.j2b.mapping.converter.writes.UserWrites
 import com.nulabinc.backlog.j2b.mapping.converter.{
   MappingPriorityConverter,
   MappingStatusConverter,
   MappingUserConverter
 }
-import com.nulabinc.backlog.j2b.mapping.converter.writes.UserWrites
-import com.nulabinc.backlog.migration.common.client.IAAH
 import com.nulabinc.backlog.migration.common.conf.{BacklogApiConfiguration, MappingDirectory}
 import com.nulabinc.backlog.migration.common.dsl.{AppDSL, ConsoleDSL, StorageDSL}
 import com.nulabinc.backlog.migration.common.interpreters.{
@@ -188,8 +188,7 @@ trait TestHelper {
       backlogConfig = BacklogApiConfiguration(
         url = backlogUrl,
         key = backlogKey,
-        projectKey = backlog,
-        iaah = IAAH.empty
+        projectKey = backlog
       ),
       retryCount = 0
     )

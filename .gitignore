@@ -28,6 +28,6 @@ mapping/*.json
 mapping/*.csv
 log/
 test.properties
-
+local.conf
 test.db
 jira.db

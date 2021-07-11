@@ -1,12 +1,12 @@
 package com.nulabinc.jira.persistence.store
 
+import java.nio.file.Paths
+
 import com.nulabinc.backlog.j2b.persistence.store.JiraSQLiteStoreDSL
 import com.nulabinc.jira.client.domain.Status
 import monix.execution.Scheduler
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.must.Matchers
-
-import java.nio.file.Paths
 
 trait TestFixture {
   implicit val sc: Scheduler = monix.execution.Scheduler.global

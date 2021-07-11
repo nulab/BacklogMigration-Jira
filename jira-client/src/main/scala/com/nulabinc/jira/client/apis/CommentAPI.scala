@@ -1,8 +1,8 @@
 package com.nulabinc.jira.client.apis
 
-import io.lemonlabs.uri.dsl._
 import com.nulabinc.jira.client._
 import com.nulabinc.jira.client.domain.CommentResult
+import io.lemonlabs.uri.dsl._
 import spray.json._
 
 class CommentAPI(httpClient: HttpClient) extends Pageable {

@@ -1,5 +1,7 @@
 package com.nulabinc.backlog.j2b.cli
 
+import java.nio.file.{Path, Paths}
+
 import com.google.inject.Guice
 import com.nulabinc.backlog.j2b._
 import com.nulabinc.backlog.j2b.conf.{AppConfigValidator, AppConfiguration}
@@ -12,7 +14,6 @@ import com.nulabinc.backlog.j2b.jira.writer.ProjectUserWriter
 import com.nulabinc.backlog.j2b.mapping.converter.MappingConvertService
 import com.nulabinc.backlog.j2b.mapping.converter.writes.MappingUserWrites
 import com.nulabinc.backlog.j2b.modules._
-import com.nulabinc.backlog.j2b.persistence.store
 import com.nulabinc.backlog.j2b.persistence.store.JiraSQLiteStoreDSL
 import com.nulabinc.backlog.migration.common.conf.{
   BacklogConfiguration,
@@ -35,9 +36,9 @@ import com.nulabinc.backlog.migration.common.interpreters.{
 import com.nulabinc.backlog.migration.common.messages.ConsoleMessages
 import com.nulabinc.backlog.migration.common.modules.{ServiceInjector => BacklogInjector}
 import com.nulabinc.backlog.migration.common.service.{
+  PriorityService => BacklogPriorityService,
   ProjectService,
   SpaceService,
-  PriorityService => BacklogPriorityService,
   StatusService => BacklogStatusService,
   UserService => BacklogUserService
 }
@@ -53,8 +54,6 @@ import com.nulabinc.jira.client.domain.Status
 import com.osinka.i18n.Messages
 import monix.eval.Task
 import monix.execution.Scheduler
-
-import java.nio.file.{Path, Paths}
 
 object J2BCli
     extends BacklogConfiguration
@@ -251,7 +250,7 @@ object J2BCli
       storeDSL: StoreDSL[Task]
   ): Task[Either[AppError, Unit]] = {
     val result = Boot
-      .execute[Task](config.backlogConfig, false, config.retryCount)
+      .execute(config.backlogConfig, false, config.retryCount)
       .mapError[AppError](e => UnknownError(e))
       .handleError
 
