@@ -1,13 +1,13 @@
 package com.nulabinc.backlog.j2b.persistence.store
 
+import java.nio.file.Path
+
 import com.nulabinc.backlog.j2b.persistence.store.ops.JiraStatusOps
 import com.nulabinc.backlog.migration.common.interpreters.SQLiteStoreDSL
 import com.nulabinc.jira.client.domain.Status
 import doobie.implicits._
 import monix.eval.Task
 import monix.execution.Scheduler
-
-import java.nio.file.Path
 
 case class JiraSQLiteStoreDSL(dbPath: Path)(implicit sc: Scheduler)
     extends SQLiteStoreDSL(dbPath) {
