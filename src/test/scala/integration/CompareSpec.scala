@@ -1,7 +1,5 @@
 package integration
 
-import java.io.File
-
 import com.nulabinc.backlog.j2b.jira.conf.JiraApiConfiguration
 import com.nulabinc.backlog.j2b.jira.domain.export._
 import com.nulabinc.backlog.j2b.jira.domain.mapping.JiraUserMappingItem

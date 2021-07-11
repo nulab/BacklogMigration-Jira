@@ -1,6 +1,6 @@
 package com.nulabinc.backlog.j2b.jira.domain
 
-import com.nulabinc.backlog.j2b.jira.domain.export.{FieldType, Field => ExportField}
+import com.nulabinc.backlog.j2b.jira.domain.export.{Field => ExportField, FieldType}
 import com.nulabinc.jira.client.domain.field.{Field => ClientField}
 
 object FieldConverter {

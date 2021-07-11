@@ -2,8 +2,8 @@ package com.nulabinc.jira.client.json
 
 import java.util.Date
 
-import com.nulabinc.jira.client.domain.{changeLog, _}
 import com.nulabinc.jira.client.domain.changeLog._
+import com.nulabinc.jira.client.domain.{changeLog, _}
 import spray.json.{JsNull, _}
 
 object ChangeLogMappingJsonProtocol extends DefaultJsonProtocol {
