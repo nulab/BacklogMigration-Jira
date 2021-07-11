@@ -4,7 +4,7 @@ import java.util.Date
 
 import com.nulabinc.backlog.migration.common.utils.DateUtil
 import spray.json._
-import spray.json.DefaultJsonProtocol
+
 import scala.util.matching.Regex
 
 case class Milestone(

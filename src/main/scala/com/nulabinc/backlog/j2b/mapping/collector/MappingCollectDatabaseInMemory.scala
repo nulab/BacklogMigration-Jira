@@ -1,11 +1,11 @@
 package com.nulabinc.backlog.j2b.mapping.collector
 
-import com.nulabinc.backlog.j2b.jira.domain.`export`.{
+import com.nulabinc.backlog.j2b.jira.domain.export.{
   ChangeLogMappingUser,
   ExistingMappingUser,
-  MappingUser
+  MappingUser,
+  Milestone
 }
-import com.nulabinc.backlog.j2b.jira.domain.export.Milestone
 import com.nulabinc.backlog.j2b.jira.domain.mapping.{CustomFieldRow, MappingCollectDatabase}
 
 import scala.collection.mutable

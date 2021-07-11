@@ -2,8 +2,8 @@ package com.nulabinc.backlog.j2b.jira.domain
 
 import com.nulabinc.backlog.j2b.jira.domain.export.{
   FieldValue,
-  StringFieldValue,
-  IssueField => ExportIssueField
+  IssueField => ExportIssueField,
+  StringFieldValue
 }
 import com.nulabinc.backlog.migration.common.utils.Logging
 import com.nulabinc.jira.client.domain.issue.{IssueField => ClientIssueField}

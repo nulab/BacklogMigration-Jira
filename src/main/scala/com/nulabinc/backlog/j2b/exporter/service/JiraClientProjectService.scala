@@ -1,10 +1,11 @@
 package com.nulabinc.backlog.j2b.exporter.service
 
+import javax.inject.Inject
+
 import com.nulabinc.backlog.j2b.jira.domain.JiraProjectKey
 import com.nulabinc.backlog.j2b.jira.service.ProjectService
 import com.nulabinc.jira.client.JiraRestClient
 import com.nulabinc.jira.client.domain.Project
-import javax.inject.Inject
 import monix.eval.Task
 
 class JiraClientProjectService @Inject() (jiraRestClient: JiraRestClient)

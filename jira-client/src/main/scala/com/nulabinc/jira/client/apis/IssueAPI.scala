@@ -1,9 +1,9 @@
 package com.nulabinc.jira.client.apis
 
-import io.lemonlabs.uri.dsl._
 import com.nulabinc.jira.client._
 import com.nulabinc.jira.client.domain.changeLog.{ChangeLog, ChangeLogResult}
 import com.nulabinc.jira.client.domain.issue.Issue
+import io.lemonlabs.uri.dsl._
 import spray.json._
 
 case class IssueResult(total: Int, issues: Seq[Issue])
