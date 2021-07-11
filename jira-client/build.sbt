@@ -1,7 +1,7 @@
 name := "jira-client"
 
 libraryDependencies ++= Seq(
-  "org.apache.httpcomponents" % "httpclient"           % "4.5.3",
+  "org.apache.httpcomponents" % "httpclient"           % "4.5.13",
   "io.spray"                 %% "spray-json"           % "1.3.5",
   "io.lemonlabs"             %% "scala-uri"            % "1.5.1",
   "org.slf4j"                 % "slf4j-api"            % "1.7.25",
