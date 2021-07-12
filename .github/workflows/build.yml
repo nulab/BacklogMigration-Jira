@@ -1,9 +1,7 @@
-name: CI
+name: Build
 
 on:
   push:
-    branches: [ master ]
-  pull_request:
     branches: [ master ]
 
 jobs:
@@ -53,12 +51,6 @@ jobs:
         with:
           name: backlog-migration-jira
           path: target/dist
-
-      - name: Upload sbt result
-        uses: actions/upload-artifact@master
-        with:
-          name: sbt-result
-          path: dist
 
   notify:
     runs-on: ubuntu-latest
