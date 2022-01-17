@@ -43,7 +43,7 @@ object App extends BacklogConfiguration with Logging {
       exit(1)
     }
 
-    val config = ConfigParser.parse(args) match {
+    val config = ConfigParser.parse(args)(defaultRetryCount = defaultRetryCount) match {
       case Some(c) =>
         c.commandType match {
           case Some(Config.ExportCommand) => c

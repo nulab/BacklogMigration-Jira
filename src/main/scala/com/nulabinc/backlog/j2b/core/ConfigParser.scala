@@ -7,11 +7,11 @@ import com.osinka.i18n.Messages
 
 object ConfigParser extends Logging {
 
-  def parse(args: Array[String]): Option[Config] =
-    parser.parse(args, Config())
+  def parse(args: Array[String])(defaultRetryCount: Int): Option[Config] =
+    parser.parse(args, Config(retryCount = defaultRetryCount))
 
-  def help(): Unit = {
-    parser.parse(Seq("--help"), Config()).getOrElse("")
+  def help()(defaultRetryCount: Int): Unit = {
+    parser.parse(Seq("--help"), Config(retryCount = defaultRetryCount)).getOrElse("")
   }
 
   private def parser =
