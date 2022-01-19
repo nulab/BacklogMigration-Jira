@@ -14,7 +14,7 @@ case class Config(
     jiraApiKey: String = "",
     jiraUrl: String = "",
     projectKey: String = "",
-    retryCount: Int = 20,
+    retryCount: Int,
     iaah: Option[IAAH] = None,
     commandType: Option[CommandType] = None
 ) {
