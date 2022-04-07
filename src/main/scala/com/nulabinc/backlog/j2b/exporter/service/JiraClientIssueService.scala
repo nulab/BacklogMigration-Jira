@@ -44,7 +44,7 @@ class JiraClientIssueService @Inject() (
         maxResults: Long,
         changeLogs: Seq[ChangeLog]
     ): Seq[ChangeLog] =
-      jira.issueAPI.changeLogs(issue.id.toString) match {
+      jira.issueAPI.changeLogs(issue.id.toString, startAt, maxResults) match {
         case Right(result) =>
           val appendedChangeLogs = changeLogs ++ result.values
           if (result.hasPage)
