@@ -34,14 +34,18 @@ class IssueRestClientImpl(httpClient: HttpClient) extends Pageable {
   }
 
   def changeLogs(
-      issueIdOrKey: String
-  ): Either[JiraRestClientError, ChangeLogResult] =
-    httpClient.get(s"/issue/$issueIdOrKey/changelog") match {
+      issueIdOrKey: String,
+      startAt: Long,
+      maxResults: Long
+  ): Either[JiraRestClientError, ChangeLogResult] = {
+    val uri = s"/issue/$issueIdOrKey/changelog" ? paginateUri(startAt, maxResults)
+    httpClient.get(uri.toString) match {
       case Right(json) => Right(JsonParser(json).convertTo[ChangeLogResult])
       case Left(_: ApiNotFoundError) =>
         Right(ChangeLogResult(0, true, Seq.empty[ChangeLog]))
       case Left(error) => Left(HttpError(error))
     }
+  }
 
   private[this] def fetchIssue(issueIdOrKey: String) =
     httpClient.get(s"/issue/$issueIdOrKey") match {
