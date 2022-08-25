@@ -93,10 +93,14 @@ class IssueFieldWrites @Inject() (customFieldDefinitions: Seq[Field])
                 )
             }
           case FieldType.String =>
-            toTextCustomField(
-              field,
-              issueField.value.asInstanceOf[StringFieldValue]
-            )
+            var stringFieldValue: StringFieldValue = null
+            issueField.value match {
+              case optionFieldValue: OptionFieldValue =>
+                stringFieldValue = StringFieldValue(optionFieldValue.value)
+              case _ =>
+                stringFieldValue = issueField.value.asInstanceOf[StringFieldValue]
+            }
+            toTextCustomField(field, stringFieldValue)
           case FieldType.Unknown =>
             toTextCustomField(
               field,
