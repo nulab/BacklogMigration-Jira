@@ -66,7 +66,7 @@ object ConfigParser extends Logging {
 
       help("help") text "print this usage text."
 
-      override def showUsageOnError = true
+      override def showUsageOnError = Some(true)
 
     }
 }
