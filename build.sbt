@@ -21,6 +21,12 @@ lazy val commonSettings = Seq(
     )
   },
   javacOptions ++= Seq("-encoding", "UTF-8"),
+  assembly / assemblyMergeStrategy := {
+    case x if x.endsWith("module-info.class") => MergeStrategy.discard
+    case x =>
+      val oldStrategy = (assembly / assemblyMergeStrategy).value
+      oldStrategy(x)
+  },
   assembly / test := {},
   // scalafix
   addCompilerPlugin(scalafixSemanticdb),
@@ -48,7 +54,6 @@ lazy val root = (project in file("."))
     )
   )
   .dependsOn(common % "test->test;compile->compile", client)
-  .aggregate(common, client)
 
 addCommandAlias(
   "fixAll",
