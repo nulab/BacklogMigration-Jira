@@ -33,7 +33,7 @@ class IssueInitializer @Inject() (
       issueFields: Seq[IssueField],
       comments: Seq[Comment]
   ): BacklogIssue = {
-    //attachments
+    // attachments
 //    val attachmentFilter    = new AttachmentFilter(issue.changeLogs)
 //    val filteredAttachments = attachmentFilter.filter(issue.attachments)
 
