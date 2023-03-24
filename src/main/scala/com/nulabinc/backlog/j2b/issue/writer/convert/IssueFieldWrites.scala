@@ -66,11 +66,9 @@ class IssueFieldWrites @Inject() (customFieldDefinitions: Seq[Field])
               issueField.value.asInstanceOf[OptionFieldValue]
             )
           case FieldType.OptionWithChild =>
-            toMultipleListCustomField(
-              field,
-              issueField.value.asInstanceOf[ArrayFieldValue]
+            throw new RuntimeException(
+              s"Unsupported FieldValue type. Field: $issueField Value: ${issueField.value}"
             )
-          //        case FieldType.Components       =>
           case FieldType.IssueType =>
             toIssueTypeCustomField(
               field,
