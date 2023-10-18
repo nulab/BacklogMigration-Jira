@@ -321,7 +321,7 @@ class Exporter @Inject() (
               ExistingMappingUser(
                 user.accountId,
                 user.displayName,
-                issue.creator.emailAddress
+                user.emailAddress
               )
             )
           )
