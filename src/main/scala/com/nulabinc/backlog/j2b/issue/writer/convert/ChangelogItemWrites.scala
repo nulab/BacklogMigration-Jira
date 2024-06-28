@@ -101,7 +101,7 @@ class ChangelogItemWrites @Inject() (fields: Seq[Field])
         Some(
           BacklogAttachment(
             optId = changeLogItem.to.map(_.toLong),
-            name = FileUtil.normalize(changeLogItem.toDisplayString.getOrElse(""))
+            name = FileUtil.clean(changeLogItem.toDisplayString.getOrElse(""))
           )
         )
       case _ => None

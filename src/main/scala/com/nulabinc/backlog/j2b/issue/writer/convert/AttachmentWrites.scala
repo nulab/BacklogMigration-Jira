@@ -10,6 +10,6 @@ class AttachmentWrites extends Writes[Attachment, BacklogAttachment] {
   override def writes(attachment: Attachment) =
     BacklogAttachment(
       optId = Some(attachment.id),
-      name = FileUtil.normalize(attachment.fileName)
+      name = FileUtil.clean(attachment.fileName)
     )
 }
