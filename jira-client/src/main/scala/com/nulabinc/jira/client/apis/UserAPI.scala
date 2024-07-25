@@ -4,7 +4,7 @@ import java.net.URLEncoder
 
 import com.nulabinc.jira.client._
 import com.nulabinc.jira.client.domain.User
-import io.lemonlabs.uri.dsl._
+import io.lemonlabs.uri.typesafe.dsl._
 import spray.json.JsonParser
 
 class UserAPI(httpClient: HttpClient) {

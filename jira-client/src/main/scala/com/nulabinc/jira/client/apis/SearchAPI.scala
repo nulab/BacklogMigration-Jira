@@ -2,7 +2,7 @@ package com.nulabinc.jira.client.apis
 
 import com.nulabinc.jira.client._
 import com.nulabinc.jira.client.domain.SearchResult
-import io.lemonlabs.uri.dsl._
+import io.lemonlabs.uri.typesafe.dsl._
 import spray.json.JsonParser
 
 class SearchAPI(httpClient: HttpClient) extends Pageable {
