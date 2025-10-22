@@ -7,6 +7,7 @@ import better.files.{File => Path}
 import com.nulabinc.backlog.j2b.jira.domain.JiraProjectKey
 import com.nulabinc.backlog.j2b.jira.service.IssueService
 import com.nulabinc.backlog.migration.common.utils.Logging
+import com.nulabinc.jira.client.apis.IssueResult
 import com.nulabinc.jira.client.domain.changeLog.ChangeLog
 import com.nulabinc.jira.client.domain.issue.Issue
 import com.nulabinc.jira.client.{DownloadResult, JiraRestClient}
@@ -18,21 +19,26 @@ class JiraClientIssueService @Inject() (
     with Logging {
 
   override def count(): Long = {
-    jira.searchAPI.searchJql(s"project=${projectKey.value}", 0, 0) match {
-      case Right(result) => result.total
-      case Left(error) => {
+    jira.searchApproximateCountAPI.count(s"project=${projectKey.value}") match {
+      case Right(result) => result.count
+      case Left(error) =>
         logger.error(error.message)
-        0
-      }
+        throw new RuntimeException(
+          s"Cannot get issue count: ${error.message}"
+        )
     }
   }
 
-  override def issues(startAt: Long, maxResults: Long): Seq[Issue] =
-    jira.issueAPI.projectIssues(projectKey.value, startAt, maxResults) match {
+  override def issues(startAt: Long, maxResults: Long, nextPageToken: Option[String]): IssueResult =
+    jira.issueAPI.projectIssues(projectKey.value, nextPageToken, startAt, maxResults) match {
       case Right(result) => result
       case Left(error) => {
         logger.error(error.message)
-        Seq.empty[Issue]
+        IssueResult(
+          issues = Seq.empty[Issue],
+          isLast = true,
+          nextPageToken = None
+        )
       }
     }
 

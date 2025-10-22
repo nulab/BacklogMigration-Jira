@@ -157,13 +157,13 @@ class Exporter @Inject() (
       index: Long,
       total: Long,
       startAt: Long,
-      maxResults: Long
+      maxResults: Long,
+      nextPageToken: Option[String] = None,
   ): Unit = {
 
-    val issues = issueService.issues(startAt, maxResults)
+      val issueResult = issueService.issues(startAt, maxResults, nextPageToken)
 
-    if (issues.nonEmpty) {
-      issues.zipWithIndex.foreach {
+    issueResult.issues.zipWithIndex.foreach {
         case (issue, i) => {
 
           // Issue fields
@@ -327,18 +327,21 @@ class Exporter @Inject() (
           )
         }
       }
+
+    if (issueResult.isLast) ()
+    else
       fetchIssue(
         calculator,
         statuses,
         components,
         versions,
         fields,
-        index + issues.length,
+        index + issueResult.issues.length,
         total,
         startAt + maxResults,
-        maxResults
+        maxResults,
+        nextPageToken = issueResult.nextPageToken,
       )
-    }
   }
 
 }
