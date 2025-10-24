@@ -51,36 +51,3 @@ jobs:
         with:
           name: backlog-migration-jira
           path: target/dist
-
-  notify:
-    runs-on: ubuntu-latest
-    needs: build
-
-    steps:
-      - name: Notify to Typetalk if success
-        if: success()
-        uses: shomatan/typetalk-action@master
-        env:
-          TYPETALK_TOKEN: ${{ secrets.TYPETALK_TOKEN }}
-        with:
-          topic-id: 54145
-          message: ":tada: JIRA Importer job success :smile:\n${{ github.event.repository.url }}/actions/runs/${{ github.run_id }}"
-
-      - name: Notify to Typetalk if fail
-        if: failure()
-        uses: shomatan/typetalk-action@master
-        env:
-          TYPETALK_TOKEN: ${{ secrets.TYPETALK_TOKEN }}
-        with:
-          topic-id: 54145
-          message: ":rage: JIRA Importer job failed\n${{ github.event.repository.url }}/actions/runs/${{ github.run_id }}"
-
-      - name: Notify to Typetalk if cancelled
-        if: cancelled()
-        uses: shomatan/typetalk-action@master
-        env:
-          TYPETALK_TOKEN: ${{ secrets.TYPETALK_TOKEN }}
-        with:
-          topic-id: 54145
-          message: ":no_entry: JIRA Importer job cancelled\n${{ github.event.repository.url }}/actions/runs/${{ github.run_id }}"
-
