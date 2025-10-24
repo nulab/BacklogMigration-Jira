@@ -121,7 +121,7 @@ object J2BCli
           mappingFilePath = MappingDirectory.default.statusMappingFilePath,
           mappingListPath = MappingDirectory.default.statusMappingListFilePath,
           srcItems = statusMappingItems,
-          dstItems = backlogStatusService.allStatuses()
+          dstItems = backlogStatusService.allStatusesForExport()
         )
         .runSyncUnsafe()
 

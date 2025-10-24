@@ -8,7 +8,8 @@ import org.apache.commons.codec.binary.Base64
 import org.apache.http._
 import org.apache.http.auth.{AuthScope, UsernamePasswordCredentials}
 import org.apache.http.client.config.RequestConfig
-import org.apache.http.client.methods.{CloseableHttpResponse, HttpGet}
+import org.apache.http.client.methods.{CloseableHttpResponse, HttpGet, HttpPost, HttpUriRequest}
+import org.apache.http.entity.StringEntity
 import org.apache.http.impl.client.{
   BasicCredentialsProvider,
   CloseableHttpClient,
@@ -74,6 +75,46 @@ class HttpClient(url: String, username: String, apiKey: String) {
 
     val closableHttpClient = createHttpClient()
     val httpRequest        = createHttpGetRequest(url + "/rest/api/2" + path)
+
+    try {
+      val closableHttpResponse = httpExecute(closableHttpClient, httpRequest)
+
+      closableHttpResponse.getStatusLine.getStatusCode match {
+        case HttpStatus.SC_OK =>
+          try {
+            val content = getContent(closableHttpResponse.getEntity)
+            Right(content)
+          } catch {
+            case e: Throwable => Left(GetContentError(e))
+          } finally {
+            closableHttpResponse.close()
+          }
+        case HttpStatus.SC_BAD_REQUEST =>
+          try {
+            val content = getContent(closableHttpResponse.getEntity)
+            JsonParser(content).asJsObject.getFields("errorMessages") match {
+              case Seq(JsArray(e)) => Left(BadRequestError(e.mkString(" ")))
+              case _ => Left(BadRequestError("Bad Request"))
+            }
+          } catch {
+            case e: Throwable => Left(GetContentError(e))
+          } finally {
+            closableHttpResponse.close()
+          }
+        case HttpStatus.SC_NOT_FOUND =>
+          Left(ApiNotFoundError(httpRequest.getURI.toString))
+        case HttpStatus.SC_UNAUTHORIZED => Left(AuthenticateFailedError)
+        case HttpStatus.SC_FORBIDDEN => Left(AuthenticateFailedError)
+      }
+    } finally {
+      closableHttpClient.close()
+    }
+  }
+
+  def post(path: String, body: String): Either[HttpClientError, String] = {
+
+    val closableHttpClient = createHttpClient()
+    val httpRequest        = createHttpPostRequest(url + "/rest/api/2" + path, body)
 
     try {
       val closableHttpResponse = httpExecute(closableHttpClient, httpRequest)
@@ -170,9 +211,17 @@ class HttpClient(url: String, username: String, apiKey: String) {
     new HttpGet(path)
   }
 
+  private def createHttpPostRequest(path: String, body: String): HttpPost = {
+    logger.info(s"Create HTTP request method: POST and uri: $path")
+    val post = new HttpPost(path)
+    post.setHeader(HttpHeaders.CONTENT_TYPE, "application/json")
+    post.setEntity(new StringEntity(body, "UTF-8"))
+    post
+  }
+
   private def httpExecute(
       client: CloseableHttpClient,
-      request: HttpGet
+      request: HttpUriRequest
   ): CloseableHttpResponse = {
     request.setHeader(HttpHeaders.AUTHORIZATION, authHeader)
     client.execute(request)

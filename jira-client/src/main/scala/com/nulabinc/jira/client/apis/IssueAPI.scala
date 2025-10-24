@@ -6,7 +6,7 @@ import com.nulabinc.jira.client.domain.issue.Issue
 import io.lemonlabs.uri.typesafe.dsl._
 import spray.json._
 
-case class IssueResult(total: Int, issues: Seq[Issue])
+case class IssueResult(issues: Seq[Issue], isLast: Boolean, nextPageToken: Option[String])
 
 class IssueRestClientImpl(httpClient: HttpClient) extends Pageable {
 
@@ -20,15 +20,22 @@ class IssueRestClientImpl(httpClient: HttpClient) extends Pageable {
 
   def projectIssues(
       key: String,
+      nextPageToken: Option[String],
       startAt: Long = 0,
-      maxResults: Long = 100
-  ): Either[HttpError, Seq[Issue]] = {
-    val uri = "/search" ? paginateUri(startAt, maxResults) &
-      ("jql"    -> s"project=$key") &
-      ("fields" -> "*all")
+      maxResults: Long = 100,
+  ): Either[HttpError, IssueResult] = {
+    val params = Seq(
+      Some("jql"    -> s"project=$key"),
+      Some("fields" -> "*all"),
+      nextPageToken.map(token => "nextPageToken" -> token)
+    ).flatten
+
+    val uri = params.foldLeft(
+      "/search/jql" ? paginateUri(startAt, maxResults)
+    ) { case (uri, param) => uri & param }
 
     httpClient.get(uri.toString) match {
-      case Right(json) => Right(JsonParser(json).convertTo[IssueResult].issues)
+      case Right(json) => Right(JsonParser(json).convertTo[IssueResult])
       case Left(error) => Left(HttpError(error))
     }
   }
