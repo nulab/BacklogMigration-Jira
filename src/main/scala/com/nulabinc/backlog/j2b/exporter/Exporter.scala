@@ -158,175 +158,175 @@ class Exporter @Inject() (
       total: Long,
       startAt: Long,
       maxResults: Long,
-      nextPageToken: Option[String] = None,
+      nextPageToken: Option[String] = None
   ): Unit = {
 
-      val issueResult = issueService.issues(startAt, maxResults, nextPageToken)
+    val issueResult = issueService.issues(startAt, maxResults, nextPageToken)
 
     issueResult.issues.zipWithIndex.foreach {
-        case (issue, i) => {
+      case (issue, i) => {
 
-          // Issue fields
-          val issueFields =
-            IssueFieldConverter.toExportIssueFields(issue.issueFields)
+        // Issue fields
+        val issueFields =
+          IssueFieldConverter.toExportIssueFields(issue.issueFields)
 
-          // Change logs
-          val issueChangeLogs = issueService.changeLogs(issue) // API Call
+        // Change logs
+        val issueChangeLogs = issueService.changeLogs(issue) // API Call
 
-          // comments
-          val comments = commentService.issueComments(issue)
+        // comments
+        val comments = commentService.issueComments(issue)
 
-          // milestone
-          val milestones = Milestone.from(fields, issueFields)
-          milestones.foreach(m => mappingCollectDatabase.addMilestone(m))
+        // milestone
+        val milestones = Milestone.from(fields, issueFields)
+        milestones.foreach(m => mappingCollectDatabase.addMilestone(m))
 
-          // filter change logs and custom fields
-          val filteredIssueFields =
-            IssueFieldFilter.filterMilestone(fields, issueFields)
-          val issueWithFilteredChangeLogs: Issue = issue.copy(
-            changeLogs = {
-              val filtered = ChangeLogFilter.filter(fields, components, versions, issueChangeLogs)
-              convertDateChangeLogs(filtered, fields)
-            }
-          )
+        // filter change logs and custom fields
+        val filteredIssueFields =
+          IssueFieldFilter.filterMilestone(fields, issueFields)
+        val issueWithFilteredChangeLogs: Issue = issue.copy(
+          changeLogs = {
+            val filtered = ChangeLogFilter.filter(fields, components, versions, issueChangeLogs)
+            convertDateChangeLogs(filtered, fields)
+          }
+        )
 
-          def saveIssueFieldValue(id: String, fieldValue: FieldValue): Unit =
-            fieldValue match {
-              case StringFieldValue(value) =>
-                mappingCollectDatabase.addCustomField(id, Some(value))
-              case NumberFieldValue(value) =>
-                mappingCollectDatabase.addCustomField(id, Some(value.toString))
-              case ArrayFieldValue(values) =>
-                values.map(v => mappingCollectDatabase.addCustomField(id, Some(v.value)))
-              case OptionFieldValue(value) =>
-                saveIssueFieldValue(id, value.value)
-              case UserFieldValue(user) =>
+        def saveIssueFieldValue(id: String, fieldValue: FieldValue): Unit =
+          fieldValue match {
+            case StringFieldValue(value) =>
+              mappingCollectDatabase.addCustomField(id, Some(value))
+            case NumberFieldValue(value) =>
+              mappingCollectDatabase.addCustomField(id, Some(value.toString))
+            case ArrayFieldValue(values) =>
+              values.map(v => mappingCollectDatabase.addCustomField(id, Some(v.value)))
+            case OptionFieldValue(value) =>
+              saveIssueFieldValue(id, value.value)
+            case UserFieldValue(user) =>
+              mappingCollectDatabase.addCustomField(
+                id,
+                Some(user.identifyKey)
+              )
+            case other =>
+              mappingCollectDatabase.addCustomField(id, Some(other.value))
+          }
+        filteredIssueFields.foreach(v => saveIssueFieldValue(v.id, v.value))
+
+        // collect custom fields
+        issueWithFilteredChangeLogs.changeLogs.foreach { changeLog =>
+          changeLog.items.foreach { changeLogItem =>
+            (changeLogItem.fieldId, fields.find(_.name == "Sprint")) match {
+              case (Some(CustomFieldFieldId(id)), Some(sprintDefinition))
+                  if sprintDefinition.id == id =>
+                ()
+              case (Some(CustomFieldFieldId(id)), _) =>
                 mappingCollectDatabase.addCustomField(
                   id,
-                  Some(user.identifyKey)
+                  changeLogItem.fromDisplayString
                 )
-              case other =>
-                mappingCollectDatabase.addCustomField(id, Some(other.value))
+                mappingCollectDatabase.addCustomField(
+                  id,
+                  changeLogItem.toDisplayString
+                )
+              case _ => ()
             }
-          filteredIssueFields.foreach(v => saveIssueFieldValue(v.id, v.value))
+          }
+        }
 
-          // collect custom fields
-          issueWithFilteredChangeLogs.changeLogs.foreach { changeLog =>
-            changeLog.items.foreach { changeLogItem =>
-              (changeLogItem.fieldId, fields.find(_.name == "Sprint")) match {
-                case (Some(CustomFieldFieldId(id)), Some(sprintDefinition))
-                    if sprintDefinition.id == id =>
-                  ()
-                case (Some(CustomFieldFieldId(id)), _) =>
-                  mappingCollectDatabase.addCustomField(
-                    id,
-                    changeLogItem.fromDisplayString
+        // export issue (values are initialized)
+        val initializedBacklogIssue = initializer.initialize(
+          mappingCollectDatabase = mappingCollectDatabase,
+          fields = fields,
+          milestones = milestones,
+          issue = issueWithFilteredChangeLogs,
+          issueFields = filteredIssueFields,
+          comments = comments
+        )
+        issueWriter.write(initializedBacklogIssue, issue.createdAt)
+
+        // export issue comments
+        val categoryPlayedChangeLogs = ChangeLogsPlayer.play(
+          ComponentChangeLogItemField,
+          initializedBacklogIssue.categoryNames,
+          issueWithFilteredChangeLogs.changeLogs
+        )
+        val versionPlayedChangeLogs = ChangeLogsPlayer.play(
+          FixVersion,
+          initializedBacklogIssue.versionNames,
+          categoryPlayedChangeLogs
+        )
+        val statusPlayedChangeLogs =
+          ChangeLogStatusConverter.convert(versionPlayedChangeLogs, statuses)
+        val changeLogs = ChangeLogIssueLinkConverter.convert(
+          statusPlayedChangeLogs,
+          initializedBacklogIssue
+        )
+
+        commentWriter.write(
+          initializedBacklogIssue,
+          comments,
+          changeLogs,
+          issue.attachments
+        )
+
+        calculator.progress(i + index.toInt)
+
+        // changelog author
+        for {
+          changelog <- changeLogs
+          author    <- changelog.optAuthor
+        } yield mappingCollectDatabase.addUser(
+          ExistingMappingUser(
+            author.accountId,
+            author.displayName,
+            author.emailAddress
+          )
+        )
+
+        // changelog value
+        for {
+          changelog     <- changeLogs
+          changelogItem <- changelog.items
+        } yield {
+          changelogItem.fieldId match {
+            case Some(AssigneeFieldId) =>
+              changelogItem.from.foreach { str =>
+                mappingCollectDatabase.addChangeLogUser(
+                  ChangeLogMappingUser(
+                    str,
+                    changelogItem.fromDisplayString.getOrElse("")
                   )
-                  mappingCollectDatabase.addCustomField(
-                    id,
-                    changeLogItem.toDisplayString
-                  )
-                case _ => ()
+                )
               }
-            }
-          }
-
-          // export issue (values are initialized)
-          val initializedBacklogIssue = initializer.initialize(
-            mappingCollectDatabase = mappingCollectDatabase,
-            fields = fields,
-            milestones = milestones,
-            issue = issueWithFilteredChangeLogs,
-            issueFields = filteredIssueFields,
-            comments = comments
-          )
-          issueWriter.write(initializedBacklogIssue, issue.createdAt)
-
-          // export issue comments
-          val categoryPlayedChangeLogs = ChangeLogsPlayer.play(
-            ComponentChangeLogItemField,
-            initializedBacklogIssue.categoryNames,
-            issueWithFilteredChangeLogs.changeLogs
-          )
-          val versionPlayedChangeLogs = ChangeLogsPlayer.play(
-            FixVersion,
-            initializedBacklogIssue.versionNames,
-            categoryPlayedChangeLogs
-          )
-          val statusPlayedChangeLogs =
-            ChangeLogStatusConverter.convert(versionPlayedChangeLogs, statuses)
-          val changeLogs = ChangeLogIssueLinkConverter.convert(
-            statusPlayedChangeLogs,
-            initializedBacklogIssue
-          )
-
-          commentWriter.write(
-            initializedBacklogIssue,
-            comments,
-            changeLogs,
-            issue.attachments
-          )
-
-          calculator.progress(i + index.toInt)
-
-          // changelog author
-          for {
-            changelog <- changeLogs
-            author    <- changelog.optAuthor
-          } yield mappingCollectDatabase.addUser(
-            ExistingMappingUser(
-              author.accountId,
-              author.displayName,
-              author.emailAddress
-            )
-          )
-
-          // changelog value
-          for {
-            changelog     <- changeLogs
-            changelogItem <- changelog.items
-          } yield {
-            changelogItem.fieldId match {
-              case Some(AssigneeFieldId) =>
-                changelogItem.from.foreach { str =>
-                  mappingCollectDatabase.addChangeLogUser(
-                    ChangeLogMappingUser(
-                      str,
-                      changelogItem.fromDisplayString.getOrElse("")
-                    )
+              changelogItem.to.foreach { str =>
+                mappingCollectDatabase.addChangeLogUser(
+                  ChangeLogMappingUser(
+                    str,
+                    changelogItem.toDisplayString.getOrElse("")
                   )
-                }
-                changelogItem.to.foreach { str =>
-                  mappingCollectDatabase.addChangeLogUser(
-                    ChangeLogMappingUser(
-                      str,
-                      changelogItem.toDisplayString.getOrElse("")
-                    )
-                  )
-                }
-              case _ =>
-                ()
-            }
+                )
+              }
+            case _ =>
+              ()
           }
+        }
 
+        mappingCollectDatabase.addUser(
+          ExistingMappingUser(
+            issue.creator.accountId,
+            issue.creator.displayName,
+            issue.creator.emailAddress
+          )
+        )
+        issue.assignee.foreach(user =>
           mappingCollectDatabase.addUser(
             ExistingMappingUser(
-              issue.creator.accountId,
-              issue.creator.displayName,
+              user.accountId,
+              user.displayName,
               issue.creator.emailAddress
             )
           )
-          issue.assignee.foreach(user =>
-            mappingCollectDatabase.addUser(
-              ExistingMappingUser(
-                user.accountId,
-                user.displayName,
-                issue.creator.emailAddress
-              )
-            )
-          )
-        }
+        )
       }
+    }
 
     if (issueResult.isLast) ()
     else
@@ -340,7 +340,7 @@ class Exporter @Inject() (
         total,
         startAt + maxResults,
         maxResults,
-        nextPageToken = issueResult.nextPageToken,
+        nextPageToken = issueResult.nextPageToken
       )
   }
 

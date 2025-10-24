@@ -170,11 +170,11 @@ class CompareSpec
     val backlogIssues = backlogApi.getIssues(params).asScala
 
     def fetchIssues(startAt: Long, maxResults: Long): Unit = {
-      val issues = jiraIssueService.issues(startAt, maxResults)
+      val issuesResult = jiraIssueService.issues(startAt, maxResults, None)
       val maybeSprintCustomField =
         jiraCustomFieldDefinitions.find(_.name == "Sprint")
 
-      issues.foreach { jiraIssue =>
+      issuesResult.issues.foreach { jiraIssue =>
         "Issue" should s"match: ${jiraIssue.id} - ${jiraIssue.summary}" in {
 
           val maybeBacklogIssue =
@@ -464,7 +464,7 @@ class CompareSpec
         }
       }
 
-      if (issues.nonEmpty) {
+      if (issuesResult.issues.nonEmpty) {
         fetchIssues(startAt + maxResults, maxResults)
       }
     }

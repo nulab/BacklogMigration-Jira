@@ -29,7 +29,11 @@ class JiraClientIssueService @Inject() (
     }
   }
 
-  override def issues(startAt: Long, maxResults: Long, nextPageToken: Option[String]): IssueResult =
+  override def issues(
+      startAt: Long,
+      maxResults: Long,
+      nextPageToken: Option[String]
+  ): IssueResult =
     jira.issueAPI.projectIssues(projectKey.value, nextPageToken, startAt, maxResults) match {
       case Right(result) => result
       case Left(error) => {
