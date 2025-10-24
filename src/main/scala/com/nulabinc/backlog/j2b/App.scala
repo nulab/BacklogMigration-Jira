@@ -36,7 +36,7 @@ object App extends BacklogConfiguration with Logging {
     if (!ClassVersion.isValid()) {
       ConsoleOut.error(
         Messages(
-          "cli.require_java8",
+          "cli.require_java11",
           System.getProperty("java.specification.version")
         )
       )
