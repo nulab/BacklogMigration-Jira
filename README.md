@@ -17,7 +17,7 @@ Migrate your projects from JIRA to [Backlog].
 
 ## Requirements
 
-- **Java 8**
+- **Java 11**
 - The Backlog Space's **administrator** roles.
 
 https://github.com/nulab/BacklogMigration-Jira/releases
@@ -234,7 +234,7 @@ JIRA のプロジェクトを[Backlog]に移行するためのツールです。
 
 ## 必須要件
 
-- **Java 8**
+- **Java 11**
 - Backlog の **管理者権限**
 
 https://github.com/nulab/BacklogMigration-Jira/releases
